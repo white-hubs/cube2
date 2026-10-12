@@ -1,0 +1,66 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.dao.TreatedWaterUsageHourMapper">
+
+    <select id="getUsageStatByType" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.vo.TreatedWaterStatVO">
+      select tw.`water_type`,tw.`water_type_name`,sum(tw.`water_usage`) as `total_usage` from `treated_water_usage_hour` tw
+      where tw.`deleted` = 0
+        <if test="param.period != null and param.period.begin != null">
+            and tw.`date_hour` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and tw.`date_hour` &lt; #{param.period.end}
+        </if>
+      group by tw.`water_type` order by `total_usage` desc
+    </select>
+
+    <!--
+     按类型和时间进行统计，
+     日期格式，小时：'%Y-%m-%d %H' 天：'%Y-%m-%d' 月：'%Y-%m'
+     -->
+    <select id="getUsageStatByTypeAndTime" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.vo.TreatedWaterStatVO" databaseId="mysql">
+        select tw.`water_type`,tw.`water_type_name`,DATE_FORMAT(tw.`date_hour`, #{param.dateFormat}) as `date_hour`,sum(tw.`water_usage`) as `total_usage` from `treated_water_usage_hour` tw
+        where tw.`deleted` = 0
+        <if test="param.period != null and param.period.begin != null">
+            and tw.`date_hour` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and tw.`date_hour` &lt; #{param.period.end}
+        </if>
+        group by tw.`water_type`,DATE_FORMAT(tw.`date_hour`, #{param.dateFormat})
+    </select>
+    <select id="getUsageStatByTypeAndTime" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.vo.TreatedWaterStatVO" databaseId="dm">
+        select tw.`water_type`,tw.`water_type_name`,DATE_FORMAT(tw.`date_hour`, #{param.dateFormat}) as `date_hour`,sum(tw.`water_usage`) as `total_usage` from `treated_water_usage_hour` tw
+        where tw.`deleted` = 0
+        <if test="param.period != null and param.period.begin != null">
+            and tw.`date_hour` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and tw.`date_hour` &lt; #{param.period.end}
+        </if>
+        group by tw.`water_type`,DATE_FORMAT(tw.`date_hour`, #{param.dateFormat})
+    </select>
+    <select id="getUsageStatByTypeAndTime" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.vo.TreatedWaterStatVO" databaseId="pg">
+        select tw.`water_type`,tw.`water_type_name`,to_char(tw.`date_hour`, #{param.dateFormat}) as `date_hour`,sum(tw.`water_usage`) as `total_usage` from `treated_water_usage_hour` tw
+        where tw.`deleted` = 0
+        <if test="param.period != null and param.period.begin != null">
+            and tw.`date_hour` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and tw.`date_hour` &lt; #{param.period.end}
+        </if>
+        group by tw.`water_type`,to_char(tw.`date_hour`, #{param.dateFormat})
+    </select>
+
+    <select id="getUsageStatByArea" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.treatedwater.vo.TreatedWaterStatVO">
+        select tw.`area_name`,sum(tw.`water_usage`) as `total_usage` from `treated_water_usage_hour` tw
+        where tw.`deleted` = 0
+        <if test="param.period != null and param.period.begin != null">
+            and tw.`date_hour` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and tw.`date_hour` &lt; #{param.period.end}
+        </if>
+        group by tw.`area_name` order by `total_usage` desc
+    </select>
+
+</mapper>

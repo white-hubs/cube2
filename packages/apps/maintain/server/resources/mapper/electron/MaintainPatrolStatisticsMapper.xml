@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.MaintainPatrolStatisticsMapper">
+
+    <select id="getPatrolTaskCompletionRate"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.TaskCompletionRateStatisticsVO">
+        SELECT
+        COUNT(1) as totalNumber,
+        COALESCE(SUM(if(complete_date is not NULL,1,0)),0) as completeNumber
+        FROM
+        patrol_task
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and start_date &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskNumber"
+            resultType="java.lang.Long">
+        SELECT
+        count(1)
+        FROM
+        patrol_task
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and start_date &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getTaskStatusStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.TaskStatusStatisticsVO">
+        SELECT
+        COALESCE(SUM(if(`status` = 'IN_EXECUTION',1,0)),0) as inExecutionNumber,
+        COALESCE(SUM(if(`status` = 'TO_BE_RECEIVED',1,0)),0) as toBeReceivedNumber,
+        COALESCE(SUM(if(`status` = 'FINISHED',1,0)),0) as finishedNumber,
+        COALESCE(SUM(if(`status` = 'FINISHED' AND result = 'ABNORMAL',1,0)),0) as abnormalFinishedNumber
+        FROM
+        patrol_task
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and start_date &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskDistinctRouteNumber"
+            resultType="java.lang.Long">
+        SELECT
+        COUNT(DISTINCT route_id)
+        FROM
+        patrol_task
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and start_date &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskDistinctLocationNumber"
+            resultType="java.lang.Long">
+        SELECT
+        COUNT(DISTINCT pl.id)
+        FROM
+        patrol_task pt
+        INNER JOIN patrol_task_location ptl on pt.id = ptl.task_id
+        INNER JOIN patrol_location pl on ptl.location_id = pl.id
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and pt.start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and pt.start_date &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

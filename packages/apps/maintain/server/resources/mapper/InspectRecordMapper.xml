@@ -1,0 +1,1499 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.InspectRecordMapper">
+    <sql id="departmentStatisticsBase">
+        SELECT a.organization_id as depId,
+        a.organization_name as depName,
+        COUNT(DISTINCT a.target_id) as coverObjNum,
+        count(a.id) as inspectionNum,
+        SUM(timestampdiff(MINUTE,b.begin_time, a.time)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </sql>
+    <select id="departmentStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO"
+            databaseId="mysql">
+        <include refid="departmentStatisticsBase" />
+    </select>
+    <select id="departmentStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO"
+            databaseId="dm">
+        <include refid="departmentStatisticsBase" />
+    </select>
+    <select id="departmentStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO"
+            databaseId="pg">
+        SELECT a.organization_id as depId,
+        a.organization_name as depName,
+        COUNT(DISTINCT a.target_id) as coverObjNum,
+        count(a.id) as inspectionNum,
+        SUM(FLOOR(EXTRACT(EPOCH FROM (a.time-b.begin_time))/60)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </select>
+    <select id="departmentStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO" databaseId="mysql">
+        <include refid="departmentStatisticsBase" />
+    </select>
+    <select id="departmentStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO" databaseId="dm">
+        <include refid="departmentStatisticsBase" />
+    </select>
+    <select id="departmentStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionStatisticsVO" databaseId="pg">
+        SELECT a.organization_id as depId,
+        a.organization_name as depName,
+        COUNT(DISTINCT a.target_id) as coverObjNum,
+        count(a.id) as inspectionNum,
+        SUM(FLOOR(EXTRACT(EPOCH FROM (a.time - b.begin_time)) / 60)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </select>
+    <sql id="staffStatisticsBase">
+        select a.user_id as staffId,
+        a.nickname as staffName,
+        a.organization_name as depName,
+        a.organization_id as
+        depId,
+        count(a.id) as personageInspectionNum,
+        sum(timestampdiff(MINUTE,b.begin_time, a.time)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </sql>
+    <select id="staffStatistics" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO"
+            databaseId="mysql">
+        <include refid="staffStatisticsBase" />
+    </select>
+    <select id="staffStatistics" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO"
+            databaseId="dm">
+        <include refid="staffStatisticsBase" />
+    </select>
+    <select id="staffStatistics" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO"
+            databaseId="pg">
+        select a.user_id as staffId,
+        a.nickname as staffName,
+        a.organization_name as depName,
+        a.organization_id as
+        depId,
+        count(a.id) as personageInspectionNum,
+        sum(FLOOR(EXTRACT(EPOCH FROM (a.time - b.begin_time)) / 60)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </select>
+    <sql id="staffStatisticsExportBase">
+        select a.user_id as staffId,
+        a.nickname as staffName,
+        a.organization_name as depName,
+        a.organization_id as depId,
+        count(DISTINCT (a.task_id)) as personageTaskNum,
+        count(a.id) as personageInspectionNum,
+        sum(timestampdiff(MINUTE,b.begin_time, a.time)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </sql>
+    <select id="staffStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO" databaseId="mysql">
+        <include refid="staffStatisticsExportBase" />
+    </select>
+    <select id="staffStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO" databaseId="dm">
+        <include refid="staffStatisticsExportBase" />
+    </select>
+    <select id="staffStatisticsExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffInspectionStatisticsVO" databaseId="pg">
+        select a.user_id as staffId,
+        a.nickname as staffName,
+        a.organization_name as depName,
+        a.organization_id as depId,
+        count(DISTINCT (a.task_id)) as personageTaskNum,
+        count(a.id) as personageInspectionNum,
+        sum(FLOOR(EXTRACT(EPOCH FROM (a.time - b.begin_time)) / 60)) as inspectionElapsedTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id ${ew.customSqlSegment}
+    </select>
+
+    <sql id="taskStandardAbnormalRateBase">
+        SELECT
+        r.target_name AS targetName,
+        r.nickname AS nickname,
+        r.update_time AS updateTime,
+        i.standard_name AS standardName,
+        r.task_id AS taskId,
+        r.task_name AS taskName,
+        COUNT(1) AS totalItemCount,
+        SUM(CASE WHEN i.error_value_flag = 1 THEN 1 ELSE 0 END) AS abnormalItemCount,
+        ROUND(SUM(CASE WHEN i.error_value_flag = 1 THEN 1 ELSE 0 END) * 100.0 / COUNT(1), 2) AS abnormalRate
+        FROM inspect_record_item i
+        JOIN inspect_record r ON r.id = i.record_id
+        <where>
+            i.deleted = 0
+            and r.deleted = 0
+            <if test="param.standardName != null and param.standardName != ''">
+                and i.standard_name like concat('%', #{param.standardName}, '%')
+            </if>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                and r.update_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        r.task_id,
+        i.record_id,
+        i.standard_id
+        ORDER BY r.update_time DESC
+    </sql>
+    <select id="taskStandardAbnormalRate"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TaskStandardAbnormalRateVO">
+        <include refid="taskStandardAbnormalRateBase" />
+    </select>
+    <select id="taskStandardAbnormalRateExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TaskStandardAbnormalRateVO">
+        <include refid="taskStandardAbnormalRateBase" />
+    </select>
+    <sql id="countTotalTimeByDepBase">
+        select a.organization_id as depId,
+        a.organization_name as depName,
+        sum(timestampdiff(MINUTE,b.begin_time, a.time)) AS taskTotalTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        ${ew.customSqlSegment}
+    </sql>
+    <select id="countTotalTimeByDep"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionTaskInfoVO"
+            databaseId="mysql">
+        <include refid="countTotalTimeByDepBase" />
+    </select>
+    <select id="countTotalTimeByDep"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionTaskInfoVO"
+            databaseId="dm">
+        <include refid="countTotalTimeByDepBase" />
+    </select>
+    <select id="countTotalTimeByDep"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepInspectionTaskInfoVO"
+            databaseId="pg">
+        select a.organization_id as depId,
+        a.organization_name as depName,
+        sum(FLOOR(EXTRACT(EPOCH FROM (a.time - b.begin_time)) / 60)) AS taskTotalTime
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        ${ew.customSqlSegment}
+    </select>
+    <sql id="countTotalTimeBase">
+        SELECT sum(timestampdiff(MINUTE,b.begin_time,a.time)) AS `taskTime`
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        <where>
+            a.time is not null
+            <if test="param.period.begin != null and param.period.end != null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="typeId != null">
+                and b.type_id = #{typeId};
+            </if>
+        </where>
+    </sql>
+    <select id="countTotalTime" resultType="java.lang.Long" databaseId="mysql">
+        <include refid="countTotalTimeBase" />
+    </select>
+    <select id="countTotalTime" resultType="java.lang.Long" databaseId="dm">
+        <include refid="countTotalTimeBase" />
+    </select>
+    <select id="countTotalTime" resultType="java.lang.Long" databaseId="pg">
+        SELECT sum(FLOOR(EXTRACT(EPOCH FROM (a.time-b.begin_time))/60)) AS `taskTime`
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        <where>
+            a.time is not null
+            <if test="param.period.begin != null and param.period.end != null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="typeId != null">
+                and b.type_id = #{typeId};
+            </if>
+        </where>
+    </select>
+    <sql id="countTotalTimeByTypeBase">
+        SELECT sum(timestampdiff(MINUTE ,b.begin_time,a.time)) AS `taskTime`,b.type_id as typeId,b.type_name as
+        inspectionType
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        <where>
+            a.time is not null and b.begin_time is not null
+            <if test="param.period.begin != null and param.period.end != null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY b.type_id ORDER BY taskTime desc
+    </sql>
+    <select id="countTotalTimeByType"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionTaskTimeVO"
+            databaseId="mysql">
+        <include refid="countTotalTimeByTypeBase" />
+    </select>
+    <select id="countTotalTimeByType"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionTaskTimeVO"
+            databaseId="dm">
+        <include refid="countTotalTimeByTypeBase" />
+    </select>
+    <select id="countTotalTimeByType"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionTaskTimeVO"
+            databaseId="pg">
+        SELECT sum(FLOOR(EXTRACT(EPOCH FROM (a.time-b.begin_time))/60)) AS taskTime,b.type_id as typeId,b.type_name as
+        inspectionType
+        from inspect_record a
+        left join inspect_task b on a.task_id = b.id
+        <where>
+            a.time is not null and b.begin_time is not null
+            <if test="param.period.begin != null and param.period.end != null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY b.type_id ORDER BY taskTime desc
+    </select>
+    <select id="countInspectionNumByObj"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.ObjInspectionInfoVO">
+        SELECT count(a.id) as inspectionNum,a.target_id as objId,a.target_name as objName from inspect_record a
+        <where>
+            <if test="param.period.begin != null  and param.period.end != null">
+                and a.time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.objType != null and param.objType != ''">
+                and a.target_category = #{param.objType}
+            </if>
+            group by a.target_id
+            order by inspectionNum desc
+        </where>
+    </select>
+
+    <select id="countObjAbnormalNum" resultType="java.lang.Long">
+        SELECT count(a.id) from inspect_record_item a
+        left join inspect_record b on a.record_id = b.id
+        <where>
+            a.error_value_flag = '1' and b.id is not null
+            <if test="startTime != null">
+                and b.time <![CDATA[ >= ]]> #{startTime}
+            </if>
+            <if test="endTime != null">
+                and b.time <![CDATA[ <= ]]> #{endTime}
+            </if>
+            <if test="objId != null">
+                and b.target_id = #{objId}
+            </if>
+        </where>
+    </select>
+
+    <select id="countObjAbnormalNumByDep"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.ObjInspectionInfoVO">
+        SELECT count(a.id) as inspectionNum,b.target_id as objId,b.target_name as objName from inspect_record_item a
+        left join inspect_record b on a.record_id = b.id
+        <where>
+            a.error_value_flag = '1' and b.id is not null
+            <if test="param.period.begin != null and param.period.end != null">
+                and b.time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.objType != null and param.objType != ''">
+                and b.target_category = #{param.objType}
+            </if>
+        </where>
+        group by b.target_id order by inspectionNum desc
+    </select>
+
+    <select id="countObjTaskNumByObj"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.ObjInspectionInfoVO">
+        SELECT count(a.id) as inspectionNum, b.target_id as objId,b.target_name as objName from inspect_task a
+        left join inspect_record b on a.id = b.task_id
+        where b.target_id is not null and b.target_name is not null
+        <if test="param.objType != null and param.objType != ''">
+            and b.target_category = #{param.objType}
+        </if>
+        <if test="param.period.begin != null and param.period.end != null">
+            and a.create_time between #{param.period.begin} and #{param.period.end}
+        </if>
+        GROUP BY b.target_id
+        order by inspectionNum desc
+    </select>
+
+    <select id="getResultAndCountTime"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionTimeVO">
+        SELECT id as recordId,target_id as targetId,target_name as targetName, result , nickname as username
+        from inspect_record
+        <where>
+            `status` = 'OVER'
+            <if test="taskId != null">
+                and task_id = #{taskId}
+            </if>
+        </where>
+        ORDER BY result ASC;
+    </select>
+    <select id="selectInspection"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TargetCategoryDetailsVO">
+        SELECT target_category as name,count(1) as num FROM `inspect_record`
+        <where>
+            time between #{param.period.begin} and #{param.period.end}
+            <if test="result != null and result != ''">
+                and result='ABNORMAL'
+            </if>
+        </where>
+        GROUP BY target_category
+    </select>
+    <select id="selectTask"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TargetCategoryDetailsVO">
+        SELECT target_category as name, count(1) as num
+        FROM `inspect_record` a
+        inner join inspect_task b on a.task_id = b.id
+        where begin_time &gt;= #{param.period.begin}
+        and end_time &lt;= #{param.period.end}
+        GROUP BY target_category
+    </select>
+
+    <select id="countPersonNum"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepPersonNumVO">
+        select organization_id as depId, count(DISTINCT user_id) as personNum from inspect_record
+        <where>
+            time between #{period.begin} and #{period.end} and organization_id is not null
+            GROUP BY organization_id
+        </where>
+    </select>
+
+    <select id="countDepartmentInspectionNum"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepartmentInspectionNumStatisticsVO">
+        select a.organization_id as depId,
+        count(a.id) as inspectionNum
+        from inspect_record a
+        <where>
+            a.status = 'OVER'
+            <if test="depIds != null and depIds.size() > 0">
+                and a.organization_id in
+                <foreach collection="depIds" item="depId" open="(" close=")" separator=",">
+                    #{depId}
+                </foreach>
+            </if>
+            <if test="period != null and period.begin != null and period.end != null">
+                and a.time between #{period.begin} and #{period.end}
+            </if>
+        </where>
+        group by a.organization_id
+    </select>
+
+    <select id="deviceInspectNumStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.DeviceOperationStatisticsDTO">
+        select
+        target_id as deviceId,
+        count(id) as num,
+        count(distinct task_id) as task_num,
+        COALESCE(SUM(if(`result` = 'ABNORMAL',1,0)),0) as `abnormal_num`
+        from inspect_record
+        <where>
+            target_category = 'DEVICE'
+            <if test="param.deviceIds != null and param.deviceIds.size() > 0">
+                and target_id in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by target_id
+    </select>
+    <select id="selectInspectRecordForSafeyReport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionSafetyReportVO">
+        SELECT
+        ir.target_category,
+        ir.organization_name,
+        COUNT( ir.id ) as num,
+        COALESCE ( SUM( IF ( ir.result = 'NORMAL', 1, 0 )), 0 ) AS NORMAL_NUM,
+        COALESCE ( SUM( IF ( ir.result = 'ABNORMAL', 1, 0 )), 0 ) AS ABNORMAL_NUM
+        FROM
+        `inspect_record` ir
+        WHERE
+        ir.time BETWEEN #{period.begin}
+        AND #{period.end}
+        GROUP BY
+        ir.target_category,
+        ir.organization_name
+    </select>
+    <select id="getRecordList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO">
+        SELECT
+        ir.id,
+        ir.`time`,
+        ir.`status`,
+        ir.target_name,
+        ir.target_category,
+        ir.nickname AS username,
+        ir.`result`,
+        ir.task_id,
+        ir.organization_id,
+        ir.organization_name,
+        sum( COALESCE(iri.error_value_flag,0) ) AS errValueNum,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </otherwise>
+        </choose>
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id )
+        WHERE ir.status in ('OVER','WAIT_REPAIR','CANCEL_REPAIR')
+        <if test="param.targetId != null">
+            and ir.target_id = #{param.targetId}
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.result = #{param.result}
+        </if>
+        GROUP BY
+        ir.id,
+        ir.`time`,
+        ir.target_name,
+        ir.nickname,
+        ir.`result`,
+        ir.task_id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="getErrorNumByTargetIdList" resultType="java.lang.Integer">
+        select count(*) from (
+        select ir.target_id from inspect_record ir
+        inner join inspect_record_item iri on (ir.id = iri.record_id)
+        where ir.target_id in
+        <foreach collection="targetIdList" item="targetId" open="(" close=")" separator=",">
+            #{targetId}
+        </foreach>
+        and iri.error_value_flag = 1
+        group by ir.target_id
+        ) t
+    </select>
+    <select id="querTaskRecordList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO" databaseId="mysql">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        ir.STATUS,
+        ir.repair_status,
+        ir.`result`,
+        ir.nickname,
+        ir.task_name,
+        ir.`time`,
+        ir.remark,
+        group_concat( iri.item_name ) AS item_name
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( ir.id = iri.record_id )
+        <where>
+            ir.plan_id = #{param.planId}
+            <if test="param.taskId != null ">
+                and ir.task_id = #{param.taskId}
+            </if>
+            <if test="param.taskIdList != null and param.taskIdList.size > 0">
+                and ir.task_id in
+                <foreach collection="param.taskIdList" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                and ir.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                and ir.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ir.target_name = #{param.keyword}
+            </if>
+            <if test="param.result != null and param.result != ''">
+                and ir.result = #{param.result}
+            </if>
+            <if test="param.status != null and param.status != ''">
+                and ir.status = #{param.status}
+            </if>
+        </where>
+        GROUP BY
+        ir.target_id
+    </select>
+    <select id="querTaskRecordList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO" databaseId="dm">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        ir.STATUS,
+        ir.`result`,
+        ir.nickname,
+        ir.task_name,
+        ir.`time`,
+        ir.remark,
+        LISTAGG(iri.item_name, ',') AS item_name
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( ir.id = iri.record_id )
+        <where>
+            ir.plan_id = #{param.planId}
+            <if test="param.taskId != null ">
+                and ir.task_id = #{param.taskId}
+            </if>
+            <if test="param.taskIdList != null and param.taskIdList.size > 0">
+                and ir.task_id in
+                <foreach collection="param.taskIdList" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                and ir.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ir.target_name = #{param.keyword}
+            </if>
+            <if test="param.result != null and param.result != ''">
+                and ir.result = #{param.result}
+            </if>
+            <if test="param.status != null and param.status != ''">
+                and ir.status = #{param.status}
+            </if>
+        </where>
+        GROUP BY
+        ir.target_id
+    </select>
+    <select id="querTaskRecordList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO" databaseId="pg">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        ir.STATUS,
+        ir.`result`,
+        ir.nickname,
+        ir.task_name,
+        ir.`time`,
+        ir.remark,
+        STRING_AGG(iri.item_name, ',') AS item_name
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( ir.id = iri.record_id )
+        <where>
+            ir.plan_id = #{param.planId}
+            <if test="param.taskId != null ">
+                and ir.task_id = #{param.taskId}
+            </if>
+            <if test="param.taskIdList != null and param.taskIdList.size > 0">
+                and ir.task_id in
+                <foreach collection="param.taskIdList" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                and ir.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ir.target_name = #{param.keyword}
+            </if>
+            <if test="param.result != null and param.result != ''">
+                and ir.result = #{param.result}
+            </if>
+            <if test="param.status != null and param.status != ''">
+                and ir.status = #{param.status}
+            </if>
+        </where>
+        GROUP BY
+        ir.target_id
+    </select>
+
+    <select id="queryTaskRecordItemExportList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO">
+        SELECT
+        COALESCE(ir.task_name, it.name) AS task_name,
+        ittr.target_name,
+        iri.item_name,
+        iri.item_result_name AS result,
+        ir.nickname,
+        COALESCE(iri.create_time, ir.`time`) AS time,
+        iri.error_desc AS remark
+        FROM inspect_task_target_relation ittr
+        LEFT JOIN inspect_task it ON it.id = ittr.task_id
+        LEFT JOIN inspect_record ir ON ir.task_id = ittr.task_id AND ir.target_id = ittr.target_id
+        LEFT JOIN inspect_record_item iri ON ir.id = iri.record_id
+        <where>
+            ittr.plan_id = #{param.planId}
+            <if test="param.taskId != null">
+                AND ittr.task_id = #{param.taskId}
+            </if>
+            <if test="param.taskIdList != null and param.taskIdList.size > 0">
+                AND ittr.task_id IN
+                <foreach collection="param.taskIdList" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                AND ittr.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND ittr.target_name = #{param.keyword}
+            </if>
+            <if test="param.result != null and param.result != ''">
+                AND ir.result = #{param.result}
+            </if>
+            <if test="param.status != null and param.status != ''">
+                <choose>
+                    <when test="param.status == 'EXECUTING'">
+                        AND (ir.id IS NULL OR ir.status = 'EXECUTING')
+                    </when>
+                    <otherwise>
+                        AND ir.status = #{param.status}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        ORDER BY ittr.id, ir.id, iri.id
+    </select>
+
+    <!-- 查询巡检项选择为异常的巡检记录 -->
+    <select id="selectErrItemTagRecord" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.ErrItemTagRecordVO"
+            databaseId="mysql">
+        select ir.`id`, ir.`target_name` ,ir.`task_name` , ir.`time` , ir.`nickname` ,ir.`result` from `inspect_record` ir inner join
+        `inspect_record_item` iri on(iri.`record_id` = ir.`id`)
+        where iri.`error_value_flag` = 1
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.targetName != null and param.targetName != ''">
+            and ir.`target_name` like CONCAT('%',#{param.targetName},'%')
+        </if>
+        <if test="param.tagList != null and param.tagList.size() > 0">
+            and iri.`item_tag` in
+            <foreach collection="param.tagList" item="tag" open="(" close=")" separator=",">
+                #{tag}
+            </foreach>
+        </if>
+        group by ir.`id`
+    </select>
+
+    <select id="inspectRecords" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="mysql">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.status,
+        ir.organization_id,
+        ir.organization_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+        ir.cancel_reason,
+        ir.cancel_file_key,
+        group_concat(iri.item_name) as errNames,
+        group_concat(iri.error_desc) as errDesc
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.`result` is not null and ir.`result` &lt;&gt; ''
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.organizationId != null">
+            and ir.organization_id = #{param.organizationId}
+        </if>
+        <if test="param.status != null">
+            and ir.status = #{param.status}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            AND (ir.task_name like concat('%',#{param.keyword},'%')
+            OR ir.target_name like concat('%',#{param.keyword},'%'))
+        </if>
+        <if test="param.timeStart != null and param.timeStart != '' and param.timeEnd != null and param.timeEnd != ''">
+            AND DATE_FORMAT(ir.`time`, '%H:%i:%s') BETWEEN #{param.timeStart}
+            AND #{param.timeEnd}
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="inspectRecords" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="dm">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.status,
+        ir.organization_id,
+        ir.organization_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+        ir.cancel_reason,
+        ir.cancel_file_key,
+        wm_concat(iri.item_name) as errNames,
+        wm_concat(iri.error_desc) as errDesc
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.`result` is not null and ir.`result` &lt;&gt; ''
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.organizationId != null">
+            and ir.organization_id = #{param.organizationId}
+        </if>
+        <if test="param.status != null">
+            and ir.status = #{param.status}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            AND ir.task_name like concat('%',#{param.keyword},'%')
+            OR ir.target_name like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.timeStart != null and param.timeStart != '' and param.timeEnd != null and param.timeEnd != ''">
+            AND TO_CHAR(ir.`time`, 'HH24:MI:SS') BETWEEN #{param.timeStart}
+            AND #{param.timeEnd}
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="InspectRecordPage" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="dm">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </otherwise>
+        </choose>
+        ,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.error_desc SEPARATOR ',') AS errDesc
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.error_desc, ',') AS errDesc
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.error_desc, ',') AS errDesc
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.error_desc SEPARATOR ',') AS errDesc
+            </otherwise>
+        </choose>
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.status = 'OVER' and ir.`result` is not null
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and ir.`target_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+    <select id="InspectRecordPage" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="pg">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </otherwise>
+        </choose>
+        ,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.error_desc SEPARATOR ',') AS errDesc
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.error_desc, ',') AS errDesc
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.error_desc, ',') AS errDesc
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.error_desc SEPARATOR ',') AS errDesc
+            </otherwise>
+        </choose>
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.status = 'OVER' and ir.`result` is not null
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and ir.`target_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="InspectRecordList" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="mysql">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+        group_concat(iri.item_name) as errNames
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.status = 'OVER' and ir.`result` is not null
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and ir.`target_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="InspectRecordList" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="dm">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </otherwise>
+        </choose>
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.status = 'OVER' and ir.`result` is not null
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and ir.`target_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="InspectRecordList" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO"
+            databaseId="pg">
+        SELECT
+        ir.id,
+        ir.target_category,
+        ir.target_id,
+        ir.target_name,
+        if(ir.task_id is null , '临时巡检' , '任务巡检') as inspectMethod,
+        ir.task_id,
+        ir.task_name,
+        ir.user_id,
+        ir.nickname,
+        ir.`time`,
+        ir.`result`,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(iri.item_name, ',') AS errNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(iri.item_name SEPARATOR ',') AS errNames
+            </otherwise>
+        </choose>
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id and iri.error_value_flag = 1)
+        WHERE
+        ir.status = 'OVER' and ir.`result` is not null
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and ir.`target_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.temporary != null and param.temporary == 1">
+            and ir.task_id is not null
+        </if>
+        <if test="param.temporary != null and param.temporary == 2">
+            and ir.task_id is null
+        </if>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.`time` DESC
+    </select>
+
+    <select id="getTargetErrorCount"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.result.TargetMaxRecordResult">
+        SELECT
+        target_id,
+        count(id) as count
+        FROM
+        (
+        SELECT
+        ir.target_id,
+        ir.id
+        FROM
+        inspect_record ir
+        INNER JOIN inspect_record_item iri ON (ir.id = iri.record_id and iri.error_value_flag = 1)
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                and ir.`time` &gt; #{param.period.begin} and ir.`time` &lt; #{param.period.end}
+            </if>
+            <if test="tag != null and tag != ''">
+                and iri.item_tag = #{tag}
+            </if>
+            <if test="tag == null or tag == ''">
+                and iri.item_tag IS NOT NULL
+            </if>
+            <if test="param.targetIdList != null and param.targetIdList.size() != 0">
+                and ir.target_id in
+                <foreach collection="param.targetIdList" item="targetId" open="(" separator="," close=")">
+                    #{targetId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ir.id
+        ORDER BY
+        ir.target_id, ir.`time`) t1
+        GROUP BY
+        target_id
+    </select>
+
+    <select id="getMaxTimeErrorItem"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.result.TargetMaxRecordResult">
+        SELECT
+        t2.item_name AS `item`,
+        t1.target_id
+        FROM
+        inspect_record t1
+        JOIN (
+        SELECT
+        iri.record_id,
+        iri.item_name,
+        MAX(ir.create_time) AS max_created_at
+        FROM
+        inspect_record ir
+        JOIN inspect_record_item iri ON (iri.record_id = ir.id and iri.error_value_flag = 1)
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                ir.`time` &gt; #{param.period.begin} and ir.`time` &lt; #{param.period.end}
+            </if>
+            <if test="tag != null and tag != ''">
+                and iri.item_tag = #{tag}
+            </if>
+            <if test="tag == null or tag == ''">
+                and iri.item_tag IS NOT NULL
+            </if>
+            <if test="param.targetIdList != null and param.targetIdList.size() != 0">
+                and ir.target_id in
+                <foreach collection="param.targetIdList" item="targetId" open="(" separator="," close=")">
+                    #{targetId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        target_id) t2 ON t1.id = t2.record_id
+    </select>
+    <select id="selectInspectRecord"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionRecordAnalysisVO">
+        SELECT
+        ir.id,
+        ir.target_name,
+        ir.`time`,
+        ir.`result`,
+        ir.task_name,
+        ir.nickname,
+        iri.id as error_item_id,
+        GROUP_CONCAT(iri.item_name) as errorItem
+        FROM
+        inspect_record ir
+        LEFT JOIN inspect_record_item iri ON ( iri.record_id = ir.id AND iri.error_value_flag = 1 )
+        WHERE
+        ir.STATUS = 'OVER'
+        AND ir.`result` IS NOT NULL
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and ir.`time` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.result != null and param.result != ''">
+            and ir.`result` = #{param.result}
+        </if>
+        GROUP BY ir.id
+        ORDER BY ir.`time` DESC
+    </select>
+
+    <select id="inspectRecordErrorPage" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordErrorVO">
+        select sir.id ,sir.`time` ,sir.target_name ,sir.user_id ,sir.nickname ,sir.`result`
+        ,sir.task_id,sir.task_name,GROUP_CONCAT(siri.id) as record_item_id, GROUP_CONCAT(siri.item_name) as errorItem,
+        count(siri.id) as errNumber
+        from inspect_record sir
+        left join inspect_record_item siri on(siri.record_id = sir.id and siri.error_value_flag = 1)
+        <where>
+            <if test="query.period != null">
+                and sir.`time` &gt;= #{query.period.begin} and `time` &lt; #{query.period.end}
+            </if>
+            <if test="query.targetId != null">
+                and sir.target_id = #{query.targetId}
+            </if>
+            <if test="query.tempBool != null and query.tempBool">
+                and task_id is null
+            </if>
+            <if test="query.result != null and query.result != ''">
+                and sir.`result` = #{query.result}
+            </if>
+            <if test="query.targetName != null and query.targetName != ''">
+                and sir.target_name = #{query.targetName}
+            </if>
+            <if test="query.errorTagBool != null">
+                and siri.item_tag is not null
+            </if>
+            <if test="query.errorTagList != null and query.errorTagList.size() > 0">
+                and siri.item_tag in
+                <foreach collection="query.errorTagList" item="tag" open="(" separator="," close=")">
+                    #{tag}
+                </foreach>
+            </if>
+        </where>
+        group by sir.id order by sir.`time` desc
+    </select>
+
+    <select id="getTaskRecordByTargetIds"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordVO">
+        select * from inspect_record
+        <where>
+            task_id = #{taskId}
+            <if test="targetIdList != null and targetIdList.size() != 0">
+                and target_id in
+                <foreach collection="targetIdList" item="targetId" open="(" separator="," close=")">
+                    #{targetId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getTaskRecordCollectData"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.InspectRecordPO">
+        select * from inspect_record
+        <where>
+            <if test="period != null and period.begin != null">
+                update_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and update_time &lt;= #{period.end}
+            </if>
+            <if test="true">
+                and tenant = #{tenant}
+            </if>
+        </where>
+    </select>
+    <select id="selectCountCompletedRecord" resultType="java.lang.Long">
+        SELECT
+        COUNT( ir.id )
+        FROM
+        `inspect_record` ir
+        WHERE
+        ir.`status` = 'OVER'
+        <if test="period != null and period.begin != null">
+            and ir.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and ir.create_time &lt;= #{period.end}
+        </if>
+    </select>
+    <select id="selectRankUserInspectRecordNum"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.vo.InspectionRecordUserNumVO">
+        SELECT
+        ir.nickname AS name ,
+        COUNT( ir.id ) num
+        FROM
+        `inspect_record` ir
+        WHERE
+        ir.`status` = 'OVER'
+        <if test="period != null and period.begin != null">
+            and ir.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and ir.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        ir.user_id
+        ORDER BY
+        num
+        <if test="sort != null">
+            DESC
+        </if>
+        LIMIT 5
+    </select>
+    <select id="getRecordIdAndTaskTypeId" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.RecordTaskDTO">
+        select t.type_id , r.id as recordId,t.id as taskId, r.target_name, t.name as taskName from inspect_record r
+        inner join inspect_task t
+        on(r.task_id = t.id)
+        WHERE r.id in
+        <foreach collection="recordIdLit" item="rid" open="(" separator="," close=")">
+            #{rid}
+        </foreach>
+    </select>
+    <select id="getRecordAndTaskId"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.InspectRecordAndTaskDTO">
+        select r.*, t.id as taskId, t.name as taskName, t.status as taskStatus from inspect_record r inner join inspect_task t on (t.id =
+        r.task_id)
+        <where>
+            <if test="ids != null and ids.size() > 0">
+                r.id in
+                <foreach collection="ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <update id="updateStatusByIds">
+        update inspect_record set status = #{param.status}, update_time = #{updateTime}, update_by = #{updateBy}
+        <if test="param.result != null">
+            , result = #{param.result}
+        </if>
+        <if test="param.time != null">
+            , time = #{param.time}
+        </if>
+        <if test="param.userId != null">
+            , user_id = #{param.userId}
+        </if>
+        <if test="param.username != null and param.username != ''">
+            , username = #{param.username}
+        </if>
+        <if test="param.nickname != null and param.nickname != ''">
+            , nickname = #{param.nickname}
+        </if>
+        <if test="param.organizationId != null">
+            , organization_id = #{param.organizationId}
+        </if>
+        <if test="param.organizationName != null and param.organizationName != ''">
+            , organization_name = #{param.organizationName}
+        </if>
+        <if test="param.positionId != null">
+            , position_id = #{param.positionId}
+        </if>
+        <if test="param.positionName != null and param.positionName != ''">
+            , position_name = #{param.positionName}
+        </if>
+        <if test="param.repairStatus != null and param.repairStatus != ''">
+            , repair_status = #{param.repairStatus}
+        </if>
+        <if test="param.cancelReason != null and param.cancelReason != ''">
+            , cancel_reason = #{param.cancelReason}
+        </if>
+        <if test="param.cancelFileKey != null ">
+            , cancel_file_key = #{param.cancelFileKey}
+        </if>
+        <if test="param.cancelInspectFileKey != null ">
+            , cancel_inspect_file_key = #{param.cancelInspectFileKey}
+        </if>
+        <if test="param.cancelInspectReason != null and param.cancelInspectReason != ''">
+            , cancel_inspect_reason = #{param.cancelInspectReason}
+        </if>
+        <where>
+            id in
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+    <resultMap id="recordRepairMap" type="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectTargetRepairVO">
+        <id property="id" column="id" />
+        <result property="targetId" column="target_id" />
+        <result property="targetCategory" column="target_category" />
+        <result property="targetName" column="target_name" />
+        <result property="areaName" column="area_name" />
+        <result property="taskId" column="task_id" />
+        <result property="taskName" column="task_name" />
+        <result property="planId" column="plan_id" />
+        <result property="userId" column="user_id" />
+        <result property="time" column="time" />
+        <result property="nickname" column="nickname" />
+        <result property="repairStatus" column="repair_status" />
+        <result property="cancelFileKey" column="cancel_file_key" />
+        <result property="cancelReason" column="cancel_reason" />
+        <result property="cancelInspectFileKey" column="cancel_inspect_file_key" />
+        <result property="cancelInspectReason" column="cancel_inspect_reason" />
+        <collection property="recordToBusinessVOS" javaType="java.util.List"
+                    ofType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectRecordToBusinessVO">
+            <id property="id" column="b_id" />
+            <result property="businessCategory" column="order_business_category" />
+            <result property="businessId" column="order_business_id" />
+            <result property="businessName" column="order_business_name" />
+            <result property="recordId" column="order_record_id" />
+        </collection>
+    </resultMap>
+
+    <select id="getRecordRepairPage" resultMap="recordRepairMap">
+        select r.id,r.target_id,r.target_category,r.target_name,r.area_name,r.task_id, r.task_name, r.`time`, r.plan_id, r.repair_status,
+        rr.user_id, rr.nickname, r.cancel_file_key, cancel_reason, r.cancel_inspect_file_key, cancel_inspect_reason
+        ,b.id as b_id,b.record_id as order_record_id, b.business_category as order_business_category,b.business_id as order_business_id,
+        b.business_name as
+        order_business_name
+        from inspect_record r
+        inner join inspect_repair_relation rr on (r.id = rr.id)
+        left join inspect_record_to_business b
+        on (r.id = b.record_id)
+        <where>
+            r.repair_status in ('WAIT_REPAIR','CANCEL_REPAIR','REPAIRED')
+            <if test="param.recordId != null">
+                and r.id = #{param.recordId}
+            </if>
+            <if test="param.targetName != null and param.targetName != ''">
+                and r.target_name = #{param.targetName}
+            </if>
+            <if test="param.repairStatus != null and param.repairStatus != ''">
+                and r.repair_status = #{param.repairStatus}
+            </if>
+            <if test="param.recordIdList != null and param.recordIdList.size() > 0">
+                and r.id in
+                <foreach collection="param.recordIdList" item="recordId" open="(" separator="," close=")">
+                    #{recordId}
+                </foreach>
+            </if>
+            <if test="param.tempBool != null and param.tempBool == true">
+                and r.task_id is null
+            </if>
+            <if test="param.tempBool != null and param.tempBool == false">
+                and r.task_id is not null
+            </if>
+        </where>
+        order by r.`time` DESC
+    </select>
+    <select id="selectRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.InspectRecordPO">
+        SELECT
+        ir.*
+        FROM
+        inspect_record ir
+        INNER JOIN (
+        SELECT
+        ir2.target_id,
+        max(ir2.`time`) `time`
+        FROM
+        inspect_record ir2
+        <where>
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                AND ir2.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.targetId != null">
+                AND ir2.target_id = #{param.targetId}
+            </if>
+            <if test="param.areaId != null and param.areaId != ''">
+                AND ir2.area_id like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.period != null and param.period.begin !=null and param.period.end != null">
+                AND ir2.time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND ir2.task_name like concat('%',#{param.keyword},'%')
+                OR ir2.target_name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.timeStart != null and param.timeStart != '' and param.timeEnd != null and param.timeEnd != ''">
+                AND DATE_FORMAT(ir2.TIME, '%H:%i:%s') BETWEEN #{param.timeStart}
+                AND #{param.timeEnd}
+            </if>
+        </where>
+        GROUP BY
+        ir2.target_id
+        ) AS ir3 ON (ir.target_id = ir3.target_id AND ir.`time` = ir3.`time`)
+        ORDER BY
+        ir.create_time DESC
+    </select>
+</mapper>

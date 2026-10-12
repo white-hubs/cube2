@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.PatrolStatisticsMapper">
+
+    <select id="getPatrolStatusStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.property.StatusNumStatisticsVO">
+        SELECT
+        count(spt.id) as num ,spt.status_code
+        FROM
+        market_config mc
+        INNER JOIN safety_patrol_task spt
+        on (mc.market_tenant = spt.market_tenant)
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and mc.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and spt.create_time &gt;= #{query.period.begin} and spt.create_time &lt; #{query.period.end}
+            </if>
+        </where>
+        group by status_code
+    </select>
+
+    <select id="getPatrolErrorNum"
+            resultType="java.lang.Integer">
+        SELECT
+        count(spt.id) as num ,spt.status_code
+        FROM
+        market_config mc
+        INNER JOIN safety_patrol_task spt
+        on (mc.market_tenant = spt.market_tenant)
+        <where>
+            mc.status = true and spt.result_code = 'ABNORMAL'
+            <if test="query.marketTenant != null">
+                and mc.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and spt.create_time &gt;= #{query.period.begin} and spt.create_time &lt; #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+
+
+    <select id="countTaskNum" resultType="java.lang.Integer">
+        SELECT
+        count(spt.id) as total_num
+        from
+        safety_patrol_task spt
+        left join market_config mc on mc.market_tenant = spt.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.status != null and query.status.size > 0">
+                and spt.status_code in
+                <foreach collection="query.status" item="state" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <if test="query.marketTenant != null">
+                and spt.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and spt.task_create_time &gt;= #{query.period.begin} and spt.task_create_time &lt; #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskList" resultType="com.guhecloud.cube.srv.gen.safety.management.po.PatrolTaskPO">
+        SELECT
+        spt.*
+        from
+        safety_patrol_task spt
+        left join market_config mc on mc.market_tenant = spt.market_tenant
+        <where>
+            mc.status = true
+            <if test="status != null and status != ''">
+                and spt.status_code = #{status}
+            </if>
+            <if test="query.marketTenant != null">
+                and spt.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and spt.create_time &gt;= #{query.period.begin} and spt.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.taskCreatePeriod != null">
+                and spt.task_create_time &gt;= #{query.taskCreatePeriod.begin} and spt.task_create_time &lt; #{query.taskCreatePeriod.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskPage" resultType="com.guhecloud.cube.srv.gen.safety.management.po.PatrolTaskPO">
+        SELECT
+        spt.*
+        from
+        safety_patrol_task spt
+        left join market_config mc on mc.market_tenant = spt.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.state != null and query.state != ''">
+                and spt.status_code = #{query.state}
+            </if>
+            <if test="query.marketTenant != null">
+                and spt.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and spt.task_create_time &gt;= #{query.period.begin} and spt.task_create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.resultCode != null and query.resultCode != ''">
+                and spt.result_code = #{query.resultCode}
+            </if>
+        </where>
+        order by spt.task_create_time desc
+    </select>
+
+    <select id="getPatrolMarketStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.MarketStatisticsInfo">
+        SELECT
+        COALESCE (t1.num,0) as taskNum,
+        mc.market_tenant,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (select spt.market_tenant,spt.market_name, count(spt.market_name) as num from safety_patrol_task spt
+        <where>
+            <if test="query.period != null">
+                and spt.create_time &gt;= #{query.period.begin} and spt.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.abnormal != null and query.abnormal == true ">
+                and spt.result_code = 'ABNORMAL'
+            </if>
+        </where>
+        group by spt.market_tenant
+        ) t1 ON mc.market_tenant = t1.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and mc.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+        order by taskNum desc
+    </select>
+</mapper>

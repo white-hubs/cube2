@@ -1,0 +1,11 @@
+package(default_visibility = ["//packages:__subpackages__"])
+
+filegroup(
+    name = "basic_java",
+    srcs = glob(["src-java/**/*.java"]),
+)
+
+filegroup(
+    name = "basic_resources",
+    srcs = glob(["src/main/resources/**"]),
+)

@@ -1,0 +1,233 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.PatrolTaskMapper">
+    <select id="locationRouteStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationRouteStatisticsVO">
+        select route_id, count(id) as keepNum from patrol_task
+        where
+        <if test="period != null">
+            start_date between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+        </if>
+        group by route_id
+    </select>
+
+    <select id="getPatrolTaskCollectData"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolTask">
+        select * from patrol_task
+        <where>
+            <if test="period != null and period.begin != null">
+                update_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and update_time &lt;= #{period.end}
+            </if>
+            <if test="true">
+                and tenant = #{tenant}
+            </if>
+        </where>
+    </select>
+
+    <select id="getPatrolTaskErrorDataCount" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolTask">
+        select pt.id, pt.task_name, pt.complete_date from patrol_task `pt`
+        inner join patrol_task_location `ptl` on (pt.id = ptl.task_id)
+        <where>
+            ptl.result = 'ABNORMAL'
+            <if test="period != null and period.begin != null">
+                and pt.complete_date &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and pt.complete_date &lt;= #{period.end}
+            </if>
+            <if test="takIds != null and takIds.size() > 0">
+                and pt.id in
+                <foreach collection="takIds" item="takId" open="(" separator="," close=")">
+                    #{takId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY pt.id
+    </select>
+    <select id="getTop5FinishRateUser"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.HandlerRateDTO">
+        SELECT
+        pt.user_name AS NAME,
+        COALESCE(ft.finishNum,0) AS number,
+        COALESCE(ROUND( ft.finishNum / COUNT( pt.id ), 2 ),0) AS rate
+        FROM
+        patrol_task pt
+        LEFT JOIN (
+        SELECT
+        pt.user_id,
+        COUNT( pt.id ) AS finishNum
+        FROM
+        patrol_task pt
+        WHERE
+        pt.user_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_id
+        ) ft ON ft.user_id = pt.user_id
+        WHERE
+        pt.user_id IS NOT NULL
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_id
+        ORDER BY
+        rate
+        <if test="sort != null ">DESC</if>
+        LIMIT 5
+    </select>
+    <select id="getTop5FinishRateDept"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.HandlerRateDTO">
+        SELECT
+        pt.user_dep_id AS NAME,
+        COALESCE(ft.finishNum,0) AS number,
+        COALESCE(ROUND( ft.finishNum / COUNT( pt.id ), 2 ),0) AS rate
+        FROM
+        patrol_task pt
+        LEFT JOIN (
+        SELECT
+        pt.user_dep_id,
+        COUNT( pt.id ) AS finishNum
+        FROM
+        patrol_task pt
+        WHERE
+        pt.user_dep_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_dep_id
+        ) ft ON ft.user_dep_id = pt.user_dep_id
+        WHERE
+        pt.user_dep_id IS NOT NULL
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_dep_id
+        ORDER BY
+        rate
+        <if test="sort != null ">DESC</if>
+        LIMIT 5
+    </select>
+    <select id="getTop5FinishEfficiencyUser"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.HandlerEfficiencyDTO">
+        SELECT
+        pt.user_id,
+        pt.user_name as `name`,
+        COALESCE(ROUND( SUM( TIMESTAMPDIFF( MINUTE, pt.start_date, pt.complete_date )) / ft.finishNum, 0 ),0) avgTime
+        FROM
+        patrol_task pt
+        LEFT JOIN (
+        SELECT
+        pt.user_id,
+        pt.user_name,
+        COUNT( pt.id ) AS finishNum
+        FROM
+        patrol_task pt
+        WHERE
+        pt.user_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_id
+        ) ft ON ft.user_id = pt.user_id
+        WHERE
+        pt.user_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_id,pt.user_name
+        ORDER BY
+        avgTime
+        <if test="sort != null ">DESC</if>
+        LIMIT 5
+    </select>
+    <select id="getTop5FinishEfficiencyDept"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.HandlerEfficiencyDTO">
+        SELECT
+        pt.user_dep_id AS NAME,
+        COALESCE(ROUND( SUM( TIMESTAMPDIFF( MINUTE, pt.start_date, pt.complete_date )) / ft.finishNum, 0 ),0) avgTime
+        FROM
+        patrol_task pt
+        LEFT JOIN (
+        SELECT
+        pt.user_dep_id,
+        COUNT( pt.id ) AS finishNum
+        FROM
+        patrol_task pt
+        WHERE
+        pt.user_dep_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_dep_id
+        ) ft ON ft.user_dep_id = pt.user_dep_id
+        WHERE
+        pt.user_dep_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        pt.user_dep_id
+        ORDER BY
+        avgTime
+        <if test="sort != null ">DESC</if>
+        LIMIT 5
+    </select>
+    <select id="selectElectronCompleteTotalTime"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.vo.TaskHandlerTimeVO">
+        SELECT
+        COUNT( pt.id ) AS taskHandlerNumber,
+        COALESCE ( SUM( TIMESTAMPDIFF( MINUTE, pt.start_date, pt.complete_date )), 0 ) AS taskTotalTime
+        FROM
+        patrol_task pt
+        WHERE
+        pt.user_dep_id IS NOT NULL
+        AND pt.`status` = 'FINISHED'
+        AND pt.`complete_date` is not NULL
+        <if test="period != null and period.begin != null">
+            and pt.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and pt.create_time &lt;= #{period.end}
+        </if>
+    </select>
+</mapper>

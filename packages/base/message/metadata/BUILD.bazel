@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("//packages/base/message:variables.bzl", "PACKAGE_GROUP", "VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "metadata",
+    srcs = glob([
+        "**/*.java",
+    ]),
+)

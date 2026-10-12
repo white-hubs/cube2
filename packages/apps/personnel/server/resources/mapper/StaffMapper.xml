@@ -1,0 +1,353 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.personnel.management.server.dao.StaffMapper">
+
+
+    <sql id="selectList">
+        SELECT
+        u.`id`,
+        u.`user_id`,
+        u.`name`,
+        u.`mobile`,
+        u.`gender`,
+        u.`marital_status`,
+        u.`date_of_birth`,
+        u.`age`,
+        u.`education`,
+        u.`speciality`,
+        u.`university`,
+        u.`nation`,
+        u.`political_status`,
+        u.`address`,
+        u.`emergency_contact`,
+        u.`emergency_contact_mobile`,
+        u.`type`,
+        u.`job_number`,
+        u.`position_ids`,
+        u.`organization_id`,
+        u.`appointment_id` as `appointment_id`,
+        u.`state`,
+        u.`status`,
+        u.`archive_status`,
+        u.`induction_date`,
+        u.`company_years`,
+        u.`probation_period`,
+        u.`plan_regular_worker_date`,
+        u.`regular_worker_date`,
+        u.`quit_date`,
+        u.`pay_social_insurance_first_date`,
+        u.`working_years`,
+        u.`area_ids`,
+        u.`id_card`,
+        u.`update_time`
+        FROM
+        `staff` u
+        WHERE
+        u.`deleted` = 0
+        <if test="param.keyword != '' and param.keyword != null">
+            and (
+            u.`name` LIKE CONCAT('%',#{param.keyword},'%')
+            or u.`job_number` LIKE CONCAT('%',#{param.keyword},'%')
+            )
+        </if>
+        <if test="param.type != '' and param.type != null">
+            AND u.`type` = #{param.type}
+        </if>
+        <if test="param.organizationId != '' and param.organizationId != null">
+            AND u.`organization_id` = #{param.organizationId}
+        </if>
+        <if test="param.staffIds != null and param.staffIds.size() > 0">
+            AND u.`id` in
+            <foreach collection="param.staffIds" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.archiveStatus != null">
+            and u.`archive_status` = #{param.archiveStatus}
+        </if>
+        <if test="param.containLeaveOffice != null and !param.containLeaveOffice">
+            and u.`status` != 'LEAVE_OFFICE'
+        </if>
+        <if test="param.status != null and param.status !=''">
+            and u.`status` = #{param.status}
+        </if>
+    </sql>
+
+    <resultMap id="staffResultMap" type="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffDetailVO"
+               autoMapping="true">
+        <id property="id" column="id" />
+        <collection property="positions" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffDetailVO$Position">
+            <id property="id" column="postId" />
+            <result property="name" column="postName" />
+        </collection>
+    </resultMap>
+
+    <select id="getPage" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffDetailVO">
+        <include refid="selectList"></include>
+        ORDER BY `induction_date` DESC
+    </select>
+
+    <select id="getList" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffDetailVO">
+        <include refid="selectList"></include>
+    </select>
+
+    <select id="getPageByState" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffStateVO">
+        SELECT
+        s.`id`,
+        s.`user_id`,
+        s.`gender`,
+        s.`NAME`,
+        s.`mobile`,
+        s.`organization_id`,
+        s.`position_ids`,
+        s.`state`,
+        o.`NAME` AS `organizationName`,
+        IF
+        ( s.`state` = 'WORKING', 1, 0 ) AS `onDuty`
+        FROM
+        `staff` s
+        LEFT JOIN `cube-biz-ouaa`.`organization` o ON s.`organization_id` = o.`id`
+        WHERE
+        1=1
+        <if test="param.keyword != '' and param.keyword != null">
+            AND s.`name` LIKE CONCAT('%',#{param.keyword},'%')
+        </if>
+        <if test="param.organizationId != '' and param.organizationId != null">
+            AND s.`organization_id` = #{param.organizationId}
+        </if>
+        <if test="param.postId != null">
+            AND s.`position_ids` LIKE CONCAT('%',#{param.postId},'%')
+        </if>
+        <if test="param.onDuty != null and param.onDuty">
+            AND s.`state` = 'WORKING'
+        </if>
+        <if test="param.onDuty != null and !param.onDuty">
+            AND s.`state` != 'WORKING'
+        </if>
+        ORDER BY
+        `onDuty` DESC
+    </select>
+
+    <select id="getPageByABC" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffStateVO">
+        SELECT
+        s.`id`,
+        s.`user_id`,
+        s.`gender`,
+        s.`NAME`,
+        ELT( INTERVAL( CONV( HEX( left( CONVERT(s.`name`
+        USING gbk ) , 1 ) ) , 16, 10 ) , 0xB0A1, 0xB0C5, 0xB2C1, 0xB4EE, 0xB6EA, 0xB7A2, 0xB8C1, 0xB9FE, 0xBBF7, 0xBFA6, 0xC0AC, 0xC2E8,
+        0xC4C3, 0xC5B6, 0xC5BE, 0xC6DA, 0xC8BB, 0xC8F6, 0xCBFA, 0xCDDA, 0xCEF4, 0xD1B9, 0xD4D1 ) , 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H',
+        'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'W', 'X', 'Y', 'Z' ) as firstLetter,
+        s.`mobile`,
+        s.`organization_id`,
+        s.`position_ids`,
+        s.`state`,
+        o.`NAME` AS `organizationName`,
+        IF
+        ( s.`state` = 'WORKING', 1, 0 ) AS `onDuty`
+        FROM
+        `staff` s
+        LEFT JOIN `cube-biz-ouaa`.`organization` o ON s.organization_id = o.id
+        WHERE s.`deleted` = 0 and s.tenant = #{tenant}
+        <if test="param.keyword != '' and param.keyword != null">
+            AND s.`name` LIKE CONCAT('%',#{param.keyword},'%')
+        </if>
+        <if test="param.organizationId != '' and param.organizationId != null">
+            AND s.`organization_id` = #{param.organizationId}
+        </if>
+        <if test="param.postId != null">
+            AND s.`position_ids` LIKE CONCAT('%',#{param.postId},'%')
+        </if>
+        <if test="param.onDuty != null and param.onDuty">
+            AND s.`state` = 'WORKING'
+        </if>
+        <if test="param.onDuty != null and !param.onDuty">
+            AND s.`state` != 'WORKING'
+        </if>
+        ORDER BY CONVERT(s.name USING gbk) ASC
+    </select>
+
+    <select id="getStaffChange" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffChangeVO">
+        SELECT
+        u.`id`,
+        u.`name`,
+        u.`type`,
+        u.`organization_id`,
+        u.`appointment_id`,
+        a.`name` as `appointment_name`,
+        u.`status`,
+        u.`induction_date`,
+        u.`regular_worker_date`,
+        u.`quit_date`
+        FROM
+        `staff` u
+        LEFT JOIN `appointment` a ON u.`appointment_id` = a.`id`
+        WHERE
+        u.`deleted` = 0
+        <if test="param.organizationId != '' and param.organizationId != null">
+            AND u.`organization_id` = #{param.organizationId}
+        </if>
+        <if test="'induction' == param.type">
+            AND u.`induction_date` IS NOT NULL
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                AND u.`induction_date` between #{param.period.begin} and #{param.period.end}
+            </if>
+            ORDER BY u.`induction_date` DESC
+        </if>
+        <if test="'regularWorker' == param.type">
+            AND u.`regular_worker_date` IS NOT NULL
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                AND u.`regular_worker_date` between #{param.period.begin} and #{param.period.end}
+            </if>
+            ORDER BY u.`regular_worker_date` DESC
+        </if>
+        <if test="'quit' == param.type">
+            AND u.`quit_date` IS NOT NULL
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                AND u.`quit_date` between #{param.period.begin} and #{param.period.end}
+            </if>
+            ORDER BY u.`quit_date` DESC
+        </if>
+    </select>
+
+    <select id="getPeriodStaffNum" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.querygateway.query.StaffQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.interfaces.vo.StaffExchangeStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`induction_date`,#{param.dateExp}) as `induction_date`,
+        DATE_FORMAT(t1.`regular_worker_date`,#{param.dateExp}) as `regular_worker_date`,
+        DATE_FORMAT(t1.`quit_date`,#{param.dateExp}) as `quit_date`,
+        COUNT(t1.`id`) as `total`
+        FROM
+        `staff` t1
+        <where>
+            1=1
+            <if test="param.period != null and param.period.begin != null">
+                <if test="'induction' == param.type">
+                    and t1.`induction_date` &gt;= #{param.period.begin}
+                </if>
+                <if test="'regularWorker' == param.type">
+                    and t1.`regular_worker_date` &gt;= #{param.period.begin}
+                </if>
+                <if test="'leaveOffice' == param.type">
+                    and t1.`quit_date` &gt;= #{param.period.begin}
+                </if>
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                <if test="'induction' == param.type">
+                    and t1.`induction_date` &lt;= #{param.period.end}
+                </if>
+                <if test="'regularWorker' == param.type">
+                    and t1.`regular_worker_date` &lt;= #{param.period.end}
+                </if>
+                <if test="'leaveOffice' == param.type">
+                    and t1.`quit_date` &lt;= #{param.period.end}
+                </if>
+            </if>
+            <if test="param.organizationId != '' and param.organizationId != null">
+                and t1.`organization_id` = #{param.organizationId}
+            </if>
+        </where>
+        <if test="'induction' == param.type">
+            GROUP BY DATE_FORMAT(t1.`induction_date`,#{param.dateExp})
+        </if>
+        <if test="'regularWorker' == param.type">
+            GROUP BY DATE_FORMAT(t1.`regular_worker_date`,#{param.dateExp})
+        </if>
+        <if test="'leaveOffice' == param.type">
+            GROUP BY DATE_FORMAT(t1.`quit_date`,#{param.dateExp})
+        </if>
+    </select>
+
+    <update id="updatePartInfoByDeleted" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.po.StaffPO">
+        UPDATE `staff`
+        SET `NAME` = #{staffPO.name},
+        `mobile` = #{staffPO.mobile},
+        `gender` = #{staffPO.gender},
+        `position_ids` = #{staffPO.positionIds},
+        `organization_id` = #{staffPO.organizationId},
+        `state` = #{staffPO.state},
+        `tenant` = #{staffPO.tenant},
+        `deleted` = 0,
+        `create_by` = #{staffPO.createBy},
+        `creator_id` = #{staffPO.creatorId},
+        `creator_type` = #{staffPO.creatorType},
+        `create_time` = #{staffPO.createTime},
+        `update_by` = #{staffPO.updateBy},
+        `updater_id` = #{staffPO.updaterId},
+        `updater_type` = #{staffPO.updaterType},
+        `update_time` = #{staffPO.updateTime}
+        WHERE
+        `user_id` = #{staffPO.userId}
+        and
+        `tenant` = #{staffPO.tenant}
+    </update>
+
+    <update id="updateAllInfoByDeleted" parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.po.StaffPO">
+        UPDATE `staff`
+        SET `NAME` = #{staffPO.name},
+        `mobile` = #{staffPO.mobile},
+        `gender` = #{staffPO.gender},
+        `marital_status` = #{staffPO.maritalStatus},
+        `date_of_birth` = #{staffPO.dateOfBirth},
+        `age` = #{staffPO.age},
+        `education` = #{staffPO.education},
+        `speciality` = #{staffPO.speciality},
+        `university` = #{staffPO.university},
+        `nation` = #{staffPO.nation},
+        `political_status` = #{staffPO.politicalStatus},
+        `address` = #{staffPO.address},
+        `emergency_contact` = #{staffPO.emergencyContact},
+        `emergency_contact_mobile` = #{staffPO.emergencyContactMobile},
+        `type` = #{staffPO.type},
+        `job_number` = #{staffPO.jobNumber},
+        `position_ids` = #{staffPO.positionIds},
+        `organization_id` = #{staffPO.organizationId},
+        `appointment_id` = #{staffPO.appointmentId},
+        `state` = #{staffPO.state},
+        `status` = #{staffPO.status},
+        `induction_date` = #{staffPO.inductionDate},
+        `company_years` = #{staffPO.companyYears},
+        `probation_period` = #{staffPO.probationPeriod},
+        `plan_regular_worker_date` = #{staffPO.planRegularWorkerDate},
+        `regular_worker_date` = #{staffPO.regularWorkerDate},
+        `quit_date` = #{staffPO.quitDate},
+        `pay_social_insurance_first_date` = #{staffPO.paySocialInsuranceFirstDate},
+        `working_years` = #{staffPO.workingYears},
+        `archive_status` = #{staffPO.archiveStatus},
+        `tenant` = #{staffPO.tenant},
+        `deleted` = 0,
+        `create_by` = #{staffPO.createBy},
+        `creator_id` = #{staffPO.creatorId},
+        `creator_type` = #{staffPO.creatorType},
+        `create_time` = #{staffPO.createTime},
+        `update_by` = #{staffPO.updateBy},
+        `updater_id` = #{staffPO.updaterId},
+        `updater_type` = #{staffPO.updaterType},
+        `update_time` = #{staffPO.updateTime}
+        WHERE
+        `id` = #{staffPO.id}
+        and
+        `tenant` = #{staffPO.tenant}
+    </update>
+
+    <select id="getStaffPageNotIn" resultType="com.guhecloud.cube.srv.gen.personnel.management.server.po.StaffPO">
+        select s.`id` ,s.`name` ,s.`mobile` ,s.`organization_id` from `staff` s
+        <where>
+            <if test="param.organizationId != null and param.organizationId != '' ">
+                s.`organization_id` = #{param.organizationId}
+            </if>
+            <if test="param.staffName != null and param.staffName != ''">
+                and s.`name` LIKE CONCAT('%',#{param.staffName},'%')
+            </if>
+            <foreach collection="param.notInIds" item="id" open=" and s.id not in ( " separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+</mapper>

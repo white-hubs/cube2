@@ -1,0 +1,101 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.reportmanagement.server.dao.ReportMapper">
+
+
+    <select id="selectReportStatisticsInfo"
+            resultType="com.guhecloud.cube.srv.gen.reportmanagement.server.vo.ReportStatisticsVo">
+        SELECT
+            count( CASE STATUS WHEN 'PROCESSING' THEN 1 ELSE 0 END ) AS initiate,
+            count( CASE STATUS WHEN 'COMPLETED' THEN 1 ELSE 0 END ) AS pending,
+            count( CASE STATUS WHEN 'REVOKED' THEN 1 ELSE 0 END ) AS processed
+        FROM
+            report
+        WHERE
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and create_time  between #{startTime} and #{endTime}
+            </if>
+    </select>
+    <resultMap id="reportStatisticsMap" type="com.guhecloud.cube.srv.gen.reportmanagement.server.vo.ReportStatistics">
+        <result property="userId" column="user_id"/>
+        <collection property="reportTypeNumList" ofType="com.guhecloud.cube.srv.gen.reportmanagement.server.vo.ReportTypeNum">
+            <result property="typeName" column="name"/>
+            <result property="typeNum" column="type_num"/>
+            <result property="typeId" column="type_id"/>
+        </collection>
+    </resultMap>
+    <select id="selectReportStatistics"
+            resultMap="reportStatisticsMap">
+        SELECT
+        r.report_by AS user_id,
+        COALESCE ( rt.`name`, "" ) AS name,
+        rt.`id` AS type_id,
+        COUNT( r.id ) type_num
+        FROM
+        report r
+        LEFT JOIN report_type rt ON rt.id = r.type_id
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and  r.start_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and r.start_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.reportByList != null and param.reportByList.size() > 0">
+                and r.report_by in
+                <foreach collection="param.reportByList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        r.report_by,
+        r.type_id
+    </select>
+    <select id="selectReportStatisticsGroupByDepartment"
+            resultType="com.guhecloud.cube.srv.gen.reportmanagement.server.vo.ReportStatistics">
+        SELECT
+        r.report_by AS user_id,
+        COUNT( r.id ) user_num
+        FROM
+        report r
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and  r.start_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and r.start_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.reportByList != null and param.reportByList.size() > 0">
+                and r.report_by in
+                <foreach collection="param.reportByList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        r.report_by
+    </select>
+    <select id="selectReportStatisticsPage"
+            resultType="com.guhecloud.cube.srv.gen.reportmanagement.server.vo.ReportStatistics">
+        SELECT
+        r.report_by AS user_id
+        FROM
+        report r
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and  r.start_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and r.start_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.reportByList != null and param.reportByList.size() > 0">
+                and r.report_by in
+                <foreach collection="param.reportByList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        r.report_by
+    </select>
+</mapper>

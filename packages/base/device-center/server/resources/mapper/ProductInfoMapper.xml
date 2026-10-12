@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.open.mapper.ProductInfoMapper">
+    <resultMap id="selectProductInfoByDeviceIdResultMap"
+               type="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO">
+        <id property="id" column="id" />
+        <result property="name" column="prodName" />
+        <result property="picture" column="picture" />
+        <result property="icon" column="icon" />
+        <result property="modelName" column="modelName" />
+        <result property="brandName" column="brandName" />
+        <association property="productCategory"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO$ProductCategory">
+            <result property="code" column="categoryCode" />
+            <result property="name" column="categoryName" />
+            <result property="pathCode" column="pathCode" />
+        </association>
+    </resultMap>
+
+    <select id="selectProductInfoByDeviceId"
+            resultMap="selectProductInfoByDeviceIdResultMap">
+        SELECT `ipv`.`id`,
+        `ipv`.`prod_name` AS `prodName`,
+        `ipv`.`prod_pic` AS `picture`,
+        `ipv`.`prod_icon` AS `icon`,
+        `ipv`.`prod_model_name` AS `modelName`,
+        `ipv`.`prod_brand_name` AS `brandName`,
+        `ipv`.`prod_category_code` AS `categoryCode`,
+        `ipv`.`prod_category_name` AS `categoryName`,
+        `ipv`.`prod_category_concat` AS `pathCode`
+        FROM `center_biz_device` `cbd`
+        LEFT JOIN `iot_prod_view` `ipv` ON `cbd`.`device_iot_prod_id` = `ipv`.`id`
+        WHERE `cbd`.`id` = #{deviceId}
+    </select>
+
+    <select id="selectList"
+            resultMap="selectProductInfoByDeviceIdResultMap">
+        SELECT
+        `ipv`.`id`,
+        `ipv`.`prod_name` AS `prodName`,
+        `ipv`.`prod_pic` AS `picture`,
+        `ipv`.`prod_icon` AS `icon`,
+        `ipv`.`prod_model_name` AS `modelName`,
+        `ipv`.`prod_brand_name` AS `brandName`,
+        `ipv`.`prod_category_code` AS `categoryCode`,
+        `ipv`.`prod_category_name` AS `categoryName`,
+        `ipv`.`prod_category_concat` AS `pathCode`
+        FROM `iot_prod_view` `ipv`
+        WHERE `ipv`.`id` IN
+        <foreach collection="productIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <resultMap id="selectListByDeviceIdResultMap"
+               type="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoWithDeviceDTO">
+        <result column="deviceId" property="deviceId" />
+        <association property="productInfo"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO">
+            <id column="id" property="id" />
+            <result column="prodName" property="name" />
+            <result column="picture" property="picture" />
+            <result column="icon" property="icon" />
+            <result column="modelName" property="modelName" />
+            <result column="brandName" property="brandName" />
+            <association property="productCategory"
+                         javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO$ProductCategory">
+                <result column="categoryCodeConcat" property="pathCode" />
+                <result column="categoryName" property="name" />
+                <result column="categoryCode" property="code" />
+            </association>
+        </association>
+    </resultMap>
+
+    <select id="selectListByDeviceId"
+            resultMap="selectListByDeviceIdResultMap">
+        SELECT
+        `cbd`.`id` AS `deviceId`,
+        `ipv`.`id`,
+        `ipv`.`prod_name` AS `prodName`,
+        `ipv`.`prod_pic` AS `picture`,
+        `ipv`.`prod_icon` AS `icon`,
+        `ipv`.`prod_model_name` AS `modelName`,
+        `ipv`.`prod_brand_name` AS `brandName`,
+        `ipv`.`prod_category_code` AS `categoryCode`,
+        `ipv`.`prod_category_concat` AS `categoryCodeConcat`,
+        `ipv`.`prod_category_name` AS `categoryName`
+        FROM `iot_prod_view` `ipv`
+        LEFT JOIN `center_biz_device` `cbd` ON `cbd`.`device_iot_prod_id` = `ipv`.`id`
+        WHERE `cbd`.`id` IN
+        <foreach collection="deviceIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+
+    <resultMap id="selectListByProdCategoryCodeConcatLeftLikeResultMap"
+               type="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO">
+        <id property="id" column="id" />
+        <result property="name" column="prodName" />
+        <result property="picture" column="picture" />
+        <result property="icon" column="icon" />
+        <result property="modelName" column="modelName" />
+        <result property="brandName" column="brandName" />
+        <association property="productCategory"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductInfoDTO$ProductCategory">
+            <result column="categoryCode" property="code" />
+            <result column="categoryName" property="name" />
+        </association>
+    </resultMap>
+    <select id="selectListByProdCategoryCodeConcatLeftLike"
+            resultMap="selectListByProdCategoryCodeConcatLeftLikeResultMap">
+        SELECT `ipv`.`id`,
+        `ipv`.`prod_name` AS `prodName`,
+        `ipv`.`prod_pic` AS `picture`,
+        `ipv`.`prod_icon` AS `icon`,
+        `ipv`.`prod_model_name` AS `modelName`,
+        `ipv`.`prod_brand_name` AS `brandName`,
+        `ipv`.`prod_category_code` AS `categoryCode`,
+        `ipv`.`prod_category_name` AS `categoryName`
+        FROM `iot_prod_view` `ipv`
+        WHERE `ipv`.`deleted` = 0
+        AND `ipv`.`tenant` = #{tenant}
+        AND (
+        `ipv`.`prod_category_code` = #{categoryCodeConcat}
+        OR `ipv`.`prod_category_concat` LIKE CONCAT(#{categoryCodeConcat}, '%')
+        )
+    </select>
+
+    <select id="selectProdIdByCategoryCodes"
+            resultType="java.lang.Long">
+        SELECT `ipv`.`id`
+        FROM `iot_prod_view` `ipv`
+        WHERE `ipv`.`deleted` = 0
+        AND `ipv`.`tenant` = #{tenant}
+        AND `ipv`.`prod_category_code` in
+        <foreach collection="categoryCodes" item="categoryCode" open="(" separator="," close=")">
+            #{categoryCode}
+        </foreach>
+    </select>
+
+    <select id="selectProdCategoryListByCode"
+            resultType="com.guhecloud.cube.base.device.center.open.entity.ProductCategoryInfoEntity">
+        SELECT
+        `icv`.`category_code` AS `categoryCode`,
+        `icv`.`category_name` AS `categoryName`,
+        `icv`.`category_name_concat` AS `categoryNameConcat`,
+        `icv`.`category_code_concat` AS `categoryCodeConcat`
+        FROM `iot_category_view` `icv`
+        WHERE `icv`.`tenant` = #{tenant}
+        AND `icv`.`deleted` = 0
+        <if test="codes != null and codes.size > 0">
+            AND `icv`.`category_code` IN
+            <foreach collection="codes" item="code" open="(" close=")" separator=",">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectDeviceTagsByProductId"
+            resultType="com.guhecloud.cube.base.device.center.metadata.vo.DeviceTagVO">
+        SELECT
+        `tag`.`id`,
+        `tag`.`tag_code`,
+        `tag`.`tag_name`,
+        `tag`.`description`
+        FROM `iot_prod_view` `ipv`
+        INNER JOIN `center_biz_tag_ref` `ref` ON `ipv`.`id` = `ref`.`business_key`
+        INNER JOIN `center_biz_tag` `tag` ON `ref`.`tag_id` = `tag`.`id`
+        <where>
+            `ipv`.`id` = #{productId}
+        </where>
+    </select>
+
+    <select id="categoryPage"
+            resultType="com.guhecloud.cube.base.device.center.open.entity.ProductCategoryInfoEntity">
+        SELECT
+        `icv`.`category_code` AS `categoryCode`,
+        `icv`.`category_name` AS `categoryName`,
+        `icv`.`category_name_concat` AS `categoryCodeConcat`,
+        `icv`.`category_code_concat` AS `categoryNameConcat`
+        FROM `iot_category_view` `icv`
+        WHERE `icv`.`tenant` = #{tenant}
+        AND `icv`.`deleted` = 0
+        <if test="codes != null and codes.size > 0">
+            AND `icv`.`category_code` IN
+            <foreach collection="codes" item="code" open="(" close=")" separator=",">
+                #{code}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="deviceProductCount" resultType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceProductCountDTO">
+        SELECT
+        `imp`.`id` as productId,
+        `imp`.`prod_name` AS `productName`,
+        COUNT(`cbd`.id) as deviceCount
+        FROM `iot_md_product` `imp`
+        left join `center_biz_device` `cbd` on (cbd.device_iot_prod_id = imp.id)
+        <where>
+            <if test="productIds != null and productIds.size() > 0">
+                imp.id in
+                <foreach collection="productIds" item="productId" open="(" separator="," close=")">
+                    #{productId}
+                </foreach>
+            </if>
+            <if test="deviceIds != null and deviceIds.size() > 0">
+                cbd.id in
+                <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        group by imp.id, imp.prod_name
+    </select>
+</mapper>

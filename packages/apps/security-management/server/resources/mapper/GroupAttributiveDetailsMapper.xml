@@ -1,0 +1,52 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.dao.GroupAttributiveDetailsMapper">
+
+    <resultMap id="groupAttributiveMap" type="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveInfoVo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <collection property="groupAttributiveDetailsVos"
+                    javaType="list"
+                    ofType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveDetailsVo"
+                    select="findListById"
+                    column="id">
+
+        </collection>
+
+    </resultMap>
+
+    <select id="getGroupAttributive"
+            resultMap="groupAttributiveMap">
+        SELECT `id`,`name`
+        FROM `attributive_group`
+            where
+                `application_code` = #{applicationCode}
+            <if test="groupName !=null and groupName !=''">
+                and `name` = #{groupName}
+            </if>
+    </select>
+
+    <select id="findListById"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveDetailsVo">
+        SELECT `id`,`code`,`group_id` as `groupId`,`attributive_name` as `attributiveName` FROM `group_attributive_details`
+            where
+                `group_id` = #{id}
+        ORDER BY `code` ASC
+    </select>
+
+    <select id="getGroupAttributives" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.AttributiveGroupVo">
+        SELECT
+            a.`code` as `attributeCode`,
+            b.`name`,
+            a.`attributive_name` `attributeName`
+        FROM
+            `group_attributive_details` a
+                JOIN `attributive_group` b ON a.`group_id` = b.`id`
+        where
+            b.`application_code` = #{applicationCode}
+          and a.`code` in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

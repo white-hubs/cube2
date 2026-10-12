@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.PatrolTaskMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyPatrolTask">
+        insert into
+        `safety_patrol_task`(id,task_name,task_create_time,execute_data,status_code,status_name,
+        result_code,result_name,route_name,location_num,user_name,
+        market_tenant,market_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.taskName},#{item.taskCreateTime},#{item.executeData},#{item.statusCode},#{item.statusName},
+            #{item.resultCode},#{item.resultName},#{item.routeName},#{item.locationNum},#{item.userName},
+            #{item.marketTenant},#{item.marketName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        task_name = values(task_name),
+        task_create_time = values(task_create_time),
+        execute_data = values(execute_data),
+        status_code = values(status_code),
+        status_name = values(status_name),
+        result_code = values(result_code),
+        result_name = values(result_name),
+        route_name = values(route_name),
+        location_num = values(location_num),
+        user_name = values(user_name),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

@@ -1,0 +1,1 @@
+ALTER TABLE `center_biz_device_expand` ADD COLUMN `location_des` varchar(500) NULL COMMENT '位置描述信息' AFTER `production_date`;

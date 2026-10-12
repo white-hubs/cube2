@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.statistics.dao.InspectPlanStatisticsMapper">
+
+    <sql id="RootTaskSql">
+        SELECT
+        t.id,
+        COALESCE(t.plan_id, t.id) AS group_id,
+        COALESCE(p.name, t.name) AS name,
+        t.type_id,
+        t.type_name,
+        t.status,
+        t.create_time
+        FROM inspect_task t
+        LEFT JOIN inspect_plan p
+        ON p.id = t.plan_id
+        AND p.deleted = 0
+        <where>
+            t.deleted = 0
+            AND t.parent_id = 0
+            <if test="param.period != null and param.period.begin != null">
+                AND t.create_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                AND t.create_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.typeId != null">
+                AND t.type_id = #{param.typeId}
+            </if>
+            <if test="param.name != null and param.name != ''">
+                AND (
+                p.name LIKE CONCAT('%', #{param.name}, '%')
+                OR t.name LIKE CONCAT('%', #{param.name}, '%')
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectPlanStatisticsPage"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.statistics.model.vo.InspectPlanStatisticsVO">
+        SELECT
+        task_stat.name AS name,
+        task_stat.type_id AS typeId,
+        task_stat.type_name AS typeName,
+        COALESCE(task_stat.task_total, 0) AS taskTotal,
+        COALESCE(task_stat.completed_task_total, 0) AS completedTaskTotal,
+        COALESCE(task_stat.pending_task_total, 0) AS pendingTaskTotal,
+        COALESCE(record_stat.object_total, 0) AS objectTotal,
+        COALESCE(record_stat.inspected_object_total, 0) AS inspectedObjectTotal,
+        COALESCE(record_stat.pending_object_total, 0) AS pendingObjectTotal,
+        COALESCE(item_stat.abnormal_item_total, 0) AS abnormalItemTotal,
+        COALESCE(item_stat.unhandled_abnormal_item_total, 0) AS unhandledAbnormalItemTotal,
+        COALESCE(item_stat.handled_abnormal_item_total, 0) AS handledAbnormalItemTotal
+        FROM (
+        SELECT
+        root_task.group_id,
+        MAX(root_task.name) AS name,
+        MAX(root_task.type_id) AS type_id,
+        MAX(root_task.type_name) AS type_name,
+        COUNT(DISTINCT root_task.id) AS task_total,
+        SUM(CASE WHEN root_task.status IN ('OVER', 'WAIT_REPAIR', 'REPAIRED') THEN 1 ELSE 0 END) AS completed_task_total,
+        SUM(CASE WHEN root_task.status IN ('ACCEPT', 'EXECUTING', 'SPLIT') THEN 1 ELSE 0 END) AS pending_task_total,
+        MAX(root_task.create_time) AS last_create_time
+        FROM (
+        <include refid="RootTaskSql"/>
+        ) root_task
+        GROUP BY root_task.group_id
+        ) task_stat
+        LEFT JOIN (
+        SELECT
+        root_task.group_id,
+        COUNT(DISTINCT r.id) AS object_total,
+        SUM(CASE WHEN r.result IS NOT NULL AND r.result &lt;&gt; '' THEN 1 ELSE 0 END) AS inspected_object_total,
+        SUM(CASE WHEN r.result IS NULL OR r.result = '' THEN 1 ELSE 0 END) AS pending_object_total
+        FROM inspect_record r
+        INNER JOIN inspect_task record_task
+        ON record_task.id = r.task_id
+        AND record_task.deleted = 0
+        INNER JOIN (
+        <include refid="RootTaskSql"/>
+        ) root_task
+        ON root_task.id = CASE WHEN record_task.parent_id = 0 THEN record_task.id ELSE record_task.parent_id END
+        WHERE r.deleted = 0
+        GROUP BY root_task.group_id
+        ) record_stat
+        ON record_stat.group_id = task_stat.group_id
+        LEFT JOIN (
+        SELECT
+        root_task.group_id,
+        COUNT(item.id) AS abnormal_item_total,
+        SUM(CASE WHEN r.repair_status = 'REPAIRED' THEN 1 ELSE 0 END) AS handled_abnormal_item_total,
+        SUM(CASE WHEN r.repair_status IS NULL OR r.repair_status &lt;&gt; 'REPAIRED' THEN 1 ELSE 0 END) AS unhandled_abnormal_item_total
+        FROM inspect_record_item item
+        INNER JOIN inspect_record r
+        ON r.id = item.record_id
+        AND r.deleted = 0
+        INNER JOIN inspect_task record_task
+        ON record_task.id = r.task_id
+        AND record_task.deleted = 0
+        INNER JOIN (
+        <include refid="RootTaskSql"/>
+        ) root_task
+        ON root_task.id = CASE WHEN record_task.parent_id = 0 THEN record_task.id ELSE record_task.parent_id END
+        WHERE item.deleted = 0
+        AND item.error_value_flag = 1
+        GROUP BY root_task.group_id
+        ) item_stat
+        ON item_stat.group_id = task_stat.group_id
+        ORDER BY task_stat.last_create_time DESC, task_stat.name DESC
+    </select>
+</mapper>

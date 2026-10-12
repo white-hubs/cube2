@@ -1,0 +1,58 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "subsystem-requester-sdk"
+
+java_library(
+    name = "subsystem-requester-sdk",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+        "//packages/platform/subsystem-config",
+    ],
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/client:client-config",
+        "//packages/platform/rocketmq",
+        "//packages/platform/subsystem-config",
+        "//third-party/java:lombok",
+        "//third-party/java/apache:rocketmq",
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/mybatis-plus:extension",
+        "//third-party/java/openfeign",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_cloud",
+        "//third-party/java/spring:spring_cloud_loadbalancer",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":subsystem-requester-sdk",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

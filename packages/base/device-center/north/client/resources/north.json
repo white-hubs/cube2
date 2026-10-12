@@ -1,0 +1,502 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "北向接口定义",
+    "description": "仅针对北向client接口定义",
+    "version": "1.0.0"
+  },
+  "components": {
+    "schemas": {
+      "item": {
+        "type": "object",
+        "description": "北向提供标准字典项",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "id"
+          },
+          "itemLabel": {
+            "type": "string",
+            "description": "key"
+          },
+          "itemValue": {
+            "type": "string",
+            "description": "value"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/item"
+            }
+          }
+        }
+      },
+      "product": {
+        "type": "object",
+        "description": "产品",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "id"
+          },
+          "prodNumber": {
+            "type": "string",
+            "description": "产品编码"
+          },
+          "prodName": {
+            "type": "string",
+            "description": "产品名称"
+          },
+          "prodCategoryCode": {
+            "type": "string",
+            "format": "int64",
+            "description": "产品品类code(前期使用id实现,后期可能会用code实现)"
+          },
+          "prodCategoryName": {
+            "type": "string",
+            "description": "产品品类名称"
+          },
+          "prodBrandCode": {
+            "type": "string",
+            "format": "int64",
+            "description": "产品品牌code(前期使用id实现,后期可能会用code实现)"
+          },
+          "prodBrandName": {
+            "type": "string",
+            "description": "产品品牌名称"
+          },
+          "prodNumberCode": {
+            "type": "integer",
+            "format": "int64",
+            "description": "产品型号(前期使用id实现,后期可能会用code实现)"
+          },
+          "prodNumberName": {
+            "type": "string",
+            "description": "产品型号名称"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          },
+          "productPropList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productProp"
+            }
+          },
+          "productEventList": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/productEvent"
+            }
+          }
+        }
+      },
+      "productProp": {
+        "type": "object",
+        "description": "产品属性",
+        "properties": {
+          "propCode": {
+            "type": "string",
+            "description": "属性编码"
+          },
+          "name": {
+            "type": "string",
+            "description": "属性名称"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "int",
+              "long",
+              "float",
+              "double",
+              "boolean",
+              "string",
+              "enum"
+            ],
+            "description": "数据类型"
+          },
+          "precision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "精度,浮点数由此选项(貌似放入约束中好一点)"
+          },
+          "unitName": {
+            "type": "string",
+            "description": "单位名称"
+          },
+          "dataWrite": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+              0,
+              1
+            ],
+            "description": "数据写入,0读 1读写",
+            "x-apifox": {
+              "enumDescriptions": {
+                "0": "只读",
+                "1": "读写"
+              }
+            }
+          },
+          "dataConstraint": {
+            "type": "object",
+            "description": "数据约束定义",
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/enumDataConstraint"
+              },
+              {
+                "$ref": "#/components/schemas/numberDataConstraint"
+              },
+              {
+                "$ref": "#/components/schemas/stringDataConstraint"
+              }
+            ]
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      },
+      "productEvent": {
+        "type": "object",
+        "description": "产品事件",
+        "properties": {
+          "prodId": {
+            "type": "integer",
+            "format": "int64",
+            "description": "产品id"
+          },
+          "name": {
+            "type": "string",
+            "description": "事件名称"
+          },
+          "eventCode": {
+            "type": "string",
+            "description": "事件编码"
+          },
+          "eventConfig": {
+            "type": "object",
+            "description": "事件配置",
+            "properties": {
+              "triggerType": {
+                "type": "string",
+                "enum": [
+                  "SIMPLE",
+                  "SETTING",
+                  "EMPTY"
+                ],
+                "description": "触发类型",
+                "x-apifox": {
+                  "enumDescriptions": {
+                    "SIMPLE": "单个设备的属性判断形成事件",
+                    "SETTING": "设备原生事件(可以进行阈值设定)",
+                    "EMPTY": "设备原生事件"
+                  }
+                }
+              },
+              "eventRelatedProp": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "事件相关属性,可以是产品属性之外的定义"
+                }
+              },
+              "rule": {
+                "type": "object",
+                "description": "规则",
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/simpleRule"
+                  },
+                  {
+                    "$ref": "#/components/schemas/settingRule"
+                  },
+                  {
+                    "$ref": "#/components/schemas/emptyRule"
+                  }
+                ]
+              }
+            }
+          },
+          "categoryCode": {
+            "type": "string",
+            "format": "int64",
+            "description": "事件分类(前期使用id实现,后期可能会用code实现)"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "事件分类名称"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        }
+      },
+      "enumDataConstraint": {
+        "type": "object",
+        "description": "布尔、枚举类型配置",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "description": "值"
+          },
+          "label": {
+            "type": "string",
+            "description": "标签"
+          }
+        }
+      },
+      "numberDataConstraint": {
+        "type": "object",
+        "description": "数字类型配置",
+        "properties": {
+          "min": {
+            "type": "number",
+            "description": "最小值"
+          },
+          "max": {
+            "type": "number",
+            "description": "最大值"
+          }
+        }
+      },
+      "stringDataConstraint": {
+        "type": "object",
+        "description": "字符串类型配置(未实现,返回空字符)",
+        "properties": {
+          "pattern": {
+            "type": "string",
+            "description": "正则表达式"
+          }
+        }
+      },
+      "simpleRule": {
+        "type": "object",
+        "description": "简单规则",
+        "properties": {
+          "propCode": {
+            "type": "string"
+          },
+          "op": {
+            "type": "string",
+            "description": "操作符[EQ,NE,IN,GT,GE,LE,LT,BETWEEN,NOT_IN]"
+          },
+          "oprand": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "依operator不同而不同"
+          },
+          "delayTime": {
+            "type": "integer",
+            "description": "延时检查单位秒"
+          }
+        },
+        "required": [
+          "propCode",
+          "op",
+          "oprand",
+          "delayTime"
+        ],
+        "x-apifox-orders": [
+          "propCode",
+          "op",
+          "oprand",
+          "delayTime"
+        ]
+      },
+      "settingRule": {
+        "type": "object",
+        "description": "设置规则",
+        "properties": {
+          "propCode": {
+            "type": "string",
+            "description": "属性编码"
+          }
+        }
+      },
+      "emptyRule": {
+        "type": "object",
+        "description": "空的规则"
+      }
+    },
+    "parameters": {
+      "itemQuery": {
+        "name": "itemQuery",
+        "in": "query",
+        "description": "itemQuery",
+        "required": false,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "maxDepth": {
+              "type": "integer",
+              "format": "int32",
+              "description": "层级最大深度",
+              "required": false,
+              "default": 3
+            },
+            "itemLabel": {
+              "type": "string",
+              "description": "like key",
+              "required": false
+            },
+            "itemValue": {
+              "type": "string",
+              "description": "like value",
+              "required": false
+            }
+          }
+        }
+      },
+      "productQuery": {
+        "name": "productQuery",
+        "in": "query",
+        "description": "产品查询",
+        "required": false,
+        "schema": {
+          "type": "object",
+          "properties": {
+            "productCode": {
+              "type": "string",
+              "description": "产品编码",
+              "required": false
+            },
+            "productName": {
+              "type": "string",
+              "description": "产品名称",
+              "required": false
+            },
+            "productCategoryLabel": {
+              "type": "string",
+              "description": "产品品类",
+              "required": false
+            },
+            "productCategoryIds": {
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int64"
+              },
+              "description": "产品品类id",
+              "required": false
+            },
+            "page": {
+              "type": "integer",
+              "format": "int32",
+              "description": "页码",
+              "required": false,
+              "default": 1
+            },
+            "pageSize": {
+              "type": "integer",
+              "format": "int32",
+              "description": "每页条数",
+              "required": false,
+              "default": 10
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "https://127.0.0.1:3200/iot/bakend/"
+    }
+  ],
+  "paths": {
+    "/product/category": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "获取产品分类",
+        "description": "获取产品分类",
+        "operationId": "productCategoryTree",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/itemQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取产品分类成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/item"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product": {
+      "get": {
+        "tags": [
+          "product"
+        ],
+        "summary": "获取产品列表",
+        "description": "获取产品列表",
+        "operationId": "productList",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/productQuery"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "获取产品列表成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "total": {
+                      "type": "integer",
+                      "format": "int32",
+                      "description": "总条数"
+                    },
+                    "list": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/product"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/event/threshold":{
+      "put": {
+        "tags": ["product"],
+        "summary": "事件阈值设定",
+        "description": "基于事件给出的规格描述，进行阈值的动态修改(使其在设备生效)",
+        "operationId": "eventThreshold",
+        "parameters": [
+          {
+            "name": "",
+          }
+        ]
+      }
+    }
+  }
+}

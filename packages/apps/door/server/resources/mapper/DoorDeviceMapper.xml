@@ -1,0 +1,100 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.DoorDeviceMapper">
+    <select id="getDeviceIds" resultType="java.lang.Long">
+        select business_id
+        from
+            door_device
+
+    </select>
+    <select id="getDoorDevicePage" resultType="com.guhecloud.cube.biz.door.server.vo.DoorDeviceVo">
+        SELECT
+            a.id id,
+            a.name,
+            a.business_id businessId,
+            a.out_business_id outBusinessId,
+            a.door_code doorCode,
+            b.door_type_name typeName
+        FROM
+            door_device a LEFT JOIN door_type b on a.type = b.id
+        <where>
+            <if test="doorParam.type !=null and doorParam.type !=''">
+                and a.type =  #{doorParam.type}
+            </if>
+
+            <if test="doorParam.doorArea !=null and doorParam.doorArea !=''">
+                and a.door_area =  #{doorParam.doorArea}
+            </if>
+
+            <if test="doorParam.keyword !=null and doorParam.keyword !=''">
+                and (a.name like concat('%',#{doorParam.keyword},'%') or a.door_code like concat('%',#{doorParam.keyword},'%'))
+            </if>
+            <if test="doorParam.outBusinessIdList !=null and doorParam.outBusinessIdList.size() > 0 ">
+                and a.out_business_id in
+                <foreach collection="doorParam.outBusinessIdList" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        order by a.create_time desc
+
+    </select>
+
+    <update id="updateStatus">
+        <foreach collection="list" item="item" separator=";">
+            update door_device set status=#{item.doorState} where out_business_id = #{item.doorIndexCode}
+        </foreach>
+    </update>
+
+    <select id="deleteDoorDeviceList">
+        update door_device
+        set
+        deleted = 1
+        where
+            id in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+    </select>
+    <select id="deleteDoorDeviceByBusinessIds">
+        update door_device
+        set
+        deleted = 1
+        where
+        business_id in
+        <foreach collection="businessIds" item="businessId" separator="," open="(" close=")">
+            #{businessId}
+        </foreach>
+    </select>
+    <select id="getDoorDeviceList" resultType="com.guhecloud.cube.biz.door.server.vo.DoorDeviceVo">
+        SELECT
+        a.id id,
+        a.name,
+        a.business_id businessId,
+        a.out_business_id outBusinessId,
+        a.door_code doorCode
+        FROM
+        door_device a
+        <where>
+            <if test="doorParam.type !=null and doorParam.type !=''">
+                and a.type =  #{doorParam.type}
+            </if>
+
+            <if test="doorParam.doorArea !=null and doorParam.doorArea !=''">
+                and a.door_area =  #{doorParam.doorArea}
+            </if>
+
+            <if test="doorParam.keyword !=null and doorParam.keyword !=''">
+                and (a.name like concat('%',#{doorParam.keyword},'%') or a.door_code like concat('%',#{doorParam.keyword},'%'))
+            </if>
+
+            <if test="doorParam.ids !=null and doorParam.ids.size>0">
+                and a.id in
+                <foreach collection="doorParam.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        order by a.create_time desc
+
+    </select>
+</mapper>

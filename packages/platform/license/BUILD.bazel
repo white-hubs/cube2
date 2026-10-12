@@ -1,0 +1,50 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = [
+    "//packages/base/license/server:__subpackages__",
+    "//packages/platform/security:__subpackages__",
+])
+
+artifactId = "platform-license"
+
+java_library(
+    name = "license",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:error-response",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:spring-file",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/web",
+        "//third-party/java:lombok",
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/jackson",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:springframework",
+        "//third-party/java/truelicense",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    runtime_deps = [
+        ":license",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

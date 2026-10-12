@@ -1,0 +1,116 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.iot.dao.MedicalIotRealTimeDataMapper">
+    <resultMap id="getRealTimeDataPage"
+               type="com.guhecloud.cube.srv.gen.medical.cleanliness.server.iot.vo.MedicalIotRealTimeDataVO">
+        <id column="id" property="id"></id>
+        <result column="tenant_name" property="tenantName"></result>
+        <result column="dep_id" property="depId"></result>
+        <result column="dep_name" property="depName"></result>
+        <result column="device_id" property="deviceId"></result>
+        <result column="device_name" property="deviceName"></result>
+        <result column="deviceStatus" property="deviceStatus"></result>
+        <collection property="data" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.iot.entity.MedicalIotRealTimeDataDetails">
+            <result column="status" property="status"></result>
+            <result column="value" property="value"></result>
+            <result column="rule_norm_code" property="ruleNormCode"></result>
+            <result column="rule_norm_name" property="ruleNormName"></result>
+            <result column="unit" property="unit"></result>
+        </collection>
+    </resultMap>
+    <insert id="saveOrUpdate">
+        INSERT INTO `medical_iot_real_time_data`
+        (`id`, `status`, `device_id`,
+         `tenant_name`, `dep_id`, `dep_name`, `device_name`)
+        VALUES (#{param.id},
+                #{param.status},
+                #{param.deviceId},
+                #{param.tenantName},
+                #{param.depId},
+                #{param.depName},
+                #{param.deviceName}) ON DUPLICATE KEY
+        UPDATE
+            `status` = #{param.status},
+            `device_id` = #{param.deviceId},
+            `tenant_name` = #{param.tenantName},
+            `dep_id` = #{param.depId},
+            `dep_name` = #{param.depName},
+            `device_name` = #{param.deviceName}
+    </insert>
+    <select id="getRealTimeDataPage"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.iot.vo.MedicalIotRealTimeDataVO">
+        SELECT a.id,a.`status` as deviceStatus,a.dep_id,a.dep_name,a.device_id,a.device_name,a.tenant_name
+        FROM `medical_iot_real_time_data` a
+        <where>
+            <if test="param.tenant != null">
+                a.tenant = #{param.tenant}
+            </if>
+            <if test="param.depId !=null">
+                and a.dep_id = #{param.depId}
+            </if>
+            <if test="organizationIds !=null">
+                and a.dep_id in
+                <foreach collection="organizationIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status = #{param.status}
+            </if>
+            <if test="param.normType !=null and param.normType !=''">
+                and a.norm_type = #{param.normType}
+            </if>
+            <if test="param.deviceIds !=null and param.deviceIds.size >0">
+                and a.device_id in
+                <foreach collection="param.deviceIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="param.deviceName !=null and param.deviceName !=''">
+                and a.device_name like concat('%',#{param.deviceName},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getRealTimeDataNorm" resultMap="getRealTimeDataPage">
+        SELECT a.id,a.`status` as deviceStatus,a.dep_id,a.dep_name,a.device_id,a.device_name,a.tenant_name,
+        b.`status`,b.`value`,b.rule_norm_code,b.rule_norm_name,b.unit
+        FROM `medical_iot_real_time_data` a
+        left join medical_iot_real_time_data_details b on a.device_id=b.device_id
+        <if test="param.status !=null and param.status !='' and 'ABNORMAL'==param.status">
+            and b.status in ('LOWER_LIMIT','UPPER_LIMIT')
+        </if>
+        <if test="param.normType !=null and param.normType !=''">
+            and b.type = #{param.normType}
+        </if>
+        where
+        a.id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="deviceIds != null and deviceIds.size > 0">
+            and a.device_id in
+            <foreach collection="deviceIds" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="statusStatistics" resultType="Map">
+        SELECT `status`, count(1) as value
+        FROM `medical_iot_real_time_data`
+        <where>
+            <if test="organizationIds !=null">
+                and dep_id in
+                <foreach collection="organizationIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="deviceIds != null and deviceIds.size > 0">
+                and device_id in
+                <foreach collection="deviceIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY `status`
+    </select>
+</mapper>

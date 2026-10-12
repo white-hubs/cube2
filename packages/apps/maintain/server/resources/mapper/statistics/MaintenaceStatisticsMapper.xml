@@ -1,0 +1,186 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.dao.MaintenanceStatisticsMapper">
+    <select id="getDeviceStatisticsPage"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.vo.MaintenanceDeviceStatisticsPageVO">
+        SELECT
+        `object_id` as `id`,
+        `object_name` as `name`,
+        `category_code`,
+        `category_name`,
+        COUNT(1) as `num`,
+        max(`maintenance_finish_time`) `last_time`
+        FROM
+        `maintenance_tasks`
+        <where>
+            `maintenance_finish_time` is not null
+            <if test="param.keyword !=null and param.keyword != ''">
+                and `object_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.categoryCode != null and param.categoryCode != ''">
+                and `category_code` like concat('%',#{param.categoryCode},'%')
+            </if>
+            <if test="param.period != null">
+                and `maintenance_time` between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `object_id`,`object_name`,`category_code`,`category_name`
+        order by max(`maintenance_finish_time`) desc
+    </select>
+
+    <select id="getDeviceStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.vo.MaintenanceDeviceStatisticsPageVO">
+        SELECT
+        `object_id` as `id`,
+        `object_name` as `name`,
+        `category_code`,
+        `category_name`,
+        COUNT(1) as `num`,
+        max(`maintenance_finish_time`) `last_time`
+        FROM
+        `maintenance_tasks`
+        <where>
+            `maintenance_finish_time` is not null
+            <if test="param.keyword !=null and param.keyword != ''">
+                and `object_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.categoryCode != null and param.categoryCode != ''">
+                and `category_code` like concat('%',#{param.categoryCode},'%')
+            </if>
+            <if test="param.period != null">
+                and `maintenance_time` between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `object_id`,`object_name`,`category_code`,`category_name`
+        order by max(`maintenance_finish_time`) desc
+    </select>
+    <select id="selectMaintainTaskNumRatio" resultType="java.lang.Integer">
+        SELECT
+        COUNT( id )
+        FROM
+        maintenance_tasks
+        where
+        maintenance_task_status = #{status}
+    </select>
+    <select id="selectMaintainTaskPersonNumRatio"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.vo.MaintainTaskNumVO">
+        SELECT
+        maintenance_task_person_id as keyId,
+        maintenance_task_person as keyName,
+        COUNT( id ) as finished
+        FROM
+        maintenance_tasks
+        WHERE
+        maintenance_task_status = #{status}
+        GROUP BY
+        maintenance_task_person_id
+    </select>
+    <select id="selectBeMaintainedTaskPerson"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.vo.MaintainTaskNumVO">
+        SELECT
+        temp.person_id AS keyId,
+        COUNT( mp.ID ) AS unfinished
+        FROM
+        maintenance_plan mp
+        LEFT JOIN maintenance_tasks mt ON mp.id = mt.plan_id
+        LEFT JOIN (
+        SELECT
+        SUBSTRING_INDEX( SUBSTRING_INDEX( t.responsibility_person_id, '-', n.n ), '-', - 1 ) AS person_id
+        FROM
+        maintenance_plan t
+        JOIN ( SELECT 1 AS n UNION ALL SELECT 2 UNION ALL SELECT 3 UNION ALL SELECT 4 UNION ALL SELECT 5 ) n -- 假设最多5个ID用-分隔
+        ON LENGTH( t.responsibility_person_id ) - LENGTH(
+        REPLACE ( t.responsibility_person_id, '-', '' )) >= n.n - 1
+        WHERE
+        t.responsibility_person_id IS NOT NULL
+        AND t.responsibility_person_id != ''
+        GROUP BY
+        person_id
+        ) temp ON mp.responsibility_person_id LIKE CONCAT( '%', temp.person_id, '%' )
+        WHERE
+        mt.maintenance_task_status = 'BE_MAINTAINED'
+        GROUP BY
+        temp.person_id
+    </select>
+    <select id="selectMaintainTaskDeviceNumRatio"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.statistics.vo.MaintainTaskNumVO">
+        SELECT
+        object_id AS key_id,
+        object_name AS key_name,
+        COUNT( id ) AS finished
+        FROM
+        maintenance_tasks
+        WHERE
+        maintenance_task_status = #{status}
+        GROUP BY
+        object_id
+    </select>
+    <select id="selectMaintainTaskExecuteTrend"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.vo.TrendDecimalStatisticsVO">
+        SELECT
+        DATE_FORMAT(`create_time`, #{param.dateExp}) AS `time`,
+        COUNT(id) AS `count`
+        FROM
+        maintenance_tasks
+        <where>
+            <if test="param.period != null">
+                and `create_time` BETWEEN #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="status != null and status != '' ">
+                and `maintenance_task_status` = #{status}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`create_time`, #{param.dateExp})
+        ORDER BY
+        DATE_FORMAT(`create_time`, #{param.dateExp})
+    </select>
+    <select id="selectMaintainTaskTimeNum"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.vo.TrendDecimalStatisticsVO">
+        SELECT
+        DATE_FORMAT( `maintenance_finish_time`, '%H' ) AS `time`,
+        COUNT( id ) AS `count`
+        FROM
+        maintenance_tasks
+        WHERE
+        maintenance_task_status = 'COMPLETED'
+        GROUP BY
+        DATE_FORMAT( `maintenance_finish_time`, '%H' )
+        ORDER BY
+        DATE_FORMAT(`maintenance_finish_time`,'%H')
+    </select>
+
+    <select id="maintainTaskTotalStat" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM maintenance_tasks
+        <where>
+            <!-- 周期开始时间条件 -->
+            <if test="param.period != null and param.period.begin != null">
+                AND create_time &gt;= #{param.period.begin}
+            </if>
+            <!-- 周期结束时间条件 -->
+            <if test="param.period != null and param.period.end != null">
+                AND create_time &lt;= #{param.period.end}
+            </if>
+            <!-- 计划ID列表条件 -->
+            <if test="param.planIdList != null and param.planIdList.size() > 0">
+                AND plan_id IN
+                <foreach collection="param.planIdList" item="planId" open="(" separator="," close=")">
+                    #{planId}
+                </foreach>
+            </if>
+            <if test="param.overTimeBool != null and param.overTimeBool">
+                AND (
+                <!-- 字段非空保障 -->
+                maintenance_time IS NOT NULL
+                AND (
+                <!-- 情况1: 已结束但超时 -->
+                (maintenance_finish_time IS NOT NULL AND maintenance_finish_time > DATE_ADD(maintenance_time, INTERVAL 48 HOUR))
+                OR
+                <!-- 情况2: 未结束但已过截止时间（当前时间超过允许完成时间）-->
+                (maintenance_finish_time IS NULL AND NOW() > DATE_ADD(maintenance_time, INTERVAL 48 HOUR))
+                )
+                )
+            </if>
+        </where>
+    </select>
+</mapper>

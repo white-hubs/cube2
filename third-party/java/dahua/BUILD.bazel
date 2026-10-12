@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "icc_sdk",
+    exports = [
+        "@maven//:com_dahuatech_icc_java_sdk_common",
+        "@maven//:com_dahuatech_icc_java_sdk_oauth",
+    ],
+)

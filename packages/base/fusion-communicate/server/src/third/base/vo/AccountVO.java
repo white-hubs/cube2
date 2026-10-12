@@ -1,0 +1,48 @@
+package com.guhecloud.cube.biz.fusion.communicate.server.third.base.vo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class AccountVO {
+
+    /**
+     * 名称
+     */
+    private String name;
+
+    /**
+     * 编号
+     */
+    private String code;
+
+    /**
+     * 通讯号码
+     */
+    private String number;
+
+    /**
+     * 账号等级
+     */
+    private String level;
+
+    /**
+     * 账号使用状态
+     */
+    private String usageState;
+
+    /**
+     * 账号密码
+     */
+    private String password;
+
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
+}

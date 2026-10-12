@@ -1,0 +1,149 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.dao.PersonRollCallTaskMapper">
+
+    <insert id="insertOrUpdateTask" parameterType="java.util.List">
+        INSERT INTO `person_roll_call_task` (
+        `id`,
+        `task_code`,
+        `task_name`,
+        `location_name`,
+        `call_type`,
+        `call_start_time`,
+        `call_end_time`,
+        `status`,
+        `attended_count`,
+        `unattended_count`,
+        `special_count`,
+        `duration`,
+        `third_record_id`,
+        `deleted`,
+        `tenant`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.taskCode},
+            #{item.taskName},
+            #{item.locationName},
+            #{item.callType},
+            #{item.callStartTime},
+            #{item.callEndTime},
+            #{item.status},
+            #{item.attendedCount},
+            #{item.unattendedCount},
+            #{item.specialCount},
+            #{item.duration},
+            #{item.thirdRecordId},
+            #{item.deleted},
+            #{item.tenant},
+            #{item.createBy},
+            #{item.creatorId},
+            #{item.creatorType},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updaterId},
+            #{item.updaterType},
+            #{item.updateTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `task_code` = VALUES(`task_code`),
+        `task_name` = VALUES(`task_name`),
+        `location_name` = VALUES(`location_name`),
+        `call_type` = VALUES(`call_type`),
+        `call_start_time` = VALUES(`call_start_time`),
+        `call_end_time` = VALUES(`call_end_time`),
+        `status` = VALUES(`status`),
+        `attended_count` = VALUES(`attended_count`),
+        `unattended_count` = VALUES(`unattended_count`),
+        `special_count` = VALUES(`special_count`),
+        `duration` = VALUES(`duration`),
+        `third_record_id` = VALUES(`third_record_id`),
+        `deleted` = VALUES(`deleted`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.vo.PersonRollCallTaskPageVO">
+        SELECT
+        p.`id`,
+        p.`task_code`,
+        p.`task_name`,
+        p.`location_name`,
+        p.`call_type`,
+        p.`call_start_time`,
+        p.`call_end_time`,
+        p.`status`,
+        p.`attended_count`,
+        p.`unattended_count`,
+        p.`special_count`,
+        p.`duration`,
+        p.`third_record_id`,
+        p.`deleted`,
+        p.`tenant`,
+        p.`create_by`,
+        p.`create_time`,
+        p.`update_by`,
+        p.`update_time`
+        FROM
+        `person_roll_call_task` p
+        <where>
+            p.`deleted` = 0
+            <if test="param.callTimePeriod != null">
+                AND p.`call_start_time` &gt;= #{param.callTimePeriod.begin} AND p.`call_end_time` &lt;= #{param.callTimePeriod.end}
+            </if>
+            <if test="param.callType != null and param.callType != ''">
+                AND p.`call_type` = #{param.callType}
+            </if>
+            <if test="param.taskName != null and param.taskName != '' ">
+                AND p.`task_name` = #{param.taskName}
+            </if>
+        </where>
+        ORDER BY p.`call_start_time` DESC
+    </select>
+    <select id="getList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.vo.PersonRollCallTaskVO"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.param.PersonRollCallListParam">
+        SELECT
+        p.`id`,
+        p.`task_code`,
+        p.`task_name`,
+        p.`location_name`,
+        p.`call_type`,
+        p.`call_start_time`,
+        p.`call_end_time`,
+        p.`status`,
+        p.`attended_count`,
+        p.`unattended_count`,
+        p.`special_count`,
+        p.`duration`,
+        p.`third_record_id`,
+        p.`deleted`,
+        p.`tenant`,
+        p.`create_by`,
+        p.`create_time`,
+        p.`update_by`,
+        p.`update_time`
+        FROM
+        `person_roll_call_task` p
+        <where>
+            p.`deleted` = 0
+            <if test="param.callTimePeriod != null">
+                AND p.`call_start_time` &gt;= #{param.callTimePeriod.begin} AND p.`call_start_time` &lt;= #{param.callTimePeriod.end}
+            </if>
+        </where>
+        ORDER BY p.`call_start_time` DESC
+    </select>
+</mapper>

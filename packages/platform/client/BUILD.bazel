@@ -1,0 +1,76 @@
+load("@rules_jvm_external//:defs.bzl", "java_export", "maven_bom", "pom_file")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-client"
+
+java_library(
+    name = "client-config",
+    srcs = [
+        "CustomFeignErrorDecoder.java",
+        "FeignConfig.java",
+    ],
+    deps = [
+        "//packages/platform/base/model:error-response",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:json",
+        "//third-party/java/openfeign:openfeign_core",
+        "//third-party/java/spring:spring_beans",
+        "//third-party/java/spring:spring_context",
+    ],
+)
+
+java_library(
+    name = "client",
+    exports = [
+        ":client-config",
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/model:error-response",
+        "//packages/platform/base/standard:exception",
+        "//third-party/java/spring:spring_beans",
+        "//third-party/java/spring:spring_cloud",
+        "//third-party/java/spring:spring_context",
+        "//third-party/java/spring:spring_core",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/spring:spring_web",
+    ],
+)
+
+java_export(
+    name = "export",
+    srcs = [],
+    maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        artifactId,
+        PLATFORM_VERSION,
+    ]),
+    pom_template = "pom.tpml",
+    runtime_deps = [
+        "//packages/platform/base:export",
+        "//third-party/java/spring:spring_cloud_openfeign_export",
+    ],
+)
+
+java_export(
+    name = "spring_cloud",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        artifactId + "-dependencies",
+        PLATFORM_VERSION,
+    ]),
+    java_exports = [
+        "//packages/platform/base:export",
+    ],
+    maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        artifactId,
+        PLATFORM_VERSION,
+    ]),
+)

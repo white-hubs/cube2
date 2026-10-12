@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyChargeRulesMapper">
+
+    <!-- 获取用能类型生效的规则 -->
+    <select id="getInstrumentEffectiveRule" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyChargeRulesVO">
+        SELECT * FROM energy_charge_rules tdt ,
+            (SELECT max(effective_time) effective_time FROM energy_charge_rules
+            <where>
+                <if test="param!=null and param.effectiveTime != null">
+                    effective_time &lt;= #{param.effectiveTime}
+                </if>
+                <if test="param!=null and param.instrumentType != null and param.instrumentType != ''">
+                    instrumentType = #{param.instrumentType}
+                </if>
+                <if test="param!=null and param.instrumentTypeList != null and param.instrumentTypeList.size > 0">
+                    <foreach collection="param.instrumentTypeList" item="instrumentType" open="instrument_type in (" close=")" separator=",">
+                        #{instrumentType}
+                    </foreach>
+                </if>
+            </where>
+            GROUP BY instrument_type) ecr
+        where tdt.effective_time = ecr.effective_time;
+    </select>
+
+</mapper>

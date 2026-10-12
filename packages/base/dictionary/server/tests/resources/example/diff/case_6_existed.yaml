@@ -1,0 +1,41 @@
+- configType: DictType
+  version: 1.0
+  isMandatory: True
+  isSystem: True
+  vargs:
+    - code: TypeA
+      remark: ""
+    - code: TypeB
+      remark: ""
+    - code: TypeC
+      remark: ""
+- configType: DictEntry
+  isMandatory: True
+  isSystem: True
+  kwargs:
+    isCascade: False
+    dictType: TypeC
+  vargs:
+    - key: item1
+      label: item1
+- configType: DictEntry
+  isMandatory: True
+  isSystem: False
+  tenants: ["1"]
+  kwargs:
+    isCascade: True
+    dictType: TypeA
+    parent: ""
+  vargs:
+    - key: item1
+      label: item1
+- configType: DictEntry
+  isMandatory: True
+  isSystem: False
+  tenants: [ "1" ]
+  kwargs:
+    isCascade: False
+    dictType: TypeB
+  vargs:
+    - key: item1
+      label: item1

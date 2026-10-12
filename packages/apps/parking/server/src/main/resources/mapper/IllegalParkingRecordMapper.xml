@@ -1,0 +1,7 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.subsystem.parking.server.Illegal.infrastructure.dao.IllegalParkingConfigMapper">
+
+    <select id="getAllTenant" resultType="java.lang.Integer">
+    SELECT DISTINCT tenant FROM illegal_parking_config WHERE deleted = 0;
+    </select>
+</mapper>

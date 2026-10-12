@@ -1,0 +1,24 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.rule.dao.AttendanceGroupMapper">
+
+    <select id="getAttendanceGroupByUserId" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.po.AttendanceGroupPO">
+        select
+        g.`id`,
+        g.`name`,
+        g.`type`,
+        g.`ranges`,
+        g.`classes_type`,
+        g.`auto_rest`,
+        g.`is_punch_card`,
+        g.`is_supplement_card`,
+        g.`is_work_overtime`,
+        g.`punch_card_way_str`,
+        g.`tenant`
+        from `attendance_group` g
+        left join `attendance_group_staff` s on g.`id` = s.`group_id`
+        where s.`staff_id` = #{userId}
+        and g.`type` = 'ARRANGE'
+        limit 1
+    </select>
+
+</mapper>

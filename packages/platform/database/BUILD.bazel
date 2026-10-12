@@ -1,0 +1,76 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-database"
+
+java_library(
+    name = "database",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+        "//packages/platform/base/model:actor-type",
+        "//third-party/java/dameng:dmjdbc",
+        "//third-party/java/highgo:hgjdbc",
+        "//third-party/java/mybatis",
+        "//third-party/java/mybatis:mybatis_spring",
+        "//third-party/java/mybatis-plus:annotation",
+        "//third-party/java/mybatis-plus:boot_starter",
+        "//third-party/java/mybatis-plus:core",
+        "//third-party/java/mybatis-plus:extension",
+        "//third-party/java/mybatis-plus:spring",
+        "//third-party/java/mysql:mysql_connector_java",
+    ],
+    deps = [
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/model:actor-type",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/model:tree",
+        "//packages/platform/base/utils:aes",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/security",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/commons:codec",
+        "//third-party/java/github:jsqlparser",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//third-party/java/mybatis",
+        "//third-party/java/mybatis:mybatis_spring",
+        "//third-party/java/mybatis-plus:annotation",
+        "//third-party/java/mybatis-plus:core",
+        "//third-party/java/mybatis-plus:extension",
+        "//third-party/java/mybatis-plus:jsqlparser",
+        "//third-party/java/mybatis-plus:spring",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_security",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":database",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

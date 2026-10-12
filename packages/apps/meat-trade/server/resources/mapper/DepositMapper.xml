@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.wallet.dao.DepositMapper">
+    <sql id="BASIC_DEPOSIT_SELECT">
+        select dt.id, dt.short_id, dt.user_id,dt.user_name,dt.user_phone, dt.supplier_id,dt.supplier_name,dt.supplier_phone, dt.mode, dt.amount, dt.status, dt.complete_time,
+        dt.tenant, dt.deleted, dt.create_by, dt.create_time, dt.update_by, dt.update_time
+        from `meattrade_deposit` dt
+    </sql>
+
+    <insert id="initializeDeposit">
+        insert into `meattrade_deposit` (id, short_id, user_id, user_name,user_phone, supplier_id, supplier_name,supplier_phone, mode, amount, status, complete_time,
+        tenant, deleted, create_by, create_time, update_by, update_time)
+        values (#{id}, #{shortId}, #{userId},#{userName},#{userPhone}, #{supplierId},#{supplierName},#{supplierPhone}, #{mode}, #{amount}, #{status}, #{completeTime},
+        #{tenant}, #{deleted}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime})
+        on duplicate key update id = #{id}
+    </insert>
+
+    <update id="complete">
+        update `meattrade_deposit` dt set dt.status = 'COMPLETED', dt.complete_time = #{datetime}
+        where dt.id = #{id} and dt.status = 'PROCESSING'
+    </update>
+
+    <select id="listDepositSuppliers" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.dto.SupplierDepositDTO">
+--         select distinct mt.id, mt.user_id, mt.code, mt.name, mt.owner, mt.seller, mt.buyer, mt.liaison, mt.phone, mt.area,
+--         mt.address, mt.status, mt.enabled, mt.tenant, mt.deleted, mt.create_by,
+--         mt.create_time, mt.update_by, mt.update_time
+--         from `merchant` mt
+--         left join `vip_card` vcd on vcd.merchant_id = mt.id
+        select vcd.id, vcd.supplier_id,vcd.code from meattrade_vip_card vcd
+        <where>
+            <if test="supplierIds != null and supplierIds.size() > 0">
+                vcd.supplier_id in
+                <foreach collection="supplierIds" item="supplierId" index="index" open="(" close=")" separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+            <if test="param.keyword != null and !param.keyword.isEmpty()">
+                or vcd.code like concat('%', #{param.keyword}, '%')
+            </if>
+            and vcd.tenant = #{param.tenant}
+        </where>
+    </select>
+
+    <select id="listSupplierDeposits" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.dto.SupplierDepositDTO">
+        select dt.id, dt.short_id, dt.user_id, dt.supplier_id, dt.mode, dt.amount, dt.status, dt.complete_time,
+        dt.tenant, dt.deleted, dt.create_by, dt.create_time, dt.update_by, dt.update_time
+        from `meattrade_deposit` dt
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                dt.create_time >= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                <![CDATA[and dt.create_time <= #{param.period.end}]]>
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                <if test="supplierIds != null and supplierIds.size() > 0">
+                    and dt.supplier_id in
+                    <foreach collection="supplierIds" item="supplierId" open="(" separator="," close=")">
+                        #{supplierId}
+                    </foreach>
+                </if>
+                <if test="id != null">
+                    or (
+                        dt.id = #{id} or dt.short_id = #{id}
+                    )
+                </if>
+            </if>
+            <if test="param.status != null">
+                and dt.status = #{param.status.name}
+            </if>
+            and dt.tenant = #{param.tenant}
+        </where>
+        order by dt.create_time desc
+    </select>
+</mapper>

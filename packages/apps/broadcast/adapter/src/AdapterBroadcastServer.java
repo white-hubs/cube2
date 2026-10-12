@@ -1,0 +1,18 @@
+package com.guhecloud.cube.biz.adapter.broadcast.server;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.web.servlet.ServletComponentScan;
+import org.springframework.cloud.openfeign.EnableFeignClients;
+
+@SpringBootApplication(scanBasePackages = "com.guhecloud", exclude = { DataSourceAutoConfiguration.class })
+@EnableFeignClients(basePackages = "com.guhecloud")
+@ServletComponentScan(basePackages = { "com.guhecloud" })
+public class AdapterBroadcastServer {
+
+    public static void main(String[] args) {
+        SpringApplication.run(AdapterBroadcastServer.class, args);
+    }
+
+}

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.fusion.communicate.server.third.account.infrastructure.repository.mapper.ThirdFusionAccountMapper">
+
+    <insert id="insertOrUpdateBatch"
+            parameterType="com.guhecloud.cube.biz.fusion.communicate.server.third.account.domain.po.ThirdFusionAccountPO">
+        insert into
+        `third_fusion_account`(`id`,`name`,`code`,`number`,password,`level`,`usage_state`,
+        `provider_code`,tenant,deleted,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.code},#{item.number},#{item.password},#{item.level},#{item.usageState},
+            #{item.providerCode},#{item.tenant},#{item.deleted},
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        `name` = values(`name`),
+        `level` = values(`level`),
+        `password` = values(`password`),
+        `update_time` = values(`update_time`)
+    </insert>
+</mapper>

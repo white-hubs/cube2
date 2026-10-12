@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.RoleMenuDataPermissionMapper">
+
+	<select id="listByTenant" resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleMenuDataPermission">
+		SELECT
+			ormdp.`id`,
+			ormdp.`role_id`,
+			ormdp.`terminal_id`,
+			ormdp.`application_id`,
+			ormdp.`menu_id`,
+			ormdp.`permission`,
+			ormdp.`sort_no`,
+			ormdp.`business_keys`
+		FROM `role` r JOIN `ouaa_role_menu_data_permission` ormdp ON r.`id` = ormdp.`role_id`
+		<where>
+			r.`tenant` = #{tenantId}
+		</where>
+
+	</select>
+
+	<delete id="removeByRoleMenuIds">
+		DELETE FROM `ouaa_role_menu_function`
+		WHERE (`menu_id`, `role_id`) IN (
+			SELECT `menu_id`, `role_id`
+			FROM `ouaa_role_menu`
+			WHERE `id` IN
+			<foreach collection="roleMenuIds" item="id" open="(" separator="," close=")">
+				#{id}
+			</foreach>
+		)
+	</delete>
+</mapper>

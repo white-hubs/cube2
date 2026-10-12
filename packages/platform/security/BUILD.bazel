@@ -1,0 +1,63 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-security"
+
+java_library(
+    name = "security",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:error-response",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:aes",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:regex",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/license",
+        "//packages/platform/web",
+        "//third-party/java:lombok",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/apache:tomcat_annotations_api",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/commons:codec",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:servlet_api",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_security",
+        "//third-party/java/spring:spring_security_oauth2_authorization_server",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":security",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

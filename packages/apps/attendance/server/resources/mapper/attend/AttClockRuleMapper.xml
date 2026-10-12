@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.mapper.AttClockRulesMapper">
+    <resultMap id="getClockRuleByUserId" type="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.interfaces.result.AttClockRuleResult">
+        <id column="id" property="id"></id>
+        <result column="name" property="name"></result>
+        <result column="ways" property="ways"></result>
+        <result column="out_clock" property="outClock"></result>
+        <result column="face_recognition" property="faceRecognition"></result>
+        <collection property="location"
+                    ofType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.interfaces.result.AttClockLocationResuit"
+                    javaType="java.util.List">
+            <result column="address"  property="address"></result>
+            <result column="longitude"  property="longitude"></result>
+            <result column="latitude"  property="latitude"></result>
+            <result column="ranges"  property="ranges"></result>
+        </collection>
+    </resultMap>
+    <select id="getClockRuleByUserId" resultMap="getClockRuleByUserId">
+        select c.*, d.`address`, d.`longitude`, d.`latitude`, d.`ranges`
+        from `att_group_staff` a
+                 inner join `att_group` b on a.`group_id` = b.`id`
+                 inner join `att_clock_rule` c on c.`id` = b.`clock_rule_id`
+                 left join `att_clock_location` d on c.`id` = d.`rules_id`
+        where a.`staff_id` = #{userId}
+        union
+        SELECT c.*,
+               d.`address`,
+               d.`longitude`,
+               d.`latitude`,
+               d.`ranges`
+        FROM `att_group` b
+                 INNER JOIN `att_clock_rule` c ON c.`id` = b.`clock_rule_id`
+                 INNER JOIN `att_clock_location` d ON c.`id` = d.`rules_id`
+        where b.ranges = 'ALL'
+    </select>
+</mapper>

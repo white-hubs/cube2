@@ -1,0 +1,121 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/maintain:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/apps/asset/client",
+        "//packages/apps/attendance/client",
+        "//packages/apps/identity/client",
+        "//packages/apps/loose-works/client",
+        "//packages/apps/risk-source/risk-score/sdk",
+        "//packages/base/device-center/client",
+        "//packages/base/device-center/north/client",
+        "//packages/base/device-center/north/consumer",
+        "//packages/base/device-center/supervise/client",
+        "//packages/base/file/client",
+        "//packages/base/mdata/client",
+        "//packages/base/message/bracing/client",
+        "//packages/base/message/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/base/process-engine/client",
+        "//packages/base/todo/client",
+        "//packages/base/video/gateway/client",
+        "//packages/base/work-center/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:bean",
+        "//packages/platform/base/utils:biz-code",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:id",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:math",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/platform/subsystem-requester-sdk",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:poi",
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/github:jsqlparser",
+        "//third-party/java/google:guava",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:poi",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/mybatis-plus:jsqlparser",
+        "//third-party/java/quartz-scheduler:quartz",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+        "src-dcm/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.maintain.server.MaintainServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [
+        ":server",
+    ],
+)
+
+artifactId = "cube-srv-gen-maintain-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-gen-maintain",
+    datasource_package = "com.guhecloud.cube.srv.gen.maintain",
+    gw_prefix = "/maintain/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "maintain",
+    visibility = ["//packages:__subpackages__"],
+)

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.notify.dao.AlarmNoticeMapper">
+
+    <insert id="insertOrUpdate">
+        insert into
+        alarm_notice(id,alarm_level_code,business_type,`value`,scene_code,enabled,tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values(#{id},#{alarmLevelCode},#{businessType},
+        #{value},#{sceneCode},#{enabled},
+        #{tenant},#{createBy},#{creatorId},#{creatorType},#{createTime},
+        #{updateBy},#{updaterId},#{updaterType},#{updateTime},0)
+        on duplicate key update
+        `value` = #{value},
+        enabled = #{enabled},
+        update_by = #{updateBy},
+        update_time = NOW()
+    </insert>
+</mapper>

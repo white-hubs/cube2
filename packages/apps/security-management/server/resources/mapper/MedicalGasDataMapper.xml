@@ -1,0 +1,150 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.dao.MedicalGasDataMapper">
+
+
+    <select id="getTodayGasUsage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataVo">
+        SELECT
+            COALESCE( SUM( `data_value` ),0)  `num`,
+            `NAME`
+        FROM
+            `medical_gas_data`
+        <where>
+            <if test="param.thirdDeviceIds.size()>0">
+                and `third_device_id` in <foreach collection="param.thirdDeviceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            </if>
+            <if test="startTime != null">
+                and `collection_time` &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and `collection_time` &lt;= #{endTime}
+            </if>
+        </where>
+        GROUP BY
+            `NAME`
+    </select>
+    <select id="getGasUsageTop"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataVo">
+        SELECT
+        COALESCE( SUM( `data_value` ),0)  `num`,
+        `NAME`
+        FROM
+        `medical_gas_data`
+        <where>
+            <if test="param.thirdDeviceIds.size()>0">
+                and `third_device_id` in <foreach collection="param.thirdDeviceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            </if>
+            <if test="param.period.begin != null">
+                and `collection_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period.end != null">
+                and `collection_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `name`
+        order by `num` DESC
+        limit 6
+    </select>
+    <select id="getGasUsageTrend"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataVo" databaseId="mysql">
+
+        SELECT
+            COALESCE( SUM( `data_value` ), 0 ) `num`,
+            date_format( `collection_time`, ${param.timeFormat} ) AS `timeFlag`,
+            `NAME`
+        FROM
+            `medical_gas_data`
+        <where>
+            <if test="param.thirdDeviceIds.size()>0">
+                and `third_device_id` in <foreach collection="param.thirdDeviceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            </if>
+            <if test="param.period.begin != null">
+                and `collection_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period.end != null">
+                and `collection_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `NAME`, timeFlag
+        ORDER BY `num` DESC
+    </select>
+    <select id="getGasUsageTrend"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataVo" databaseId="dm">
+
+        SELECT
+        COALESCE( SUM( `data_value` ), 0 ) `num`,
+        date_format( `collection_time`, ${param.timeFormat} ) AS `timeFlag`,
+        `NAME`
+        FROM
+        `medical_gas_data`
+        <where>
+            <if test="param.thirdDeviceIds.size()>0">
+                and `third_device_id` in <foreach collection="param.thirdDeviceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            </if>
+            <if test="param.period.begin != null">
+                and `collection_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period.end != null">
+                and `collection_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `NAME`, timeFlag
+        ORDER BY `num` DESC
+    </select>
+    <select id="getGasUsageTrend"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataVo" databaseId="pg">
+        SELECT
+        COALESCE( SUM( `data_value` ), 0 ) `num`,
+        to_char( `collection_time`, ${param.timeFormat} ) AS `timeFlag`,
+        `NAME`
+        FROM
+        `medical_gas_data`
+        <where>
+            <if test="param.thirdDeviceIds.size()>0">
+                and `third_device_id` in <foreach collection="param.thirdDeviceIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+            </if>
+            <if test="param.period.begin != null">
+                and `collection_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period.end != null">
+                and `collection_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `NAME`, timeFlag
+        ORDER BY `num` DESC
+    </select>
+
+    <select id="getGasUsagePage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.medicalgas.vo.MedicalGasDataPageVo">
+        SELECT
+            `area_name` `areaName`,
+            `device_name` `deviceName`,
+            a.`name`,
+            a.`data_value` `dataValue`,
+            a.`collection_time` `collectionTime`
+        FROM
+            `medical_gas_data` a
+                LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and a.`collection_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and a.`collection_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and b.`device_name` like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

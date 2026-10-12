@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchGroupExtendMapper">
+
+    <insert id="insertOrUpdateGroupExtendBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchGroupExtend">
+        insert into
+        `dispatch_group_extend`(id,group_id,is_record,is_video,group_level,
+        intercom_idle_time_out,intercom_power_time_count,queue_max_num,intercom_state_space,
+        tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.groupId},#{item.isRecord},#{item.isVideo},#{item.groupLevel},
+            #{item.intercomIdleTimeOut},#{item.intercomPowerTimeCount},#{item.queueMaxNum},#{item.intercomStateSpace},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        is_record = values(is_record),
+        is_video = values(is_video),
+        group_level = values(group_level),
+        intercom_idle_time_out = values(intercom_idle_time_out),
+        intercom_power_time_count = values(intercom_power_time_count),
+        queue_max_num = values(queue_max_num),
+        intercom_state_space = values(intercom_state_space),
+        update_time = values(update_time)
+    </insert>
+</mapper>

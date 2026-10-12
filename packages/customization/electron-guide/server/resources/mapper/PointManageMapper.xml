@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.electron.guide.dao.PointManageMapper">
+
+    <select id="selectPointManagePage" resultType="com.guhecloud.cube.srv.electron.guide.vo.PointManagePageVO">
+        SELECT b.`name` as areaName,
+        a.type_id,
+        pt.file_path as type_file_path,
+        pt.`name` as type_name,
+        a.* FROM point_manage a
+        inner join `guide_area_manage` b on a.area_id=b.id
+        left join `point_type` pt on a.type_id = pt.id
+        <where>
+            <if test="(param.areaAccurateMatching == null or param.areaAccurateMatching == false)
+                  and param.areaIdStr !=null and param.areaIdStr != ''">
+                b.sequence like concat ('%',#{param.areaIdStr},'%')
+            </if>
+            <if test="param.areaAccurateMatching == true and param.areaId !=null">
+                b.id = #{param.areaId}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and a.name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.state != null and param.state != ''">
+                and a.state =#{param.state}
+            </if>
+            <if test="param.typeId != null">
+                and a.type_id = #{param.typeId}
+            </if>
+        </where>
+        order by `level`
+    </select>
+</mapper>

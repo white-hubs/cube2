@@ -1,0 +1,253 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyDailyUsageProjectMapper">
+    <insert id="insertOrUpdateEnergyDailyUsageProject"
+            parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsageProject" databaseId="mysql">
+        insert into
+        energy_daily_usage_project(id,stat_date,instrument_type,instrument_type_name,
+        project_category,project_id,project_code,project_name,d_value,dc_value,zh_value,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.statDate},#{item.instrumentType},#{item.instrumentTypeName},
+            #{item.projectCategory},#{item.projectId},#{item.projectCode},#{item.projectName},#{item.dValue},#{item.dcValue},#{item.zhValue},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        d_value = values(d_value),
+        dc_value = values(dc_value),
+        zh_value = values(zh_value),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateEnergyDailyUsageProject"
+            parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsageProject" databaseId="pg">
+        <foreach collection="list" item="item" separator=";">
+            MERGE INTO energy_daily_usage_project AS target
+            USING (
+            SELECT
+            #{item.id} AS id,
+            #{item.statDate} AS stat_date,
+            #{item.instrumentType} AS instrument_type,
+            #{item.instrumentTypeName} AS instrument_type_name,
+            #{item.projectCategory} AS project_category,
+            #{item.projectId} AS project_id,
+            #{item.projectCode} AS project_code,
+            #{item.projectName} AS project_name,
+            #{item.dValue} AS d_value,
+            #{item.dcValue} AS dc_value,
+            #{item.zhValue} AS zh_value,
+            #{item.tenant} AS tenant,
+            #{item.createBy} AS create_by,
+            #{item.creatorId} AS creator_id,
+            #{item.creatorType} AS creator_type,
+            #{item.createTime} AS create_time,
+            #{item.updateBy} AS update_by,
+            #{item.updaterId} AS updater_id,
+            #{item.updaterType} AS updater_type,
+            #{item.updateTime} AS update_time,
+            #{item.deleted} AS deleted
+            FROM DUAL
+            ) AS source
+            ON (target.id = source.id)
+            WHEN MATCHED THEN
+            UPDATE SET
+            target.d_value = source.d_value,
+            target.dc_value = source.dc_value,
+            target.zh_value = source.zh_value,
+            target.update_time = source.update_time
+            WHEN NOT MATCHED THEN
+            INSERT (
+            id, stat_date, instrument_type, instrument_type_name,
+            project_category, project_id, project_code, project_name,
+            d_value, dc_value, zh_value,
+            tenant, create_by, creator_id, creator_type, create_time, update_by, updater_id, updater_type, update_time, deleted
+            ) VALUES (
+            source.id, source.stat_date, source.instrument_type, source.instrument_type_name,
+            source.project_category, source.project_id, source.project_code, source.project_name,
+            source.d_value, source.create_by, source.creator_id, source.creator_type, source.create_time,
+            source.update_by, source.updater_id, source.updater_type, source.update_time, source.deleted
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateEnergyDailyUsageProject"
+            parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsageProject" databaseId="dm">
+        <foreach collection="list" item="item" separator=";">
+            MERGE INTO energy_daily_usage_project AS target
+            USING (
+            SELECT
+            #{item.id} AS id,
+            #{item.statDate} AS stat_date,
+            #{item.instrumentType} AS instrument_type,
+            #{item.instrumentTypeName} AS instrument_type_name,
+            #{item.projectCategory} AS project_category,
+            #{item.projectId} AS project_id,
+            #{item.projectCode} AS project_code,
+            #{item.projectName} AS project_name,
+            #{item.dValue} AS d_value,
+            #{item.dcValue} AS dc_value,
+            #{item.zhValue} AS zh_value,
+            #{item.tenant} AS tenant,
+            #{item.createBy} AS create_by,
+            #{item.creatorId} AS creator_id,
+            #{item.creatorType} AS creator_type,
+            #{item.createTime} AS create_time,
+            #{item.updateBy} AS update_by,
+            #{item.updaterId} AS updater_id,
+            #{item.updaterType} AS updater_type,
+            #{item.updateTime} AS update_time,
+            #{item.deleted} AS deleted
+            FROM DUAL
+            ) AS source
+            ON (target.id = source.id)
+            WHEN MATCHED THEN
+            UPDATE SET
+            target.d_value = source.d_value,
+            target.dc_value = source.dc_value,
+            target.zh_value = source.zh_value,
+            target.update_time = source.update_time
+            WHEN NOT MATCHED THEN
+            INSERT (
+            id, stat_date, instrument_type, instrument_type_name,
+            project_category, project_id, project_code, project_name,
+            d_value, dc_value, zh_value,
+            tenant, create_by, creator_id, creator_type, create_time, update_by, updater_id, updater_type, update_time, deleted
+            ) VALUES (
+            source.id, source.stat_date, source.instrument_type, source.instrument_type_name,
+            source.project_category, source.project_id, source.project_code, source.project_name,
+            source.d_value, source.dc_value, source.zh_value,
+            source.tenant, source.create_by, source.creator_id, source.creator_type, source.create_time,
+            source.update_by, source.updater_id, source.updater_type, source.update_time, source.deleted
+            )
+        </foreach>
+    </insert>
+
+    <select id="getProjectUsageStatForTrend" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select DATE_FORMAT(stat_date,#{param.groupFormat}) as time,sum(d_value) as value from energy_daily_usage_project
+        where deleted = 0 and project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.projectIdList != null and param.projectIdList.size() > 0">
+            and project_id in
+            <foreach collection="param.projectIdList" item="projectId" open="(" close=")" separator=",">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by time
+    </select>
+
+    <select id="getProjectUsageStatByTime" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select DATE_FORMAT(stat_date,#{param.groupFormat}) as time,project_name as name,sum(d_value) as value from
+        energy_daily_usage_project
+        where deleted = 0 and project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.projectIdList != null and param.projectIdList.size() > 0">
+            and project_id in
+            <foreach collection="param.projectIdList" item="projectId" open="(" close=")" separator=",">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by time,project_name
+    </select>
+
+    <select id="getProjectUsageStatByCategory" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select project_name as name,sum(d_value) as value,sum(dc_value) as dcValue,sum(zh_value) as zhValue from energy_daily_usage_project
+        where deleted = 0 and project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.projectIdList != null and param.projectIdList.size() > 0">
+            and project_id in
+            <foreach collection="param.projectIdList" item="projectId" open="(" close=")" separator=",">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by project_name order by `value` desc
+    </select>
+
+    <select id="getProjectUsageStatByTypeAndProject" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyProjectStatVO">
+        select p.project_category,p.instrument_type,p.project_id,p.project_name,ep.parent_id,ep.sequence,sum(p.d_value) as value
+        from energy_daily_usage_project p
+        left join area_project ep on ep.id = p.project_id
+        where p.deleted = 0 and p.project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by p.project_category,p.instrument_type,p.project_id
+    </select>
+
+    <select id="getProjectUsageStatByArea" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select edup.project_id as project_id ,edup.instrument_type_name, ap.area_name as name,sum(d_value) as value,sum(dc_value) as
+        dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage_project edup
+        left join area_project ap on (ap.id = edup.project_id)
+        where project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and edup.instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.projectIdList != null and param.projectIdList.size() > 0">
+            and edup.project_id in
+            <foreach collection="param.projectIdList" item="projectId" open="(" close=")" separator=",">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and edup.stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and edup.stat_date &lt;= #{param.period.end}
+        </if>
+        group by edup.project_id order by `value` desc
+    </select>
+
+    <select id="getProjectUsageStatByItem" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select edup.project_id as project_id ,edup.instrument_type_name, ep.project_name as name,sum(d_value) as value,sum(dc_value) as
+        dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage_project edup
+        left join energy_project ep on (ep.id = edup.project_id)
+        where project_category = #{param.projectCategory}
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and edup.instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.projectIdList != null and param.projectIdList.size() > 0">
+            and edup.project_id in
+            <foreach collection="param.projectIdList" item="projectId" open="(" close=")" separator=",">
+                #{projectId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and edup.stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and edup.stat_date &lt;= #{param.period.end}
+        </if>
+        group by edup.project_id order by `value` desc
+    </select>
+</mapper>

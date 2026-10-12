@@ -1,0 +1,353 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.PatrolTaskLocationMapper">
+    <resultMap id="patrolRouteStatistics"
+               type="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.PatrolRouteStatisticsVO">
+        <result column="patrol_route_name" property="patrolRouteName" />
+        <result column="patrolLocationNumber" property="patrolLocationNumber" />
+        <collection property="taskLocations" javaType="List"
+                    ofType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolTaskLocation">
+            <result column="id" property="id" />
+            <result column="result" property="result" />
+        </collection>
+    </resultMap>
+    <select id="locationStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationStatisticsVO">
+        select a.location_id as locationId,b.area_id as areaId, count(a.id) as totalNum,sum(COALESCE(a.hidden_num,0)) as
+        hiddenDangerNum,sum(COALESCE(a.hidden_is_done,0)) as hiddenDangerDisposeNum, b.patrol_location_name as locationName
+        from patrol_task_location a
+        left join patrol_location b on a.location_id = b.id
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                a.start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and a.start_date &lt;= #{param.period.end}
+            </if>
+            <if test="param.areaId != '' and param.areaId != null">
+                and b.area_id like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.keyword != '' and param.keyword != null">
+                and b.patrol_location_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        GROUP BY a.location_id,b.patrol_location_name,b.area_id order by totalNum desc;
+    </select>
+
+    <select id="locationExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationStatisticsVO">
+        select a.location_id, count(a.id) as totalNum,sum(COALESCE(a.hidden_num,0)) as hiddenDangerNum,sum(COALESCE(a.hidden_is_done,0)) as
+        hiddenDangerDisposeNum, b.patrol_location_name as locationName
+        from patrol_task_location a
+        left join patrol_location b on a.location_id = b.id
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                a.start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and a.start_date &lt;= #{param.period.end}
+            </if>
+            <if test="param.result != null and param.result != ''">
+                and a.result = #{param.result}
+            </if>
+        </where>
+        GROUP BY a.location_id,b.patrol_location_name order by totalNum;
+    </select>
+
+    <select id="personnelStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.PersonnelStatisticsVO">
+        select a.user_id, count(a.id) as totalNum, count(DISTINCT b.id) as taskNum
+        from patrol_task_location a
+        left join patrol_task b on a.task_id = b.id
+        <where>
+            a.user_id is not null
+            <if test="param.period != null and param.period.begin != null">
+                and a.start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and a.start_date &lt;= #{param.period.end}
+            </if>
+            <if test="param.depId != null">
+                and b.user_dep_id = #{param.depId}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and b.user_name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.taskIds != null and param.taskIds.size() > 0">
+                and b.id in
+                <foreach collection="param.taskIds" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY a.user_id order by totalNum;
+    </select>
+
+    <select id="personnelExport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.PersonnelStatisticsVO">
+        select a.user_id, count(a.id) as totalNum, count(DISTINCT b.id) as taskNum
+        from patrol_task_location a
+        left join patrol_task b on a.task_id = b.id
+        <where>
+            a.user_id is not null
+            <if test="param.period != null and param.period.begin != null">
+                and a.start_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and a.start_date &lt;= #{param.period.end}
+            </if>
+            <if test="param.depId != null">
+                and b.user_dep_id = #{param.depId}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and b.user_name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.taskIds != null and param.taskIds.size() > 0">
+                and b.id in
+                <foreach collection="param.taskIds" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY a.user_id order by totalNum;
+    </select>
+
+    <select id="getNewestTask" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolTask">
+        select b.*
+        from patrol_task b
+        left join patrol_task_location a on a.task_id = b.id
+        where a.location_id = #{locationId}
+        and b.status = #{status}
+        order by b.start_date desc
+    </select>
+
+    <select id="getTaskLocation"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.task.TaskLocationVO">
+        select p.location_id,
+        p.order_num,
+        p.patrol_order,
+        p.result,
+        p.user_id,
+        p.patrol_date,
+        l.patrol_location_name,
+        l.patrol_longitude,
+        l.patrol_dimension
+        from patrol_task_location p
+        left join patrol_location l on p.location_id = l.id
+        where p.task_id = #{id}
+        order by p.order_num
+    </select>
+
+    <insert id="insertOrUpdateBatch"
+            parameterType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolTaskLocation">
+        insert into
+        patrol_task_location(id,location_id,order_num,plan_id,task_id,add_type,
+        result,patrol_order,user_id,patrol_date,start_date,end_date,remark,exception_type,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.locationId},#{item.orderNum},#{item.planId},#{item.taskId},#{item.addType},
+            #{item.result},#{item.patrolOrder},#{item.userId},#{item.patrolDate},#{item.startDate},#{item.endDate},
+            #{item.remark},#{item.exceptionType},#{item.tenant},
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},0)
+        </foreach>
+        on duplicate key update
+        result = values(result),
+        exception_type = values(exception_type)
+    </insert>
+
+    <select id="getLocationStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationStatisticsVO">
+        SELECT
+        a.locationName locationName,
+        a.locationId locationId,
+        a.totalNum totalNum,
+        b.abnormal abnormalNum,
+        c.num realNum
+        FROM
+        (
+        SELECT
+        a.location_id AS locationId,
+        count( a.id ) AS totalNum,
+        b.patrol_location_name AS locationName
+        FROM
+        patrol_task_location a
+        LEFT JOIN patrol_location b ON a.location_id = b.id
+        where a.deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and a.start_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and a.start_date &lt;= #{param.period.end}
+        </if>
+        GROUP BY
+        b.patrol_location_name,
+        a.location_id
+        ) a
+        LEFT JOIN ( SELECT location_id, COUNT( id ) AS abnormal FROM patrol_task_location
+        WHERE result = 'ABNORMAL'
+        <if test="param.period != null and param.period.begin != null">
+            and start_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and start_date &lt;= #{param.period.end}
+        </if>
+        group by location_id
+        ) b ON a.locationId = b.location_id
+        LEFT JOIN ( SELECT location_id, COUNT( id ) AS num FROM patrol_task_location
+        WHERE patrol_date IS NOT NULL
+        <if test="param.period != null and param.period.begin != null">
+            and patrol_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and patrol_date &lt;= #{param.period.end}
+        </if>
+        group by location_id
+        ) c ON a.locationId = c.location_id
+        order by abnormalNum DESC
+        limit 5
+    </select>
+
+    <select id="getPatrolExpStat"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationStatisticsVO">
+        select l.location_id as locationId,p.patrol_location_name as locationName,count(l.id) as omitNum
+        from patrol_task_location l
+        left join patrol_location p on l.location_id = p.id
+        where l.deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and l.start_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and l.start_date &lt;= #{param.period.end}
+        </if>
+        <if test="param.exceptionType != null and param.exceptionType != ''">
+            and l.exception_type = #{param.exceptionType}
+        </if>
+        group by l.location_id order by omitNum desc
+    </select>
+    <select id="getTaskLocationByBluetooth"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.task.PatrolTaskDataVO">
+        SELECT a.patrol_location_name as locationName,
+        d.task_name,
+        b.*
+        FROM `patrol_location` a
+        inner join patrol_task_location b on a.id=b.location_id
+        inner join patrol_nfc_details c on a.device_id=c.id
+        inner join patrol_task d on b.task_id=d.id
+        where d.status='IN_EXECUTION'
+        and d.patrol_way like '%BLUETOOTH%'
+        and d.user_id =#{userId}
+        and c.bluetooth_code in
+        <foreach collection="bluetoothCodes" item="code" open="(" separator="," close=")">
+            #{code}
+        </foreach>
+    </select>
+
+    <select id="locationAbnormalTopStatisticsList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationTopStatisticsVO">
+        select ptl.location_id as locationId, pl.patrol_location_name as locationName, count(ptl.id) as num
+        from patrol_task_location ptl
+        left join patrol_location pl on ptl.location_id = pl.id
+        where
+        ptl.result = 'ABNORMAL'
+        <if test="period != null">
+            and ptl.start_date between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+        </if>
+        group by ptl.location_id order by num desc limit 5
+    </select>
+
+    <select id="locationForgetTopStatisticsList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationTopStatisticsVO">
+        select ptl.location_id as locationId, pl.patrol_location_name as locationName, count(ptl.id) as num
+        from patrol_task_location ptl
+        left join patrol_location pl on ptl.location_id = pl.id
+        where
+        ptl.result = 'ABNORMAL' and exception_type = 'LEAK_DETECTION'
+        <if test="period != null">
+            and ptl.start_date between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+        </if>
+        group by ptl.location_id order by num desc limit 5
+    </select>
+    <select id="selectPatrolDataForSafetyReport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.task.ElectronLocationSafetyReportVO">
+        SELECT count(a.id) AS totalNum,
+        COALESCE(SUM(IF(a.result = 'ABNORMAL', 1, 0)), 0) AS ABNORMAL_NUM,
+        COALESCE(SUM(IF(a.result = 'NORMAL', 1, 0)), 0) AS NORMAL_NUM,
+        pt.user_dep_id
+        FROM patrol_task_location a
+        LEFT JOIN patrol_task pt ON pt.id = a.task_id
+        WHERE pt.user_dep_id IS NOT NULL
+        and a.start_date between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+        GROUP BY pt.user_dep_id
+    </select>
+    <select id="countNum" resultType="java.lang.Long">
+        SELECT count(a.id)
+        FROM patrol_task_location a
+        WHERE a.start_date between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+    </select>
+    <select id="patrolRouteStatisticsTotal" resultType="java.lang.Integer">
+        select count(1) from (
+        select b.patrol_route_name from patrol_task a
+        inner join patrol_route b on a.route_id = b.uuid
+        inner join patrol_task_location c on a.id=c.task_id
+        <where>
+            <if test="param.period !=null and param.period.begin !=null">
+                c.patrol_date between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and patrol_route_name like CONCAT('%',#{param.keyword},'%')
+            </if>
+        </where>
+        group by b.patrol_route_name) a
+    </select>
+    <select id="patrolRouteStatistics" resultMap="patrolRouteStatistics">
+        select patrol_route_name, b.number as patrolLocationNumber,c.id,c.result
+        from patrol_task a
+        inner join patrol_route b on a.route_id = b.uuid
+        inner join patrol_task_location c on a.id=c.task_id
+        <where>
+            <if test="param.period !=null and param.period.begin !=null">
+                c.patrol_date between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and patrol_route_name like CONCAT('%',#{param.keyword},'%')
+            </if>
+        </where>
+    </select>
+    <select id="patrolTaskHomePageStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.HomePageStatisticsVO1">
+        SELECT
+        pt.`status`,
+        COUNT( pt.id ) as num
+        FROM
+        patrol_task pt
+        <where>
+            <if test="period != null and period.begin != null">
+                and pt.create_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and pt.create_time &lt;= #{period.end}
+            </if>
+        </where>
+        GROUP BY
+        pt.`status`
+
+    </select>
+
+    <!-- 获取用户任务的巡更点数量 -->
+    <select id="userTaskLocationCount" resultType="hashmap">
+        select ptl.task_id as "key", count(1) as "value"
+        from patrol_task_location ptl
+        where ptl.superintendent_user_id = #{userId}
+        <if test="resultNull">
+            and ptl.result is null
+        </if>
+        <if test="taskIds != null and taskIds.size()>0">
+            and ptl.task_id in
+            <foreach item="taskId" collection="taskIds" separator="," open="(" close=")" index="">
+                #{taskId}
+            </foreach>
+        </if>
+        group by ptl.task_id;
+    </select>
+</mapper>

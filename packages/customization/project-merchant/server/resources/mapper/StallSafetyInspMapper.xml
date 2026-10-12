@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.deliver.project.merchant.mapper.store.StallSafetyInspMapper">
+   <select id="getScoreRecord" resultType="java.lang.Integer">
+       select IFNULL(sum(item_result_mark), 0)
+       from stall_safety_insp
+       where `time` BETWEEN #{period.begin} AND #{period.end}
+         and stall_id = #{stallId}
+   </select>
+</mapper>

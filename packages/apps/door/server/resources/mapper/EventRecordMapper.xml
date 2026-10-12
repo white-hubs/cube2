@@ -1,0 +1,251 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.EventRecordMapper">
+
+    <select id="getEventRecordNum" resultType="java.lang.Integer">
+        <choose>
+            <when test="_databaseId == 'pg'">
+                SELECT COUNT(id) FROM event_record where event_time
+                between to_date(#{beginTime},'YYYY-MM-DD HH24:MI:SS') and to_date(#{endTime},'YYYY-MM-DD HH24:MI:SS')
+            </when>
+            <otherwise>
+                SELECT COUNT(id) FROM event_record where event_time
+                between #{beginTime} and #{endTime}
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getDoorRanking" resultType="com.guhecloud.cube.biz.door.server.vo.RankingVo">
+
+        SELECT
+        door_name doorName,
+        COUNT( id ) num
+        FROM
+        event_record
+        where
+        <choose>
+            <when test="_databaseId == 'pg'">
+                event_time between to_date(#{beginTime},'YYYY-MM-DD HH24:MI:SS') and to_date(#{endTime},'YYYY-MM-DD HH24:MI:SS')
+            </when>
+            <otherwise>
+                event_time between #{beginTime} and #{endTime}
+            </otherwise>
+        </choose>
+        GROUP BY
+        door_name
+        ORDER BY num DESC
+        LIMIT 10
+    </select>
+    <select id="getDoorEvents" resultType="com.guhecloud.cube.biz.door.server.vo.DoorEventsVo">
+        SELECT
+        door_name doorName,
+        event_time eventTime,
+        event_name eventName
+        FROM
+        event_record
+        ORDER BY event_time DESC
+        LIMIT 20
+    </select>
+    <select id="getDoorEventRecord" resultType="com.guhecloud.cube.biz.door.server.vo.EventRecordVo">
+        SELECT
+        id,
+        door_name doorName,
+        event_time eventTime,
+        event_name eventName,
+        event_id eventId,
+        person_id personId,
+        person_name personName,
+        event_type eventType,
+        event_result eventResult,
+        event_way eventWay,
+        picture_file_id pictureFileId
+        FROM
+        event_record
+        <where>
+            <if test="param.eventResult !=null and param.eventResult !=''">
+                and event_result = #{param.eventResult}
+            </if>
+            <if test="param.beginTime !=null and param.beginTime !='' and param.endTime !=null and param.endTime !=''">
+                and event_time BETWEEN #{ param.beginTime} and #{param.endTime}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and door_name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.thirdPartyIds != null">
+                and door_index_code in
+                <foreach collection="param.thirdPartyIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by event_time desc
+
+    </select>
+    <select id="getAbnormalEvent" resultType="com.guhecloud.cube.biz.door.server.vo.EventRecordVo">
+        SELECT
+        id,
+        door_name doorName,
+        event_time eventTime,
+        event_name eventName,
+        event_id eventId,
+        person_id personId,
+        person_name personName,
+        event_type eventType,
+        event_result eventResult,
+        event_way eventWay,
+        picture_file_id pictureFileId
+        FROM
+        event_record
+        where
+        event_result = 'DO_REFUSE'
+        <if test="param.beginTime !=null and param.beginTime !='' and param.endTime !=null and param.endTime !=''">
+            and event_time BETWEEN #{ param.beginTime} and #{param.endTime}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and door_name like concat('%',#{param.keyword},'%')
+        </if>
+        order by event_time desc
+    </select>
+    <select id="getVisualizationDoorEventRecord"
+            resultType="com.guhecloud.cube.biz.door.server.vo.EventRecordVo">
+        SELECT
+        a.id,
+        a.door_name doorName,
+        a.event_time eventTime,
+        a.event_name eventName,
+        a.event_id eventId,
+        a.person_id personId,
+        a.person_name personName,
+        a.event_type eventType,
+        a.event_result eventResult,
+        a.event_way eventWay,
+        a.picture_file_id pictureFileId
+        FROM
+        event_record a
+
+        <where>
+            <if test="param.eventResult !=null and param.eventResult !=''">
+                and a.event_result = #{param.eventResult}
+            </if>
+            <if test="param.beginTime !=null and param.beginTime !='' and param.endTime !=null and param.endTime !=''">
+                and a.event_time BETWEEN #{ param.beginTime} and #{param.endTime}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and a.door_name like concat('%',#{param.keyword},'%')
+            </if>
+
+            <if test="param.thirdPartyIds.size()>0">
+                and a.door_index_code in
+                <foreach collection="param.thirdPartyIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by a.event_time desc
+    </select>
+    <select id="getEventInOrOut" resultType="com.guhecloud.cube.biz.door.server.vo.DoorStatisticsVo">
+        SELECT
+        COUNT(CASE WHEN in_and_out_type = '1' THEN 1 END) AS inNum,
+        COUNT(CASE WHEN in_and_out_type = '0' THEN 1 END) AS outNum
+        FROM event_record
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and event_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and event_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and door_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+
+    </select>
+    <select id="getInAndOutTrend" resultType="com.guhecloud.cube.biz.door.server.vo.TimeTrendVo">
+        SELECT
+        count(id) num,
+        <choose>
+            <when test="_databaseId == 'pg'">
+                TO_CHAR(event_time, ${timeFlag}) AS timeValue
+            </when>
+            <otherwise>
+                date_format(event_time, ${timeFlag}) AS timeValue
+            </otherwise>
+        </choose>
+        FROM event_record
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and event_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and event_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.inAndOut != null and param.inAndOut != ''">
+                and in_and_out_type = #{param.inAndOut}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and door_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        <choose>
+            <when test="_databaseId == 'pg'">
+                group by TO_CHAR(event_time,${timeFlag})
+            </when>
+            <otherwise>
+                group by date_format(event_time,${timeFlag})
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getInAndOutTotal" resultType="java.lang.Integer">
+        SELECT
+        count(id) num
+        FROM event_record
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and event_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and event_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.inAndOut != null and param.inAndOut != ''">
+                and in_and_out_type = #{param.inAndOut}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and door_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+    </select>
+
+    <insert id="insertOrUpdateDoorEvent" parameterType="com.guhecloud.cube.biz.door.server.entity.EventRecord">
+        insert into
+        event_record(id,event_name,event_id,event_time,person_id,person_name,card_no,picture_file_id,
+        door_index_code,door_name,event_type,in_and_out_type,event_result,event_way,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.eventName},#{item.eventId},#{item.eventTime},#{item.personId},#{item.personName},#{item.cardNo},#{item.pictureFileId},
+            #{item.doorIndexCode},#{item.doorName},#{item.eventType},#{item.inAndOutType},#{item.eventResult},#{item.eventWay},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on conflict on constraint door_time_index DO UPDATE set
+        event_name = EXCLUDED.event_name,
+        event_type = EXCLUDED.event_type,
+        event_result = EXCLUDED.event_result,
+        event_way = EXCLUDED.event_way,
+        card_no = EXCLUDED.card_no,
+        picture_file_id = EXCLUDED.picture_file_id,
+        update_time = EXCLUDED.update_time
+    </insert>
+
+    <select id="getEventStatByName" resultType="com.guhecloud.cube.biz.door.server.vo.CommonStatVO">
+        select event_name as name,count(id) as value from event_record
+        where deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and event_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and event_time &lt; #{param.period.end}
+        </if>
+        group by event_name
+        order by value desc
+    </select>
+</mapper>

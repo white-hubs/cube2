@@ -1,0 +1,189 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyCheckTaskMapper">
+    <select id="queryByPlanIdPage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+        SELECT d.NAME,
+        d.serial_number,
+        d.type_name,
+        d.norms,
+        d.price,
+        d.number,
+        d.receive_dep_name,
+        d.receive_user_id,
+        b.check_user_id,
+        c.check_time,
+        c.check_status,
+        c.create_by,
+        c.creator_id,
+        c.creator_type,
+        d.status,
+        d.unit,
+        d.start_time,
+        d.usage_time,
+        d.usage_date,
+        c.abnormal_type,
+        c.abnormal_remarks,
+        c.abnormal_file
+        FROM property_check_plan a
+        INNER JOIN property_check_task b ON a.id = b.plan_id
+        INNER JOIN property_check_task_relation c ON b.id = c.task_id
+        INNER JOIN property_detailed d ON c.property_id = d.id
+        WHERE a.id = #{planId}
+    </select>
+    <select id="queryByPlanIdExcel"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedExcelVO">
+        SELECT d.`name`,
+        d.serial_number,
+        d.type_name,
+        d.norms,
+        d.price,
+        d.number,
+        d.receive_dep_name,
+        d.receive_user_id as receiveUserName,
+        b.check_user_id as checkUserName,
+        c.check_time,
+        c.check_status,
+        c.creator_id,
+        c.creator_type,
+        c.create_by as createByName,
+        c.abnormal_type,
+        c.abnormal_remarks,
+        d.usage_date,
+        d.start_time,
+        d.unit
+        FROM property_check_plan a
+        INNER JOIN property_check_task b ON a.id = b.plan_id
+        INNER JOIN property_check_task_relation c ON b.id = c.task_id
+        INNER JOIN property_detailed d ON c.property_id = d.id
+        WHERE a.id = #{planId}
+    </select>
+    <select id="queryTaskByUserIdPage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskPageVO">
+        SELECT
+        a.id,
+        a.check_user_id,
+        a.status,
+        b.task_name,
+        b.duty_user_id,
+        a.check_total_number,
+        a.estimate_end_time,
+        a.reality_end_time,
+        a.check_complete_number,
+        a.check_win_number,
+        a.check_loss_number,
+        a.abnormal_number
+        FROM
+        property_check_task a
+        INNER JOIN property_check_plan b ON a.plan_id = b.id
+        WHERE
+        a.check_user_id=#{checkUserId}
+        <if test="param.taskId !=null">
+            and a.id=#{param.taskId}
+        </if>
+        <if test="param.taskIdList !=null and param.taskIdList.size() > 0">
+            and a.id in
+            <foreach collection="param.taskIdList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="param.status !=null and param.status !=''">
+            and a.status=#{param.status}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and b.task_name like concat ('%',#{param.keyword},'%')
+        </if>
+        <if test="param.taskName !=null and param.taskName!=''">
+            and b.task_name like concat ('%',#{param.taskName},'%')
+        </if>
+        order by a.create_time desc
+    </select>
+    <select id="queryTaskByPlan"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskPageVO">
+        SELECT a.id,
+        a.check_user_id,
+        a.status,
+        b.task_name,
+        b.duty_user_id,
+        a.check_total_number,
+        a.estimate_end_time,
+        a.reality_end_time,
+        a.check_complete_number,
+        a.check_win_number,
+        a.check_loss_number
+        FROM property_check_task a
+        INNER JOIN property_check_plan b ON a.plan_id = b.id
+        WHERE b.id = #{planId}
+        order by a.create_time desc
+    </select>
+    <select id="getCheckTaskEvolve"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskEvolveVO">
+        select sum(check_complete_number) as check_complete_number,
+        sum(check_win_number) as check_win_number,
+        sum(check_loss_number) as check_loss_number
+        from property_check_task
+        where plan_id = #{planId}
+    </select>
+    <select id="queryCheckTaskDetailed"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskPageVO">
+        SELECT a.id,
+        a.status,
+        b.task_name,
+        b.duty_user_id,
+        a.check_total_number,
+        a.estimate_end_time,
+        a.reality_end_time,
+        a.check_complete_number,
+        a.check_win_number,
+        a.check_loss_number
+        FROM property_check_task a
+        INNER JOIN property_check_plan b ON a.plan_id = b.id
+        where a.id = #{taskId}
+    </select>
+    <select id="queryAllByTaskIdPage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+        SELECT b.id,
+        b.`status`,
+        b.`name`,
+        b.serial_number,
+        b.type_name,
+        b.purchase_date,
+        b.receive_dep_name,
+        b.receive_user_id,
+        b.imgs as imgsStr
+        FROM property_check_task_relation a
+        INNER JOIN property_detailed b ON a.property_id = b.id
+        WHERE a.task_id = #{taskId}
+        <if test="taskStatus !=null and taskStatus !=''">
+            and a.check_status=#{taskStatus}
+        </if>
+    </select>
+    <select id="queryByPalan"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskEvolveVO">
+        SELECT sum(check_total_number) as check_total_number,
+        sum(check_complete_number) as check_complete_number,
+        sum(check_win_number) as check_win_number,
+        sum(check_loss_number) as check_loss_number,
+        sum(abnormal_number) as abnormal_number
+        FROM `property_check_task`
+        where plan_id = #{planId}
+    </select>
+    <select id="getChooseType" resultType="java.lang.Boolean">
+        select choose_type
+        from property_check_plan a
+        inner join property_check_task b on a.id = b.plan_id
+        where b.id = #{taskId}
+    </select>
+    <select id="queryTaskByPropertyId"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyCheckTaskPageVO">
+        SELECT b.*
+        FROM `property_check_task_relation` a
+        inner join property_check_task b on a.task_id = b.id
+        where a.property_id = #{param.propertyId}
+        <if test="param.period != null">
+            AND b.create_time BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        <if test="param.status !=null and param.status !=''">
+            and b.status=#{param.status}
+        </if>
+    </select>
+</mapper>

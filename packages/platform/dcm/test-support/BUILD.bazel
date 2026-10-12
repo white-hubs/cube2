@@ -1,0 +1,22 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform/dcm:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages/platform:__subpackages__"])
+
+artifactId = "dcm-test-support"
+
+java_library(
+    name = "test-support",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+    ],
+    deps = [
+        "//packages/platform/dcm/common",
+        "//third-party/java/hamcrest",
+        "//third-party/java/jackson",
+        "//third-party/java/jackson:dataformat_yaml",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:springframework",
+    ],
+)

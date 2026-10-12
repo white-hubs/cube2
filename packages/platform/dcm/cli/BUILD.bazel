@@ -1,0 +1,30 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform/dcm:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages/platform:__subpackages__"])
+
+artifactId = "dcm-cli"
+
+java_library(
+    name = "cli",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/dcm/common",
+        "//third-party/java:lombok",
+        "//third-party/java/commons:cli",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/openfeign",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_cloud",
+        "//third-party/java/spring:springframework",
+        "//third-party/java/typesafe:config",
+    ],
+)

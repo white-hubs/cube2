@@ -1,0 +1,90 @@
+- provider: DICT
+  isFailureOnMissingProvider: True
+  requirements:
+    - configType: DictType
+      version: 1.0
+      isMandatory: True
+      isSystem: True
+      vargs:
+        - code: TypeD
+    - configType: DictType
+      version: 1.0
+      isMandatory: True
+      isSystem: True
+      isRemoval: True
+      vargs:
+        - code: TypeB
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeB
+        parent: ""
+      vargs:
+        - key: item1
+          label: item1
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeC
+        parent: ""
+      vargs:
+        - key: item1
+          label: item1
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeA
+        parent: ""
+      vargs:
+        - key: item2
+          label: item2
+        - key: item3
+          label: new_item3_name
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeA
+        parent: "item1"
+      vargs:
+        - key: item1
+          label: new_item1_name
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      isRemoval: True
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeA
+        parent: "item1"
+      vargs:
+        - item2
+    - configType: DictEntry
+      isMandatory: True
+      isSystem: False
+      tenants:
+        - "all"
+      kwargs:
+        isCascade: True
+        dictType: TypeA
+        parent: "item2"
+      vargs:
+        - key: item2
+          label: item2

@@ -1,0 +1,37 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.park.management.server.dao.RoomRentRecordMapper">
+
+    <select id="getFlooRageSum" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(a.floorage), 0)
+        FROM (SELECT DISTINCT c.id,
+                              c.floorage
+              FROM room_rent_record a
+                       JOIN room_rent_record_room b ON a.id = b.record_id
+                       JOIN room c ON b.room_id = c.id
+              WHERE a.`status` = 'NORMAL') a
+    </select>
+    <select id="getRoomFlooRageSum" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(floorage), 0)
+        FROM room
+        WHERE `status` = 'NORMAL'
+    </select>
+    <select id="getRoomRateList" resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.RoomRateVo">
+        SELECT d.area_id                           areaId,
+               COALESCE(e.num, 0) / d.num * 100 as num
+        FROM (SELECT area_id, SUM(floorage) num FROM room GROUP BY area_id) d
+                 LEFT JOIN (SELECT c.area_id,
+                                   SUM(c.floorage) num
+                            FROM room_rent_record a
+                                     JOIN room_rent_record_room b ON a.id = b.record_id
+                                     JOIN room c ON b.room_id = c.id
+                            WHERE a.`status` = 'NORMAL'
+                            GROUP BY c.area_id) e ON d.area_id = e.area_id
+    </select>
+    <select id="getIds" resultType="java.lang.Long">
+        SELECT id
+        FROM room_rent_record
+        WHERE room_ids like concat('%', #{id}, '%')
+          and status in ('NORMAL', 'EXPIRE')
+    </select>
+
+</mapper>

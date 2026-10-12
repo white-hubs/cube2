@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.leave.infrastructure.mapper.LeaveFormMapper">
+
+    <select id="selectListStartLeaveAndIgnoreTenant" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.leave.infrastructure.po.LeaveFormPO">
+        select * from `leave_form` where `deleted`=0 and `status` = 'PASS'
+        and `id` in <foreach collection="leaveFormIds" open="(" close=")" item="id" separator=",">
+        #{id}
+    </foreach>
+    </select>
+
+    <select id="selectListEndLeaveAndIgnoreTenant" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.leave.infrastructure.po.LeaveFormPO">
+        select * from `leave_form` where `deleted`=0 and `status` = 'PASS' and now() >= `leave_end_time` and `id` in
+        <foreach collection="leaveFormIds" open="(" close=")" item="id" separator=",">
+        #{id}
+        </foreach>
+    </select>
+</mapper>

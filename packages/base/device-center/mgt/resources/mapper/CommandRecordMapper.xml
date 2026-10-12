@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.CommandRecordMapper">
+  <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.base.model.CommandRecord">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="instance_id" jdbcType="VARCHAR" property="instanceId" />
+    <result column="cmd_seq" jdbcType="VARCHAR" property="cmdSeq" />
+    <result column="raw_cmd_content" jdbcType="VARCHAR" property="rawCmdContent" />
+    <result column="translated_cmd_content" jdbcType="VARCHAR" property="translatedCmdContent" />
+    <result column="result_tips" jdbcType="VARCHAR" property="resultTips" />
+    <result column="single_cmd_status" jdbcType="VARCHAR" property="singleCmdStatus" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="tenant" jdbcType="INTEGER" property="tenant" />
+    <result column="deleted" jdbcType="BIGINT" property="deleted" />
+    <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+    <result column="creator_id" jdbcType="VARCHAR" property="creatorId" />
+    <result column="creator_type" jdbcType="VARCHAR" property="creatorType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+    <result column="updater_id" jdbcType="VARCHAR" property="updaterId" />
+    <result column="updater_type" jdbcType="VARCHAR" property="updaterType" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, instance_id, cmd_seq, raw_cmd_content, translated_cmd_content, result_tips,
+    single_cmd_status, start_time, end_time, tenant, deleted, create_by, creator_id, creator_type, create_time,
+    update_by, updater_id, updater_type, update_time, device_id
+  </sql>
+
+  <!-- 查询方法调用状态 -->
+  <select id="getMethodInvokeStatus" resultType="com.guhecloud.cube.iot.mgt.north.vo.MethodInvokeHistoryVo">
+    SELECT
+      cr.instance_id AS instanceId,
+      cr.raw_cmd_content AS rawCmdContent,
+      cr.result_tips AS resultTips,
+      cr.single_cmd_status AS status
+    FROM iot_command_record cr
+    INNER JOIN iot_command_info ci ON cr.cmd_seq = ci.cmd_seq
+    WHERE ci.down_cmd = #{downCmd}
+      AND cr.deleted = 0
+      AND ci.deleted = 0
+      AND cr.instance_id = #{instanceId}
+    LIMIT 1
+  </select>
+
+  <!-- 分页查询命令下发主记录 -->
+  <select id="selectCommandHistoryPage" resultType="com.guhecloud.cube.iot.mgt.device.vo.CommandHistoryVo">
+    SELECT 
+        cr.instance_id AS instanceId, 
+        cr.cmd_seq AS cmdSeq, 
+        ci.down_cmd AS downCmd, 
+        cr.translated_cmd_content AS translatedCmdContent, 
+        cr.single_cmd_status AS singleCmdStatus, 
+        cr.start_time AS startTime, 
+        cr.end_time AS endTime,
+        cr.device_id AS deviceId
+    FROM iot_command_record cr
+    INNER JOIN iot_command_info ci ON cr.cmd_seq = ci.cmd_seq
+    WHERE cr.deleted = 0 AND ci.deleted = 0
+    <if test="param.deviceId != null">
+      AND cr.device_id = #{param.deviceId}
+    </if>
+    <if test="param.deviceNameOrNumber != null and param.deviceNameOrNumber != ''">
+      AND cr.device_id IN (
+        SELECT id FROM iot_dev_device
+        WHERE deleted = 0
+          AND (device_number LIKE CONCAT('%', #{param.deviceNameOrNumber}, '%')
+               OR name LIKE CONCAT('%', #{param.deviceNameOrNumber}, '%'))
+      )
+    </if>
+    <if test="param.downCmd != null and param.downCmd != ''">
+      AND ci.down_cmd = #{param.downCmd}
+    </if>
+    <if test="param.targetIdentifier != null and param.targetIdentifier != ''">
+      AND cr.target_identifier = #{param.targetIdentifier}
+    </if>
+    <if test="param.singleCmdStatus != null and param.singleCmdStatus != ''">
+      AND cr.single_cmd_status = #{param.singleCmdStatus}
+    </if>
+    <if test="param.startTime != null">
+      AND cr.start_time &gt;= #{param.startTime}
+    </if>
+    <if test="param.endTime != null">
+      AND cr.start_time &lt;= #{param.endTime}
+    </if>
+    ORDER BY cr.create_time DESC
+  </select>
+
+  <!-- 获取子日志列表明细 -->
+  <select id="selectCommandLogs" resultType="com.guhecloud.cube.iot.mgt.device.vo.CommandLogVo">
+    SELECT 
+        log_content AS logContent, 
+        create_time AS createTime
+    FROM iot_command_log
+    WHERE instance_id = #{instanceId} AND deleted = 0
+    ORDER BY create_time ASC
+  </select>
+
+</mapper>

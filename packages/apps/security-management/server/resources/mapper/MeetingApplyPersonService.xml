@@ -1,0 +1,71 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.dao.MeetingApplyPersonMapper">
+    <insert id="insertOrUpdateMeetingApplyPerson" parameterType="java.util.List">
+        INSERT INTO `meeting_apply_person` (`id`, `business_key`, `business_code`, `business_type`, `meeting_person_id`,
+        `meeting_person_type`, `meeting_person_type_name`, `meeting_person_name`,
+        `meeting_person_code`, `meeting_person_document_type`, `meeting_person_document_name`, `meeting_person_document_number`,
+        `deleted`, `tenant`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.businessKey}, #{item.businessCode}, #{item.businessType}, #{item.meetingPersonId},
+            #{item.meetingPersonType}, #{item.meetingPersonTypeName}, #{item.meetingPersonName}, #{item.meetingPersonCode},
+            #{item.meetingPersonDocumentType}, #{item.meetingPersonDocumentTypeName}, #{item.meetingPersonDocumentNumber}, #{item.deleted},
+            #{item.tenant}, #{item.createBy},#{item.creatorId},#{item.creatorType}, #{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `business_code` = VALUES(`business_code`),
+        `business_type` = VALUES(`business_type`),
+        `meeting_person_type` = VALUES(`meeting_person_type`),
+        `meeting_person_type_name` = VALUES(`meeting_person_type_name`),
+        `meeting_person_name` = VALUES(`meeting_person_name`),
+        `meeting_person_code` = VALUES(`meeting_person_code`),
+        `meeting_person_document_type` = VALUES(`meeting_person_document_type`),
+        `meeting_person_document_name` = VALUES(`meeting_person_document_name`),
+        `meeting_person_document_number` = VALUES(`meeting_person_document_number`),
+        `deleted` = VALUES(`deleted`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+    <select id="selectByMeetingBusinessKey"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.vo.MeetingApplyPersonVO"
+            parameterType="java.lang.Long">
+        SELECT
+        a.`id`,
+        a.`business_key`,
+        a.`business_code`,
+        a.`business_type`,
+        a.`meeting_person_document_number`,
+        a.`meeting_person_document_type`,
+        a.`meeting_person_document_type_name`,
+        a.`meeting_person_id`,
+        a.`meeting_person_code`,
+        a.`meeting_person_name`,
+        a.`meeting_person_type`,
+        a.`meeting_person_type_name`
+        FROM
+        `meeting_apply_person` a
+        WHERE
+        a.`deleted` = 0
+        <if test="param.businessKey !=null">
+            and a.`business_key` = #{param.businessKey}
+        </if>
+        <if test="param.businessType !=null">
+            and a.`business_type` = #{param.businessType}
+        </if>
+        <if test="param.meetingPersonType !=null">
+            and a.`meeting_person_type` = #{param.meetingPersonType}
+        </if>
+        <if test="param.businessKeys !=null and param.businessKeys.size()>0">
+            and `business_key` in
+            <foreach collection="param.businessKeys" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY
+        a.`meeting_person_type`,a.`create_time` DESC
+    </select>
+</mapper>

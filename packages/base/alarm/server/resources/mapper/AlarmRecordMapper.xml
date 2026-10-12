@@ -1,0 +1,3942 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.alarm.server.flow.infrastructure.repository.mapper.AlarmRecordMapper">
+    <resultMap id="AlarmLevelTrendResultMap"
+               type="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelTrendStatisticsVO">
+        <result column="period" property="period" />
+        <collection property="alarmLevelStatisticsVOS" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelStatisticsVO">
+            <result column="id" property="id" />
+            <result column="code" property="code" />
+            <result column="name" property="name" />
+            <result column="alarm_num" property="alarmNum" />
+        </collection>
+    </resultMap>
+
+    <resultMap id="AlarmPageResultMap" type="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmRecordPageVO">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="alarm_level_id" property="alarmLevelId" />
+        <result column="alarm_level_code" property="alarmLevelCode" />
+        <result column="alarm_level_name" property="alarmLevelName" />
+        <result column="alarm_level_sort" property="alarmLevelSort" />
+        <result column="alarm_type_id" property="alarmTypeId" />
+        <result column="alarm_type_code" property="alarmTypeCode" />
+        <result column="alarm_type_name" property="alarmTypeName" />
+        <result column="alarm_target_key" property="alarmTargetKey" />
+        <result column="alarm_target_code" property="alarmTargetCode" />
+        <result column="alarm_target_name" property="alarmTargetName" />
+        <result column="alarm_target_type_id" property="alarmTargetTypeId" />
+        <result column="alarm_target_type_name" property="alarmTargetTypeName" />
+        <result column="alarm_target_longitude" property="alarmTargetLongitude" />
+        <result column="alarm_target_address" property="alarmTargetAddress" />
+        <result column="business_type" property="businessType" />
+        <result column="business_key" property="businessKey" />
+        <result column="alarm_time" property="alarmTime" />
+        <result column="area" property="area" />
+        <result column="area_name" property="areaName" />
+        <result column="alarm_threshold" property="alarmThreshold" />
+        <result column="alarm_event" property="alarmEvent" />
+        <result column="alarm_event_name" property="alarmEventName" />
+        <result column="alarm_event_type_id" property="alarmEventTypeId" />
+        <result column="alarm_event_type_code" property="alarmEventTypeCode" />
+        <result column="alarm_event_type_name" property="alarmEventTypeName" />
+        <result column="alarm_status" property="alarmStatus" />
+        <result column="alarm_confirmed_by" property="alarmConfirmedBy" />
+        <result column="alarm_confirmed_name" property="alarmConfirmedName" />
+        <result column="alarm_confirmed_time" property="alarmConfirmedTime" />
+        <result column="alarm_confirmed_result_remark" property="alarmConfirmedResultRemark" />
+        <result column="processing_time" property="processingTime" />
+        <result column="alarm_status_order" property="alarmStatusOrder" />
+        <result column="suspend_time" property="suspendTime" />
+        <result column="estimate_handler_time" property="estimateHandlerTime" />
+        <result column="alarm_handler_by" property="alarmHandlerBy" />
+        <result column="alarm_handler_name" property="alarmHandlerName" />
+        <result column="alarm_handler_time" property="alarmHandlerTime" />
+        <result column="alarm_handler_result" property="alarmHandlerResult" />
+        <result column="alarm_handler_result_remark" property="alarmHandlerResultRemark" />
+        <result column="timeout_equipped" property="timeoutEquipped" />
+        <result column="timeout_process_time" property="timeoutProcessTime" />
+        <result column="timeout_process_times" property="timeoutProcessTimes" />
+        <result column="timeout_process_times_unit" property="timeoutProcessTimesUnit" />
+        <result column="application_id" property="applicationId" />
+        <result column="application_code" property="applicationCode" />
+        <result column="application_name" property="applicationName" />
+        <result column="alarm_handler_name" property="alarmHandlerName" />
+        <result column="snapshot" property="snapshot" />
+        <result column="business_snapshot" property="businessSnapshot" />
+    </resultMap>
+
+    <resultMap id="AboutToTimeoutAlarmMap"
+               type="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmAboutToTimeoutVO">
+        <id column="id" property="id" />
+        <result column="alarm_target_name" property="alarmTargetName" />
+        <result column="alarm_event_name" property="alarmEventName" />
+        <result column="application_code" property="applicationCode" />
+        <result column="application_name" property="applicationName" />
+        <result column="alarm_time" property="alarmTime" />
+        <result column="area_name" property="areaName" />
+        <collection property="userIds" javaType="java.util.Set" ofType="java.lang.Long">
+            <result column="user_id" />
+        </collection>
+    </resultMap>
+
+    <update id="settingAlarmRecordBusinessSnapshot">
+        update `alarm_record`
+        set `business_snapshot` = #{businessSnapshot}
+        where `id` = #{id}
+    </update>
+
+    <select id="selectAlarmTenant"
+            resultType="java.lang.Integer">
+        SELECT
+        `tenant`
+        FROM
+        `alarm_record`
+        GROUP BY `tenant`
+    </select>
+
+    <select id="selectUserUnConfirmedAlarmRecords"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.domain.po.AlarmRecordPO">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`alarm_level_id`,
+        t1.`alarm_level_code`,
+        t1.`alarm_level_name`,
+        t1.`alarm_level_sort`,
+        t1.`alarm_type_id`,
+        t1.`alarm_type_code`,
+        t1.`alarm_type_name`,
+        t1.`alarm_type_file_id`,
+        t1.`alarm_target_key`,
+        t1.`alarm_target_code`,
+        t1.`alarm_target_name`,
+        t1.`alarm_target_type_id`,
+        t1.`alarm_target_type_name`,
+        t1.`business_type`,
+        t1.`business_key`,
+        t1.`alarm_time`,
+        t1.`area`,
+        t1.`area_name`,
+        t1.`alarm_threshold`,
+        t1.`alarm_event`,
+        t1.`alarm_event_name`,
+        t1.`alarm_event_type_id`,
+        t1.`alarm_event_type_code`,
+        t1.`alarm_event_type_name`,
+        t1.`application_id`,
+        t1.`application_code`,
+        t1.`application_name`
+        FROM
+        `alarm_record` t1
+        INNER JOIN `alarm_record_handler_user` t2 on t1.`id` = t2.`alarm_record_id`
+        <where>
+            t2.`user_id` = #{userId} AND t1.`alarm_status` != 'ALARM_HANDLER'
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                t1.`alarm_event_name` like concat('%',#{param.keyword},'%')
+                or
+                t1.`alarm_target_name` like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        order by t1.`alarm_time` desc
+    </select>
+
+    <select id="selectUserUnConfirmedAlarmRecordList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.domain.po.AlarmRecordPO">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`alarm_level_id`,
+        t1.`alarm_level_code`,
+        t1.`alarm_level_name`,
+        t1.`alarm_level_sort`,
+        t1.`alarm_type_id`,
+        t1.`alarm_type_code`,
+        t1.`alarm_type_name`,
+        t1.`alarm_type_file_id`,
+        t1.`alarm_target_key`,
+        t1.`alarm_target_code`,
+        t1.`alarm_target_name`,
+        t1.`alarm_target_type_id`,
+        t1.`alarm_target_type_name`,
+        t1.`business_type`,
+        t1.`business_key`,
+        t1.`alarm_time`,
+        t1.`area`,
+        t1.`area_name`,
+        t1.`alarm_threshold`,
+        t1.`alarm_event`,
+        t1.`alarm_event_name`,
+        t1.`alarm_event_type_id`,
+        t1.`alarm_event_type_code`,
+        t1.`alarm_event_type_name`,
+        t1.`application_id`,
+        t1.`application_code`,
+        t1.`application_name`
+        FROM
+        `alarm_record` t1
+        INNER JOIN `alarm_record_handler_user` t2 on t1.`id` = t2.`alarm_record_id`
+        <where>
+            t2.`user_id` = #{userId} AND t1.`alarm_status` != 'ALARM_HANDLER'
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                t1.`alarm_event_name` like concat('%',#{param.keyword},'%')
+                or
+                t1.`alarm_target_name` like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        order by t1.`alarm_time` desc
+    </select>
+
+    <select id="oneClickHandlerAlarmRecords">
+        UPDATE `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        SET ar.`alarm_handler_result` = 'ALARM_IMPRACTICAL',
+        ar.`alarm_status` = 'ALARM_HANDLER',
+        ar.`alarm_status_order` = 2,
+        ar.`alarm_handler_by` = #{userId},
+        ar.`alarm_handler_name` = #{userName},
+        ar.`alarm_handler_time` = #{handlerDate}
+        WHERE arhu.`user_id` = #{userId} AND ar.`alarm_status` != 'ALARM_HANDLER'
+        AND ar.`id` in
+        <foreach collection="alarmRecordIds" item="id" open="(" close=")"
+                 separator=",">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="selectUserUnConfirmedCount"
+            resultType="java.lang.Long">
+        SELECT
+        COUNT(t2.`id`) as `alarm_count`
+        FROM
+        `alarm_record` t1
+        INNER JOIN `alarm_record_target` t2 ON t1.`id` = t2.`alarm_record_id`
+        where t2.`user_id` = #{userId} AND t1.`alarm_status` != 'ALARM_HANDLER'
+    </select>
+
+    <select id="selectAlarmPage" resultMap="AlarmPageResultMap">
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`alarm_target_address`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`application_id`,
+        ar.`application_code`,
+        ar.`application_name`,
+        ar.`business_snapshot`
+        FROM
+        `alarm_record` ar
+        left JOIN `alarm_record_handler_user` arhu on arhu.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.alarmTargetKey != null">
+                and ar.`alarm_target_key` = #{param.alarmTargetKey}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                ar.`alarm_event_name` like concat('%',#{param.keyword},'%')
+                or
+                ar.`alarm_target_name` like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                and ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.alarmTypeId != null">
+                and ar.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != '' and (param.areaLike == null or param.areaLike == false)">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.area != null and param.area != '' and param.areaLike != null and param.areaLike == true">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.areaId != null and param.areaId != ''">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                and ar.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                and ar.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.filterAlarmStatus != null">
+                and ar.`alarm_status` != #{param.filterAlarmStatus}
+            </if>
+            <if test="param.alarmEvent != null and param.alarmEvent != ''">
+                and ar.`alarm_event` = #{param.alarmEvent}
+            </if>
+            <if test="param.alarmEventName != null and param.alarmEventName != ''">
+                and ar.`alarm_event_name` = #{param.alarmEventName}
+            </if>
+            <if test="param.departmentId != null">
+                and arhu.`department_id` = #{param.departmentId}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.`alarm_status` != 'ALARM_HANDLER' and ar.`timeout_process_time` &lt;= now()) or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.`timeout_equipped` = false
+                OR
+                ar.`timeout_process_time` is NULL
+                OR
+                (ar.`alarm_status` != 'ALARM_HANDLER'and ar.`timeout_process_time` &gt;= now())
+                or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &gt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                and arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.userId != null and param.userResponsible != null and param.userResponsible == true">
+                and ar.`alarm_status` != 'ALARM_UN_CONFIRMED'
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0 ">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`id`
+        ORDER BY
+        CASE
+        WHEN ar.`alarm_status` != 'ALARM_HANDLER' AND ar.`alarm_level_code` = 'one_level' THEN
+        0
+        WHEN ar.`alarm_status` != 'ALARM_HANDLER' AND ar.`alarm_level_code` = 'one_level' THEN
+        1 ELSE 2
+        END,
+        `alarm_time` DESC
+    </select>
+
+    <select id="selectStandardAlarmRecords" resultMap="AlarmPageResultMap">
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`alarm_target_address`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_status_order`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`alarm_confirmed_result_remark`,
+        ar.`suspend_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`processing_time`,
+        ar.`application_id`,
+        ar.`application_code`,
+        ar.`application_name`,
+        ar.`tenant`,
+        ar.`deleted`,
+        ar.`create_by`,
+        ar.`create_time`,
+        ar.`update_by`,
+        ar.`update_time`
+        FROM
+        alarm_record ar
+        <where>
+            ar.tenant = #{tenant}
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`update_time` &gt; #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`update_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.alarmRecordTypeLevels != null and param.alarmRecordTypeLevels.size() > 0">
+                and
+                <foreach collection="param.alarmRecordTypeLevels" item="item" open="(" close=")" separator="or">
+                    (
+                    ar.`alarm_type_code` = #{item.alarmTypeCode}
+                    <if test="item.alarmLevelQuery != null and item.alarmLevelQuery.size() > 0">
+                        and
+                        <foreach collection="item.alarmLevelQuery" item="levelQuery" open="(" close=")" separator="or">
+                            (
+                            ar.`alarm_level_code` = #{levelQuery.alarmLevelCode}
+                            )
+                        </foreach>
+                    </if>
+                    )
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUnHandlerList" resultMap="AlarmPageResultMap">
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`alarm_target_address`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`application_id`,
+        ar.`application_code`,
+        ar.`application_name`,
+        ar.`snapshot`,
+        ar.`business_snapshot`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu ON arhu.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.filterScope != null">
+                AND (ar.`filter_scope` IS NULL OR ar.`filter_scope` != 'DISPATCH')
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                ar.`alarm_event_name` LIKE CONCAT('%', #{param.keyword}, '%')
+                OR
+                ar.`alarm_target_name` LIKE CONCAT('%', #{param.keyword}, '%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                AND ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                AND ar.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTypeCode != null and param.alarmTypeCode !=''">
+                AND ar.`alarm_type_code` = #{param.alarmTypeCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                AND ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                AND ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                AND ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                AND ar.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                AND ar.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (( ar.`alarm_status` != 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= NOW()) OR
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (
+                ar.`timeout_equipped` = FALSE
+                OR
+                ar.`timeout_process_time` IS NULL
+                OR
+                (ar.`alarm_status` != 'ALARM_HANDLER' AND ar.`timeout_process_time` >= NOW())
+                OR
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` >= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                AND ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                AND arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString() and
+                  param.period != null and param.period.begin != null">
+                AND ar.`alarm_handler_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString() and
+                  param.period != null and param.period.end != null">
+                AND ar.`alarm_handler_time` &lt;= #{param.period.end}
+            </if>
+            <if test="(param.alarmStatus == null or 'ALARM_HANDLER' != param.alarmStatus.toString()) and
+                  param.period != null and param.period.begin != null">
+                AND ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="(param.alarmStatus == null or 'ALARM_HANDLER' != param.alarmStatus.toString()) and
+                   param.period != null and param.period.end != null">
+                AND ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ar.`id`
+        <if test="param.alarmStatus != null and 'ALARM_SUSPEND' == param.alarmStatus.toString()">
+            ORDER BY
+            ar.`alarm_level_sort` ASC, ar.`suspend_time` DESC
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_PROGRESS_CONFIRMED' == param.alarmStatus.toString()">
+            ORDER BY
+            ar.`alarm_level_sort` ASC, ar.`alarm_time` DESC
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_UN_CONFIRMED' == param.alarmStatus.toString()">
+            ORDER BY ar.`alarm_level_sort` ASC, ar.`alarm_time` DESC
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString()">
+            ORDER BY ar.`alarm_level_sort` ASC, ar.`alarm_time` DESC
+        </if>
+        <if test="param.alarmStatus == null">
+            ORDER BY ar.`alarm_level_sort` ASC, ar.`alarm_time` DESC
+        </if>
+    </select>
+
+    <select id="selectExportList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmRecordExportVO" databaseId="mysql">
+        SELECT
+        `ar`.`id`,
+        `ar`.`code`,
+        `ar`.`alarm_level_id`,
+        `ar`.`alarm_level_code`,
+        `ar`.`alarm_level_name`,
+        `ar`.`alarm_level_sort`,
+        `ar`.`alarm_target_key`,
+        `ar`.`alarm_target_code`,
+        `ar`.`alarm_target_name`,
+        `ar`.`alarm_target_longitude`,
+        `ar`.`alarm_time`,
+        `ar`.`area`,
+        `ar`.`area_name`,
+        `ar`.`alarm_event`,
+        `ar`.`alarm_event_name`,
+        `ar`.`alarm_event_type_id`,
+        `ar`.`alarm_event_type_code`,
+        `ar`.`alarm_event_type_name`,
+        `ar`.`alarm_status`,
+        `ar`.`estimate_handler_time`,
+        `ar`.`timeout_equipped`,
+        `ar`.`timeout_process_time`,
+        `ar`.`timeout_process_times`,
+        `ar`.`timeout_process_times_unit`,
+        GROUP_CONCAT(DISTINCT `arhu`.`user_name`) as `alarm_handler_name`
+        FROM
+        `alarm_record` `ar`
+        LEFT JOIN `alarm_record_handler_user` `arhu` ON `arhu`.`alarm_record_id` = `ar`.`id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                `ar`.`alarm_event_name` LIKE CONCAT('%',#{param.keyword},'%')
+                OR
+                `ar`.`alarm_target_name` LIKE CONCAT('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                AND `ar`.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                AND `ar`.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                AND `ar`.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                AND `ar`.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                AND `ar`.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                AND `ar`.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                AND `ar`.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                AND `ar`.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.alarmEvent != null and param.alarmEvent != ''">
+                AND `ar`.`alarm_event` = #{param.alarmEvent}
+            </if>
+            <if test="param.alarmEventName != null and param.alarmEventName != ''">
+                AND `ar`.`alarm_event_name` = #{param.alarmEventName}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (( `ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= NOW()) OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (
+                `ar`.`timeout_equipped` = false
+                OR
+                `ar`.`timeout_process_time` IS NULL
+                OR
+                (`ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= NOW())
+                OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                AND `ar`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                AND `arhu`.`user_id` = #{param.userId}
+            </if>
+            <if test="param.departmentId != null">
+                AND `arhu`.`department_id` = #{param.departmentId}
+            </if>
+            <if test="param.userId != null and param.userResponsible != null and param.userResponsible == true">
+                AND `ar`.`alarm_status` != 'ALARM_UN_CONFIRMED'
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                AND `ar`.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                AND `ar`.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `ar`.`id`
+        ORDER BY
+        `ar`.`alarm_status_order` ASC,
+        `ar`.`alarm_level_sort` ASC,
+        `ar`.`alarm_time` DESC
+    </select>
+
+    <select id="selectExportList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmRecordExportVO" databaseId="pg">
+        SELECT
+        `ar`.`id`,
+        `ar`.`code`,
+        `ar`.`alarm_level_id`,
+        `ar`.`alarm_level_code`,
+        `ar`.`alarm_level_name`,
+        `ar`.`alarm_level_sort`,
+        `ar`.`alarm_target_key`,
+        `ar`.`alarm_target_code`,
+        `ar`.`alarm_target_name`,
+        `ar`.`alarm_target_longitude`,
+        `ar`.`alarm_time`,
+        `ar`.`area`,
+        `ar`.`area_name`,
+        `ar`.`alarm_event`,
+        `ar`.`alarm_event_name`,
+        `ar`.`alarm_event_type_id`,
+        `ar`.`alarm_event_type_code`,
+        `ar`.`alarm_event_type_name`,
+        `ar`.`alarm_status`,
+        `ar`.`estimate_handler_time`,
+        `ar`.`timeout_equipped`,
+        `ar`.`timeout_process_time`,
+        `ar`.`timeout_process_times`,
+        `ar`.`timeout_process_times_unit`,
+        GROUP_CONCAT(DISTINCT `arhu`.`user_name`) as `alarm_handler_name`
+        FROM
+        `alarm_record` `ar`
+        LEFT JOIN `alarm_record_handler_user` `arhu` ON `arhu`.`alarm_record_id` = `ar`.`id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                `ar`.`alarm_event_name` LIKE CONCAT('%',#{param.keyword},'%')
+                OR
+                `ar`.`alarm_target_name` LIKE CONCAT('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                AND `ar`.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                AND `ar`.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                AND `ar`.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                AND `ar`.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                AND `ar`.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                AND `ar`.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                AND `ar`.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                AND `ar`.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.alarmEvent != null and param.alarmEvent != ''">
+                AND `ar`.`alarm_event` = #{param.alarmEvent}
+            </if>
+            <if test="param.alarmEventName != null and param.alarmEventName != ''">
+                AND `ar`.`alarm_event_name` = #{param.alarmEventName}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (( `ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= NOW()) OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (
+                `ar`.`timeout_equipped` = false
+                OR
+                `ar`.`timeout_process_time` IS NULL
+                OR
+                (`ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= NOW())
+                OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                AND `ar`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                AND `arhu`.`user_id` = #{param.userId}
+            </if>
+            <if test="param.departmentId != null">
+                AND `arhu`.`department_id` = #{param.departmentId}
+            </if>
+            <if test="param.userId != null and param.userResponsible != null and param.userResponsible == true">
+                AND `ar`.`alarm_status` != 'ALARM_UN_CONFIRMED'
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                AND `ar`.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                AND `ar`.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `ar`.`id`
+        ORDER BY
+        `ar`.`alarm_status_order` ASC,
+        `ar`.`alarm_level_sort` ASC,
+        `ar`.`alarm_time` DESC
+    </select>
+
+    <select id="selectExportList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmRecordExportVO" databaseId="dm">
+        SELECT
+        `ar`.`id`,
+        `ar`.`code`,
+        `ar`.`alarm_level_id`,
+        `ar`.`alarm_level_code`,
+        `ar`.`alarm_level_name`,
+        `ar`.`alarm_level_sort`,
+        `ar`.`alarm_target_key`,
+        `ar`.`alarm_target_code`,
+        `ar`.`alarm_target_name`,
+        `ar`.`alarm_target_longitude`,
+        `ar`.`alarm_time`,
+        `ar`.`area`,
+        `ar`.`area_name`,
+        `ar`.`alarm_event`,
+        `ar`.`alarm_event_name`,
+        `ar`.`alarm_event_type_id`,
+        `ar`.`alarm_event_type_code`,
+        `ar`.`alarm_event_type_name`,
+        `ar`.`alarm_status`,
+        `ar`.`estimate_handler_time`,
+        `ar`.`timeout_equipped`,
+        `ar`.`timeout_process_time`,
+        `ar`.`timeout_process_times`,
+        `ar`.`timeout_process_times_unit`,
+        listagg(DISTINCT `arhu`.`user_name`) as `alarm_handler_name`
+        FROM
+        `alarm_record` `ar`
+        LEFT JOIN `alarm_record_handler_user` `arhu` ON `arhu`.`alarm_record_id` = `ar`.`id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND (
+                `ar`.`alarm_event_name` LIKE CONCAT('%',#{param.keyword},'%')
+                OR
+                `ar`.`alarm_target_name` LIKE CONCAT('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                AND `ar`.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                AND `ar`.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                AND `ar`.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                AND `ar`.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                AND `ar`.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                AND `ar`.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                AND `ar`.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                AND `ar`.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.alarmEvent != null and param.alarmEvent != ''">
+                AND `ar`.`alarm_event` = #{param.alarmEvent}
+            </if>
+            <if test="param.alarmEventName != null and param.alarmEventName != ''">
+                AND `ar`.`alarm_event_name` = #{param.alarmEventName}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (( `ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= NOW()) OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &lt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                AND (
+                `ar`.`timeout_equipped` = false
+                OR
+                `ar`.`timeout_process_time` IS NULL
+                OR
+                (`ar`.`alarm_status` != 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= NOW())
+                OR
+                (`ar`.`alarm_status` = 'ALARM_HANDLER' AND `ar`.`timeout_process_time` &gt;= `ar`.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                AND `ar`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                AND `arhu`.`user_id` = #{param.userId}
+            </if>
+            <if test="param.departmentId != null">
+                AND `arhu`.`department_id` = #{param.departmentId}
+            </if>
+            <if test="param.userId != null and param.userResponsible != null and param.userResponsible == true">
+                AND `ar`.`alarm_status` != 'ALARM_UN_CONFIRMED'
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                AND `ar`.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                AND `ar`.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `ar`.`id`
+        ORDER BY
+        `ar`.`alarm_status_order` ASC,
+        `ar`.`alarm_level_sort` ASC,
+        `ar`.`alarm_time` DESC
+    </select>
+
+    <select id="selectAlarmTotal" resultType="java.lang.Long">
+        SELECT
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.userId != null">
+                and arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmHandlerTotal" resultType="java.lang.Long">
+        SELECT
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            `alarm_status` = 'ALARM_HANDLER'
+            <if test="param.userId != null">
+                AND arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmHandlerDurationTotal" resultType="java.lang.Long">
+        SELECT
+        sum(ar.`processing_time`) as `duration_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            `alarm_status` = 'ALARM_HANDLER'
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_handler_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_handler_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmHandlerMaxDuration" resultType="java.lang.Long">
+        SELECT
+        max(ar.`processing_time`) as `duration_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            `alarm_status` = 'ALARM_HANDLER'
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_handler_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_handler_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmHandlerMinDuration" resultType="java.lang.Long">
+        SELECT
+        min(ar.`processing_time`) as `duration_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            `alarm_status` = 'ALARM_HANDLER'
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_handler_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_handler_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmStatusStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmStatusStatisticsVO">
+        SELECT
+        ar.`alarm_status`,
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.userId != null">
+                AND arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmTargetCode != null and param.alarmTargetCode != ''">
+                and ar.`alarm_target_code` = #{param.alarmTargetCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.areaId != null and (param.areaLike == null or param.areaLike == true)">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.areaId != null and param.areaLike != null and param.areaLike == false">
+                and ar.`area` = #{param.areaId}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_status`
+    </select>
+
+    <select id="selectAlarmTimeoutUnHandlerCount" resultType="java.lang.Long">
+        SELECT
+        COUNT(t1.`id`) as `timeout_unhandler_number`
+        FROM
+        (
+        SELECT
+        DISTINCT ar.`id`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu ON ar.`id` = arhu.`alarm_record_id`
+        <where>
+            ar.`alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW()
+            <if test="param.userId != null">
+                AND arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        ) t1
+    </select>
+
+    <select id="selectAlarmResultStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmResultStatisticsVO">
+        SELECT
+        ar.`alarm_handler_result`,
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            ar.`alarm_handler_result` is not null
+            <if test="param.userId != null">
+                AND arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.filterScope != null">
+                and (ar.`filter_scope` is null or ar.`filter_scope` != #{param.filterScope})
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_handler_result`
+    </select>
+
+    <select id="selectAlarmTypeStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmTypeStatisticsVO">
+        SELECT
+        t1.`id`,
+        t1.`application_code`,
+        t1.`name`,
+        COUNT(DISTINCT t2.`id`) as `alarm_num`
+        FROM
+        `sat_alarm_type` t1
+        LEFT JOIN `alarm_record` t2 on t1.`id` = t2.`alarm_type_id`
+        LEFT JOIN `alarm_record_handler_user` t3 ON t2.`id` = t3.`alarm_record_id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t2.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t2.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY t1.`id`
+    </select>
+
+    <select id="selectAlarmTrendStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`alarm_time`,#{param.dateExp}) as `period`,
+        COUNT(DISTINCT t1.`id`) as `alarm_num`
+        FROM
+        `alarm_record` t1
+        LEFT JOIN `alarm_record_handler_user` arhu on t1.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.areaId != null">
+                and t1.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t1.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(t1.`alarm_time`,#{param.dateExp})
+    </select>
+
+    <select id="selectAlarmConfirmedTrendStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`alarm_time`,#{param.dateExp}) as `period`,
+        COUNT(t1.`id`) as `alarm_num`
+        FROM
+        `alarm_record` t1
+        <where>
+            t1.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(t1.`alarm_time`,#{param.dateExp})
+    </select>
+
+    <select id="selectAlarmTargetTypeStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmTypeStatisticsVO">
+        SELECT
+        t1.`alarm_target_type_id` as `id`,
+        t1.`alarm_target_type_name` as `name` ,
+        COUNT(t1.`id`) as `alarm_num`
+        FROM
+        `alarm_record` t1
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY t1.`alarm_target_type_id`
+    </select>
+
+    <select id="selectAlarmLevelStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelStatisticsVO">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`name`,
+        COUNT(t2.`id`) as `alarm_num`
+        FROM
+        `sat_alarm_level` t1
+        LEFT JOIN `alarm_record` t2 on t1.`id` = t2.`alarm_level_id`
+        <if test="param.applicationCode != null and param.applicationCode != ''">
+            and t2.`application_code` = #{param.applicationCode}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and t2.`alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and t2.`alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.area != null and param.area != ''">
+            and t2.`area` like concat('%',#{param.area},'%')
+        </if>
+        <if test="param.businessType != null and param.businessType != ''">
+            and t2.`business_type` = #{param.businessType}
+        </if>
+        <if test="param.deviceIds != null and param.deviceIds.size > 0">
+            and t2.`alarm_target_key` in
+            <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+            and t2.`application_code` in
+            <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                     separator=",">
+                #{code}
+            </foreach>
+        </if>
+        <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+            and t2.`alarm_event_type_code` in
+            <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                     close=")">
+                #{code}
+            </foreach>
+        </if>
+        GROUP BY t1.`id`
+    </select>
+
+    <select id="selectAlarmEventAnalysisStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmCurrencyStatisticsVO">
+        SELECT
+        ar.`alarm_event` as `id`,
+        ar.`alarm_event_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_event`,
+        ar.`alarm_event_name`
+    </select>
+
+    <select id="selectAlarmEventAnalysisStatisticsTop"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmCurrencyStatisticsVO">
+        SELECT
+        ar.`alarm_event` as `id`,
+        ar.`alarm_event_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.eventIds != null and param.eventIds.size > 0">
+                and ar.`alarm_event` in
+                <foreach collection="param.eventIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_event`
+        ORDER BY COUNT( ar.`id` ) DESC
+        LIMIT #{topSize}
+    </select>
+
+    <select id="selectAlarmAreaAnalysisStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmCurrencyStatisticsVO">
+        SELECT
+        ar.`area` as `id`,
+        ar.`area_name` as `name`,
+        COUNT(1) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmHandlerResult != null and param.alarmHandlerResult != ''">
+                and ar.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.areaSequences != null and param.areaSequences.size > 0">
+                and ar.`area` in
+                <foreach collection="param.areaSequences" item="area" open="(" close=")"
+                         separator=",">
+                    #{area}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`area`
+    </select>
+
+    <select id="selectAlarmDeviceGroupTopStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmCurrencyStatisticsVO">
+        SELECT
+        ar.`alarm_target_key` as `id`,
+        ar.`alarm_target_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_target_key`
+        ORDER BY COUNT( ar.`id` ) DESC
+        LIMIT #{topSize}
+    </select>
+
+    <select id="selectAlarmLevelHandlerUserEfficiencyStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelHandlerUserEfficiencyStatisticsVO">
+        SELECT
+        t1.`alarm_handler_by`,
+        t1.`alarm_handler_name`,
+        t1.`alarm_level_id`,
+        t1.`alarm_level_code`,
+        t1.`alarm_level_sort`,
+        t1.`alarm_level_name`,
+        TRUNCATE(t1.`processing_time` / t1.`total_count` / CAST(60 AS DECIMAL),2) as `avg_process_minutes`,
+        TRUNCATE(t1.`processing_time` / t1.`total_count`,0) as `avg_process_seconds`
+        FROM
+        (
+        SELECT
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_name`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_level_name`,
+        COUNT( ar.`id` ) AS `total_count`,
+        COALESCE(SUM( ar.`processing_time` ),0) AS `processing_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmLevelId != null and param.alarmLevelId != ''">
+                and ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_handler_by`,
+        ar.`alarm_level_id`
+        ) t1
+        WHERE t1.`processing_time` > 0
+    </select>
+
+    <select id="selectAlarmUserHandlerUserEfficiencyStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmUserHandlerEfficiencyStatisticsVO">
+        SELECT
+        t1.`alarm_handler_by`,
+        t1.`alarm_handler_name`,
+        TRUNCATE(t1.`processing_time` / t1.`total_count` / CAST(60 AS DECIMAL),2) as `avg_process_minutes`,
+        TRUNCATE(t1.`processing_time` / t1.`total_count`,0) as `avg_process_seconds`
+        FROM
+        (
+        SELECT
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_name`,
+        COUNT( ar.`id` ) AS `total_count`,
+        COALESCE(SUM( ar.`processing_time` ),0) AS `processing_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmLevelId != null and param.alarmLevelId != ''">
+                and ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_handler_by`
+        ) t1
+        WHERE t1.`processing_time` > 0
+    </select>
+
+    <select id="selectAlarmHandlerAnalysisStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmHandlerCurrencyStatisticsVO">
+        SELECT
+        arhu.`user_id` as `id`,
+        arhu.`user_name` as `name`,
+        COALESCE(SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `alarm_unresolved_handler_total_num`,
+        COALESCE(SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarm_handler_total_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            (ar.`alarm_status` = 'ALARM_PROGRESS_CONFIRMED' OR ar.`alarm_status` = 'ALARM_HANDLER')
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY arhu.`user_id`
+    </select>
+
+    <select id="selectAlarmTrendAnalysisStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`alarm_time`, '%H:%i') as `period`,
+        SUM(`alarm_num`) as `alarm_num`
+        FROM
+        (
+        SELECT
+        FROM_UNIXTIME(1800*FLOOR(UNIX_TIMESTAMP(ar.`alarm_time`) / 1800)) as `alarm_time`,
+        COUNT(1) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY 1800*FLOOR(UNIX_TIMESTAMP(ar.`alarm_time`) / 1800)
+        ORDER BY `alarm_time` desc
+        ) t1
+        GROUP BY DATE_FORMAT(t1.`alarm_time`, '%H:%i')
+    </select>
+
+    <select id="selectAlarmLevelTrendStatistics" resultMap="AlarmLevelTrendResultMap">
+        SELECT
+        t1.`alarm_level_id` as `id`,
+        t1.`alarm_levle_code` as `code`,
+        t1.`alarm_level_name` as `name`,
+        DATE_FORMAT( t1.`alarm_time`, #{param.dateExp} ) AS `period`,
+        COUNT( t1.`id` ) AS `alarm_num`
+        FROM
+        `alarm_record` t1
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+        </where>
+        GROUP BY
+        t1.`alarm_level_id`,
+        DATE_FORMAT(
+        t1.`alarm_time`,
+        #{param.dateExp}
+        )
+    </select>
+
+    <select id="selectBusinessKeyActualTotal" resultType="java.lang.Long">
+        SELECT
+        COUNT(1) as `alarm_num`
+        FROM
+        `alarm_record`
+        WHERE `alarm_handler_result` = 'ALARM_ACTUAL' and `alarm_target_key` = #{param.businessKey}
+        <if test="param.period != null and param.period.begin != null">
+            and `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.businessType != null and param.businessType != ''">
+            and `business_type` = #{param.businessType}
+        </if>
+        <if test="param.applicationCode != null and param.applicationCode != ''">
+            and `application_code` = #{param.applicationCode}
+        </if>
+    </select>
+
+    <select id="selectAlarmStatusTotalPage"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmEventStatusStatisticsPageVO">
+        SELECT
+        COUNT(1) as `total_num`,
+        COALESCE (sum(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `un_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ar.`alarm_event_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_event`,
+        ar.`alarm_event_name`
+    </select>
+
+    <select id="selectDeviceAlarmStatusTotalPage"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmDeviceStatusStatisticsPageVO">
+        SELECT
+        COUNT(1) as `total_num`,
+        COALESCE (sum(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `un_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        ar.`alarm_target_code` `deviceCode`,
+        ar.`alarm_target_name` `deviceName`,
+        ar.`alarm_target_key` `deviceId`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.ids.size()>0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_key`
+    </select>
+
+    <select id="selectDeviceAlarmStatusTotalList"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmDeviceStatusStatisticsPageVO">
+        SELECT
+        COUNT(1) as `total_num`,
+        COALESCE (sum(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `un_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        ar.`alarm_target_code` `deviceCode`,
+        ar.`alarm_target_name` `deviceName`,
+        ar.`alarm_target_key` `deviceId`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.ids.size()>0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.ids" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_key`
+    </select>
+
+    <select id="selectAlarmStatusTotalList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmEventStatusStatisticsPageVO">
+        SELECT
+        COUNT(1) as `total_num`,
+        COALESCE (sum(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `un_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ar.`alarm_event_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_event`,
+        ar.`alarm_event_name`
+    </select>
+
+    <select id="selectAlarmStatusTotalByUserPage"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmStatusTotalByUserPageVO">
+        SELECT
+        arhu.`user_id`,
+        arhu.`user_name`,
+        arhu.`department_id`,
+        COUNT(1) as `total_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `unconfirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        COALESCE (SUM(ar.`processing_time`),0) as `processing_time`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and arhu.`user_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmEventTypeCode != null and param.alarmEventTypeCode != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="userId" open="(" close=")"
+                         separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        arhu.`user_id`
+        ORDER BY
+        COUNT( 1 ) DESC
+    </select>
+
+    <select id="selectAlarmStatusTotalByUserList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmStatusTotalByUserPageVO">
+        SELECT
+        arhu.`user_id`,
+        arhu.`user_name`,
+        arhu.`department_id`,
+        COUNT(1) as `total_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `unconfirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        COALESCE (SUM(ar.`processing_time`),0) as `processing_time`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and arhu.`user_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmEventTypeCode != null and param.alarmEventTypeCode != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="userId" open="(" close=")"
+                         separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        arhu.`user_id`
+        ORDER BY
+        COUNT( 1 ) DESC
+    </select>
+
+    <select id="selectAlarmDepartmentCount"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsTopChainVO">
+        SELECT
+        arhu.`department_id` as `id`,
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmEventTypeCode != null and param.alarmEventTypeCode != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.departmentIds != null and param.departmentIds.size > 0">
+                and arhu.`department_id` in
+                <foreach collection="param.departmentIds" item="departmentId" open="(" close=")"
+                         separator=",">
+                    #{departmentId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        arhu.`department_id`
+    </select>
+
+    <select id="getUserUnConfirmedCountByStatus"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.bo.UnConfirmedCountByStatusBO">
+        SELECT ar.`alarm_status` as `code`, COUNT(DISTINCT ar.`id`) as `num`
+        FROM `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` `user` on ar.`id` = `user`.`alarm_record_id`
+        <where>
+            <if test="param.userId !=null and param.userId !=''">
+                `user`.`user_id`=#{param.userId}
+            </if>
+            <if test="param.applicationCode !=null and param.applicationCode !=''">
+                and ar.`application_code`=#{param.applicationCode}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                ar.`alarm_event_name` like concat('%',#{param.keyword},'%')
+                or
+                ar.`alarm_target_name` like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                and ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                and ar.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                and ar.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmEvent != null and param.alarmEvent != ''">
+                and ar.`alarm_event` = #{param.alarmEvent}
+            </if>
+            <if test="param.alarmEventName != null and param.alarmEventName != ''">
+                and ar.`alarm_event_name` = #{param.alarmEventName}
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.`alarm_status` != 'ALARM_HANDLER' and ar.`timeout_process_time` &lt;= now()) or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.`timeout_equipped` = false
+                OR
+                ar.`timeout_process_time` is NULL
+                OR
+                (ar.`alarm_status` != 'ALARM_HANDLER'and ar.`timeout_process_time` &gt;= now())
+                or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &gt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY `alarm_status`
+    </select>
+
+    <select id="selectAlarmBimStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsVO">
+        SELECT
+        COUNT(ar.`id`) as `alarm_num`,
+        COALESCE(SUM(
+        IF
+        ( ar.`alarm_status` = 'ALARM_HANDLER', 1, 0 )),0) AS `alarm_handler_num`,
+        COALESCE(SUM(
+        IF
+        ( ar.`alarm_handler_result` = 'ALARM_ACTUAL', 1, 0 )),0) AS `alarm_actual_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmTypeIds != null and param.alarmTypeIds.size > 0">
+                and ar.`alarm_type_id` in
+                <foreach collection="param.alarmTypeIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmBimStatisticsRecordStatus"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsRecordStatusVO">
+        SELECT
+        count(ar.`id`) as `alarm_num`,
+        COALESCE(SUM(if(ar.`alarm_status` != 'ALARM_HANDLER',1,0)),0) as `alarm_unresolved_handler_num`,
+        COALESCE(SUM(if(ar.`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarm_handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.alarmEventTypeId != null and param.alarmEventTypeId != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeId}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmBimHandlerResultStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimHandlerResultStatisticsVO">
+        SELECT
+        count(ar.`id`) as `total_num`,
+        COALESCE(SUM(if(ar.`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `actual_num`,
+        COALESCE(SUM(if(ar.`alarm_handler_result` = 'ALARM_IMPRACTICAL',1,0)),0) as `impractical_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceAlarmTotal"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmCurrencyStatisticsVO">
+        SELECT
+        ar.`alarm_target_key` as `id`,
+        ar.`alarm_target_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.alarm_target_key
+    </select>
+
+    <select id="selectAlarmTargetCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(t1.`id`) as `target_count`
+        FROM
+        (
+        SELECT
+        ar.`alarm_target_key` as `id`,
+        ar.`alarm_target_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_target_key`
+        ) t1
+    </select>
+    <select id="getAlarmAreaCount" resultType="java.lang.Integer">
+        select count(1) from `alarm_record`
+        where
+        <if test="param.areaId != null and param.areaId != ''">
+            `area` like concat('%',#{param.areaId},'%')
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        GROUP BY `area`
+    </select>
+
+    <select id="getColdWaterAlarmTrendAnalysisStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmDeviceStatusStatisticsTrendVO">
+        SELECT
+        DATE_FORMAT(`alarm_time`, #{dateFormat}) timeFlag,
+        COUNT( `id` ) `num`
+        FROM
+        `alarm_record`
+        where
+        `application_code` = #{param.applicationCode}
+        <if test="param.period != null and param.period.begin != null">
+            and `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.deviceIds != null and param.deviceIds.size > 0">
+            and `alarm_target_key` in
+            <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        DATE_FORMAT(`alarm_time`, #{dateFormat})
+    </select>
+
+    <select id="getColdWaterAlarmEventRecord"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmDeviceEventRecordVO">
+        SELECT
+        `alarm_time` `alarmTime`,
+        `alarm_status` `alarmStatusEnum`,
+        `alarm_level_name` `alarmLevelName`,
+        `alarm_event_name` `alarmEventName`
+        FROM
+        `alarm_record`
+        where
+        `application_code` = #{param.applicationCode}
+        <if test="param.period != null and param.period.begin != null">
+            and `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.deviceIds != null and param.deviceIds.size > 0">
+            and `alarm_target_key` in
+            <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectAboutToTimeoutAlarmList"
+            resultMap="AboutToTimeoutAlarmMap">
+        SELECT
+        t1.`id`,
+        t1.`alarm_target_name`,
+        t1.`area_name`,
+        t1.`alarm_event_name`,
+        t1.`alarm_time`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t2.`user_id`
+        FROM
+        `alarm_record` t1
+        INNER JOIN `alarm_record_handler_user` t2 on t1.`id` = t2.`alarm_record_id`
+        WHERE t1.`alarm_status` != 'ALARM_HANDLER' and t1.`application_code` = #{applicationCode}
+        AND t1.`timeout_equipped` = 1
+        AND t1.`timeout_process_time` &gt;= #{beginDate} AND t1.`timeout_process_time` &lt;= #{endDate}
+    </select>
+    <select id="getAlarmBimStatisticsDeviceType"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsDeviceTypeVO">
+        SELECT
+        `alarm_target_type_name` `typeName`,
+        COUNT( id ) `alarmNum`
+        FROM
+        `alarm_record`
+        where
+        <if test="param.period != null and param.period.begin != null">
+            `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.deviceIds != null and param.deviceIds.size > 0">
+            and `alarm_target_key` in
+            <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        `alarm_target_type_name` order by `alarmNum` DESC LIMIT 5
+    </select>
+
+    <select id="getAlarmBimStatisticsPreviousDeviceType"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsDeviceTypeVO">
+        SELECT
+        `alarm_target_type_name` `typeName`,
+        COUNT( `id` ) `alarmNum`
+        FROM
+        `alarm_record`
+        where
+        <if test="param.period != null and param.period.begin != null">
+            `alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and `alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.deviceTypes != null and param.deviceTypes.size > 0">
+            and `alarm_target_type_name` in
+            <foreach collection="param.deviceTypes" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY
+        `alarm_target_type_name`
+    </select>
+
+    <select id="selectAboutToUnConfirmedAlarmList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.domain.po.AlarmRecordPO">
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`application_id`,
+        ar.`filter_scope`,
+        ar.`application_code`,
+        ar.`application_name`
+        FROM
+        `alarm_record` ar
+        WHERE ar.`alarm_status` = 'ALARM_UN_CONFIRMED'
+        AND ar.`create_time` &gt;= #{beginDate} AND ar.`create_time` &lt;= #{endDate}
+    </select>
+
+    <select id="selectImmediatelyTimeoutAlarmList"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.domain.po.AlarmRecordPO">
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`filter_scope`,
+        ar.`application_id`,
+        ar.`application_code`,
+        ar.`application_name`
+        FROM
+        `alarm_record` ar
+        WHERE ar.`alarm_status` != 'ALARM_HANDLER'
+        AND ar.`timeout_equipped` = 1
+        AND ar.`timeout_process_time` &gt;= #{beginDate} AND ar.`timeout_process_time` &lt;= #{endDate}
+    </select>
+
+    <select id="selectUnHandlerRowNumber" resultType="java.lang.Integer">
+        SELECT
+        row_number
+        FROM
+        (
+        SELECT
+        id,
+        ( @row_number := @row_number + 1 ) AS row_number
+        FROM
+        (
+        SELECT
+        ar.`id`,
+        ar.`code`,
+        ar.`alarm_level_id`,
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`,
+        ar.`alarm_level_sort`,
+        ar.`alarm_type_id`,
+        ar.`alarm_type_code`,
+        ar.`alarm_type_name`,
+        ar.`alarm_type_file_id`,
+        ar.`alarm_target_key`,
+        ar.`alarm_target_code`,
+        ar.`alarm_target_name`,
+        ar.`alarm_target_type_id`,
+        ar.`alarm_target_type_name`,
+        ar.`alarm_target_longitude`,
+        ar.`business_type`,
+        ar.`business_key`,
+        ar.`alarm_time`,
+        ar.`area`,
+        ar.`area_name`,
+        ar.`alarm_threshold`,
+        ar.`alarm_event`,
+        ar.`alarm_event_name`,
+        ar.`alarm_event_type_id`,
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_status`,
+        ar.`alarm_confirmed_by`,
+        ar.`alarm_confirmed_name`,
+        ar.`alarm_confirmed_time`,
+        ar.`estimate_handler_time`,
+        ar.`alarm_handler_by`,
+        ar.`alarm_handler_time`,
+        ar.`alarm_handler_result`,
+        ar.`alarm_handler_result_remark`,
+        ar.`timeout_equipped`,
+        ar.`timeout_process_time`,
+        ar.`timeout_process_times`,
+        ar.`timeout_process_times_unit`,
+        ar.`application_id`,
+        ar.`application_code`,
+        ar.`application_name`,
+        ar.`SNAPSHOT`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu ON arhu.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                ar.`alarm_event_name` like concat('%',#{param.keyword},'%')
+                or
+                ar.`alarm_target_name` like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.alarmLevelId != null">
+                and ar.`alarm_level_id` = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                and ar.`alarm_type_id` = #{param.alarmTypeId}
+            </if>
+            <if test="param.alarmTypeCode != null and param.alarmTypeCode !=''">
+                and ar.`alarm_type_code` = #{param.alarmTypeCode}
+            </if>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId != ''">
+                and ar.`alarm_target_type_id` = #{param.alarmTargetTypeId}
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` = #{param.area}
+            </if>
+            <if test="param.alarmHandlerResult != null">
+                and ar.`alarm_handler_result` = #{param.alarmHandlerResult}
+            </if>
+            <if test="param.alarmStatus != null">
+                and ar.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == param.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.`alarm_status` != 'ALARM_HANDLER' and ar.`timeout_process_time` &lt;= now()) or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.alarmHandlerTimeoutStatus != null and 'NORMAL' == param.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.`timeout_equipped` = false
+                OR
+                ar.`timeout_process_time` is NULL
+                OR
+                (ar.`alarm_status` != 'ALARM_HANDLER'and ar.`timeout_process_time` &gt;= now())
+                or
+                (ar.`alarm_status` = 'ALARM_HANDLER' AND ar.`timeout_process_time` &gt;= ar.`alarm_handler_time`))
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                and arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString() and
+                      param.period != null and param.period.begin != null">
+                and ar.`alarm_handler_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString() and
+                      param.period != null and param.period.end != null">
+                and ar.`alarm_handler_time` &lt;= #{param.period.end}
+            </if>
+            <if test="(param.alarmStatus == null or 'ALARM_HANDLER' != param.alarmStatus.toString()) and
+                      param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="(param.alarmStatus == null or 'ALARM_HANDLER' != param.alarmStatus.toString()) and
+                       param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ar.`id`
+        <if test="param.alarmStatus != null and 'ALARM_SUSPEND' == param.alarmStatus.toString()">
+            order by
+            ar.`alarm_level_sort` asc,ar.`suspend_time` desc
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_PROGRESS_CONFIRMED' == param.alarmStatus.toString()">
+            order by
+            ar.`alarm_level_sort` asc,ar.`alarm_time` desc
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_UN_CONFIRMED' == param.alarmStatus.toString()">
+            order by ar.`alarm_level_sort` asc,ar.`alarm_time` desc
+        </if>
+        <if test="param.alarmStatus != null and 'ALARM_HANDLER' == param.alarmStatus.toString()">
+            order by ar.`alarm_level_sort` asc,ar.`alarm_time` desc
+        </if>
+        <if test="param.alarmStatus == null">
+            order by ar.`alarm_level_sort` asc,ar.`alarm_time` desc
+        </if>
+        ) AS t1,
+        ( SELECT @row_number := 0 ) AS temp_table
+        ) AS result
+        WHERE
+        result.`id` = #{param.id}
+    </select>
+
+    <select id="getDeviceGroupStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimDeviceStatisticsVO">
+        SELECT
+        ar.`alarm_target_name` as `deviceName`,
+        COUNT(ar.`id`) as `alarmNum`
+        FROM
+        `alarm_record` ar
+        <where>
+            `application_code` = #{param.applicationCode}
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.eventName != null and param.eventName != ''">
+                and ar.`alarm_event_name` = #{param.eventName}
+            </if>
+
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_target_name`
+    </select>
+    <select id="getTimeGroupStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimDeviceStatisticsVO">
+        SELECT
+        DATE_FORMAT( ar.`alarm_time`, ${param.timeFormat} ) as `dateFlag`,
+        COUNT(ar.`id`) as `alarmNum`
+        FROM
+        `alarm_record` ar
+        <where>
+            `application_code` = #{param.applicationCode}
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.eventName != null and param.eventName != ''">
+                and ar.`alarm_event_name` = #{param.eventName}
+            </if>
+
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT( ar.`alarm_time`, ${param.timeFormat} )
+    </select>
+
+    <select id="getApplicationGroupStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimApplicationStatisticsVO">
+        SELECT
+        ar.`application_code` `applicationCode`,
+        ar.`application_name` `applicationName`,
+        COALESCE(SUM(if(ar.`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarmHandler`,
+        COALESCE(SUM(if(ar.`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `alarmProgressConfirmed`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by ar.`application_code`,
+        ar.`application_name`
+    </select>
+
+    <select id="getApplicationGroupTotalStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmApplicationStatisticsVO">
+        SELECT
+        ar.`application_code` `application_code`,
+        ar.`application_name` `application_name`,
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on arhu.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by ar.`application_code`,
+        ar.`application_name`
+    </select>
+
+    <select id="selectInnerAlarmTargetTypeStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmTargetTypeStatisticsVO">
+        SELECT
+        ar.`alarm_target_type_id`,
+        COUNT(1) `alarm_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.alarmTargetTypeId != null and param.alarmTargetTypeId.size > 0">
+                and ar.`alarm_target_type_id` in
+                <foreach collection="param.alarmTargetTypeId" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ar.`alarm_target_type_id`
+    </select>
+
+    <select id="selectAlarmApplicationCode" resultType="java.lang.String">
+        SELECT
+        `application_code`
+        FROM
+        `alarm_record`
+        GROUP BY `application_code`
+    </select>
+
+    <select id="selectDeptChainTopStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsTopChainVO">
+        SELECT
+        arh.`department_id` as `id`,
+        arh.`department_name` as `name`,
+        COUNT(ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arh on ar.`id` = arh.`alarm_record_id`
+        <where>
+            <if test="param.alarmStatus != null and param.alarmStatus != ''">
+                and ar.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.departmentIds != null and param.departmentIds.size > 0">
+                and arh.`department_id` in
+                <foreach collection="param.departmentIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY arh.`department_id`
+        ORDER BY COUNT(ar.`id`) desc
+        <if test="param.pageSize != null">
+            LIMIT 0,#{param.pageSize}
+        </if>
+    </select>
+
+    <select id="selectEventTypeHandlerListStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsHandlerVO">
+        SELECT
+        ar.`alarm_event_type_code` as `id`,
+        ar.`alarm_event_type_name` as `name`,
+        COUNT(ar.`id`) as `total_num`,
+        COALESCE(SUM(if(ar.`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE(SUM( ar.`processing_time` ),0) AS `processing_time`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_event_type_code` is not NULL AND ar.`alarm_event_type_code` != ''
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.alarmStatus != null and param.alarmStatus != ''">
+                and ar.`alarm_status` = #{param.alarmStatus}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+        </where>
+        GROUP BY ar.`alarm_event_type_code`
+        ORDER BY COUNT(ar.`id`) desc
+    </select>
+
+    <select id="selectEventTypeListStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsHandlerVO">
+        SELECT
+        ar.`alarm_event_type_code` as `id`,
+        ar.`alarm_event_type_name` as `name`,
+        COUNT(DISTINCT ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        LEFT JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            ar.`alarm_event_type_code` is not NULL AND ar.`alarm_event_type_code` != ''
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.userId != null">
+                and arhu.`user_id` = #{param.userId}
+            </if>
+            <if test="param.alarmStatus != null and param.alarmStatus != ''">
+                and ar.alarm_status = #{param.alarmStatus}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_event_type_code`
+        ORDER BY COUNT(ar.`id`) desc
+    </select>
+
+    <select id="selectAlarmSituation"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimSituationVO">
+        SELECT
+        COUNT( 1 ) AS `total_num`,
+        COALESCE ( SUM( IF (ar.`alarm_status` = 'ALARM_HANDLER', 1, 0 )), 0 ) AS `handler_num`,
+        COALESCE ( SUM( IF (ar.`alarm_status` != 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS `confirmed_num`,
+        COALESCE ( SUM( IF (ar.`alarm_handler_result` = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS `actual_num`,
+        COALESCE (
+        SUM(
+        IF
+        ( ar.`alarm_status` != 'ALARM_HANDLER' AND ar.`timeout_process_time` &lt;= NOW() OR ar.`alarm_status` =
+        'ALARM_HANDLER' AND
+        ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`, 1, 0 )),
+        0
+        ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectEventTypeGroupTotalStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmBimStatisticsEventGroupVO">
+        SELECT
+        ar.`alarm_event_type_code` as `id`,
+        ar.`alarm_event_type_name` as `name`,
+        COUNT(ar.`id`) as `total_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_event_type_code` is not NULL AND ar.`alarm_event_type_code` != ''
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and ar.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.areaId != null">
+                and ar.`area` like concat('%',#{param.areaId},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and ar.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmStatus != null and param.alarmStatus != ''">
+                and ar.alarm_status = #{param.alarmStatus}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and ar.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY ar.`alarm_event_type_code`
+    </select>
+
+    <select id="selectRiskIndexAlarmRecord"
+            resultType="com.guhecloud.cube.base.alarm.server.riskscore.dto.AlarmRiskIndexDTO">
+        select `alarm_level_sort` as `alarmLevel`,`alarm_status` as `alarmStatus` from `alarm_record`
+        <where>
+            <if test="period != null and period.begin != null">
+                and `alarm_time` &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and `alarm_time` &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+    <select id="selectAlarmRecordByApplication"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmRecordReportVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`application_code`,
+        ar.`alarm_event_type_name` as `alarm_event_name`,
+        ar.`alarm_level_code`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `alarm_actual_num`,
+        COALESCE (sum(if(`alarm_status` != 'ALARM_UN_CONFIRMED',1,0)),0) as `responded_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarm_handler_num`,
+        COALESCE (SUM(
+        IF
+        ( `alarm_status` = 'ALARM_HANDLER' AND `alarm_handler_time` > DATE_FORMAT( DATE_ADD( `alarm_time`, INTERVAL '1' DAY ),
+        '%Y-%m-%d' ), 1, 0 )),
+        0
+        ) AS `out_day_handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`application_code`,
+        ar.`alarm_event_type_name`,
+        ar.`alarm_level_code`
+    </select>
+    <select id="selectAlarmRecordByApplicationForDepartment"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmRecordReportVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`alarm_level_code`,
+        temp1.`department_id`,
+        temp1.`department_name`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `alarm_actual_num`,
+        COALESCE (sum(if(`alarm_status` != 'ALARM_UN_CONFIRMED',1,0)),0) as `responded_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarm_handler_num`,
+        COALESCE (SUM(
+        IF
+        ( `alarm_status` = 'ALARM_HANDLER' AND `alarm_handler_time` > DATE_FORMAT( DATE_ADD( `alarm_time`, INTERVAL '1' DAY ),
+        '%Y-%m-%d' ), 1, 0 )),
+        0
+        ) AS `out_day_handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN ( SELECT arhu.`department_id`, arhu.`alarm_record_id`, arhu.`department_name`
+        FROM `alarm_record_handler_user` arhu
+        GROUP BY arhu.`department_id`, arhu.`alarm_record_id` )
+        temp1 ON temp1.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmLevelCodeList != null and param.alarmLevelCodeList.size > 0">
+                and ar.`alarm_level_code` in
+                <foreach collection="param.alarmLevelCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`alarm_level_code`,
+        temp1.`department_id`,
+        temp1.`department_name`
+    </select>
+    <select id="selectAlarmRecordByApplicationForUser"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmRecordReportVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`application_code`,
+        arhu.`user_id`,
+        arhu.`user_name`,
+        arhu.`department_id`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `alarm_actual_num`,
+        COALESCE (sum(if(`alarm_status` != 'ALARM_UN_CONFIRMED',1,0)),0) as `responded_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `alarm_handler_num`,
+        COALESCE (SUM(
+        IF
+        ( `alarm_status` = 'ALARM_HANDLER' AND `alarm_handler_time` > DATE_FORMAT( DATE_ADD( `alarm_time`, INTERVAL '1' DAY ),
+        '%Y-%m-%d' ), 1, 0 )),
+        0
+        ) AS `out_day_handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu ON arhu.`alarm_record_id` = ar.`id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.`application_code`,
+        arhu.`user_id`,
+        arhu.`user_name`,
+        arhu.`department_id`
+    </select>
+    <select id="selectAlarmRecordRingAndSameByApplication"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmRecordReportVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`application_code`,
+        ar.`alarm_level_code`
+        FROM
+        `alarm_record` ar
+        where 1=1
+        <if test="param.period != null and param.period.begin != null">
+            and ar.`alarm_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and ar.`alarm_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+            and ar.`application_code` in
+            <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                     separator=",">
+                #{code}
+            </foreach>
+        </if>
+        GROUP BY
+        ar.`application_code`,
+        ar.`alarm_level_code`
+    </select>
+    <select id="selectAlarmRecordByApplicationGroupDepartment"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmRecordReportVO">
+        SELECT
+        arhu.`department_id`,
+        COUNT(DISTINCT ar.`id`) as `alarm_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu on ar.`id` = arhu.`alarm_record_id`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.departmentIds != null and param.departmentIds.size > 0">
+                and arhu.`department_id` in
+                <foreach collection="param.departmentIds" item="departmentId" open="(" close=")"
+                         separator=",">
+                    #{departmentId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        arhu.`department_id`
+    </select>
+    <sql id="alarmBaseQuery">
+        COUNT(1) as `total_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_UN_CONFIRMED',1,0)),0) as `unconfirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_PROGRESS_CONFIRMED',1,0)),0) as `progress_confirmed_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_SUSPEND',1,0)),0) as `suspend_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `alarm_actual_num`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_IMPRACTICAL',1,0)),0) as `alarm_impractical_num`,
+        COALESCE (SUM(ar.`processing_time`),0) as `processing_time`
+    </sql>
+    <sql id="alarmBaseWhere">
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and arhu.`user_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmEventTypeCode != null and param.alarmEventTypeCode != ''">
+                and ar.`alarm_event_type_code` = #{param.alarmEventTypeCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and arhu.`user_id` in
+                <foreach collection="param.userIds" item="userId" open="(" close=")"
+                         separator=",">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+    <select id="selectAlarmRecordForSafetyReport"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmStatusTotalByUserPageVO">
+        SELECT
+        ar.`alarm_event_type_name` AS `alarm_event_name`,
+        ar.`alarm_event_type_code` as `alarm_event_type_id`,
+        <include refid="alarmBaseQuery" />
+        FROM
+        `alarm_record` ar
+        <include refid="alarmBaseWhere" />
+        GROUP BY
+        ar.`alarm_event_type_name`,
+        ar.`alarm_event_type_code`
+        ORDER BY
+        COUNT( 1 ) DESC
+    </select>
+    <select id="selectAlarmRecordCountForSafetyReport"
+            resultType="java.lang.Long">
+        SELECT
+        COUNT(1) as `total_num`
+        FROM
+        `alarm_record` ar
+        <include refid="alarmBaseWhere" />
+    </select>
+    <select id="selectAlarmRecordForSafetyReportByDepartment"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmStatusTotalByUserPageVO">
+        SELECT
+        temp1.`department_id`,
+        <include refid="alarmBaseQuery" />
+        FROM
+        `alarm_record` ar
+        INNER JOIN ( SELECT arhu.`department_id`, arhu.`alarm_record_id`, arhu.`department_name`
+        FROM `alarm_record_handler_user` arhu
+        GROUP BY arhu.`department_id`, arhu.`alarm_record_id` )
+        temp1 ON temp1.`alarm_record_id` = ar.`id`
+        <include refid="alarmBaseWhere" />
+        GROUP BY
+        temp1.`department_id`
+        ORDER BY
+        COUNT( 1 ) DESC
+    </select>
+
+    <select id="selectAlarmLevelHandlerRateStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelStatisticsVO">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`name`,
+        COUNT(t2.`id`) as `alarm_num`,
+        COALESCE (SUM(if(t2.`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`
+        FROM
+        `sat_alarm_level` t1
+        LEFT JOIN `alarm_record` t2 on t1.`id` = t2.`alarm_level_id`
+        <where>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t2.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and t2.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t2.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t2.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            GROUP BY t1.`id`
+        </where>
+    </select>
+
+    <select id="selectAlarmLevelHandlerEfficiency"
+            resultType="com.guhecloud.cube.base.alarm.server.flow.interfaces.vo.AlarmLevelHandlerEfficiencyStatisticsVO">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`name`,
+        COUNT(t2.`id`) as `handler_num`,
+        COALESCE (SUM(t2.processing_time),0) as `duration_total`
+        FROM
+        `sat_alarm_level` t1
+        LEFT JOIN `alarm_record` t2 on t1.`id` = t2.`alarm_level_id`
+        <where>
+            t2.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t2.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and t2.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t2.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t2.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t1.`id`
+    </select>
+
+    <select id="selectUserAlarmNoHandlerStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmUserHandlerRateTopVO">
+        select
+        count(distinct t1.id) as `userAlarmNumber`,
+        t2.user_id as `userId`,
+        t2.user_name as `alarmHandlerUserName`
+        from
+        alarm_record t1
+        inner join alarm_record_handler_user t2 on t1.`id` = t2.`alarm_record_id`
+        <where>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and t1.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and t1.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t1.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and t1.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and t1.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        group by t2.user_id
+    </select>
+
+    <select id="selectUserAlarmHandlerStatistics"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmUserHandlerRateTopVO">
+        select
+        count(distinct t1.id) as `userHandlerAlarmNumber`,
+        t1.alarm_handler_by as `userId`,
+        t1.alarm_handler_name as `alarmHandlerUserName`
+        from
+        alarm_record t1
+        <where>
+            t1.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t1.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and t1.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t1.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and t1.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t1.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and t1.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and t1.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        group by t1.alarm_handler_by
+    </select>
+
+    <select id="selectAlarmHandlerTimeoutRate"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmHandlerTimeoutRateStatisticsVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `total_handler_num`,
+        COALESCE ( SUM( IF(`timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `total_handler_timeout_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmUserHandlerTimeoutRate"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmUserHandlerTimeoutRateStatisticsVO">
+        SELECT
+        ar.alarm_handler_by as `user_id`,
+        ar.alarm_handler_name as `username`,
+        COUNT( DISTINCT ar.`id` ) AS `total_handler_num`,
+        COALESCE ( SUM( IF(ar.`timeout_process_time` &lt;= ar.`alarm_handler_time`, 1, 0 )), 0 ) AS `total_handler_timeout_num`
+        FROM
+        `alarm_record` ar
+        <where>
+            ar.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.alarmLevelCode != null and param.alarmLevelCode != ''">
+                and ar.`alarm_level_code` = #{param.alarmLevelCode}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.alarmEventTypeIds != null and param.alarmEventTypeIds.size > 0">
+                and ar.`alarm_event_type_code` in
+                <foreach collection="param.alarmEventTypeIds" item="code" open="(" separator=","
+                         close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        group by ar.`alarm_handler_by`
+    </select>
+    <select id="selectAlarmLevelHandlerTimeoutRate"
+            resultType="com.guhecloud.cube.base.alarm.server.statistics.vo.AlarmHandlerTimeoutRateStatisticsVO">
+        SELECT
+        t1.`code` AS alarmLevelCode,
+        COUNT( DISTINCT t2.`id` ) AS `total_handler_num`,
+        COALESCE ( SUM( IF(t2.`timeout_process_time` &lt;= t2.`alarm_handler_time`, 1, 0 )), 0 ) AS `total_handler_timeout_num`
+        FROM
+        `sat_alarm_level` t1
+        LEFT JOIN `alarm_record` t2 on t1.`id` = t2.`alarm_level_id`
+        <where>
+            t2.`alarm_status` = 'ALARM_HANDLER'
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and t2.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.area != null and param.area != ''">
+                and t2.`area` like concat('%',#{param.area},'%')
+            </if>
+            <if test="param.businessType != null and param.businessType != ''">
+                and t2.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.applicationCodeList != null and param.applicationCodeList.size > 0">
+                and ar.`application_code` in
+                <foreach collection="param.applicationCodeList" item="code" open="(" close=")"
+                         separator=",">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t2.`alarm_target_key` in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            GROUP BY t1.`id`
+        </where>
+    </select>
+</mapper>

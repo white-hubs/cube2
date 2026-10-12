@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizTagRefMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.BizTagRef">
+        <!--@mbg.generated-->
+        <!--@Table center_biz_tag_ref-->
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="tag_type_id" jdbcType="BIGINT" property="tagTypeId" />
+        <result column="tag_id" jdbcType="BIGINT" property="tagId" />
+        <result column="device_id" jdbcType="BIGINT" property="deviceId" />
+        <result column="tenant" jdbcType="INTEGER" property="tenant" />
+        <result column="deleted" jdbcType="BIGINT" property="deleted" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="creator_id" jdbcType="VARCHAR" property="creatorId" />
+        <result column="creator_type" jdbcType="VARCHAR" property="creatorType" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="updater_id" jdbcType="VARCHAR" property="updaterId" />
+        <result column="updater_type" jdbcType="VARCHAR" property="updaterType" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `tag_type_id`, `tag_id`, `device_id`, `tenant`, `deleted`, `create_by`, `creator_id`, `creator_type`, `create_time`,
+        `update_by`, `updater_id`, `updater_type`, `update_time`
+    </sql>
+
+    <update id="logicDeleteByDeviceIds">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime},
+        `update_by` = #{userId,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        WHERE `business_key` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <update id="logicDeletedByDeviceIds">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = #{deleted},
+        `update_time` = #{updateTime},
+        `update_by` = #{username,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        WHERE `business_key` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <select id="queryDeviceCode" resultType="com.guhecloud.cube.base.device.center.metadata.lang.Pair">
+        SELECT `dev`.`id` AS `key`,
+        `dev`.`device_code` AS `val`
+        FROM `center_biz_device` `dev`
+        JOIN `center_biz_tag_ref` `ref` ON `ref`.`device_id` = `dev`.`id`
+        WHERE `ref`.`tag_id` = #{tagId,jdbcType=BIGINT}
+    </select>
+
+    <select id="tagCountInfo" resultType="com.guhecloud.cube.base.device.center.core.vo.TagCountInfo">
+        SELECT `tag`.`tag_code` AS `tagCode`,
+        `tag`.`tag_name` AS `tagName`,
+        COUNT(`dev`.`id`) AS `tagCount`
+        FROM `center_biz_tag_ref` `ref`
+        JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        JOIN `center_biz_device` `dev` ON `ref`.`business_key` = `dev`.`id`
+        WHERE `ref`.`tag_id` = #{tagId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getDeviceTagCode" resultType="com.guhecloud.cube.base.device.center.open.vo.DeviceTag">
+        SELECT `tag`.`tag_code` AS `tagCode`
+        FROM `center_biz_tag_ref` `ref`
+        JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        WHERE `ref`.`business_key` = #{deviceId,jdbcType=BIGINT}
+        UNION
+        SELECT `tag`.`tag_code` AS `tagCode`
+        FROM `center_biz_tag_ref` `ref`
+        JOIN `center_biz_device` `dev` ON `ref`.`business_key` = `dev`.`device_iot_prod_id`
+        JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        WHERE `dev`.`id` = #{deviceId,jdbcType=BIGINT}
+    </select>
+
+    <select id="getTagCodeByBusinessKey" resultType="com.guhecloud.cube.base.device.center.open.vo.DeviceTag">
+        SELECT `tag`.`tag_code` AS `tagCode`
+        FROM `center_biz_tag_ref` `ref`
+        JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        WHERE `ref`.`business_key` = #{businessKey,jdbcType=BIGINT}
+    </select>
+
+    <select id="insertBatch" resultType="java.lang.Integer">
+        INSERT INTO `center_biz_tag_ref` (`id`, `tag_id`, `business_key`, `create_by`, `creator_id`, `creator_type`, `create_time`,
+        `update_by`, `updater_id`, `updater_type`, `update_time`)
+        VALUES
+        <foreach collection="bizTagRefs" item="bizTagRef" separator=",">
+            (#{bizTagRef.id}, #{bizTagRef.tagId}, #{bizTagRef.businessKey},
+            #{bizTagRef.createBy},#{bizTagRef.creatorId},#{bizTagRef.creatorType},#{bizTagRef.createTime},
+            #{bizTagRef.updateBy},#{bizTagRef.updaterId},#{bizTagRef.updaterType},#{bizTagRef.updateTime})
+        </foreach>
+    </select>
+
+    <update id="logicDelete">
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime}
+        WHERE `business_key` = #{deviceId,jdbcType=BIGINT}
+        AND `tag_id` = #{tagId,jdbcType=BIGINT}
+    </update>
+
+    <update id="logicBatchDelete">
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime}
+        WHERE `tag_id` = #{tagId,jdbcType=BIGINT}
+        AND `business_key` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <update id="recover">
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = 0
+        WHERE `business_key` = #{deviceId,jdbcType=BIGINT}
+        AND `tag_id` = #{tagId,jdbcType=BIGINT}
+        AND `tenant` = #{tenant}
+    </update>
+
+    <update id="logicTagAllDelete">
+        UPDATE `center_biz_tag_ref`
+        SET `deleted` = 0,
+        `update_time` = #{updateTime}
+        WHERE `tag_id` = #{tagId,jdbcType=BIGINT}
+    </update>
+
+    <update id="physicalDeleteByTagDeviceIds">
+        DELETE FROM `center_biz_tag_ref`
+        WHERE (`deleted` = 0 OR `deleted` = 1)
+        AND `tag_id` = #{tagId,jdbcType=BIGINT}
+        AND `business_key` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <update id="updateBySelective">
+        update `center_biz_tag_ref` `cbtr`
+        <set>
+            <if test="tagRef.updateBy != null">
+                `cbtr`.`update_by` = #{tagRef.updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="tagRef.updaterId != null">
+                `cbtr`.`updater_id` = #{tagRef.updaterId,jdbcType=VARCHAR},
+            </if>
+            <if test="tagRef.updaterType != null">
+                `cbtr`.`updater_type` = #{tagRef.updaterType,jdbcType=VARCHAR},
+            </if>
+            <if test="tagRef.updateTime != null">
+                `cbtr`.`update_time` = #{tagRef.updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="tagRef.deleted ">
+                `cbtr`.`deleted` = 1,
+            </if>
+            <if test="!tagRef.deleted ">
+                `cbtr`.`deleted` = 0,
+            </if>
+        </set>
+        where `cbtr`.`business_key` = #{tagRef.businessKey,jdbcType=BIGINT}
+        and `cbtr`.`tag_id` = (select `id` from `center_biz_tag` `cbt` where `cbt`.`tag_code` =
+        #{bizTag.tagCode,jdbcType=VARCHAR})
+    </update>
+
+    <select id="queryDeviceTagId" resultType="java.lang.Long">
+        SELECT `tag_id`
+        FROM `center_biz_tag_ref`
+        WHERE `business_key` = #{deviceId,jdbcType=BIGINT};
+    </select>
+
+    <delete id="realDeleteByTagId">
+        DELETE
+        FROM `center_biz_tag_ref`
+        WHERE `tag_id` = #{tagId,jdbcType=BIGINT}
+    </delete>
+
+    <select id="getTagRefIds" resultType="java.lang.Long">
+        SELECT `ref`.`id`
+        FROM `center_biz_tag_ref` `ref`
+        INNER JOIN `center_biz_tag` `tag` ON `ref`.`tag_id` = `tag`.`id`
+        WHERE `ref`.`business_key` = #{deviceId}
+        AND `tag`.`tag_code` LIKE CONCAT(#{prefix}, '%');
+    </select>
+
+    <select id="tagRefDeviceIds" resultType="java.lang.Long">
+        SELECT DISTINCT `ref`.`business_key`
+        FROM `center_biz_tag_ref` `ref`
+        INNER JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        WHERE `tag`.`tag_code` IN
+        <foreach collection="tagCodes" open="(" separator="," close=")" item="tagCode">
+            #{tagCode}
+        </foreach>
+    </select>
+
+
+    <select id="deviceRefTagList" resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.CustomerTagVO">
+        SELECT DISTINCT `tag`.`id`, `tag`.`tag_code`, `tag`.`tag_name`, `tag`.`description`, `tag`.`update_time`,
+        `tag`.`enable_status`
+        FROM `center_biz_tag_ref` `ref`
+        INNER JOIN `center_biz_tag` `tag` ON `ref`.`tag_id` = `tag`.`id`
+        <where>
+            `ref`.`business_key` IN
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+            <if test="prefixCodes != null and prefixCodes.size() > 0">
+                and (
+                <foreach collection="prefixCodes" item="prefix" separator="or">
+                    tag.tag_code like concat(#{prefix},'%')
+                </foreach>
+                )
+            </if>
+        </where>
+    </select>
+
+    <select id="queryByDeviceAndTag" resultMap="BaseResultMap">
+        SELECT `id`, `deleted`
+        FROM `center_biz_tag_ref`
+        WHERE `tag_id` = #{tagId,jdbcType=BIGINT}
+        AND `business_key` = #{deviceId,jdbcType=BIGINT}
+        AND `tenant` = #{tenant}
+    </select>
+</mapper>

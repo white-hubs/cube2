@@ -1,0 +1,16 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyAllotRelationMapper">
+   <insert id="insertBatch">
+       INSERT INTO `property_allot_relation`
+       (`allot_id`,`property_id`, `allot_numbers`)
+       VALUES
+       <foreach collection="propertyIds" item="item" separator=",">
+           (#{id}, #{item}, #{allotNumbers})
+       </foreach>
+   </insert>
+    <select id="getPropertyIds" resultType="java.lang.Long">
+        select property_id
+        from property_allot_relation
+        where allot_numbers = #{allotNumbers}
+    </select>
+</mapper>

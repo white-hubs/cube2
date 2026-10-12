@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3SharedValueDictMapper">
+
+    <!-- 共享值字典实体ResultMap -->
+    <resultMap id="SharedValueDictResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.SharedValueDict">
+        <id column="id" property="id"/>
+        <result column="dict_type" property="dictType"/>
+        <result column="dict_value" property="dictValue"/>
+        <result column="dict_label" property="dictLabel"/>
+        <result column="use_count" property="useCount"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据字典类型查询共享值列表 -->
+    <select id="selectValuesByType" resultType="java.lang.String">
+        SELECT `dict_value`
+        FROM iot_shared_value_dict_v3
+        WHERE `dict_type` = #{dictType}
+          AND `status` = 1
+        ORDER BY `use_count` DESC, `sort_order` ASC
+    </select>
+
+    <!-- 根据字典类型和值查询记录 -->
+    <select id="selectByTypeAndValue" resultMap="SharedValueDictResultMap">
+        SELECT
+            `id`,
+            `dict_type`,
+            `dict_value`,
+            `dict_label`,
+            `use_count`,
+            `sort_order`,
+            `status`,
+            `remark`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_shared_value_dict_v3
+        WHERE `dict_type` = #{dictType}
+          AND `dict_value` = #{dictValue}
+        LIMIT 1
+    </select>
+
+    <!-- 批量插入或更新共享值(增加使用次数) - MySQL -->
+    <insert id="batchInsertOrUpdate" databaseId="mysql">
+        INSERT INTO iot_shared_value_dict_v3
+        (
+            `id`,
+            `dict_type`,
+            `dict_value`,
+            `dict_label`,
+            `use_count`,
+            `sort_order`,
+            `status`,
+            `remark`,
+            `tenant`,
+            `create_by`,
+            `create_time`
+        )
+        VALUES
+        <foreach collection="records" item="item" separator=",">
+        (
+            #{item.id},
+            #{item.dictType},
+            #{item.dictValue},
+            #{item.dictLabel},
+            1,
+            #{item.sortOrder},
+            #{item.status},
+            #{item.remark},
+            #{item.tenant},
+            #{item.createBy},
+            NOW()
+        )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+            `use_count` = `use_count` + 1,
+            `update_time` = NOW()
+    </insert>
+
+    <!-- 批量插入或更新共享值(增加使用次数) - PostgreSQL/瀚高 -->
+    <insert id="batchInsertOrUpdate" databaseId="pg">
+        INSERT INTO iot_shared_value_dict_v3
+        (
+            `id`,
+            `dict_type`,
+            `dict_value`,
+            `dict_label`,
+            `use_count`,
+            `sort_order`,
+            `status`,
+            `remark`,
+            `tenant`,
+            `create_by`,
+            `create_time`
+        )
+        VALUES
+        <foreach collection="records" item="item" separator=",">
+        (
+            #{item.id},
+            #{item.dictType},
+            #{item.dictValue},
+            #{item.dictLabel},
+            1,
+            #{item.sortOrder},
+            #{item.status},
+            #{item.remark},
+            #{item.tenant},
+            #{item.createBy},
+            NOW()
+        )
+        </foreach>
+        ON CONFLICT (`tenant`, `dict_type`, `dict_value`, `deleted`) DO UPDATE SET
+            `use_count` = iot_shared_value_dict_v3.`use_count` + 1,
+            `update_time` = NOW()
+    </insert>
+
+    <!-- 批量插入或更新共享值(增加使用次数) - 达梦 -->
+    <insert id="batchInsertOrUpdate" databaseId="dm">
+        MERGE INTO iot_shared_value_dict_v3 t
+        USING (
+            <foreach collection="records" item="item" separator=" UNION ALL ">
+            SELECT #{item.id} AS `id`, #{item.dictType} AS `dict_type`, #{item.dictValue} AS `dict_value`,
+                   #{item.dictLabel} AS `dict_label`, 1 AS `use_count`, #{item.sortOrder} AS `sort_order`,
+                   #{item.status} AS `status`, #{item.remark} AS `remark`, #{item.tenant} AS `tenant`,
+                   #{item.createBy} AS `create_by`, NOW() AS `create_time`, 0 AS `deleted` FROM DUAL
+            </foreach>
+        ) s ON (t.`tenant` = s.`tenant` AND t.`dict_type` = s.`dict_type` AND t.`dict_value` = s.`dict_value` AND t.`deleted` = s.`deleted`)
+        WHEN MATCHED THEN
+            UPDATE SET t.`use_count` = t.`use_count` + 1, t.`update_time` = NOW()
+        WHEN NOT MATCHED THEN
+            INSERT (`id`, `dict_type`, `dict_value`, `dict_label`, `use_count`, `sort_order`, `status`, `remark`, `tenant`, `create_by`, `create_time`)
+            VALUES (s.`id`, s.`dict_type`, s.`dict_value`, s.`dict_label`, s.`use_count`, s.`sort_order`, s.`status`, s.`remark`, s.`tenant`, s.`create_by`, s.`create_time`)
+    </insert>
+
+    <!-- 根据字典类型搜索共享值(模糊匹配) -->
+    <select id="searchValuesByTypeAndKeyword" resultType="java.lang.String">
+        SELECT `dict_value`
+        FROM iot_shared_value_dict_v3
+        WHERE `dict_type` = #{dictType}
+          AND `status` = 1
+        <if test="keyword != null and keyword != ''">
+            AND (
+                `dict_value` LIKE CONCAT('%', #{keyword}, '%')
+                OR `dict_label` LIKE CONCAT('%', #{keyword}, '%')
+            )
+        </if>
+        ORDER BY `use_count` DESC, `sort_order` ASC
+        <if test="limit != null and limit > 0">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+</mapper>

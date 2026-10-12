@@ -1,0 +1,42 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.smartcard.server.dao.OrgMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.smartcard.server.entity.Org" databaseId="mysql">
+        insert into
+        org(id,org_code,org_name,parent_id,org_path,
+        tenant,create_by,creator_id,creator_type,create_time,
+        update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.orgCode},#{item.orgName},#{item.parentId},#{item.orgPath},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        org_code = values(org_code),
+        org_name = values(org_name),
+        parent_id = values(parent_id),
+        org_path = values(org_path),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.smartcard.server.entity.Org" databaseId="pg">
+        insert into
+        org(id,org_code,org_name,parent_id,org_path,
+        tenant,create_by,creator_id,creator_type,create_time,
+        update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.orgCode},#{item.orgName},#{item.parentId},#{item.orgPath},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on conflict on constraint code_index DO UPDATE set
+        org_code = EXCLUDED.org_code,
+        org_name = EXCLUDED.org_name,
+        parent_id = EXCLUDED.parent_id,
+        org_path = EXCLUDED.org_path,
+        update_time = EXCLUDED.update_time
+    </insert>
+
+</mapper>

@@ -1,0 +1,127 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.DepositoryDetailedMapper">
+    <resultMap id="getDepositoryDetailed"
+               type="com.guhecloud.cube.property.management.client.property.vo.property.DepositoryDetailedPageVO">
+        <id property="id" column="id"></id>
+        <result property="depositoryNumbers" column="depository_numbers" />
+        <result property="startTime" column="start_time" />
+        <result property="createBy" column="create_by" />
+        <result property="creatorId" column="creator_id" />
+        <result property="creatorType" column="creator_type" />
+        <result property="receiptNumbers" column="receipt_numbers" />
+        <result property="status" column="status" />
+        <result property="sourceName" column="source_name" />
+        <result property="remarks" column="remarks" />
+        <result property="createTime" column="create_time" />
+        <collection property="propertyDetailed" javaType="java.util.List"
+                    ofType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+            <id property="id" column="b_id" />
+            <result property="serialNumber" column="serial_number" />
+            <result property="serialNumber" column="serial_number" />
+            <result property="typeName" column="type_name" />
+            <result property="purchaseDate" column="purchase_date" />
+            <result property="name" column="name" />
+            <result property="maintenanceTime" column="maintenance_time" />
+            <result property="usageTime" column="usage_time" />
+            <result property="norms" column="norms" />
+            <result property="unit" column="unit" />
+            <result property="number" column="number" />
+            <result property="price" column="price" />
+            <result property="adminId" column="admin_id" />
+            <result property="areaName" column="area_name" />
+            <result property="status" column="b_status" />
+        </collection>
+    </resultMap>
+    <resultMap id="getDepositoryDetailedPage"
+               type="com.guhecloud.cube.property.management.client.property.vo.property.DepositoryDetailedPageVO">
+        <id property="id" column="id"></id>
+        <result property="depositoryNumbers" column="depository_numbers" />
+        <result property="startTime" column="start_time" />
+        <result property="createBy" column="create_by" />
+        <result property="creatorId" column="creator_id" />
+        <result property="creatorType" column="creator_type" />
+        <result property="receiptNumbers" column="receipt_numbers" />
+        <result property="status" column="status" />
+        <result property="sourceName" column="source_name" />
+        <result property="remarks" column="remarks" />
+        <result property="createTime" column="create_time" />
+    </resultMap>
+    <select id="getDepositoryDetailed" resultMap="getDepositoryDetailed">
+        SELECT a.id,
+        a.start_time,
+        a.source_name,
+        a.depository_numbers,
+        a.receipt_numbers,
+        a.status,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        a.remarks,
+        b.id as b_id,
+        b.serial_number,
+        b.type_name,
+        b.purchase_date,
+        b.name,
+        b.maintenance_time,
+        b.usage_time,
+        b.norms,
+        b.unit,
+        b.number,
+        b.price,
+        b.admin_id,
+        b.area_name,
+        b.status as b_status
+        FROM property_depository_detailed as a
+        inner join `property_detailed` as b on a.depository_numbers = b.depository_numbers
+        where a.id = #{id}
+    </select>
+    <select id="getDepositoryDetailedPage" resultMap="getDepositoryDetailedPage">
+        SELECT a.id,
+        a.start_time,
+        a.source_name,
+        a.depository_numbers,
+        a.receipt_numbers,
+        a.status,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        a.remarks,
+        a.process_instance_id
+        FROM property_depository_detailed as a
+        inner join `property_detailed` as b on a.depository_numbers=b.depository_numbers
+        <where>
+            <if test="param.startTime !=null and param.startTime !=''">
+                a.start_time=#{param.startTime}
+            </if>
+            <if test="param.typeId !=null and param.typeId !=''">
+                and b.type_id=#{param.typeId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status=#{param.status}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (a.depository_numbers like concat("%",#{param.keyword},"%")
+                or b.name like concat("%",#{param.keyword},"%"))
+            </if>
+        </where>
+        group by a.id
+        order by a.start_time desc,a.create_time desc
+    </select>
+    <select id="getDepositoryDetailedExcel"
+            resultType="com.guhecloud.cube.property.management.client.property.param.property.DepositoryDetailedExcelParam">
+        SELECT
+        b.type_name,
+        b.serial_number,
+        b.name,
+        b.norms,
+        b.unit,
+        b.number,
+        b.price,
+        b.remarks
+        FROM property_depository_detailed as a
+        inner join `property_detailed` as b on a.depository_numbers = b.depository_numbers
+        where a.id = #{id}
+    </select>
+</mapper>

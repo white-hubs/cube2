@@ -1,0 +1,466 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyDetailedMapper">
+    <resultMap id="getPropertyDetailedPage"
+               type="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedPageVO">
+        <id column="id" property="id"></id>
+        <result column="serial_number" property="serialNumber"></result>
+        <result column="finance_number" property="financeNumber"></result>
+        <result column="name" property="name"></result>
+        <result column="type_name" property="typeName"></result>
+        <result column="norms" property="norms"></result>
+        <result column="unit" property="unit"></result>
+        <result column="price" property="price"></result>
+        <result column="source_id" property="sourceId"></result>
+        <result column="purchase_date" property="purchaseDate"></result>
+        <result column="start_time" property="startTime"></result>
+        <result column="status" property="status"></result>
+        <result column="admin_id" property="adminId"></result>
+        <result column="area_id" property="areaId"></result>
+        <result column="create_by" property="createBy"></result>
+        <result column="creator_id" property="creatorId"></result>
+        <result column="creator_type" property="creatorType"></result>
+        <result column="create_time" property="createTime"></result>
+        <result column="maintenance_date" property="maintenanceDate"></result>
+        <result column="usage_date" property="usageDate"></result>
+        <result column="imgs" property="imgsStr"></result>
+        <result column="file" property="fileStr"></result>
+        <result column="number" property="number"></result>
+        <result column="maintenance_dep_name" property="maintenanceDepName"></result>
+        <result column="maintenance_dep_id" property="maintenanceDepId"></result>
+        <result column="device_number" property="deviceNumber"></result>
+        <result column="lat_and_lon" property="latAndLon"></result>
+        <result column="location" property="location"></result>
+    </resultMap>
+    <select id="getPropertyDetailedPage" resultMap="getPropertyDetailedPage">
+        select a.id,
+        a.finance_number,
+        a.serial_number,
+        a.`name`,
+        a.type_id,
+        a.type_name,
+        a.norms,
+        a.unit,
+        a.price,
+        a.source_id,
+        a.purchase_date,
+        a.start_time,
+        a.maintenance_date,
+        a.maintenance_time,
+        a.usage_time,
+        a.usage_date,
+        a.`status`,
+        a.admin_id,
+        a.area_id,
+        a.receive_dep_id,
+        a.receive_dep_name,
+        a.receive_user_id,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        a.imgs,
+        a.file,
+        a.number,
+        a.maintenance_dep_name,
+        a.maintenance_dep_id,
+        a.device_number,
+        a.lat_and_lon,
+        a.location,
+        b.scene_type
+        from property_detailed a
+        left join property_bim_config b on a.id=b.business_id
+        <if test="param.sceneType !=null and param.sceneType != ''">
+            and b.scene_type = #{param.sceneType}
+        </if>
+        <where>
+            a.authority='DEPOSITORY'
+            and a.status in
+            <foreach collection="statusList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="param.ids !=null and param.ids.size()>0">
+                and a.id in
+                <foreach collection="param.ids" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="param.purchaseDate !=null">
+                and a.purchase_date=#{param.purchaseDate}
+            </if>
+            <if test="param.startTime !=null">
+                and a.start_time=#{param.startTime}
+            </if>
+            <if test="param.receiveDepId !=null and param.receiveDepId !=''">
+                and a.receive_dep_id=#{param.receiveDepId}
+            </if>
+            <if test="param.typeIds !=null and param.typeIds.size()>0">
+                and a.type_id in
+                <foreach collection="param.typeIds" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="param.sourceId !=null and param.sourceId !=''">
+                and a.source_id=#{param.sourceId}
+            </if>
+            <if test="param.areaId !=null and param.areaId !=''">
+                and a.area_id like concat("%",#{param.areaId},"%")
+            </if>
+            <if test="param.warehousingStartDate !=null and param.warehousingEndDate != null">
+                and a.start_time between #{param.warehousingStartDate} and #{param.warehousingEndDate}
+            </if>
+            <if test="param.purchaseStartDate !=null and param.purchaseEndDate != null">
+                and a.purchase_date between #{param.purchaseStartDate} and #{param.purchaseEndDate}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (a.serial_number like concat('%',#{param.keyword},'%')
+                or a.name like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.sceneType !=null and param.sceneType != ''">
+                and b.scene_type is NULL
+            </if>
+            <if test="param.usageDate !=null">
+                and a.usage_date &lt;= #{param.usageDate}
+            </if>
+        </where>
+        GROUP BY a.id
+        order by a.level,a.start_time,a.id desc
+    </select>
+    <select id="getPropertyDetailedAll" resultMap="getPropertyDetailedPage">
+        select a.id,
+        a.serial_number,
+        a.finance_number,
+        a.`name`,
+        a.type_name,
+        a.norms,
+        a.unit,
+        a.price,
+        a.source_id,
+        a.purchase_date,
+        a.start_time,
+        a.maintenance_date,
+        a.maintenance_time,
+        a.usage_time,
+        a.usage_date,
+        a.`status`,
+        a.admin_id,
+        a.area_id,
+        a.receive_dep_id,
+        a.receive_dep_name,
+        a.receive_user_id,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        a.imgs,
+        a.file,
+        a.number,
+        a.maintenance_dep_name,
+        a.maintenance_dep_id,
+        b.scene_type
+        from property_detailed a
+        left join property_bim_config b on a.id=b.business_id
+        <if test="param.sceneType !=null and param.sceneType !=''">
+            and b.scene_type =#{param.sceneType}
+        </if>
+        <where>
+            a.authority='DEPOSITORY'
+            and a.status in
+            <foreach collection="statusList" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            <if test="param.purchaseDate !=null">
+                and a.purchase_date=#{param.purchaseDate}
+            </if>
+            <if test="param.startTime !=null">
+                and a.start_time=#{param.startTime}
+            </if>
+            <if test="param.receiveDepId !=null and param.receiveDepId !=''">
+                and a.receive_dep_id=#{param.receiveDepId}
+            </if>
+            <if test="param.typeId !=null and param.typeId !=''">
+                and a.type_id=#{param.typeId}
+            </if>
+            <if test="param.sourceId !=null and param.sourceId !=''">
+                and a.source_id=#{param.sourceId}
+            </if>
+            <if test="param.areaId !=null and param.areaId !=''">
+                and a.area_id like concat("%",#{param.areaId},"%")
+            </if>
+            <if test="param.warehousingStartDate !=null and param.warehousingEndDate != null">
+                and a.start_time between #{param.warehousingStartDate} and #{param.warehousingEndDate}
+            </if>
+            <if test="param.purchaseStartDate !=null and param.purchaseEndDate != null">
+                and a.purchase_date between #{param.purchaseStartDate} and #{param.purchaseEndDate}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (a.serial_number like concat('%',#{param.keyword},'%')
+                or a.name like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.sceneType !=null and param.sceneType !=''">
+                and b.scene_type is NULL
+            </if>
+        </where>
+        order by a.level,a.start_time desc
+    </select>
+    <select id="getAllIdByDepository"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.property.entity.depository.PropertyDetailed">
+
+        select id, `name`
+        from property_detailed
+        where depository_numbers = #{depositoryNumbers}
+
+    </select>
+    <update id="updateAllByList">
+        update property_detailed
+        SET `status` = #{status}
+        WHERE `id` in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+    <select id="getPropertyDetailedList"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedPageVO">
+        SELECT
+        a.id,
+        a.admin_id,
+        a.name,
+        a.receive_dep_id,
+        a.receive_dep_name
+        FROM
+        property_detailed a
+        where a.authority='DEPOSITORY'
+        and status in ( 'LEAVE_UNUSED',
+        'MAKE_USE_OF',
+        'WEED_OUT','REPAIR_REPORT')
+        <if test="param.adminId !=null">
+            and a.admin_id=#{param.adminId}
+        </if>
+        <if test="param.purchaseDate !=null">
+            and a.purchase_date=#{param.purchaseDate}
+        </if>
+        <if test="param.receiveDepId !=null and param.receiveDepId !=''">
+            and a.receive_dep_id=#{param.receiveDepId}
+        </if>
+        <if test="param.typeIds !=null">
+            and a.type_id in
+            <foreach collection="param.typeIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        <if test="areaId !=null and areaId !=''">
+            and a.area_id like concat("%",#{areaId},"%")
+        </if>
+        <if test="param.status !=null and param.status !=''">
+            and a.status=#{param.status}
+        </if>
+    </select>
+    <select id="getPropertyByDepAllPage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyByDepAllPageVO">
+        SELECT receive_dep_id as depId,
+        receive_dep_name as depName,
+        count(1) as totalNumber, sum(price) as totalPrice
+        FROM `property_detailed` a
+        where receive_dep_id is not null
+        <if test="param.name !=null and param.name !=''">
+            and receive_dep_name=#{param.name}
+        </if>
+        GROUP BY receive_dep_id
+    </select>
+    <select id="getPropertyByDepAllMoney"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyByDepAll">
+        SELECT count(1) as totalNumber, sum(price) as totalPrice
+        FROM `property_detailed` a
+        where receive_dep_id is not null
+        <if test="param.name !=null and param.name !=''">
+            and receive_dep_name=#{param.name}
+        </if>
+    </select>
+    <select id="getPropertyStatistics"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyStatisticsVO">
+        select count(1) as numberTotal,sum(price) as moneyTotal
+        from property_detailed a
+        <if test="param.startTime !=null">
+            inner join property_depository_detailed b on a.depository_numbers = b.depository_numbers
+        </if>
+        <where>
+            a.authority='DEPOSITORY'
+            and a.status in ('MAKE_USE_OF'
+            , 'LEAVE_UNUSED'
+            , 'WEED_OUT','REPAIR_REPORT')
+            <if test="param.purchaseDate !=null">
+                and a.purchase_date=#{param.purchaseDate}
+            </if>
+            <if test="param.startTime !=null">
+                and b.start_time=#{param.startTime}
+            </if>
+            <if test="param.receiveDepId !=null and param.receiveDepId !=''">
+                and a.receive_dep_id=#{param.receiveDepId}
+            </if>
+            <if test="param.typeId !=null and param.typeId !=''">
+                and a.type_id=#{param.typeId}
+            </if>
+            <if test="param.sourceId !=null and param.sourceId !=''">
+                and a.source_id=#{param.sourceId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status=#{param.status}
+            </if>
+            <if test="param.areaId !=null and param.areaId !=''">
+                and a.area_id=#{param.areaId}
+            </if>
+            <if test="param.warehousingStartDate !=null and param.warehousingEndDate != null">
+                and a.start_time between #{param.warehousingStartDate} and #{param.warehousingEndDate}
+            </if>
+            <if test="param.purchaseStartDate !=null and param.purchaseEndDate != null">
+                and a.purchase_date between #{param.purchaseStartDate} and #{param.purchaseEndDate}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (a.serial_number like concat('%',#{param.keyword},'%')
+                or a.name like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.usageDate !=null">
+                and a.usage_date &lt;= #{param.usageDate}
+            </if>
+        </where>
+    </select>
+    <update id="updateByDepositoryNumbers">
+
+        UPDATE property_detailed
+        SET `status` = 'LEAVE_UNUSED',
+        authority='DEPOSITORY'
+        WHERE depository_numbers = #{depositoryNumbers}
+
+    </update>
+    <update id="updateByAllotNumbers">
+        UPDATE property_detailed
+        SET `status` = #{newStatus},
+        `receive_dep_id` = #{allot.receiveDepId},
+        `receive_dep_name` = #{allot.receiveDepName},
+        `receive_user_id` = #{allot.receiveUserId},
+        area_id=#{allot.areaId},
+        storage_location=#{allot.place}
+        WHERE id in
+        <foreach collection="ids" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        and status=#{status}
+    </update>
+    <update id="updateByWeedOutNumbers">
+
+        UPDATE `property_detailed`
+        SET `status` = 'WEED_OUT',
+        level='9'
+        WHERE id IN (SELECT property_id
+        FROM property_weed_out_relation
+        WHERE weed_out_numbers = #{weedOutNumbers})
+
+    </update>
+    <select id="getOveragePage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedPageVO">
+        select b.id,
+        b.serial_number,
+        b.`name`,
+        b.type_name,
+        b.norms,
+        b.unit,
+        b.price,
+        a.name as source_name,
+        b.purchase_date,
+        b.start_time,
+        b.maintenance_date,
+        b.maintenance_time,
+        b.usage_time,
+        b.usage_date,
+        b.`status`,
+        b.admin_id,
+        b.area_id,
+        b.receive_dep_id,
+        b.receive_dep_name,
+        b.receive_user_id,
+        b.create_by,
+        b.creator_id,
+        b.creator_type,
+        b.create_time,
+        b.imgs as imgsStr,
+        b.number,
+        b.storage_location,
+        b.maintenance_dep_name,
+        b.maintenance_dep_id
+        from property_detailed b
+        left join assembly_classify a on a.id=b.source_id
+        where authority='DEPOSITORY'
+        <choose>
+            <when test="'usage' ==param.queryType">
+                and usage_date &lt;= #{param.maintenanceData}
+            </when>
+            <otherwise>
+                and maintenance_date &lt;= #{param.maintenanceData}
+            </otherwise>
+        </choose>
+        <if test="param.status !=null and param.status !=''">
+            and b.status=#{param.status}
+        </if>
+        <if test="param.typeId !=null">
+            and b.type_id=#{param.typeId}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (b.name like concat("%", #{param.keyword}, "%")
+            or b.serial_number like concat("%", #{param.keyword}, "%"))
+        </if>
+    </select>
+    <select id="getOverageAmount"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedTotalVO">
+        select count(1) as totalNumber,
+        IFNULL(sum(price),0) as totalPrice
+        from property_detailed b
+        where
+        authority='DEPOSITORY'
+        <if test="param.typeId !=null ">
+            and b.type_id=#{param.typeId}
+        </if>
+        <if test="param.status !=null and param.status !=''">
+            and b.status=#{param.status}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (b.serial_number like concat('%',#{param.keyword},'%')
+            or b.name like concat('%',#{param.keyword},'%'))
+        </if>
+        <choose>
+            <when test="'usage' ==param.queryType">
+                and usage_date &lt;= #{param.maintenanceData}
+            </when>
+            <otherwise>
+                and maintenance_date &lt;= #{param.maintenanceData}
+            </otherwise>
+        </choose>
+    </select>
+    <select id="getAllTenant" resultType="java.lang.Integer">
+
+        select tenant
+        from property_detailed
+        group by tenant
+
+    </select>
+
+    <select id="getSafetyManagementData"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.property.entity.depository.PropertyDetailed">
+        select * from property_detailed
+        <where>
+            authority = 'DEPOSITORY'
+            <if test="period != null and period.begin !=null and period.end != null">
+                and update_time between #{period.begin} and #{period.end}
+            </if>
+            and status in
+            <foreach collection="status" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+            and type_name in
+            <foreach collection="typeNames" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </where>
+    </select>
+</mapper>

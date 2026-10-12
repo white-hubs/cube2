@@ -1,0 +1,11 @@
+- configType: DictEntry
+  version: 1.0
+  isSystem: False
+  tenants: ["1"]
+  kwargs:
+    isCascade: false
+    parent: ""
+    dictType: TypeA
+  vargs:
+     - label: "item3"
+       key: "item3"

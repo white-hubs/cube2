@@ -1,0 +1,36 @@
+- provider: "DICT"
+  isPartialMode: true
+  isFailureOnMissingProvider: true
+  requirements:
+    - configType: "DictType"
+      version: "1.0"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      vargs:
+        - code: "TypeA"
+          remark: "Type A"
+        - code: "TypeB"
+          remark: "Type B"
+    - configType: "DictEntry"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      kwargs:
+        dictType: "TypeA"
+      vargs:
+        - "item1"
+        - "item2"
+        - "item3"
+    - configType: "DictEntry"
+      isMandatory: false
+      isSystem: false
+      isRemoval: false
+      tenants:
+        - "all"
+      kwargs:
+        dictType: "TypeB"
+      vargs:
+        - "item1"
+        - "item2"
+        - "item3"

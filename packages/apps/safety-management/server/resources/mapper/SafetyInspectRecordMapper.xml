@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.SafetyInspectRecordMapper">
+
+    <select id="getInspectionRecordMarketStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.MarketStatisticsInfo">
+        SELECT
+        COALESCE (sit.taskNum,0) as taskNum,
+        mc.market_tenant,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (
+        select market_tenant,market_name,count(id) as taskNum from safety_inspect_record
+        <where>
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and `time` &gt;= #{query.period.begin} and `time` &lt; #{query.period.end}
+            </if>
+            <if test="query.tempBool != null and query.tempBool">
+                and task_id is null
+            </if>
+            <if test="query.result != null and query.result != ''">
+                and `result` = #{query.result}
+            </if>
+        </where>
+        group by market_tenant order by taskNum desc
+        ) sit ON mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenants != null and query.marketTenants.size > 0">
+                and sit.market_tenant in
+                <foreach collection="query.marketTenants" item="marketTenant" open="(" separator="," close=")">
+                    #{marketTenant}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="safetyRecordPage" resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.SafetyInspectRecordVO" >
+        select sir.id ,sir.`time` ,sir.target_name ,sir.market_tenant ,sir.market_name ,sir.user_id ,sir.nickname ,sir.`result`
+             ,sir.task_id,sir.task_name,GROUP_CONCAT(siri.id) as record_item_id, GROUP_CONCAT(siri.item_name) as errorItem,
+              count(siri.id) as errNumber
+        from safety_inspect_record sir
+        left join safety_inspect_record_item siri on(siri.record_id = sir.id and siri.error_value_flag = 1)
+        <where>
+            <if test="query.period != null">
+                and sir.`time` &gt;= #{query.period.begin} and `time` &lt; #{query.period.end}
+            </if>
+            <if test="query.targetId != null">
+                and sir.target_id = #{query.targetId}
+            </if>
+            <if test="query.tempBool != null and query.tempBool">
+                and task_id is null
+            </if>
+            <if test="query.marketTenant != null">
+                and sir.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.result != null and query.result != ''">
+                and sir.`result` = #{query.result}
+            </if>
+            <if test="query.targetName != null and query.targetName != ''">
+                and sir.target_name = #{query.targetName}
+            </if>
+            <if test="query.errorTagBool != null">
+                and siri.item_tag is not null
+            </if>
+            <if test="query.errorTagList != null and query.errorTagList.size() > 0">
+                and siri.item_tag in
+                <foreach collection="query.errorTagList" item="tag" open="(" separator="," close=")" >
+                    #{tag}
+                </foreach>
+            </if>
+        </where>
+        group by sir.id order by sir.`time` desc
+    </select>
+
+    <select id="safetyErrorRecordPage" resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.SafetyInspectRecordVO" >
+        select sir.id ,sir.`time` ,sir.target_name ,sir.market_tenant ,sir.market_name ,sir.user_id ,sir.nickname ,sir.`result`
+        ,sir.task_id,sir.task_name,GROUP_CONCAT(siri.id) as record_item_id, GROUP_CONCAT(siri.item_name) as errorItem,GROUP_CONCAT(siri.item_tag) as errorTag,
+        count(siri.id) as errNumber
+        from safety_inspect_record sir
+        inner join safety_inspect_record_item siri on(siri.record_id = sir.id and siri.error_value_flag = 1)
+        <where>
+            <if test="query.period != null">
+                and sir.`time` &gt;= #{query.period.begin} and `time` &lt; #{query.period.end}
+            </if>
+            <if test="query.targetId != null">
+                and sir.target_id = #{query.targetId}
+            </if>
+            <if test="query.tempBool != null and query.tempBool">
+                and task_id is null
+            </if>
+            <if test="query.marketTenant != null">
+                and sir.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.result != null and query.result != ''">
+                and sir.`result` = #{query.result}
+            </if>
+            <if test="query.targetName != null and query.targetName != ''">
+                and sir.target_name = #{query.targetName}
+            </if>
+            <if test="query.errorTagBool != null">
+                and siri.item_tag is not null
+            </if>
+            <if test="query.errorTagList != null and query.errorTagList.size() > 0">
+                and siri.item_tag in
+                <foreach collection="query.errorTagList" item="tag" open="(" separator="," close=")" >
+                    #{tag}
+                </foreach>
+            </if>
+        </where>
+        group by sir.id order by sir.`time` desc
+    </select>
+    <select id="selectErrorInspectItem"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.loosework.SafetyErrorInspectItemVO">
+        SELECT
+            item.record_id,
+            item.item_name
+        FROM
+            `safety_inspect_record_item` item
+        <where>
+            item.error_value_flag = 1
+        <if test="recordIdList != null and recordIdList.size > 0">
+            and item.record_id in
+            <foreach collection="recordIdList" item="recordId" open="(" separator="," close=")">
+                #{recordId}
+            </foreach>
+        </if>
+        GROUP BY item.record_id
+    </where>
+    </select>
+</mapper>

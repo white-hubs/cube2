@@ -1,0 +1,96 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableStoreStockMapper">
+
+    <insert id="insertStock"
+            parameterType="com.guhecloud.cube.srv.gen.property.management.server.consumable.entity.ConsumableStoreStock">
+        insert into
+        `consumable_store_stock`(id,store_id,consumable_id,consumable_name,num,amount,position,
+        tenant,deleted,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,avg_price)
+        values
+        <foreach collection="datas" item="item" separator=",">
+            (#{item.id},#{item.storeId},#{item.consumableId},#{item.consumableName},#{item.num},#{item.amount},#{item.position},
+            #{item.tenant},#{item.deleted},
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.avgPrice})
+        </foreach>
+    </insert>
+
+    <update id="updateStockForReduce"
+            parameterType="com.guhecloud.cube.srv.gen.property.management.server.consumable.entity.ConsumableStoreStock">
+        update consumable_store_stock
+        set num = num - #{param.num},
+        amount = amount - #{param.amount},
+        update_by = #{param.updateBy},
+        updater_id = #{param.updaterId},
+        updater_type = #{param.updaterType},
+        update_time = #{param.updateTime}
+        where store_id = #{param.storeId}
+        and consumable_id = #{param.consumableId}
+        and num >= #{param.num}
+    </update>
+
+    <select id="getStackInStore"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableStoreStockExtendVO">
+        select c.id,c.`name`,c.code,c.category_id,c.brand,c.model,c.goods_code,c.unit,c.quality_period,
+        c.stock_max,c.stock_min,c.use_limit,c.stock,c.amount,
+        IFNULL( ss.num,0) - COALESCE ( ss.occupy_num, 0 ) as storeNum,
+        ss.position,
+        ss.store_id,
+        IFNULL(ss.amount,0) as storeAmount,
+        c.file_ids,
+        ss.avg_price
+        from consumable_store_stock ss
+        left join consumable c on ss.consumable_id = c.id
+        where ss.deleted = 0 and c.`status`='NO_DELETE'
+        <if test="param.storeId != null">
+            and ss.store_id = #{param.storeId}
+        </if>
+        <if test="param.categoryId != null">
+            and c.category_id = #{param.categoryId}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (c.name like concat("%",#{param.keyword},"%") or c.code like concat("%",#{param.keyword},"%"))
+        </if>
+        <if test="param.type != null and 'STOCK_MAX'==param.type">
+            and stock > stock_max
+        </if>
+        <if test="param.type != null and 'STOCK_MIN'==param.type">
+            and stock > stock_min
+        </if>
+        order by c.stock
+    </select>
+    <select id="getTotalMoney"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.MoneyNumVO">
+        SELECT
+        sum( a.amount ) AS `value`,
+        sum(num) as num
+        FROM
+        consumable_store_stock a
+        inner join consumable b on a.consumable_id=b.id
+        <if test="keyword !=null and keyword !=''">
+            and b.name like concat('%',#{keyword},'%')
+        </if>
+        <if test="type != null and 'STOCK_MAX'==type">
+            and stock > stock_max
+        </if>
+        <if test="type != null and 'STOCK_MIN'==type">
+            and stock &lt; stock_min
+        </if>
+    </select>
+    <select id="getConsumableNumber" resultType="java.lang.Integer">
+        SELECT sum(num - COALESCE ( occupy_num, 0 )) FROM `consumable_store_stock`
+        <where>
+            <if test="consumableId !=null">
+                consumable_id =#{consumableId}
+            </if>
+        </where>
+    </select>
+    <select id="getConsumable"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.entity.ConsumableStoreStock">
+        select a.consumable_id, a.num
+        from consumable_store_stock a
+        inner join consumable b on a.consumable_id = b.id
+        where b.`status` = 'NO_DELETE'
+        and a.store_id = #{storeId}
+    </select>
+</mapper>

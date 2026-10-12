@@ -1,0 +1,24 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "reactor_core",
+    exports = [
+        "@maven//:io_projectreactor_reactor_core",
+    ],
+)
+
+java_library(
+    name = "reactor_netty_core",
+    exports = [
+        "@maven//:io_projectreactor_netty_reactor_netty_core",
+    ],
+)
+
+java_library(
+    name = "reactor_netty_http",
+    exports = [
+        "@maven//:io_projectreactor_netty_reactor_netty_http",
+    ],
+)

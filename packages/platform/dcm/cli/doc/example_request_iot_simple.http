@@ -1,0 +1,837 @@
+### 应用/DIFF系统配置差异-non-partial-Simple
+POST http://{{baseurl}}/dcm/config/apply?type=DictType
+Content-Type: application/yaml
+Accept: application/yaml;charset=utf-8
+
+schemaVersion: "1.0"
+requests:
+  - provider: "IOT"
+    isPartialMode: false
+    requirements:
+      - configType: "DictType"
+        isRemoval: false
+        vargs:
+          - name: "产品品类"
+            code: "prod_category"
+            remark: "产品品类"
+          - name: "产品品牌"
+            code: "prod_brand"
+            remark: "产品品牌"
+          - name: "设备型号"
+            code: "prod_number"
+            remark: "设备型号"
+          - name: "属性单位"
+            code: "prop_unit"
+            remark: "属性单位"
+          - name: "事件类型"
+            code: "event_type"
+            remark: "事件类型"
+          - name: "直连设备接入方式"
+            code: "direct_node_acc"
+            remark: "直连设备接入方式"
+          - name: "网关设备接入方式"
+            code: "gateway_node_acc"
+            remark: "网关设备接入方式"
+          - name: "网关子设备接入方式"
+            code: "gw_child_node_acc"
+            remark: "网关子设备接入方式"
+
+
+
+### 应用/DIFF租户配置差异-partial-Simple
+POST http://{{baseurl}}/dcm/config/apply?tenant=41850024
+Content-Type: application/yaml
+Accept: application/yaml;charset=utf-8
+
+---
+schemaVersion: "1.0"
+requests:
+  - provider: "IOT"
+    requirements:
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "event_type"
+        vargs:
+          - key: "info"
+            label: "信息"
+            remark: "info"
+          - itemSort: 2
+            key: "alarm"
+            label: "告警"
+            remark: "alarm"
+          - itemSort: 3
+            key: "fault"
+            label: "故障"
+            remark: "fault"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "gateway_node_acc"
+        vargs:
+          - key: "mqtt"
+            label: "mqtt"
+            remark: "mqtt"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "gw_child_node_acc"
+        vargs:
+          - key: "any"
+            label: "any"
+            remark: "any"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_brand"
+        vargs:
+          - key: "大华"
+            label: "大华"
+          - key: "恒星"
+            label: "恒星"
+          - key: "曼顿"
+            label: "曼顿"
+          - key: "海康"
+            label: "海康"
+          - key: "古河云"
+            label: "古河云"
+          - key: "安科瑞"
+            label: "安科瑞"
+          - key: "西门子"
+            label: "西门子"
+          - itemSort: 0
+            key: "北大青鸟"
+            label: "北大青鸟"
+          - key: "南宁迈世"
+            label: "南宁迈世"
+          - key: "江森自控"
+            label: "江森自控"
+          - key: "霍尼韦尔"
+            label: "霍尼韦尔"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+        vargs:
+          - key: "A001"
+            label: "人员通行"
+          - key: "A002"
+            label: "车辆管理"
+          - key: "A003"
+            label: "视频监控"
+          - key: "A004"
+            label: "环境广播"
+          - key: "A005"
+            label: "照明系统"
+          - key: "A006"
+            label: "电力与变配电"
+          - key: "A007"
+            label: "备用动力设备"
+          - key: "A008"
+            label: "能源监测"
+          - key: "A009"
+            label: "消防安全"
+          - key: "A010"
+            label: "信息显示"
+          - key: "A011"
+            label: "通风与空调"
+          - key: "A012"
+            label: "入侵报警系统"
+          - key: "A013"
+            label: "电梯与控制系统"
+          - key: "A014"
+            label: "网络通信类设备"
+          - key: "A015"
+            label: "通用传感器"
+          - key: "A016"
+            label: "智能分析类"
+          - key: "C017"
+            label: "网关"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A001"
+        vargs:
+          - key: "A001001"
+            label: "人脸门禁"
+          - key: "A001002"
+            label: "人脸识别机"
+          - key: "A001003"
+            label: "密码门禁"
+          - key: "A001004"
+            label: "门禁"
+          - key: "A001005"
+            label: "闸机"
+          - key: "A001006"
+            label: "考勤机"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A002"
+        vargs:
+          - key: "A002001"
+            label: "道闸一体机"
+          - key: "A002002"
+            label: "车位传感器"
+          - key: "A002003"
+            label: "车位引导类设备"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A003"
+        vargs:
+          - key: "A003001"
+            label: "摄像机"
+          - key: "A003002"
+            label: "高清枪式摄像机"
+          - key: "A003003"
+            label: "高清半球摄像机"
+          - key: "A003004"
+            label: "高清球式摄像机"
+          - key: "A003005"
+            label: "NVR/DVR"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A004"
+        vargs:
+          - key: "A004001"
+            label: "功放"
+          - key: "A004002"
+            label: "扬声器/扬声器回路"
+          - key: "A004003"
+            label: "控制主机"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A005"
+        vargs:
+          - key: "A005001"
+            label: "照明回路"
+          - key: "A005002"
+            label: "控制设备"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A006"
+        vargs:
+          - key: "A006001"
+            label: "功率补偿柜"
+          - key: "A006002"
+            label: "变压器及温控"
+          - key: "A006003"
+            label: "配电柜/箱"
+          - key: "A006004"
+            label: "电力监测点"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A007"
+        vargs:
+          - key: "A007001"
+            label: "UPS"
+          - key: "A007002"
+            label: "电池组"
+          - key: "A007003"
+            label: "发电机组"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A008"
+        vargs:
+          - key: "A008001"
+            label: "水表"
+          - key: "A008002"
+            label: "电表"
+          - key: "A008003"
+            label: "气表"
+          - key: "A008004"
+            label: "冷/热能表"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A009"
+        vargs:
+          - key: "A009001"
+            label: "消防主机"
+          - key: "A009002"
+            label: "可燃物探测器"
+          - key: "A009003"
+            label: "感烟探测器"
+          - key: "A009004"
+            label: "温感探测器"
+          - key: "A009005"
+            label: "手动报警器"
+          - key: "A009006"
+            label: "防火卷帘门"
+          - key: "A009007"
+            label: "消防喷淋设备"
+          - key: "A009008"
+            label: "消火栓"
+          - key: "A009009"
+            label: "消防水泵"
+          - key: "A009010"
+            label: "声光报警器"
+          - key: "A009011"
+            label: "消防水压传感器"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A010"
+        vargs:
+          - key: "A010001"
+            label: "显示屏"
+          - key: "A010002"
+            label: "电子信息显示机柜"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A011"
+        vargs:
+          - key: "A011001"
+            label: "通风设备"
+          - key: "A011002"
+            label: "空调"
+          - key: "A011003"
+            label: "大型空调/环境冷热源"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A012"
+        vargs:
+          - key: "A012001"
+            label: "报警点"
+          - key: "A012002"
+            label: "区域感知"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A013"
+        vargs:
+          - key: "A013001"
+            label: "液压电梯"
+          - key: "A013002"
+            label: "曳引式电梯"
+          - key: "A013003"
+            label: "自动扶梯、人行道"
+          - key: "A013004"
+            label: "梯控设备"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A014"
+        vargs:
+          - key: "A014001"
+            label: "网络路由类设备"
+          - key: "A014002"
+            label: "网络交换类设备"
+          - key: "A014003"
+            label: "无线AP/AC"
+          - key: "A014004"
+            label: "物联协议网关"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A015"
+        vargs:
+          - key: "A015001"
+            label: "温湿度"
+          - key: "A015002"
+            label: "空气质量"
+          - key: "A015003"
+            label: "水浸/漏水"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "A016"
+        vargs:
+          - key: "A016001"
+            label: "视频辅助"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prod_category"
+          parent: "C017"
+        vargs:
+          - key: "C017001"
+            label: "软网关"
+      - configType: "DictEntry"
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          typeCode: "prop_unit"
+        vargs:
+          - key: "%"
+            label: "%"
+            remark: "%"
+          - key: "A"
+            label: "A"
+            remark: "A"
+          - key: "C"
+            label: "C"
+            remark: "C"
+          - key: "F"
+            label: "F"
+            remark: "F"
+          - key: "H"
+            label: "H"
+            remark: "H"
+          - key: "J"
+            label: "J"
+            remark: "J"
+          - key: "K"
+            label: "K"
+            remark: "K"
+          - key: "L"
+            label: "L"
+            remark: "L"
+          - key: "N"
+            label: "N"
+            remark: "N"
+          - key: "T"
+            label: "T"
+            remark: "T"
+          - key: "V"
+            label: "V"
+            remark: "V"
+          - key: "W"
+            label: "W"
+            remark: "W"
+          - key: "m"
+            label: "m"
+            remark: "m"
+          - key: "s"
+            label: "s"
+            remark: "s"
+          - key: "Ω"
+            label: "Ω"
+            remark: "Ω"
+          - key: "Hz"
+            label: "Hz"
+            remark: "Hz"
+          - key: "Pa"
+            label: "Pa"
+            remark: "Pa"
+          - key: "Wb"
+            label: "Wb"
+            remark: "Wb"
+          - key: "cd"
+            label: "cd"
+            remark: "cd"
+          - key: "kg"
+            label: "kg"
+            remark: "kg"
+          - key: "m²"
+            label: "m²"
+            remark: "m²"
+          - key: "m³"
+            label: "m³"
+            remark: "m³"
+          - key: "°C"
+            label: "°C"
+            remark: "°C"
+          - key: "Kpa"
+            label: "Kpa"
+            remark: "Kpa"
+          - key: "m/s"
+            label: "m/s"
+            remark: "m/s"
+          - key: "mol"
+            label: "mol"
+            remark: "mol"
+          - key: "m/s²"
+            label: "m/s²"
+            remark: "m/s²"
+      - configType: "ProdModel"
+        isRemoval: false
+        tenants:
+          - "all"
+        vargs:
+          - brand: "曼顿"
+            name: "三相电气监测仪"
+            isCustom: 1
+            category: "A006003"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "u"
+                name: "电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "ua"
+                name: "A相电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "ub"
+                name: "B相电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "uc"
+                name: "C相电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "i"
+                name: "电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "ia"
+                name: "A相电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "ib"
+                name: "B相电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "ic"
+                name: "C相电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "temp_a"
+                name: "A相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-50.0,100.0]"
+              - code: "temp_b"
+                name: "B相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-20.0,100.0]"
+              - code: "temp_c"
+                name: "C相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-20.0,100.0]"
+          - brand: "曼顿"
+            name: "三相电气监测仪(线电压)"
+            isCustom: 1
+            category: "A006003"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "u"
+                name: "电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "uab"
+                name: "AB线电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "ubc"
+                name: "BC线电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "uac"
+                name: "AC线电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "i"
+                name: "电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "iab"
+                name: "AB线电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "ibc"
+                name: "BC线电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "iac"
+                name: "AC线电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,200.0]"
+              - code: "temp_a"
+                name: "A相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-30.0,100.0]"
+              - code: "temp_b"
+                name: "B相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-30.0,100.0]"
+              - code: "temp_c"
+                name: "C相温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-30.0,100.0]"
+          - brand: "安科瑞"
+            name: "单相UPS"
+            isCustom: 1
+            category: "A007001"
+            nodeType: "3"
+            accessType: "any"
+          - brand: "安科瑞"
+            name: "三相UPS"
+            isCustom: 1
+            category: "A007001"
+            nodeType: "3"
+            accessType: "any"
+          - brand: "南宁迈世"
+            name: "温湿度传感器"
+            isCustom: 1
+            category: "A015001"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "temp"
+                name: "温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-20.0,100.0]"
+              - code: "hum"
+                name: "湿度"
+                dataType: "float"
+                precision: 1
+                unit: "%"
+                dataConfig: "[0.0,100.0]"
+          - brand: "恒星"
+            name: "无线水压变送器"
+            isCustom: 1
+            category: "A009011"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "pressure"
+                name: "水压"
+                dataType: "float"
+                precision: 3
+                dataConfig: "[0.0,1.6]"
+          - brand: "西门子"
+            name: "浓度检测仪"
+            isCustom: 1
+            category: "A015002"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "ppm"
+                name: "气体浓度"
+                dataType: "float"
+                precision: 2
+                dataConfig: "[0.0,100.0]"
+          - brand: "海康"
+            name: "摄像头"
+            isCustom: 1
+            category: "A003001"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "online_status"
+                name: "通讯状态"
+                dataType: "boolean"
+                precision: 4
+                dataConfig: "[{\"value\":0,\"label\":\"异常\"},{\"value\":1,\"label\":\"正常\"\
+          }]"
+            events:
+              - code: "flame"
+                name: "明火"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "smoke"
+                name: "烟雾"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "illegalParking"
+                name: "车辆违停"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "occupationOfRoad"
+                name: "占道经营"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "trafficCongestion"
+                name: "车辆拥堵"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "blockingFireLane"
+                name: "占用消防通道"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "intrusion"
+                name: "入侵"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "clutteredStorage"
+                name: "杂物堆放"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+              - code: "smoking"
+                name: "抽烟"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{},\"triggerType\":\"NATURE\"}"
+          - brand: "西门子"
+            name: "通讯广播"
+            isCustom: 1
+            category: "A004002"
+            nodeType: "3"
+            accessType: "any"
+          - brand: "古河云"
+            name: "接入OS-网关"
+            isCustom: 1
+            category: "C017001"
+            nodeType: "2"
+            accessType: "mqtt"
+            properties:
+              - code: "online_status"
+                name: "通讯状态"
+                dataType: "boolean"
+                precision: 4
+                dataConfig: "[{\"value\":0,\"label\":\"异常\"},{\"value\":1,\"label\":\"正常\"\
+          }]"
+              - code: "volume"
+                name: "音量"
+                dataType: "int"
+                precision: 4
+                dataWrite: 1
+                dataConfig: "[0,100]"
+          - brand: "曼顿"
+            name: "单相电气监测仪"
+            isCustom: 1
+            category: "A006003"
+            nodeType: "3"
+            accessType: "any"
+            properties:
+              - code: "u"
+                name: "电压"
+                dataType: "float"
+                precision: 2
+                unit: "V"
+                dataConfig: "[0.0,500.0]"
+              - code: "i"
+                name: "电流"
+                dataType: "float"
+                precision: 2
+                unit: "A"
+                dataConfig: "[0.0,100.0]"
+              - code: "temp"
+                name: "温度"
+                dataType: "float"
+                precision: 2
+                unit: "°C"
+                dataConfig: "[-50.0,100.0]"
+              - code: "i_delta"
+                name: "剩余电流"
+                dataType: "float"
+                precision: 2
+                dataConfig: "[0.0,500.0]"
+            events:
+              - code: "overVoltage"
+                name: "电压过压"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{\"op\":\"GT\",\"delayTime\":60,\"\
+          propCode\":\"u\",\"oprand\":[235.4]},\"triggerType\":\"SIMPLE\"}"
+              - code: "underVoltage"
+                name: "电压欠压"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{\"op\":\"LT\",\"delayTime\":60,\"\
+          propCode\":\"u\",\"oprand\":[204.6]},\"triggerType\":\"SIMPLE\"}"
+              - code: "overTemperature"
+                name: "过温"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{\"op\":\"GT\",\"delayTime\":60,\"\
+          propCode\":\"temp\",\"oprand\":[70]},\"triggerType\":\"SIMPLE\"}"
+              - code: "leakageCurrent"
+                name: "漏电流"
+                category: "alarm"
+                config: "{\"eventRelatedProp\":[],\"rules\":{\"op\":\"GT\",\"delayTime\":60,\"\
+          propCode\":\"i_delta\",\"oprand\":[300]},\"triggerType\":\"SIMPLE\"}"

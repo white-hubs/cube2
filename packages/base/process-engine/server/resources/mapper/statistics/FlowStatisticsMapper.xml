@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.work.order.statistics.dao.FlowStatisticsMapper">
+    <select id="getWordOrderStatisticsByUser"
+            resultType="com.guhecloud.cube.base.flow.work.order.statistics.dto.WordOrderStatisticsDTO">
+        select start_user_id as userId,
+        start_user_name as userName,
+        organization_name as organizationName,
+        count(1) as totalNumber,
+        sum(IF(result = 'PASS', 1, 0)) as dealNumber,
+        sum(IF(result IN ('', 'ACTIVE') or result is null, 1, 0)) as waitNumber,
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                SUM(TIMESTAMPDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </when>
+            <when test="_databaseId == 'pg'">
+                SUM(EXTRACT(EPOCH FROM AGE(update_time, create_time))/60) as totalWaitTime
+            </when>
+            <when test="_databaseId == 'dm'">
+                SUM(DATEDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </when>
+            <otherwise>
+                SUM(TIMESTAMPDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </otherwise>
+        </choose>
+        from process_instance_running
+        where (result in ('PASS', 'ACTIVE')
+        or result is null)
+        <if test="parame.applicationCode !=null and parame.applicationCode !=''">
+            and application_code = #{parame.applicationCode}
+        </if>
+        <if test="parame.businessType !=null and parame.businessType !=''">
+            and business_type = #{parame.businessType}
+        </if>
+        <if test="parame.period !=null and parame.period.begin !=null and parame.period.end !=null">
+            and create_time >= #{parame.period.begin}
+            and create_time &lt;= #{parame.period.end}
+        </if>
+        <if test="parame.userIds !=null and parame.userIds.size >0">
+            and start_user_id in
+            <foreach collection="parame.userIds" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="parame.keyword !=null and parame.keyword !=''">
+            and start_user_name like concat('%',#{parame.keyword},'%')
+        </if>
+        GROUP BY start_user_id
+        ORDER BY totalNumber desc
+    </select>
+    <select id="exportWordOrderStatisticsByUser"
+            resultType="com.guhecloud.cube.base.flow.work.order.statistics.dto.WordOrderStatisticsDTO">
+        select `start_user_id` as userId,
+        `start_user_name` as userName,
+        `organization_name` as organizationName,
+        count(1) as totalNumber,
+        sum(IF(`result` = 'PASS', 1, 0)) as dealNumber,
+        sum(IF(`result` IN ('', 'ACTIVE') or `result` is null, 1, 0)) as waitNumber,
+        <choose>
+            <when test="_databaseId == 'mysql'">
+                SUM(TIMESTAMPDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </when>
+            <when test="_databaseId == 'pg'">
+                SUM(EXTRACT(EPOCH FROM AGE(update_time, create_time))/60) as totalWaitTime
+            </when>
+            <when test="_databaseId == 'dm'">
+                SUM(DATEDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </when>
+            <otherwise>
+                SUM(TIMESTAMPDIFF(MINUTE, create_time, update_time)) as totalWaitTime
+            </otherwise>
+        </choose>
+        from `process_instance_running`
+        where (`result` in ('PASS', 'ACTIVE')
+        or `result` is null)
+        <if test="parame.applicationCode !=null and parame.applicationCode !=''">
+            and `application_code` = #{parame.applicationCode}
+        </if>
+        <if test="parame.businessType !=null and parame.businessType !=''">
+            and `business_type` = #{parame.businessType}
+        </if>
+        <if test="parame.period !=null and parame.period.begin !=null and parame.period.end !=null">
+            and `create_time` >= #{parame.period.begin}
+            and `create_time` &lt;= #{parame.period.end}
+        </if>
+        <if test="parame.userIds !=null and parame.userIds.size >0">
+            and `start_user_id` in
+            <foreach collection="parame.userIds" item="item" index="index" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        <if test="parame.keyword !=null and parame.keyword !=''">
+            and `start_user_name` like concat('%',#{parame.keyword},'%')
+        </if>
+        GROUP BY `start_user_id`
+        ORDER BY totalNumber desc
+    </select>
+    <select id="selectNumberGroupByBusinessType"
+            resultType="com.guhecloud.cube.base.flow.work.order.statistics.dto.WorkOrderStatisticsDTO1">
+        SELECT
+        pir.business_type,
+        ffb.business_type_name,
+        ffg.name AS formGroupName,
+        count( DISTINCT pir.id ) AS totalNumber,
+        sum(
+        IF
+        ( pir.result IN ( '', 'ACTIVE' ) OR pir.result IS NULL, 1, 0 )) AS processNumber,
+        sum(
+        IF
+        ( pir.result = 'REJECT', 1, 0 )) AS rejectNumber,
+        sum(
+        IF
+        ( pir.result = 'UNDO', 1, 0 )) AS undoNumber,
+        sum(
+        IF
+        ( pir.result = 'PASS', 1, 0 )) AS dealNumber
+        FROM
+        process_instance_running pir
+        LEFT JOIN form_flow_business ffb ON pir.business_type = ffb.business_type
+        LEFT JOIN form_flow ff ON ffb.form_flow_id = ff.id
+        LEFT JOIN form_flow_group ffg ON ff.form_group_id = ffg.id
+        <where>
+            <if test="query.period != null and query.period.begin != null">
+                and `pir`.create_time BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and pir.business_type= #{query.businessType}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and pir.application_code= #{query.applicationCode}
+            </if>
+            <if test="query.businessTypeList !=null and query.businessTypeList.size() > 0 ">
+                and pir.business_type in
+                <foreach collection="query.businessTypeList" item="item" index="index" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        pir.business_type, ffb.business_type_name, ffg.name
+
+    </select>
+
+    <select id="selectBusinessTypesByFormGroup" resultType="java.lang.String">
+        SELECT DISTINCT ffb.business_type
+        FROM form_flow_business ffb
+        JOIN form_flow ff ON ff.id = ffb.form_flow_id
+        WHERE ff.form_group_id = #{formGroupId}
+        AND ffb.business_type IS NOT NULL
+        AND ffb.business_type != ''
+        <if test="applicationCode != null and applicationCode != ''">
+            AND ff.application = #{applicationCode}
+        </if>
+    </select>
+</mapper>

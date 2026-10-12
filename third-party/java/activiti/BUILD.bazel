@@ -1,0 +1,61 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "activiti_spring",
+    exports = [
+        "@maven//:org_activiti_activiti_spring",
+        "@maven//:org_activiti_activiti_spring_boot_starter",
+    ],
+)
+
+java_library(
+    name = "activiti_engine",
+    exports = [
+        "@maven//:org_activiti_activiti_engine",
+    ],
+)
+
+java_library(
+    name = "activiti_process_validation",
+    exports = [
+        "@maven//:org_activiti_activiti_process_validation",
+    ],
+)
+
+java_library(
+    name = "activiti_bpmn",
+    exports = [
+        "@maven//:org_activiti_activiti_bpmn_converter",
+        "@maven//:org_activiti_activiti_bpmn_layout",
+        "@maven//:org_activiti_activiti_bpmn_model",
+    ],
+)
+
+java_library(
+    name = "activiti_api",
+    exports = [
+        "@maven//:org_activiti_activiti_api_process_runtime_impl",
+        "@maven//:org_activiti_activiti_api_runtime_shared",
+    ],
+)
+
+java_library(
+    name = "expression_language",
+    exports = [
+        "@maven//:org_activiti_activiti_expression_language",
+    ],
+)
+
+java_library(
+    name = "activiti",
+    exports = [
+        ":activiti_api",
+        ":activiti_bpmn",
+        ":activiti_engine",
+        ":activiti_process_validation",
+        ":activiti_spring",
+        ":expression_language",
+    ],
+)

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.north.mapper.NorthDeviceMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.north.model.DevDevice">
+        <!--@mbg.generated-->
+        <!--@Table iot_dev_device-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="device_parent_id" jdbcType="BIGINT" property="deviceParentId"/>
+        <result column="device_key" jdbcType="VARCHAR" property="deviceKey"/>
+        <result column="device_number" jdbcType="VARCHAR" property="deviceNumber"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="device_type" jdbcType="INTEGER" property="deviceType"/>
+        <result column="activation_time" jdbcType="TIMESTAMP" property="activationTime"/>
+        <result column="online_time" jdbcType="TIMESTAMP" property="onlineTime"/>
+        <result column="config" jdbcType="LONGVARCHAR" property="config"/>
+        <result column="raw_device_id" jdbcType="VARCHAR" property="rawDeviceId"/>
+        <result column="auth_algorithm" jdbcType="VARCHAR" property="authAlgorithm"/>
+        <result column="salt" jdbcType="VARCHAR" property="salt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        `id`, `device_parent_id`, `device_key`, `device_number`, `product_id`, `name`, `status`, `device_type`, `activation_time`,
+    `online_time`, `config`, `raw_device_id`, `auth_algorithm`, `salt`
+    </sql>
+
+
+    <select id="pageDevice" resultType="com.guhecloud.cube.iot.mgt.north.vo.DeviceThin">
+        select
+        dev.`id` as `deviceId`,
+        dev.`device_parent_id` as `deviceParentId`,
+        dev.`device_number` as `deviceNumber`,
+        dev.`name` as `deviceName`,
+        dev.`product_id` as `productId`,
+        prod.`prod_name` as `productName`,
+        prod.`prod_model` as `prodModel`,
+        prod.`prod_brand_id` as `prodBrandId`,
+        (select `item_value` from `iot_sys_dict_item` item where item.`id` = prod.`prod_brand_id`) as `prodBrandCode`,
+        (select `item_label` from `iot_sys_dict_item` item where item.`id` = prod.`prod_brand_id`) as `prodBrandName`,
+        prod.`prod_category_id` as `prodCategoryId`,
+        (select `item_value` from `iot_sys_dict_item` item where item.`id` = prod.`prod_category_id`) as
+        `prodCategoryCode`,
+        (select `item_label` from `iot_sys_dict_item` item where item.`id` = prod.`prod_category_id`) as
+        `prodCategoryName`,
+        temp.`item_label_concat` as `prodCategoryNameConcat`,
+        <choose>
+            <when test="_databaseId=='dm'">
+                LISTAGG(tag.`tag_name`) as `tags`
+            </when>
+            <otherwise>
+                GROUP_CONCAT(tag.`tag_name`) as `tags`
+            </otherwise>
+        </choose>
+        from `iot_dev_device` dev
+        join `iot_md_product` prod on dev.`product_id` = prod.`id`
+        left join `iot_sys_dict_temp_table` temp on prod.`prod_category_id` = temp.`id`
+        LEFT JOIN `center_biz_tag_ref` tr on tr.`business_key` = dev.`id` and tr.`deleted` = 0
+        LEFT JOIN `center_biz_tag` tag on tag.`id` = tr.`tag_id` and tag.`deleted` = 0 and tag.`tag_code` like
+        'custom.app::deviceCenter%'
+        where 1 = 1
+        <if test="deviceQueryParam.productId != null and deviceQueryParam.productId != ''">
+            and dev.`product_id` = #{productId}
+        </if>
+        <if test="deviceQueryParam.deviceCode != null and deviceQueryParam.deviceCode != ''">
+            and dev.`device_number` like concat('%', #{deviceQueryParam.deviceCode}, '%')
+        </if>
+        <if test="deviceQueryParam.prodCategoryCode != null and deviceQueryParam.prodCategoryCode != ''">
+            and prod.`prod_category_id` = #{deviceQueryParam.prodCategoryCode}
+        </if>
+        <if test="deviceQueryParam.prodBrandCode != null and deviceQueryParam.prodBrandCode != ''">
+            and prod.`prod_brand_id` = #{deviceQueryParam.prodBrandCode}
+        </if>
+        <if test="deviceQueryParam.deviceNameLike != null and deviceQueryParam.deviceNameLike != ''">
+            and dev.`name` like concat('%', #{deviceQueryParam.deviceNameLike}, '%')
+        </if>
+        GROUP BY dev.`id`
+    </select>
+
+    <select id="queryDetail" resultType="com.guhecloud.cube.iot.mgt.north.vo.DeviceDetail">
+        select dev.`id`                                            as `deviceId`,
+               dev.`device_parent_id`                              as `deviceParentId`,
+               dev.`device_number`                                 as `deviceNumber`,
+               dev.`name`                                          as `deviceName`,
+               dev.`product_id`                                    as `productId`,
+               prod.`prod_name`                                    as `productName`,
+               dev.`status`                                        as `onlineState`
+        from `iot_dev_device` dev
+                 join `iot_md_product` prod on dev.`product_id` = prod.`id`
+        where dev.`id` = #{deviceDetailParam.deviceId}
+    </select>
+
+    <select id="getDevicePropName" resultType="com.guhecloud.cube.iot.mgt.north.vo.PropPair">
+        select prop.`name`      as `propName`,
+               prop.`prop_code` as `propCode`
+        from `iot_dev_device` dev
+                 join `iot_md_product_prop` prop on dev.`product_id` = prop.`prod_id`
+        where dev.`id` = #{deviceId}
+    </select>
+
+    <select id="queryProductId" resultType="java.lang.Long">
+        select dev.`product_id`
+        from `iot_dev_device` dev
+        where dev.`id` = #{deviceId}
+    </select>
+
+
+    <select id="queryDevicePropByIdAndCode"
+            resultType="com.guhecloud.cube.iot.mgt.core.data.vo.device.DevicePropCacheBo">
+        SELECT dev.`id`                                                                                AS `deviceId`,
+               dev.`name`                                                                              AS `deviceName`,
+               dev.`tenant`                                                                            AS `tenantId`,
+               prop.`id`                                                                               AS `propId`,
+               prop.`prod_id`                                                                          AS `prodId`,
+               prop.`prop_code`                                                                        AS `propCode`,
+               prop.`name`                                                                             AS `propName`,
+               prop.`data_type`                                                                        AS `dataType`,
+               prop.`precision`                                                                        AS `dataPrecision`,
+               prop.`data_write`                                                                       AS `dataWrite`,
+               prop.`data_config`                                                                      AS `dataConfig`,
+               prop.`default_value`                                                                    AS `defaultValue`,
+               (select `unit_name` from `iot_sys_unit` item where item.`unit_code` = prop.`unit_code`) AS `unitName`,
+               prod.`prod_category_id`                                                                 AS `prodCategoryId`,
+               (select `item_value`
+                from `iot_sys_dict_item` item
+                where item.`id` = prod.`prod_category_id`)                                             AS `prodCategoryCode`,
+               (select `item_value`
+                from `iot_sys_dict_item` item
+                where item.`id` = prod.`prod_brand_id`)                                                AS `prodBrandCode`
+        FROM `iot_dev_device` dev
+                 JOIN `iot_md_product_prop` prop ON dev.`product_id` = prop.`prod_id`
+                 JOIN `iot_md_product` prod ON dev.`product_id` = prod.`id`
+        WHERE dev.`id` = #{deviceId}
+          and prop.`prop_code` = #{propCode}
+          and dev.`deleted` = 0
+          and prop.`deleted` = 0
+          and prod.`deleted` = 0
+    </select>
+
+
+    <select id="queryDeviceCache" resultType="com.guhecloud.cube.iot.mgt.core.data.vo.cache.DeviceDigestVo">
+        SELECT dev.`id`                              AS `deviceId`,
+               dev.`name`                            AS `deviceName`,
+               dev.`device_number`                   AS `deviceNumber`,
+               dev.`device_parent_id`                AS `parentDeviceId`,
+               (select `device_number`
+                from `iot_dev_device`
+                where `id` = dev.`device_parent_id`) as `parentDeviceNumber`,
+               dev.`tenant`                          AS `tenantId`,
+               prod.`id`                             AS `prodId`,
+               prod.`prod_version`                   AS `prodVersion`,
+               prod.`protocol_id`                    AS `protocolId`,
+               prod.`node_type`                      AS `nodeType`,
+               prod.`prod_category_id`               AS `productCategoryId`,
+               prod.`prod_number`                    AS `productNumberCode`,
+               prod.`prod_brand_id`                  AS `productBrandCode`,
+               dev.`raw_device_id`                   AS `rawDeviceId`,
+               dev.`status`                          AS `status`
+        FROM `iot_dev_device` dev
+                 JOIN `iot_md_product` prod ON dev.`product_id` = prod.`id`
+        WHERE dev.`id` = #{deviceId}
+          AND dev.`deleted` = 0
+          AND prod.`deleted` = 0
+    </select>
+
+    <select id="queryDeviceExtConfig" resultType="com.guhecloud.cube.iot.mgt.north.vo.DeviceExtConfig">
+        SELECT dev.`raw_device_id` AS `rawDeviceId`,
+               dev.`config`        AS `config`
+        FROM `iot_dev_device` dev
+        WHERE dev.`id` = #{deviceId}
+          AND dev.`deleted` = 0
+    </select>
+
+    <select id="listDeviceIdByRawDeviceId" resultType="java.lang.String">
+        SELECT dev.`id`
+        FROM `iot_dev_device` dev
+        WHERE dev.`raw_device_id` = #{rawDeviceId}
+          AND dev.`deleted` = 0
+    </select>
+</mapper>

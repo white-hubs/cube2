@@ -1,0 +1,125 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyChargeReportMapper">
+    <!-- 获取每日的类型费用汇总分页
+     每天每个类型的总费用
+     (只有水电气，要其他的类型需要自己加)
+     -->
+    <select id="getTypeDaySumCostPage" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.ChargeTotalReportVO"
+            databaseId="mysql">
+        SELECT ecr.stat_date as 'statDate', ecr.stat_date_str as statDateStr,
+        SUM(IF(`instrument_type`='electricity_meter',total_cost ,0)) as 'electricityCost',
+        SUM(IF(`instrument_type`='water_meter',total_cost,0)) as 'waterCost',
+        SUM(IF(`instrument_type`='gas_meter',total_cost,0)) as 'gasCost'
+        FROM energy_charge_report ecr
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                ecr.stat_date between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ecr.stat_date
+        order by ecr.stat_date desc
+    </select>
+    <select id="getTypeDaySumCostPage" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.ChargeTotalReportVO"
+            databaseId="pg">
+        SELECT
+        ecr.stat_date AS statDate,
+        ecr.stat_date_str AS statDateStr,
+        SUM(
+        CASE WHEN instrument_type = 'electricity_meter' THEN total_cost ELSE 0 END
+        ) AS electricityCost,
+        SUM(
+        CASE WHEN instrument_type = 'water_meter' THEN total_cost ELSE 0 END
+        ) AS waterCost,
+        SUM(
+        CASE WHEN instrument_type = 'gas_meter' THEN total_cost ELSE 0 END
+        ) AS gasCost
+        FROM energy_charge_report ecr
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                ecr.stat_date BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ecr.stat_date
+        ORDER BY ecr.stat_date DESC
+    </select>
+    <select id="getTypeDaySumCostPage" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.ChargeTotalReportVO"
+            databaseId="dm">
+        SELECT
+        ecr.stat_date AS statDate,
+        ecr.stat_date_str AS statDateStr,
+        SUM(
+        CASE WHEN instrument_type = 'electricity_meter' THEN total_cost ELSE 0 END
+        ) AS electricityCost,
+        SUM(
+        CASE WHEN instrument_type = 'water_meter' THEN total_cost ELSE 0 END
+        ) AS waterCost,
+        SUM(
+        CASE WHEN instrument_type = 'gas_meter' THEN total_cost ELSE 0 END
+        ) AS gasCost
+        FROM energy_charge_report ecr
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                ecr.stat_date BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ecr.stat_date
+        ORDER BY ecr.stat_date DESC
+    </select>
+    <!-- 获取每日的类型费用汇总列表
+     每天每个类型的总费用
+     (只有水电气，要其他的类型需要自己加)
+     -->
+    <select id="getTypeDaySumCostList" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.ChargeTotalReportVO">
+        SELECT ecr.stat_date as 'statDate', ecr.stat_date_str as statDateStr,
+        SUM(IF(`instrument_type`='electricity_meter',total_cost ,0)) as 'electricityCost',
+        SUM(IF(`instrument_type`='water_meter',total_cost,0)) as 'waterCost',
+        SUM(IF(`instrument_type`='gas_meter',total_cost,0)) as 'gasCost'
+        FROM energy_charge_report ecr
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                ecr.stat_date between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY ecr.stat_date
+        order by ecr.stat_date desc
+    </select>
+    <!-- 获取时间段类型的总费用 -->
+    <select id="getTypePeriodSumCost" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.ChargeTypeReportVO">
+        SELECT instrument_type, instrument_type_name, sum(total_cost) as totalCost, create_by, create_time, update_by, update_time
+        FROM energy_charge_report
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                stat_date between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param!=null and param.instrumentTypeList != null and param.instrumentTypeList.size > 0">
+                and
+                <foreach collection="param.instrumentTypeList" item="instrumentType" open=" instrument_type in (" close=")" separator=",">
+                    #{instrumentType}
+                </foreach>
+            </if>
+        </where>
+        group by instrument_type
+        ORDER BY stat_date DESC, area_name ASC, area_id ASC
+    </select>
+    <!-- 查询趋势 -->
+    <select id="selectTrend"
+            resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendResultVO">
+        select DATE_FORMAT(STAT_DATE,#{param.format}) as trendX,SUM(total_cost) as trendY
+        from energy_charge_report
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and STAT_DATE &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and STAT_DATE &lt;= #{param.period.end}
+            </if>
+            <if test="param!=null and param.instrumentTypeList != null and param.instrumentTypeList.size > 0">
+                and
+                <foreach collection="param.instrumentTypeList" item="instrumentType" open=" instrument_type in (" close=")" separator=",">
+                    #{instrumentType}
+                </foreach>
+            </if>
+        </where>
+        group by trendX order by trendX
+    </select>
+</mapper>

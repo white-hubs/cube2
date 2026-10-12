@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.upkeep.dao.MaintenancePlanMapper">
+
+<select id="selectPlan" resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.interfaces.vo.MaintenancePlanVo">
+    SELECT
+        a.id id,
+        a.maintenance_plan_name maintenancePlanName,
+        a.maintenance_cycle maintenanceCycle,
+        a.`status` status,
+        a.responsibility_person_name responsibilityPersonName,
+        a.time_unit timeUnit,
+        a.receive_dept_id receiveDeptId,
+        a.receive_post_id receivePostId,
+        a.responsibility_person_id responsibilityPersonId,
+        a.plan_start_time planStartTime,
+        a.plan_end_time planEndTime,
+        a.responsibility_type responsibilityType,
+        CASE
+        a.`status`
+        WHEN 'ENABLED' THEN
+        1
+        WHEN 'DEACTIVATED' THEN
+        2 ELSE 3
+        END AS sort,
+        COUNT( b.id ) taskNum
+    FROM
+        maintenance_plan a
+        LEFT JOIN maintenance_tasks b ON a.id = b.plan_id
+    <where>
+        <if test="param.status!=null and param.status!=''">
+            and    a.status = #{param.status}
+        </if>
+
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (a.maintenance_plan_name LIKE CONCAT('%',#{param.keyword},'%') or  a.responsibility_person_name LIKE CONCAT('%',#{param.keyword},'%'))
+        </if>
+    </where>
+    GROUP BY
+        a.id
+    ORDER BY
+    `sort`,
+    a.plan_start_time DESC
+</select>
+
+
+    <select id="selectEnabledPlanIds" resultType="java.lang.Long">
+        select id
+        from
+          maintenance_plan
+        where
+              status = 'ENABLED'
+            and next_task_time = #{currentTime}
+    </select>
+
+
+    <update id="updatePlan" >
+        update maintenance_plan set status = 'EXPIRED'
+        where
+        id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="isUpkeepValid" resultType="java.lang.Integer">
+        SELECT COUNT(a.id) FROM maintenance_object a LEFT JOIN maintenance_plan b on a.plan_id=b.id
+        WHERE
+              b.`status` = 'ENABLED' and a.key_id = #{deviceId}
+    </select>
+
+    <select id="isUpkeepTaskValid" resultType="java.lang.Integer">
+        SELECT
+            COUNT(b.id)
+        FROM
+            maintenance_object a
+            LEFT JOIN maintenance_tasks b ON a.plan_id = b.plan_id
+        WHERE
+            b.maintenance_task_status = 'COMPLETED'
+             and a.key_id = #{deviceId}
+            and b.maintenance_finish_time BETWEEN #{begin} and #{end}
+    </select>
+
+
+</mapper>

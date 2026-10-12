@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.PorkArrangeAuditMapper">
+    <sql id="Basic_Column">
+        paa.id,paa.pork_report_id,paa.pratique_register_id,paa.spot_check_id,paa.pork_arrange_id,
+        paa.audit_time,paa.audit_status,paa.remark,pr.pratique_tickets as pratique_tickets,
+        sp.clenbuterol as clenbuterol_result,sp.watered as watered_result,sp.inspector_id as inspector_id
+    </sql>
+
+    <select id="pagePorkArrangeAudit" resultType="com.guhecloud.cube.biz.meattrade.server.pork.entity.PorkArrangeAudit">
+        select paa.id,paa.pork_report_id,paa.pratique_register_id,paa.spot_check_id,paa.pork_arrange_id,
+        paa.audit_time,paa.audit_status,paa.remark
+        from meattrade_pork_arrange_audit paa
+        left join meattrade_pork_report pr
+        on paa.pork_report_id = pr.id
+        left join meattrade_pork_arrange pa
+        on paa.pork_arrange_id = pa.id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (paa.pork_report_code like concat("%",#{param.keyword},"%")
+                <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                    or pr.supplier_id in
+                    <foreach collection="param.supplierIds" item="supplierId" open="(" separator="," close=")">
+                        #{supplierId}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="param.status == true">
+                and paa.audit_status in ("PASEED","FAILED")
+            </if>
+            <if test="param.status == false ">
+                and paa.audit_status in ("AUDIT")
+            </if>
+            <if test="param.auditStatus != null">
+                and paa.audit_status = #{param.auditStatus}
+            </if>
+            <if test="param.arrangeStatus != null">
+                and pa.status = #{param.arrangeStatus}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSupplierArrangeAudit"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.vo.PorkStatArrangeAuditVO">
+        SELECT
+        COUNT(1) as total,
+        COALESCE(SUM(if(audit_status = 'FAILED',1,0)),0) as porkArrangeAuditFailedNum,
+        COALESCE(SUM(if(audit_status = 'PASSED',1,0)),0) as porkArrangeAuditPassedNum
+        FROM
+        meattrade_pork_arrange_audit t1
+        INNER JOIN meattrade_pork_report t2 on t1.pork_report_id = t2.id and t2.tenant = #{tenant}
+        <where>
+            t2.supplier_id = #{supplierId}
+        </where>
+    </select>
+
+    <select id="selectPorkArrangeAuditPage"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.vo.PorkArrangeAuditVO">
+        SELECT
+        t1.id,
+        t2.supplier_id,
+        t1.pork_report_id,
+        t1.pork_report_code,
+        t2.report_slices as pork_report_slices,
+        t2.report_weight as pork_report_weight,
+        t2.goods_category_id,
+        t2.goods_category_name,
+        t2.fresh_label,
+        t2.abattoir_id,
+        t2.origin_place,
+        t1.pratique_register_id,
+        t1.spot_check_id,
+        t1.pork_arrange_id,
+        t3.slices as pork_arrange_slices,
+        t3.weight as pork_arrange_weight,
+        t3.place as pork_arrange_place,
+        t3.`status` as pork_arrange_status,
+        t3.pork_arrange_time,
+        t1.audit_time,
+        t1.audit_status,
+        t1.remark,
+        t1.tenant
+        FROM
+        meattrade_pork_arrange_audit t1
+        INNER JOIN meattrade_pork_report t2 on t1.pork_report_id = t2.id
+        INNER JOIN meattrade_pork_arrange t3 on t1.pork_arrange_id = t3.id
+        left join meattrade_spot_check t4 on t1.spot_check_id = t4.id
+        <where>
+            t1.tenant = #{param.tenant}
+            <if test="param.keyword != null and param.keyword != ''">
+                and (t1.pork_report_code like concat('%',#{param.keyword},'%')
+                <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                    or t2.supplier_id in
+                    <foreach collection="param.supplierIds" item="supplierId" open="(" separator="," close=")">
+                        #{supplierId}
+                    </foreach>
+                </if>
+                )
+            </if>
+            <if test="param.porkReportCodes != null and param.porkReportCodes.size() > 0">
+                and t2.code in
+                <foreach collection="param.porkReportCodes" item="porkReportCode" open="(" separator="," close=")">
+                    #{porkReportCode}
+                </foreach>
+            </if>
+            <if test="(param.keyword == null || param.keyword == '') and param.porkReportCodes != null and param.porkReportCodes.size() > 0">
+                <if test="param.porkReportCodes != null and param.porkReportCodes.size() > 0">
+                    and t2.code in
+                    <foreach collection="param.porkReportCodes" item="porkReportCode" open="(" separator="," close=")">
+                        #{porkReportCode}
+                    </foreach>
+                </if>
+            </if>
+            <if test="param.status != null and false == param.status">
+                and t1.audit_status = 'AUDIT'
+            </if>
+            <if test="param.status != null and true == param.status">
+                and t1.audit_status in ('PASSED','FAILED')
+            </if>
+            <if test="param.auditStatus != null">
+                and t1.audit_status = #{param.auditStatus}
+            </if>
+            <if test="param.arrangeStatus != null">
+                and t3.status = #{param.arrangeStatus}
+            </if>
+            <if test="param.porkReportIds != null and param.porkReportIds.size() > 0">
+                and t1.pork_report_id in
+                <foreach collection="param.porkReportIds" item="porkReportId" open="(" separator="," close=")">
+                    #{porkReportId}
+                </foreach>
+            </if>
+            <if test="param.auditPeriod != null">
+                and t1.update_time &gt;= #{param.auditPeriod.begin}
+                and t1.update_time &lt;= #{param.auditPeriod.end}
+            </if>
+            <if test="param.deviceIds != null and param.deviceIds.size > 0">
+                and t3.place in
+                <foreach collection="param.deviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+            <if test="param.spotCheckResult != null and true == param.spotCheckResult">
+                and (t4.clenbuterol != 'POSITIVE' and
+                t4.watered != 'POSITIVE'
+                )
+            </if>
+            <if test="param.spotCheckResult != null and false == param.spotCheckResult">
+                and (t4.clenbuterol = 'POSITIVE' or
+                t4.watered = 'POSITIVE'
+                )
+            </if>
+            order by t1.pork_report_code desc
+        </where>
+    </select>
+
+    <!--    <select id="page" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.PorkArrangeAuditDTO">-->
+    <!--        select-->
+    <!--        <include refid="Basic_Column"/>-->
+    <!--        from pork_arrange_audit paa-->
+    <!--        left join pork_report p-->
+    <!--        on paa.pork_report_id = p.id-->
+    <!--        left join pratique_register pr-->
+    <!--        on paa.pratique_register_id = pr.id-->
+    <!--        left join spot_check sp-->
+    <!--        on paa.spot_check_id = sp.id-->
+    <!--        left join pork_arrange pa-->
+    <!--        on paa.pork_arrange_id = pa.id-->
+    <!--        <where>-->
+    <!--            <if test="(param.keyword != null and param.keyword != '') or (param.merchantIds != null and param.merchantIds.size() > 0)">-->
+    <!--                and (p.code like concat("%",#{param.keyword},"%")-->
+    <!--                <if test="param.merchantIds != null and param.merchantIds.size() > 0">-->
+    <!--                    or p.merchant_id in-->
+    <!--                    <foreach collection="param.merchantIds" item="merchantId" index="index" open="(" close=")"-->
+    <!--                             separator=",">-->
+    <!--                        #{merchantId}-->
+    <!--                    </foreach>-->
+    <!--                </if>-->
+    <!--                )-->
+    <!--            </if>-->
+    <!--            <if test="param.merchantId != null">-->
+    <!--                and p.merchant_id = #{param.merchantId}-->
+    <!--            </if>-->
+    <!--            <if test="param.arrangeStatus != null">-->
+    <!--                and pa.status = #{param.arrangeStatus}-->
+    <!--            </if>-->
+    <!--            <if test="param.auditStatus != null">-->
+    <!--                and paa.audit_status = #{param.auditStatus}-->
+    <!--            </if>-->
+    <!--            <if test="param.status == true">-->
+    <!--                and paa.audit_status in ("PORK_ARRANGE_AUDIT_STATUS_FAILED","PORK_ARRANGE_AUDIT_STATUS_PASSED")-->
+    <!--            </if>-->
+    <!--            <if test="param.startTime != null and param.endTime != null">-->
+    <!--                <![CDATA[ AND pa.pork_arrange_time >= #{param.startTime} AND pa.pork_arrange_time < #{param.endTime} ]]>-->
+    <!--            </if>-->
+    <!--        </where>-->
+    <!--        order by p.code desc-->
+    <!--    </select>-->
+
+    <!--    <select id="getById" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.PorkArrangeAuditDTO">-->
+    <!--        select-->
+    <!--        <include refid="Basic_Column"/>-->
+    <!--        from pork_arrange_audit paa-->
+    <!--        left join pork_report p-->
+    <!--        on paa.pork_report_id = p.id-->
+    <!--        left join pratique_register pr-->
+    <!--        on paa.pratique_register_id = pr.id-->
+    <!--        left join spot_check sp-->
+    <!--        on paa.spot_check_id = sp.id-->
+    <!--        left join pork_arrange pa-->
+    <!--        on paa.pork_arrange_id = pa.id-->
+    <!--        where paa.id = #{id}-->
+    <!--    </select>-->
+
+</mapper>

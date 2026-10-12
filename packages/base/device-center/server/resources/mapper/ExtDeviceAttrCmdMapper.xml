@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.ExtDeviceAttrCmdMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.ExtDeviceAttrCmd">
+        <!--@mbg.generated-->
+        <!--@Table center_ext_device_attr_cmd-->
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="command_seq" jdbcType="BIGINT" property="commandSeq" />
+        <result column="device_id" jdbcType="BIGINT" property="deviceId" />
+        <result column="batch_cmd_id" jdbcType="BIGINT" property="deviceId" />
+        <result column="attribute_code" jdbcType="VARCHAR" property="attributeCode" />
+        <result column="attribute_name" jdbcType="VARCHAR" property="attributeName" />
+        <result column="execute_result" jdbcType="VARCHAR" property="executeResult" />
+        <result column="original_value" jdbcType="VARCHAR" property="originalValue" />
+        <result column="expected_value" jdbcType="VARCHAR" property="expectedValue" />
+    </resultMap>
+
+    <resultMap id="pageMap" type="com.guhecloud.cube.base.device.center.metadata.dto.DeviceInstanceExecuteCommandVO">
+        <id property="id" column="id" />
+        <result property="createTime" column="create_time" />
+        <result property="name" column="name" />
+        <result property="code" column="code" />
+        <result property="attributeName" column="attributeName" />
+        <result property="createBy" column="create_by" />
+        <result property="creatorId" column="creator_id" />
+        <result property="creatorType" column="creator_type" />
+        <result property="executeResult" column="execute_result" />
+        <result property="expectedValue" column="expected_value"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler" />
+        <result property="originalValue" column="original_value"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler" />
+    </resultMap>
+
+    <resultMap id="listByBatchIdMap" type="com.guhecloud.cube.base.device.center.metadata.vo.ChangeLogByBatchIdVO">
+        <result property="originalValue" column="original_value"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler" />
+        <result property="expectedValue" column="expected_value"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler" />
+        <result property="createTime" column="create_time" />
+        <result property="step" column="step" />
+        <result property="attributeName" column="attributeName" />
+    </resultMap>
+
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `command_seq`, `batch_cmd_id`, `device_id`, `attribute_name`, `attribute_code`, `execute_result`,
+        `original_value`,
+        `expected_value`
+    </sql>
+
+    <select id="page" resultMap="pageMap">
+        SELECT
+        `attr_cmd`.`id`,
+        `attr_cmd`.`create_time`,
+        `di`.`device_code` AS `code`,
+        `di`.`device_name` AS `name`,
+        `attr_cmd`.`attribute_name` AS `attributeName`,
+        `attr_cmd`.`original_value`,
+        `attr_cmd`.`expected_value`,
+        `attr_cmd`.`execute_result`,
+        `attr_cmd`.`create_by`,
+        `attr_cmd`.`creator_id`,
+        `attr_cmd`.`creator_type`
+        FROM `center_ext_device_attr_cmd` `attr_cmd`
+        LEFT JOIN `center_biz_device` `di` ON `di`.`id` = `attr_cmd`.`device_id`
+        <where>
+            <if test="query.deviceInstanceId != null">
+                AND `di`.`id` = #{query.deviceInstanceId}
+            </if>
+            <if test="query.deviceId != null">
+                AND `attr_cmd`.`device_id` = #{query.deviceId}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (`di`.`device_code` LIKE CONCAT('%',#{query.keyword},'%') OR `di`.`device_name` LIKE
+                CONCAT('%',#{query.keyword},'%'))
+            </if>
+            <if test="query.period != null">
+                AND `attr_cmd`.`create_time` BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+            <if test="query.executeResult != null">
+                AND `attr_cmd`.`execute_result` = #{query.executeResult}
+            </if>
+            <if test="query.deviceIdList != null and query.deviceIdList.size() > 0">
+                AND `attr_cmd`.`device_id` in
+                <foreach collection="query.deviceIdList" open="(" item="deviceId" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY `attr_cmd`.`create_time` DESC
+    </select>
+
+    <select id="listByBatchId" resultMap="listByBatchIdMap">
+        SELECT `attr_cmd`.`original_value`,
+        `attr_cmd`.`expected_value`,
+        `cmd_step`.`create_time`,
+        `cmd_step`.`step`,
+        `attr_cmd`.`attribute_name` AS `attributeName`
+        FROM `center_ext_device_attr_cmd` `attr_cmd`
+        LEFT JOIN `center_ext_device_attr_cmd_step` `cmd_step`
+        ON `attr_cmd`.`command_seq` = `cmd_step`.`command_seq`
+        WHERE `attr_cmd`.`batch_cmd_id` = #{batchId}
+        ORDER BY `cmd_step`.`create_time` ASC, `cmd_step`.`id` ASC
+    </select>
+
+    <select id="devicesPwdNeed" resultType="com.guhecloud.cube.base.device.center.metadata.lang.Pair">
+        SELECT
+        `dev`.`id` AS `key`,
+        `expand`.`security_pwd` AS `val`
+        FROM `center_biz_device` `dev`
+        LEFT JOIN `center_biz_device_expand` `expand` ON `dev`.`id` = `expand`.`id`
+        WHERE
+        `dev`.`id` IN
+        <foreach collection="deviceIds" separator="," item="id" close=")" open="(">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

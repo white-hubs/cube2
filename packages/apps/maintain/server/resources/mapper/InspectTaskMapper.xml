@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.InspectTaskMapper">
+    <select id="getAllCheckTask" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.InspectTaskPO">
+        select id,is_split as isSplit,check_task_id as checkTaskId from inspect_task
+        <where>
+            status = 'OVER' and check_task_id <![CDATA[ <> ]]> 0
+            <if test="param.period.begin !=null and param.period.end !=null ">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="getAllTaskTenant" resultType="java.lang.Integer">
+        select distinct tenant from inspect_task where deleted = 0;
+    </select>
+
+    <!-- 根据id集合批量修改状态和结果 -->
+    <update id="updateStatusByIds">
+        update inspect_task set update_time = #{updateTime}, update_by = #{updateUser}
+        <if test="status != null">
+            , status = #{status}
+        </if>
+        <if test="result != null">
+            , result = #{result}
+        </if>
+        <if test="endTime != null">
+            , end_time = #{endTime}
+        </if>
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

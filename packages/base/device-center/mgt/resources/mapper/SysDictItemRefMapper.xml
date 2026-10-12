@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.SysDictItemRefMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.base.model.SysDictItemRef">
+        <!--@mbg.generated-->
+        <!--@Table iot_sys_dict_item_ref-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="source_dict_id" jdbcType="BIGINT" property="sourceDictId"/>
+        <result column="source_item_id" jdbcType="BIGINT" property="sourceItemId"/>
+        <result column="target_dict_id" jdbcType="BIGINT" property="targetDictId"/>
+        <result column="target_item_id" jdbcType="BIGINT" property="targetItemId"/>
+        <result column="admin_id" jdbcType="INTEGER" property="adminId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `source_dict_id`, `source_item_id`, `target_dict_id`, `target_item_id`, `admin_id`
+    </sql>
+</mapper>

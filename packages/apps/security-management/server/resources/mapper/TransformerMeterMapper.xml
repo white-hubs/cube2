@@ -1,0 +1,15 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.dao.TransformerMeterMapper">
+
+
+    <select id="getLastOne" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.entity.TransformerMeter">
+        SELECT `meter_a` `meterA`,`meter_b` `meterB`
+        FROM `transformer_meter`
+        WHERE
+              `device_id` = #{deviceId} and `statistical_method` = 'ELECTRICITY'
+        ORDER BY `collect_time` DESC LIMIT 1
+    </select>
+
+
+
+</mapper>

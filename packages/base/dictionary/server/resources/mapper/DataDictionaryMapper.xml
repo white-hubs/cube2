@@ -1,0 +1,47 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dictionary.server.dao.DataDictionaryMapper">
+
+    <sql id="COLUMN_LIST">
+        `id`, `name`, `code`, `remarks`, `version`, `variable`,
+        `item_code`,  `status`
+    </sql>
+
+    <select id="getByTenant" resultType="com.guhecloud.cube.base.dictionary.server.entity.DataDictionary">
+        select
+        <include refid="COLUMN_LIST" />
+        from `data_dictionary`
+        where `tenant` = #{tenantId} and `deleted` = 0
+    </select>
+    <select id="selectListNotLimitTenant"
+            resultType="com.guhecloud.cube.base.dictionary.server.vo.DataDictionaryVO">
+        select
+        <include refid="COLUMN_LIST" />
+        from `data_dictionary` dd
+        where
+            dd.`item_code` = #{param.itemCode}
+            <if test="statusNameList != null and statusNameList.size() > 0 ">
+                and dd.`status` in
+                    <foreach collection="statusNameList" item="statusName" open="(" separator="," close=")">
+                        #{statusName}
+                    </foreach>
+            </if>
+            <if test="param.tenant != null">
+                and dd.`tenant` = #{param.tenant}
+            </if>
+            <if test="param.name != null and param.name != ''">
+                <bind name="nameLike" value="'%' + param.name + '%'"/>
+                and dd.`name` like #{nameLike}
+            </if>
+            <if test="param.code != null and param.code != ''">
+                <bind name="codeLike" value="'%' + param.code + '%'"/>
+                and dd.`code` like #{codeLike}
+            </if>
+            <if test="param.codes != null and  param.codes.size() > 0 ">
+                and dd.`code` in
+                <foreach collection="param.codes" item="code" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+
+    </select>
+</mapper>

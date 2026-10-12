@@ -1,0 +1,74 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.message2.server.sat.dao.SatMsgTmpMapper">
+
+    <select id="selectSatMsgTmpPage"
+            resultType="com.guhecloud.cube.base.message2.server.sat.vo.SatMsgTmpPageVO">
+        SELECT
+        `smt`.`id`,
+        `smt`.`name`,
+        `smt`.`content`,
+        `smt`.`channel_code`,
+        `smt`.`enabled`,
+        `smt`.`msg_scene_code`,
+        `smt`.`msg_scene_name`,
+        `smt`.`application_code`,
+        `smt`.`application_name`,
+        smtm.`manufacturer_tmp_config` as `config`
+        FROM
+        `sat_msg_tmp` `smt`
+        left JOIN `sat_msg_tmp_manufacturer` `smtm` on `smt`.`id` = `smtm`.`sat_msg_tmp_id`
+        <where>
+            `smt`.`channel_code` = #{param.channelCode}
+            <if test="param.keyword != null and param.keyword !=''">
+                and `smt`.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode !=''">
+                and `smt`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.channelCode != null">
+                and `smt`.`channel_code` = #{param.channelCode}
+            </if>
+            <if test="param.enabled != null">
+                and `smt`.`enabled` = #{param.enabled}
+            </if>
+        </where>
+        order by `smt`.`create_time` desc
+    </select>
+
+    <select id="selectSatMsgTemplates"
+            resultType="com.guhecloud.cube.base.message2.server.sat.vo.SatMsgTmpPageVO">
+        SELECT
+        `smt`.`id`,
+        `smt`.`name`,
+        `smt`.`content`,
+        `smt`.`channel_code`,
+        `smt`.`enabled`,
+        `smt`.`msg_scene_code`,
+        `smt`.`msg_scene_name`,
+        `smt`.`application_code`,
+        `smt`.`application_name`,
+        `smtm`.`manufacturer_tmp_config` as `config`
+        FROM
+        `sat_msg_tmp` `smt`
+        left JOIN `sat_msg_tmp_manufacturer` `smtm` on `smt`.`id` = `smtm`.`sat_msg_tmp_id`
+        <where>
+            `smt`.`channel_code` = #{param.channelCode}
+            <if test="param.keyword != null and param.keyword !=''">
+                and `smt`.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode !=''">
+                and `smt`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.sceneCode != null and param.sceneCode != ''">
+                and `smt`.`msg_scene_code` = #{param.sceneCode}
+            </if>
+            <if test="param.channelCode != null">
+                and `smt`.`channel_code` = #{param.channelCode}
+            </if>
+            <if test="param.enabled != null">
+                and `smt`.`enabled` = #{param.enabled}
+            </if>
+        </where>
+        order by `smt`.`create_time` desc
+    </select>
+</mapper>

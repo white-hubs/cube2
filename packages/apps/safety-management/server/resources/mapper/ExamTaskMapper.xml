@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.ExamTaskMapper">
+
+    <select id="selectExamThemeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.SafetyEducationThemeRatioVO">
+        SELECT
+        et.theme_id as id,
+        et.theme_name as `name` ,
+        COUNT(et.id) as total_num
+        FROM
+        safety_exam_task et
+        left join market_config mc on mc.market_tenant = et.market_tenant
+        <where>
+            mc.status = true and mc.deleted = 0
+            <if test="query.marketTenant != null">
+                and et.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY theme_id
+    </select>
+
+    <select id="selectExamTaskCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT et.id) as total_num
+        FROM
+        safety_exam_task et
+        left join market_config mc on mc.market_tenant = et.market_tenant
+        <where>
+            mc.status = true and mc.deleted = 0
+            <if test="query.marketTenant != null">
+                and et.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and et.market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMarketExamStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.education.SafetyEducationMarketTaskStatisticsVO">
+        SELECT
+        mc.market_tenant,
+        COALESCE ( sub.total_num, 0 ) AS total_num,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN (
+        SELECT
+        market_tenant,
+        COUNT( 1 ) AS total_num
+        FROM safety_exam_task
+        <where>
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY market_tenant
+        ) sub ON mc.market_tenant = sub.market_tenant
+        WHERE
+        mc.`status` = TRUE AND mc.deleted = 0
+        ORDER BY
+        sub.total_num DESC
+    </select>
+
+    <select id="selectExamTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.ExamTaskPageVO">
+        SELECT
+        distinct
+        et.id,
+        et.name,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.exam_paper_id,
+        et.exam_paper_name,
+        et.exam_paper_content,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_task_type_name,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.exam_task_status_name,
+        et.published_time,
+        et.remark,
+        et.market_tenant,
+        mc.market_name
+        FROM
+        safety_exam_task et
+        left join market_config mc on mc.market_tenant = et.market_tenant
+        <where>
+            mc.status = true and mc.deleted = 0
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.status != null and query.status != ''">
+                and et.exam_task_status = #{query.status}
+            </if>
+            <if test="query.examType != null and query.examType != ''">
+                and et.exam_task_type = #{query.examType}
+            </if>
+            <if test="query.marketTenant != null">
+                and et.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and et.market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        order by et.create_time desc
+    </select>
+</mapper>

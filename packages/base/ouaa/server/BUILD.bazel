@@ -1,0 +1,121 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_package_configuration")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/base/ouaa:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/base/file/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/metadata",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:aes",
+        "//packages/platform/base/utils:base64",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:desensitize",
+        "//packages/platform/base/utils:digest",
+        "//packages/platform/base/utils:exception",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:random",
+        "//packages/platform/base/utils:set",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:tree",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/github:easy_captcha",
+        "//third-party/java/github:mouzt_bizlog_sdk",
+        "//third-party/java/google:guava",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:http",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:servlet_api",
+        "//third-party/java/nimbusds:jose_jwt",
+        "//third-party/java/projectreactor:reactor_core",
+        "//third-party/java/spring:spring_boot_starter_jdbc",
+        "//third-party/java/spring:spring_cloud_starter_bootstrap",
+        "//third-party/java/spring:spring_security_config",
+        "//third-party/java/spring:spring_security_oauth2_authorization_server",
+        "//third-party/java/spring:spring_security_web",
+        "//third-party/java/yaml:snakeyaml",
+        "//third-party/java/apache:poi"
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+        "src-dcm/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    runtime_deps = [
+        "//third-party/java/spring:spring_boot_starter_actuator",
+    ],
+    deps = [
+        ":deps",
+    ],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.biz.ouaa.server.OUAAServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "ouaa-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-biz-ouaa",
+    datasource_package = "com.guhecloud.cube.biz.ouaa",
+    gw_path_rewrite = "/ouaa/oauth/(?<segment>.*), /ouaa/oauth2/$\\{segment}",
+    gw_prefix = "/ouaa/",
+    main_class = _MAIN_CLASS,
+    public_path_patterns = "/**,//sys/users/register/**",
+    server = ":server",
+    server_id = "ouaa",
+    visibility = ["//packages:__subpackages__"],
+)

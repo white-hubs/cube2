@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.context.dao.FormPermissionMapper">
+    <select id="selectCurrentUserForm" resultType="java.lang.Long">
+        SELECT
+        ft.id
+        FROM
+        form_flow ft
+        LEFT JOIN form_permission fp ON ft.id = fp.form_flow_id
+        WHERE
+        (ft.type = 'CUSTOM_FORM' AND fp.id IS NULL)
+        <if test="id != null">
+            OR (fp.permission_id = #{id} AND fp.permission_type = 'USER')
+        </if>
+        <if test="organizationId != null ">
+            OR (fp.permission_id = #{organizationId} AND fp.permission_type = 'DEPARTMENT')
+        </if>
+        <if test="roles != null and roles.size() > 0">
+            OR (fp.permission_id IN
+            <foreach collection="roles" item="roleId" open="(" separator="," close=")">
+                #{roleId}
+            </foreach>
+            AND fp.permission_type = 'ROLE')
+        </if>
+        GROUP BY
+        ft.id
+    </select>
+</mapper>

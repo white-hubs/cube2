@@ -1,0 +1,16 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.resources.dao.MachinesMapper">
+
+    <insert id="insertMachinesBatch">
+        INSERT INTO `machines`
+        (`id`, `code`, `arguments`, `tenant`, `deleted`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`,`update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},#{item.code},#{item.arguments},#{item.tenant},#{item.deleted},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime}
+            )
+        </foreach>
+    </insert>
+</mapper>

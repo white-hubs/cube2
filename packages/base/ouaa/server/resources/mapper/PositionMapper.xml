@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.PositionMapper">
+    <sql id="BASIC_POSITION_SELECT">
+        select pn.id, pn.name, pn.sort, pn.remark, pn.enabled, pn.extension, pn.tenant, pn.deleted, pn.create_by,
+        pn.create_time, pn.update_by, pn.update_time
+        from `position` pn
+    </sql>
+</mapper>

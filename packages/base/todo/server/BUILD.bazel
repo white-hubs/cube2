@@ -1,0 +1,82 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/base/todo:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/base/file/client",
+        "//packages/base/ouaa/client",
+        "//packages/base/message/sdk",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//third-party/java/spring:spring_boot_starter_jdbc",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+        "src-dcm/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.biz.todo.server.TodoServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = "com.guhecloud.cube.biz.todo.server.TodoServer",
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = "com.guhecloud.cube.biz.todo.server.TodoServer",
+    java_library = ":server",
+)
+
+artifactId = "todo-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-gen-todo",
+    datasource_package = "com.guhecloud.cube.biz.todo",
+    gw_prefix = "/todo/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "todoCenter",
+    visibility = ["//packages:__subpackages__"],
+)

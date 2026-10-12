@@ -1,0 +1,300 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.dao.PowerDistributionBoxMapper">
+
+    <select id="getElectricityTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="mysql">
+        SELECT
+            DATE_FORMAT( `collect_time`, '%Y-%m-%d') `recordTime`
+        FROM
+            `power_distribution_box`
+        where
+            `statistical_method` = 'ELECTRICITY'
+        <if test="startTime !=null and endTime !=null ">
+         and   `collect_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY
+            `recordTime`
+        ORDER BY
+            `recordTime` DESC
+    </select>
+    <select id="getElectricityTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="dm">
+        SELECT
+        DATE_FORMAT( `collect_time`, '%Y-%m-%d') `recordTime`
+        FROM
+        `power_distribution_box`
+        where
+        `statistical_method` = 'ELECTRICITY'
+        <if test="startTime !=null and endTime !=null ">
+            and   `collect_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY
+        `recordTime`
+        ORDER BY
+        `recordTime` DESC
+    </select>
+    <select id="getElectricityTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="pg">
+        SELECT
+        to_char( `collect_time`, 'yyyy-MM-dd') `recordTime`
+        FROM
+        `power_distribution_box`
+        where
+        `statistical_method` = 'ELECTRICITY'
+        <if test="startTime !=null and endTime !=null ">
+            and   `collect_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY
+        `recordTime`
+        ORDER BY
+        `recordTime` DESC
+    </select>
+
+    <select id="getDistributionTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="mysql">
+        SELECT
+            DATE_FORMAT( a.`collect_time`, '%Y-%m-%d') `recordTime`,a.`device_id` `deviceId`,b.`high_distribution_name` `deviceName`
+        FROM
+            `power_distribution_box`  a left join `transformer_distribution` b
+                on a.`device_id` = b.`high_distribution`
+        where
+            a.`statistical_method` = 'DISTRIBUTION'
+            <if test="startTime !=null and endTime !=null ">
+              and  a.`collect_time` between #{startTime} and #{endTime}
+            </if>
+        GROUP BY
+            `recordTime`,`deviceName`
+        ORDER BY
+            `recordTime` DESC
+    </select>
+    <select id="getDistributionTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="dm">
+        SELECT
+        DATE_FORMAT( a.`collect_time`, '%Y-%m-%d') `recordTime`,a.`device_id` `deviceId`,b.`high_distribution_name` `deviceName`
+        FROM
+        `power_distribution_box`  a left join `transformer_distribution` b
+        on a.`device_id` = b.`high_distribution`
+        where
+        a.`statistical_method` = 'DISTRIBUTION'
+        <if test="startTime !=null and endTime !=null ">
+            and  a.`collect_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY
+        `recordTime`,`deviceName`
+        ORDER BY
+        `recordTime` DESC
+    </select>
+    <select id="getDistributionTimeRecord" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.RecordTimeVo" databaseId="pg">
+        SELECT
+        to_char( a.`collect_time`, 'yyyy-MM-dd') `recordTime`,a.`device_id` `deviceId`,b.`high_distribution_name` `deviceName`
+        FROM
+        `power_distribution_box`  a left join `transformer_distribution` b
+        on a.`device_id` = b.`high_distribution`
+        where
+        a.`statistical_method` = 'DISTRIBUTION'
+        <if test="startTime !=null and endTime !=null ">
+            and  a.`collect_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY
+        `recordTime`,`deviceName`
+        ORDER BY
+        `recordTime` DESC
+    </select>
+
+    <select id="getLastOne" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.entity.PowerDistributionBox">
+        SELECT `meter_a` `meterA`,`meter_b` `meterB`
+        FROM `power_distribution_box`
+        WHERE
+            `device_id` = #{deviceId} and `statistical_method` = 'ELECTRICITY'
+        ORDER BY `collect_time` DESC LIMIT 1
+    </select>
+
+    <select id="getElectricityTimeRecordDetails"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.ElectricityVo">
+        SELECT
+            a.`device_id` `transformerMeterCode`,
+            a.`meter_a` `transformerMeterA`,
+            a.`meter_b` `transformerMeterB`,
+            a.`current_quantity` `transformerCurrentQuantity`,
+            b.`device_id` `powerMeterCode`,
+            b.`meter_a` `powerMeterA`,
+            b.`meter_b` `powerMeterB`,
+            b.`current_quantity` `powerCurrentQuantity`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'ELECTRICITY'
+          and b.`statistical_method` = 'ELECTRICITY'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          order by b.`device_id`
+    </select>
+
+    <select id="getDistributionsTimeRecordDetails"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsVo" databaseId="mysql">
+        SELECT
+            DATE_FORMAT(a.`collect_time`,'%H:%00:%00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+            order by a.`collect_time` ASC
+    </select>
+    <select id="getDistributionsTimeRecordDetails"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsVo" databaseId="dm">
+        SELECT
+            DATE_FORMAT(a.`collect_time`,'%H:%00:%00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+            order by a.`collect_time` ASC
+    </select>
+    <select id="getDistributionsTimeRecordDetails"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsVo" databaseId="pg">
+        SELECT
+            to_char(a.`collect_time`,'HH:00:00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+        order by a.`collect_time` ASC
+    </select>
+
+    <select id="getPowerConsumption" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(`current_quantity`),0)
+        FROM `transformer_meter`
+        WHERE
+              `statistical_method` = 'ELECTRICITY'
+            and `collect_time` between #{beginTime} and #{endTime}
+    </select>
+
+    <select id="getCnpPowerConsumption" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE( SUM( `box_electric_total` ), 0 )
+        FROM
+            `power_distribution_box`
+        WHERE
+                `collect_time` = ( SELECT MAX( `collect_time` ) FROM `power_distribution_box` WHERE `statistical_method` = 'ELECTRICITY' AND `collect_time` BETWEEN #{beginTime} and #{endTime} )
+         and `statistical_method` = 'ELECTRICITY'
+    </select>
+
+    <select id="getDistributionsTimeRecordExcel"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsExcelVo" databaseId="mysql">
+        SELECT
+            DATE_FORMAT(a.`collect_time`,'%H:%00:%00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+        order by a.`collect_time` ASC
+    </select>
+    <select id="getDistributionsTimeRecordExcel"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsExcelVo" databaseId="dm">
+        SELECT
+            DATE_FORMAT(a.`collect_time`,'%H:%00:%00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+        order by a.`collect_time` ASC
+    </select>
+    <select id="getDistributionsTimeRecordExcel"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.DistributionsExcelVo" databaseId="pg">
+        SELECT
+            to_char(a.`collect_time`,'HH:00:00') `collectTime`,
+            a.`electric_a` `electricA`,
+            a.`temperature_a` `temperatureA`,
+            a.`electric_b` `electricB`,
+            a.`temperature_b` `temperatureB`,
+            a.`electric_c` `electricC`,
+            a.`temperature_c` `temperatureC`,
+            a.`power_factor` `powerFactor`,
+            b.`voltage_a` `voltageA`,
+            b.`voltage_b` `voltageD`,
+            b.`voltage_c`	`voltageC`
+        FROM
+            `transformer_meter` a
+                LEFT JOIN `power_distribution_box` b ON a.`distribution_device` = b.`device_id`
+        WHERE
+            a.`statistical_method` = 'DISTRIBUTION'
+          AND b.`statistical_method` = 'DISTRIBUTION'
+          and a.`collect_time` between #{startTime} and #{endTime}
+          and b.`collect_time` between #{startTime} and #{endTime}
+          and b.`device_id` = #{deviceId}
+        order by a.`collect_time` ASC
+    </select>
+
+
+</mapper>

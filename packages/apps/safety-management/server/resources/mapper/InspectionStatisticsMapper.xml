@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.InspectionStatisticsMapper">
+    <select id="getInspectionMarketStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.MarketStatisticsInfo">
+        SELECT
+        COALESCE (sit.taskNum,0) as taskNum,
+        mc.market_tenant,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (
+        select sit2.market_tenant,sit2.market_name,count(sit2.id) as taskNum from safety_inspect_task sit2
+        <if test="query.abnormal != null">
+            left join safety_inspect_record sir on sir.task_id = sit2.id
+        </if>
+        <where>
+            <if test="query.period != null">
+                and sit2.create_time &gt;= #{query.period.begin} and sit2.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.abnormal != null and query.abnormal == true ">
+                and sir.result = 'ABNORMAL'
+            </if>
+            <if test="query.abnormal != null and query.abnormal == false ">
+                and sir.result = 'NORMAL'
+            </if>
+            <if test="query.marketTenant != null">
+                and sit2.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.taskStatus != null and query.taskStatus != ''">
+                and sit2.status_code = #{query.taskStatus}
+            </if>
+        </where>
+        group by sit2.market_tenant order by taskNum desc
+        ) sit ON mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+        </where>
+    </select>
+
+    <select id="getInspectionMarketErrorRecordStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.MarketStatisticsInfo">
+        SELECT
+        COALESCE (sit.num,0) as taskNum,
+        mc.market_tenant,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (
+        select t1.market_tenant, t1.market_name, count(t1.market_name) as num from
+        (select siri.market_tenant,siri.market_name from safety_inspect_record_item siri
+        inner join safety_inspect_record sir on(sir.id=siri.record_id)
+        <where>
+            siri.error_value_flag = 1
+            <if test="query.period != null">
+                and sir.`time` &gt;= #{query.period.begin} and sir.`time` &lt; #{query.period.end}
+            </if>
+            <if test="query.errorTagBool != null and query.errorTagBool == true ">
+                and siri.item_tag is not null
+            </if>
+            <if test="query.errorTagList != null and query.errorTagList.size > 0">
+                and siri.item_tag in
+                <foreach collection="query.errorTagList" item="tag" open="(" separator="," close=")">
+                    #{tag}
+                </foreach>
+            </if>
+        </where>
+        group by siri.market_tenant, siri.record_id ) t1 group by t1.market_tenant ORDER BY num
+        ) sit ON mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and mc.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+        order by taskNum desc
+    </select>
+
+    <select id="getInspectionTaskList" resultType="com.guhecloud.cube.srv.gen.safety.management.po.InspectTaskPO">
+        select
+        sit.*
+        from
+        safety_inspect_task sit
+        left join market_config mc on mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                and sit.task_create_time &gt;= #{query.period.begin} and sit.task_create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and sit.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+    </select>
+
+    <select id="getInspectionTaskPage" resultType="com.guhecloud.cube.srv.gen.safety.management.po.InspectTaskPO">
+        select distinct
+        sit.*
+        from
+        safety_inspect_task sit
+        left join market_config mc on mc.market_tenant = sit.market_tenant
+        <if test="query.abnormal != null">
+            left join safety_inspect_record sir on sir.task_id = sit.id
+        </if>
+        <where>
+            mc.status = true
+            <if test="query.abnormal != null and query.abnormal == true ">
+                and sir.result = 'ABNORMAL'
+            </if>
+            <if test="query.abnormal != null and query.abnormal == false ">
+                and sir.result = 'NORMAL'
+            </if>
+            <if test="query.abnormal != null and query.execPeriod != null">
+                and sir.time &gt;= #{query.execPeriod.begin} and sir.time &lt; #{query.execPeriod.end}
+            </if>
+            <if test="query.period != null">
+                and sit.task_create_time &gt;= #{query.period.begin} and sit.task_create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and sit.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.state != null and query.state != ''">
+                and sit.status_code = #{query.state}
+            </if>
+            <if test="query.typeName != null and query.typeName != ''">
+                and sit.type_name = #{query.typeName}
+            </if>
+        </where>
+        order by sit.task_create_time desc
+    </select>
+
+    <select id="getInspectionTypes" resultType="java.lang.String">
+        select
+        sit.task_type
+        from
+        safety_inspect_task sit
+        left join market_config mc on mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+        </where>
+        group by sit.task_type
+    </select>
+
+    <select id="countTaskNum" resultType="java.lang.Integer">
+        select
+        count(sit.id) as total_num
+        from
+        safety_inspect_task sit
+        left join market_config mc on mc.market_tenant = sit.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.status != null and query.status.size > 0">
+                and sit.status_code in
+                <foreach collection="query.status" item="state" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <if test="query.marketTenant != null">
+                and sit.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+    </select>
+    <select id="countStatus"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.GroupCountVO">
+        SELECT
+        t.status_code AS groupKey,
+        COUNT( 1 ) AS count
+        FROM
+        safety_inspect_task t
+        LEFT JOIN market_config mc ON mc.market_tenant = t.market_tenant
+        <where>
+            mc.status = true
+            <if test="query != null">
+                <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                    AND t.market_tenant IN
+                    <foreach collection="query.marketTenantIDs" item="id" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+                <if test="query.createdPeriod != null">
+                    AND t.task_create_time BETWEEN #{query.createdPeriod.begin} AND #{query.createdPeriod.end}
+                </if>
+            </if>
+        </where>
+        GROUP BY
+        t.status_code
+    </select>
+</mapper>

@@ -1,0 +1,4 @@
+- provider: DICT
+  isPartialMode: False
+  isFailureOnMissingProvider: True
+  requirements: []

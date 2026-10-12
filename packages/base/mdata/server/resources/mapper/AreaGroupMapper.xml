@@ -1,0 +1,21 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.area.dao.AreaGroupMapper">
+
+    <sql id="Basic_Query_Column">
+        `id`,`name`,`level`,`parent_id`,`sequence`,`enabled`,`tenant`,`deleted`,`create_by`,`creator_id`,`creator_type`,`create_time`,`update_by`,`updater_id`,`updater_type`,`update_time`
+    </sql>
+
+    <select id="getBySequences" resultType="com.guhecloud.cube.biz.mdata.server.area.entity.AreaGroup">
+        select
+        <include refid="Basic_Query_Column" />
+        from `area_group`
+        <where>
+            <if test="sequences != null and sequences.size() > 0">
+                and `sequence` in
+                <foreach collection="sequences" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

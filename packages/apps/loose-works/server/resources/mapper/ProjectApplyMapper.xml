@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.loose.works.dao.ProjectApplyMapper">
+
+<select id="getProjectNameList" resultType="com.guhecloud.cube.srv.gen.loose.works.po.ProjectApplyPO">
+    select a.id, a.project_name
+    from project_apply a
+             left join project_sign_contract b on a.id = b.apply_id
+    where a.approve_result = 'PASS'
+      and (
+        b.id is null or b.approve_result in ('UNDO', 'REJECT', 'ABNORMAL')
+        )
+</select>
+</mapper>

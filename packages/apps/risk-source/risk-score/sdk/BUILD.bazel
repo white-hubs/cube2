@@ -1,0 +1,18 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "sdk",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/redis",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/spring:springframework",
+    ],
+)

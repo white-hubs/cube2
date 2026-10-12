@@ -1,0 +1,621 @@
+### (场景: 比对需求申明和当前配置间差异) 生成当前模块运行时配置与指定的需求中系统配置部分的差异
+POST http://{{baseurl}}/dcm/config/diff
+Content-Type: application/yaml
+Accept: application/yaml;charset=utf-8
+
+schemaVersion: 1.0
+requests:
+  - provider: DICT
+    isPartialMode: true
+    requirements:
+      - configType: DictType
+        version: '1.0'
+        isMandatory: true
+        vargs:
+          - code: TypeA
+            remark: Type A
+          - code: TypeB
+            remark: Type B
+      - configType: DictEntry
+        isMandatory: true
+        kwargs:
+          dictType: TypeA
+        vargs:
+          - item1
+          - item2
+          - item3
+      - configType: DictEntry
+        isMandatory: false
+        tenants: all
+        kwargs:
+          dictType: TypeB
+        vargs:
+          - item1
+          - item2
+          - item3
+
+
+
+### (场景: 比对需求申明和当前配置间差异) 生成当前模块运行时配置与指定的需求中租户部分的差异
+POST http://{{baseurl}}/dcm/config/diff?tenant=1
+Content-Type: application/yaml
+Accept: application/yaml;charset=utf-8
+
+schemaVersion: 1.0
+requests:
+  - provider: DICT
+    isPartialMode: true
+    requirements:
+      - configType: DictType
+        version: '1.0'
+        isMandatory: true
+        vargs:
+          - TypeA
+          - TypeB
+      - configType: DictEntry
+        isMandatory: true
+        kwargs:
+          dictType: TypeA
+        vargs:
+          - item1
+          - item2
+          - item3
+      - configType: DictEntry
+        isMandatory: false
+        tenants: all
+        kwargs:
+          dictType: TypeB
+        vargs:
+          - item1
+          - item2
+          - item3
+
+
+### (应用场景: 模块内部初始化配置) 应用模块内置的对本模块的配置申明
+POST http://{{baseurl}}/dcm/config/apply
+Content-Type: application/json
+Accept: application/json
+
+{
+  "schemaVersion": "1.0",
+  "requests": [{
+    "provider": "DICT",
+    "isPartialMode": true,
+    "useBuiltinConfig": true
+  }]
+}
+
+###(应用场景: 使用外部的配置申明进行配置初始化) 应用配置申明(外部指定配置)
+POST http://{{baseurl}}/dcm/config/diff
+Content-Type: application/yaml
+Accept: application/yaml;application/yaml;charset=utf-8
+
+schemaVersion: 1.0
+requests:
+  - provider: DICT
+    isPartialMode: true
+    useBuiltinConfig: false
+    requirements:
+      - configType: DictType  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        vargs: ["TypeA", "TypeB", "TypeC"]
+      - configType: DictEntry  # 系统字典配置
+        kwargs:
+          dictType: TypeA
+        vargs: ["item1", "item2", "item3"]
+      - configType: DictEntry  # 数据字典
+        isMandatory: True
+        tenants: 1
+        kwargs:
+          dictType: TypeB
+        vargs: ["item3", "item4", "item5"]
+      - configType: DictEntry  # 级联字典
+        isMandatory: True
+        tenants: 1
+        kwargs:
+          dictType: TypeC
+          isCascade: True
+        vargs: ["item1", "item2", "item3"]
+      - configType: DictEntry  # removal
+        isRemoval: true
+        kwargs:
+          dictType: TypeA
+        vargs: ["item4"]
+
+
+
+###(应用场景: 使用外部的配置申明进行配置初始化，全量模式） 应用配置申明(外部指定配置)
+POST http://{{baseurl}}/dcm/config/diff
+Content-Type: application/yaml
+Accept: application/yaml;application/yaml;charset=utf-8
+
+schemaVersion: 1.0
+requests:
+  - provider: DICT
+    isPartialMode: True
+    requirements:
+      - configType: "DictType"
+        version: "1.0"
+        isMandatory: true
+        isRemoval: false
+        vargs:
+          - code: "message-notice-type"
+            remark: "消息通知方式"
+      - configType: "DictEntry"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        kwargs:
+          isCascade: "false"
+          dictType: "visualization-modelType"
+        vargs:
+          - label: "UE5"
+            key: "unreal-engine-five"
+            description: "模型类型-UE5"
+          - label: "二维组态"
+            key: "two-dimensional-config"
+            description: "模型类型-二维组态"
+      - configType: "DictEntry"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        kwargs:
+          isCascade: "false"
+          dictType: "message-notice-type"
+        vargs:
+          - label: "站内通知"
+            key: "CHANNEL_SITE"
+            description: "站内信消息"
+          - label: "短信通知"
+            key: "CHANNEL_SMS"
+            description: "短信消息"
+          - label: "app通知"
+            key: "CHANNEL_APP"
+            description: "app消息"
+          - label: "语音通知"
+            key: "CHANNEL_VOICE"
+            description: "语音通知"
+
+### 应用当前全量系统配置
+POST http://{{baseurl}}/dcm/config/diff
+Content-Type: application/yaml
+Accept: application/yaml;application/yaml;charset=utf-8
+
+requests:
+  - provider: "DICT"
+    isPartialMode: false
+    requirements:
+      - configType: "DictType"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        vargs:
+          - code: "file-minio-bucket"
+            remark: "minio桶名称"
+          - code: "project-merchant-area"
+            remark: "上海二期迁移-区域类型"
+          - code: "project-merchant-spaceAttr"
+            remark: "上海二期迁移-空间属性"
+          - code: "project-merchant-spaceTradeModel"
+            remark: "上海二期迁移-经营类型"
+          - code: "project-merchant-storeType"
+            remark: "上海二期迁移-档位类型"
+          - code: "project-merchant-vehicleType"
+            remark: "上海二期迁移-车辆类型"
+          - code: "project-merchant-evaluate_level"
+            remark: "上海二期迁移-评价分类"
+          - code: "message-notice-type"
+            remark: "消息通知方式"
+          - code: "project-merchant-protocolType"
+            remark: "上海二期迁移-协议类型"
+          - code: "att-face-recognition"
+            remark: "人脸识别服务"
+          - code: "property-abnormal-type"
+            remark: "资产异常类型"
+          - code: "risk-source-type"
+            remark: "风险源分类"
+      - configType: "DictEntry"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        kwargs:
+          isCascade: "false"
+          parent: ""
+          dictType: "visualization-modelType"
+        vargs:
+          - label: "UE5"
+            key: "unreal-engine-five"
+            description: "模型类型-UE5"
+          - label: "二维组态"
+            key: "two-dimensional-config"
+            description: "模型类型-二维组态"
+      - configType: "DictEntry"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        kwargs:
+          isCascade: "false"
+          parent: ""
+          dictType: "file-minio-bucket"
+        vargs:
+          - label: "visualconflg"
+            key: "VISUALCONFIG"
+            description: "可视化中心bucket"
+      - configType: "DictEntry"
+        version: "1.0"
+        isMandatory: true
+        isSystem: true
+        isRemoval: false
+        kwargs:
+          isCascade: "false"
+          parent: ""
+          dictType: "message-notice-type"
+        vargs:
+          - label: "站内通知"
+            key: "CHANNEL_SITE"
+            description: "站内信消息"
+          - label: "短信通知"
+            key: "CHANNEL_SMS"
+            description: "短信消息"
+
+
+          - label: "app通知"
+            key: "CHANNEL_APP"
+            description: "app消息"
+          - label: "语音通知"
+            key: "CHANNEL_VOICE"
+            description: "语音通知"
+
+
+### 应用/DIFF当前租户配置配置
+#POST http://{{baseurl}}/dcm/config/diff?tenant=1
+#Content-Type: application/yaml
+#Accept: application/yaml;charset=utf-8
+POST http://{{baseurl}}/dcm/config/diff?tenant=1
+Content-Type: application/yaml
+Accept: application/yaml;application/yaml;charset=utf-8
+
+
+schemaVersion: "1.0"
+requests:
+  - provider: "DICT"
+    isPartialMode: false
+    requirements:
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-spaceAttr"
+        vargs:
+          - label: "档位"
+            key: "spaceAttr_booth"
+          - label: "车位"
+            key: "spaceAttr_parking"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-spaceTradeModel"
+        vargs:
+          - label: "运营"
+            key: "spaceTradeModel_operation"
+          - label: "自用"
+            key: "spaceTradeModel_personal"
+          - label: "公用"
+            key: "spaceTradeModel_public"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-storeType"
+        vargs:
+          - label: "商户档位"
+            key: "storeType_fruits"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-vehicleType"
+        vargs:
+          - label: "三轮车"
+            key: "vehicleType_tricycle"
+          - label: "摩托车"
+            key: "vehicleType_motorcycle"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-evaluate_level"
+        vargs:
+          - label: "差评"
+            key: "evaluate_level_bad"
+          - label: "好评"
+            key: "evaluate_level_good"
+          - label: "中评"
+            key: "evaluate_level_middle"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-protocolType"
+        vargs:
+          - label: "食品安全"
+            key: "protocolType_foodSafety"
+          - label: "门前三包"
+            key: "protocolType_mqsb"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "project-merchant-questionnaireType"
+        vargs:
+          - label: "商户经营"
+            key: "questionnaireType_shjy"
+          - label: "市场管理"
+            key: "questionnaireType_scgl"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "att-face-recognition"
+        vargs:
+          - label: "http://192.168.2.158:5001/identity-verify"
+            key: "att_identity_verify"
+            description: "人脸识别服务"
+          - label: "http://192.168.2.158:5001/identity-user-changed"
+            key: "att_update_staff_photograph"
+            description: "ouaa人员修改后更新考勤照片的地址"
+          - label: "http://192.168.2.88:8080/"
+            key: "baidu_machine"
+            description: "百度-考勤机地址"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "false"
+          dictType: "property-abnormal-type"
+        vargs:
+          - label: "赠送"
+            key: "f43e4a39-c3b1-4524-baaa-8722d3094bb4"
+          - label: "测试3"
+            key: "7521d2df-d1da-4a83-8306-eca2f8c70514"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "true"
+          dictType: "project-merchant-area"
+        vargs:
+          - label: "楼栋区域"
+            key: "areaTypeBuildings"
+            description: "上海二期迁移-区域类型"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: ""
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "消防设备"
+            key: "FIRE_FIGHTING_EQUIPMENT"
+          - label: "易燃设备"
+            key: "FLAMMABLE_EQUIPMENT"
+          - label: "现场运输设备"
+            key: "TRANSPORT_DEVICES"
+          - label: "22"
+            key: "979397ff-039b-417f-afe5-c6debfbc144f"
+          - label: "qqq"
+            key: "d08a2391-8fc1-4779-a88f-2fa37a3ba678"
+          - label: "A"
+            key: "ee419bdc-4d19-4947-9fc6-257412aef906"
+          - label: "电动车"
+            key: "daea6a3c-3495-49db-932c-af42ac4c40a3"
+            description: "电动车"
+          - label: "一级"
+            key: "ce1ce8f5-1f95-448a-ba09-0942babf115d"
+            description: "一级aaa"
+          - label: "第一级AAAAAAAAAAAAAAAAA"
+            key: "7f22f600-8de9-4ba3-b8ad-88d4b0d395a0"
+            description: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+          - label: "11"
+            key: "97f3c247-6fae-440b-b23c-1e34e75da89f"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "areaTypeBuildings"
+          isCascade: "true"
+          dictType: "project-merchant-area"
+        vargs:
+          - label: "楼栋"
+            key: "areaTypeBuildings_building"
+            description: "上海二期迁移-区域类型"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "FIRE_FIGHTING_EQUIPMENT"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "灭火器"
+            key: "ANNIHILATOR"
+          - label: "消防栓"
+            key: "FIRE_HYDRANT"
+          - label: "111"
+            key: "d26d8fab-7d09-41fa-9f7a-cbe9497f8056"
+          - label: "2"
+            key: "cba110a3-91f2-49db-84f5-34680ce5f056"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "FLAMMABLE_EQUIPMENT"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "氧气瓶"
+            key: "OXYGEN_CYLINDER"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "TRANSPORT_DEVICES"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "电动车"
+            key: "ELECTRO_MOBILE"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "ee419bdc-4d19-4947-9fc6-257412aef906"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "A1"
+            key: "1bd7cdaa-4a7e-45b3-8c83-f3abb28d031a"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "ce1ce8f5-1f95-448a-ba09-0942babf115d"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "xx"
+            key: "e3403c2e-9ae8-4796-80da-36e960d95770"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "7f22f600-8de9-4ba3-b8ad-88d4b0d395a0"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "第二季1"
+            key: "30ecd29b-9052-466f-bf19-9659977753eb"
+            description: "aaa"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "97f3c247-6fae-440b-b23c-1e34e75da89f"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "22"
+            key: "ad2e5109-0f83-4f05-8773-c39ef25bc5ab"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "areaTypeBuildings::areaTypeBuildings_building"
+          isCascade: "true"
+          dictType: "project-merchant-area"
+        vargs:
+          - label: "楼层"
+            key: "areaTypeBuildings_floor"
+            description: "上海二期迁移-区域类型"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "FIRE_FIGHTING_EQUIPMENT::d26d8fab-7d09-41fa-9f7a-cbe9497f8056"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "333"
+            key: "69c2f231-29ea-4283-8fe7-4a9d13dd518f"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "areaTypeBuildings::areaTypeBuildings_building::areaTypeBuildings_floor"
+          isCascade: "true"
+          dictType: "project-merchant-area"
+        vargs:
+          - label: "片区"
+            key: "areaTypeBuildings_slice"
+            description: "上海二期迁移-区域类型"
+      - configType: "DictEntry"
+        isMandatory: true
+        isRemoval: false
+        tenants:
+          - "all"
+        kwargs:
+          parent: "FIRE_FIGHTING_EQUIPMENT::d26d8fab-7d09-41fa-9f7a-cbe9497f8056::69c2f231-29ea-4283-8fe7-4a9d13dd518f"
+          isCascade: "true"
+          dictType: "risk-source-type"
+        vargs:
+          - label: "xxx"
+            key: "d32fa31a-6b1a-4690-9e32-a6c47382cfb6"

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.PorkArrangeDetailLogMapper">
+
+    <select id="selectNonTransferFiles"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.entity.PorkArrangeDetailLog">
+        SELECT
+        t1.*
+        FROM
+        `meattrade_pork_arrange_detail_log` t1
+        <where>
+            t1.pic_paths is NOT NULL
+            AND (t1.transfer_status is NULL or t1.transfer_status = false)
+            AND (t1.transfer_number &lt; #{transferNumber}
+            or t1.transfer_number is null)
+        </where>
+        limit #{querySize}
+    </select>
+
+    <update id="updateTransferFile">
+        UPDATE
+	    `meattrade_pork_arrange_detail_log`
+	    set
+	    transfer_status = #{transferStatus},
+	    transfer_files = #{transferIds},
+	    transfer_number = #{addNumber} + 1
+	    where
+	    id = #{id} AND (transfer_number &lt; #{transferNumber} or transfer_number is NULL)
+    </update>
+</mapper>

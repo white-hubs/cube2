@@ -1,0 +1,46 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyHistoryMapper">
+    <select id="getPropertyHistoryPage"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyHistoryListVO">
+        SELECT b.id as property_id,
+        b.serial_number,
+        b.`name`,
+        b.file,
+        b.type_name,
+        b.`status`,
+        b.price,
+        b.purchase_date,
+        a.department_id,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.handle_type_name,
+        a.handle_time,
+        a.remarks,
+        b.imgs
+        FROM property_history a
+        INNER JOIN property_detailed b ON a.property_id = b.id
+        <where>
+            <if test="param.handleTime !=null and param.handleTime !=''">
+                a.handle_time=#{param.handleTime}
+            </if>
+            <if test="param.handleType !=null and param.handleType !=''">
+                a.handle_type_id=#{param.handleType}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+                and a.department_id=#{param.departmentId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and b.status=#{param.status}
+            </if>
+            <if test="param.typeId !=null">
+                and b.type_id=#{param.typeId}
+            </if>
+            <if test="param.keywords !=null and param.keywords !=''">
+                and (b.serial_number like concat('%',#{param.keywords},'%')
+                or b.name like concat('%',#{param.keywords},'%'))
+            </if>
+        </where>
+        order by a.create_time desc, a.property_id
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.UserManagedOrganizationMapper">
+   <select id="selectManagedDeptIds" resultType="java.lang.Long">
+       SELECT umo.`user_id` FROM `user_managed_organization` umo left join `user_organization` uo ON umo.`user_id`=uo.`user_id`
+       WHERE umo.`organization_id`=#{departmentId} and
+       uo.`position_id` in
+       <foreach collection="postIds" item="id" separator="," open="(" close=")">
+           #{id}
+       </foreach>
+   </select>
+    <select id="getManagedDeptListByAppointment" resultType="java.lang.Long">
+        SELECT uo.`user_id` FROM `user_organization` uo
+        WHERE uo.`organization_id`=#{departmentId} and
+        uo.`position_id` in
+        <foreach collection="appointmentIds" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
+
+   <select id="getDeptListByPost" resultType="java.lang.Long">
+       SELECT uo.`user_id` FROM `user_organization` uo
+       WHERE uo.`organization_id`=#{departmentId} and
+       uo.`appointment_id` in
+       <foreach collection="postIds" item="id" separator="," open="(" close=")">
+           #{id}
+       </foreach>
+    </select>
+</mapper>

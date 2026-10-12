@@ -1,0 +1,162 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.ColdWholesalerMapper">
+
+    <select id="getWholesalers" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerVo" databaseId="mysql">
+        SELECT
+        a.`id`,
+        a.`wholesaler_id` AS `wholesalerId`,
+        a.`wholesaler_name` AS `wholesalerName`,
+        a.`CODE` AS `code`,
+        a.`shift_master` AS `shiftMaster`,
+        a.`shift_master_phone` AS `shiftMasterPhone`,
+        a.`shift_master_card` AS `shiftMasterCard`,
+        a.`other_contacts` AS `otherContacts`,
+        COALESCE(b.`num`,0) AS `association`,
+        b.`gearPositionName`,
+        b.`gearPositionArea`,
+        b.`billableTime`
+        FROM
+        `cold_wholesaler` a
+        LEFT JOIN (
+        SELECT
+        `wholesaler`,
+        COUNT( `gear_position_id` ) num,
+        GROUP_CONCAT( `gear_position_name` ) AS `gearPositionName`,
+        GROUP_CONCAT( `gear_position_area` ) AS `gearPositionArea`,
+        GROUP_CONCAT( DATE_FORMAT(`billable_time`,'%Y-%m-%d') ) AS `billableTime`
+        FROM
+        `gear_position`
+        GROUP BY
+        `wholesaler`
+        ) b ON a.`wholesaler_id` = b.`wholesaler`
+        <where>
+            <if test="keyword !=null and keyword !=''">
+                a.`wholesaler_name` like concat('%',#{keyword},'%') or a.`shift_master_card` like concat('%',#{keyword},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getWholesalers" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerVo" databaseId="dm">
+        SELECT
+        a.`id`,
+        a.`wholesaler_id` AS `wholesalerId`,
+        a.`wholesaler_name` AS `wholesalerName`,
+        a.`CODE` AS `code`,
+        a.`shift_master` AS `shiftMaster`,
+        a.`shift_master_phone` AS `shiftMasterPhone`,
+        a.`shift_master_card` AS `shiftMasterCard`,
+        a.`other_contacts` AS `otherContacts`,
+        COALESCE(b.`num`,0) AS `association`,
+        b.`gearPositionName`,
+        b.`gearPositionArea`,
+        b.`billableTime`
+        FROM
+        `cold_wholesaler` a
+        LEFT JOIN (
+        SELECT
+        `wholesaler`,
+        COUNT( `gear_position_id` ) num,
+        listagg( `gear_position_name` ) AS `gearPositionName`,
+        listagg( `gear_position_area` ) AS `gearPositionArea`,
+        listagg( DATE_FORMAT(`billable_time`,'%Y-%m-%d') ) AS `billableTime`
+        FROM
+        `gear_position`
+        GROUP BY
+        `wholesaler`
+        ) b ON a.`wholesaler_id` = b.`wholesaler`
+        <where>
+            <if test="keyword !=null and keyword !=''">
+                a.`wholesaler_name` like concat('%',#{keyword},'%') or a.`shift_master_card` like concat('%',#{keyword},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getWholesalers" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerVo" databaseId="pg">
+        SELECT
+        a.`id`,
+        a.`wholesaler_id` AS `wholesalerId`,
+        a.`wholesaler_name` AS `wholesalerName`,
+        a.`CODE` AS `code`,
+        a.`shift_master` AS `shiftMaster`,
+        a.`shift_master_phone` AS `shiftMasterPhone`,
+        a.`shift_master_card` AS `shiftMasterCard`,
+        a.`other_contacts` AS `otherContacts`,
+        COALESCE(b.`num`,0) AS `association`,
+        b.`gearPositionName`,
+        b.`gearPositionArea`,
+        b.`billableTime`
+        FROM
+        `cold_wholesaler` a
+        LEFT JOIN (
+        SELECT
+        `wholesaler`,
+        COUNT( `gear_position_id` ) `num`,
+        GROUP_CONCAT( `gear_position_name` ) AS `gearPositionName`,
+        GROUP_CONCAT( `gear_position_area` ) AS `gearPositionArea`,
+        GROUP_CONCAT( to_char(`billable_time`,'yyyy-MM-dd') ) AS `billableTime`
+        FROM
+        `gear_position`
+        GROUP BY
+        `wholesaler`
+        ) b ON a.`wholesaler_id` = b.`wholesaler`
+        <where>
+            <if test="keyword !=null and keyword !=''">
+                a.`wholesaler_name` like concat('%',#{keyword},'%') or a.`shift_master_card` like concat('%',#{keyword},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getWholesalerDevices"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataDeviceVo">
+        SELECT
+            DISTINCT d.`code` `deviceCode`,
+                     c.`code` `code`,
+                     c.`shift_master` `shiftMaster`,
+                     c.`shift_master_phone` `shiftMasterPhone`,
+                     b.`gear_position_code` `gearPositionCode`,
+                     b.`department_id` `departmentId`,
+                     b.`department` `department`,
+                     b.`gear_position_area_id` `gearPositionAreaId`,
+                     b.`gear_position_area` `gearPositionArea`,
+                     a.`unit_traffic` `unitTraffic`,
+                     a.`unit_price` `unitPrice`,
+                    a.`tenant` `tenant`,
+                    a.`cold_water_device` `deviceId`,
+                     b.`billable_time` `billableTime`
+
+        FROM
+            `device_position` a
+                LEFT JOIN `gear_position` b ON a.`gear_position_id` = b.`gear_position_id`
+                LEFT JOIN `cold_wholesaler` c ON b.`wholesaler` = c.`wholesaler_id`
+                LEFT JOIN `security_device` d ON a.`cold_water_device` = d.`device_id`
+        where
+            b.`billable_time` <![CDATA[ <= ]]> now()
+    </select>
+
+    <select id="getWholesalerDevicesForUpdate"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataDeviceVo">
+        SELECT
+            DISTINCT d.`code` `deviceCode`,
+                     c.`code` `code`,
+                     c.`shift_master` `shiftMaster`,
+                     c.`shift_master_phone` `shiftMasterPhone`,
+                     b.`gear_position_code` `gearPositionCode`,
+                     b.`department_id` `departmentId`,
+                     b.`department` `department`,
+                     b.`gear_position_area_id` `gearPositionAreaId`,
+                     b.`gear_position_area` `gearPositionArea`,
+                     a.`unit_traffic` `unitTraffic`,
+                     a.`unit_price` `unitPrice`,
+                    a.`tenant` `tenant`,
+                    a.`cold_water_device` `deviceId`,
+                     b.`billable_time` `billableTime`
+
+        FROM
+            `device_position` a
+                LEFT JOIN `gear_position` b ON a.`gear_position_id` = b.`gear_position_id`
+                LEFT JOIN `cold_wholesaler` c ON b.`wholesaler` = c.`wholesaler_id`
+                LEFT JOIN `security_device` d ON a.`cold_water_device` = d.`device_id`
+        where
+             d.`code` = #{deviceCode}
+    </select>
+
+
+</mapper>

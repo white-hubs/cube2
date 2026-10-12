@@ -1,0 +1,178 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.clock.dao.ClassesClockMapper">
+
+    <select id="getUserClockByDay" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.clock.interfaces.vo.UserClockDayVO">
+        SELECT
+        CONCAT(awc.`name`,':',awc.`start_work_time`, '-' , awc.`end_work_time`) AS `classesName`,
+        cc.`clock_date`,
+        cc.`start_work_time`,
+        cc.`end_work_time`,
+        cc.`start_real_time`,
+        cc.`end_real_time`,
+        cc.`start_work_clock_time`,
+        cc.`end_work_clock_time`,
+        cc.`start_work_clock_status`,
+        cc.`end_work_clock_status`,
+        cc.`classes_clock_status`,
+        cc.`start_trigger`,
+        cc.`end_trigger`
+        FROM `classes_clock` cc LEFT JOIN `arrange_work_classes` awc ON cc.`arrange_classes_id` = awc.`id`
+        WHERE
+        cc.`clock_date` = #{clockDate}
+        AND cc.`user_id` = #{userId}
+    </select>
+
+    <!-- 打卡情况统计 -->
+    <select id="getClassesClockStat" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.clock.dao.dto.ClassesClockStatDTO">
+        select cc.`user_id`,cc.`user_name`,
+        count(DISTINCT if((cc.`start_work_clock_time` is not null or cc.`end_work_clock_time` is not null) and (cc.`start_trigger` != 'LEAVE' or cc.`end_Trigger` != 'LEAVE' or (cc.`start_trigger` is null or cc.`end_trigger` is null)),cc.`clock_date`,null)) as `  realWorkDays`,
+        sum(if(cc.`start_work_clock_status` = 'EXP_NOCARD' and cc.`classes_clock_status` != 'EXP_SKIP_WORK',1,0)) as `noClockStartNum`,
+        sum(if(cc.`end_work_clock_status` = 'EXP_NOCARD' and cc.`classes_clock_status` != 'EXP_SKIP_WORK',1,0)) as `noClockEndNum`,
+        sum(if(cc.`start_trigger` = 'REPAIR_CLOCK', 1,0)) as `start_repair_Clock_Num`,
+        sum(if(cc.`end_trigger` = 'REPAIR_CLOCK', 1,0)) as `end_repair_Clock_Num`,
+        sum(if(cc.`start_work_clock_status` = 'EXP_LATE',1,0)) as `lateNum`,
+        sum(if(cc.`start_work_clock_status` = 'EXP_LATE' and timestampdiff(MINUTE,cc.`start_real_time`,cc.`start_work_clock_time`) > 0,timestampdiff(MINUTE,cc.`start_real_time`,cc.`start_work_clock_time`),0)) as `lateTotalTime`,
+        sum(if(cc.`end_work_clock_status` = 'EXP_LEAVE_EARLY',1,0)) as `earlyNum`,
+        sum(if(cc.`end_work_clock_status` = 'EXP_LEAVE_EARLY' and timestampdiff(MINUTE,cc.`end_work_clock_time`,cc.`end_real_time`) > 0,timestampdiff(MINUTE,cc.`end_work_clock_time`,cc.`end_real_time`),0)) as `earlyTotalTime`,
+        sum(if(cc.`classes_clock_status` = 'EXP_SKIP_WORK',1,0)) as `skipWorkNum`
+        from `classes_clock` cc
+        where cc.`deleted` = 0 and cc.`tenant` = #{param.tenant}
+        <if test="param.userId != null and param.userId != ''">
+            and cc.`user_id` = #{param.userId}
+        </if>
+        <if test="param.userIds != null and param.userIds.size > 0">
+            and cc.`user_id` in
+            <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and cc.`start_real_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and cc.`start_real_time` &lt; #{param.period.end}
+        </if>
+        GROUP BY cc.`user_id`
+    </select>
+
+    <select id="getPage" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.clock.po.ClassesClockPO">
+        SELECT
+        *
+        FROM `classes_clock`
+        WHERE
+        `deleted` = 0
+        <if test="param.keyword != null and param.keyword != ''">
+            and `user_name` like CONCAT('%',#{param.keyword},'%')
+        </if>
+        <if test="param.userDeptId != null and param.userDeptId != ''">
+            and `user_dept_id` = #{param.userDeptId}
+        </if>
+        <if test="null != param.period and null != param.period.begin and null != param.period.end">
+            and `clock_date` between DATE_FORMAT(#{param.period.begin},'%Y-%m-%d') AND DATE_FORMAT(#{param.period.end},'%Y-%m-%d')
+        </if>
+        and `tenant` = #{tenant}
+        ORDER BY `clock_date` DESC,`user_name` ASC
+--         ,CONVERT(user_name USING gbk) ASC
+    </select>
+
+    <select id="getClockDataSummaryPage" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.common.querygateway.dto.AttendanceStatisticsDTO">
+        select aw.staff_id ,aw.staff_name
+        , count( distinct aw.`date`) as arrange_Work_Days
+        , count(DISTINCT if((cc.`start_work_clock_time` is not null or cc.`end_work_clock_time` is not null) and (cc.`start_trigger` != 'LEAVE' or cc.`end_Trigger` != 'LEAVE' or (cc.`start_trigger` is null or cc.`end_trigger` is null)),cc.`clock_date`,null)) as `real_Work_Days`
+        , sum(if(cc.`start_work_clock_status` = 'EXP_NOCARD',1,0)) /count(distinct aw.`date`) as `no_clock_start_num`
+        , sum(if(cc.`end_work_clock_status` = 'EXP_NOCARD',1,0)) /count(distinct aw.`date`) as `no_Clock_End_Num`
+        , sum(if(cc.`start_trigger` = 'REPAIR_CLOCK', 1,0)) /count(distinct aw.`date`) as `start_repair_Clock_Num`
+        , sum(if(cc.`end_trigger` = 'REPAIR_CLOCK', 1,0)) /count(distinct aw.`date`) as `end_repair_Clock_Num`
+        , sum(if(cc.`start_work_clock_status` = 'EXP_LATE',1,0)) /count(distinct aw.`date`) as `late_Num`
+        , sum(if(cc.`start_work_clock_status` = 'EXP_LATE' and timestampdiff(MINUTE,cc.`start_real_time`,cc.`start_work_clock_time`) &gt; 0,timestampdiff(MINUTE,cc.`start_real_time`,cc.`start_work_clock_time`),0)) /count(distinct aw.`date`) as `late_Total_Time`
+        , sum(if(cc.`end_work_clock_status` = 'EXP_LEAVE_EARLY',1,0)) /count(distinct aw.`date`) as `early_Num`
+        , sum(if(cc.`end_work_clock_status` = 'EXP_LEAVE_EARLY' and timestampdiff(MINUTE,cc.`end_work_clock_time`,cc.`end_real_time`) &gt; 0,timestampdiff(MINUTE,cc.`end_work_clock_time`,cc.`end_real_time`),0)) /count(distinct aw.`date`) as `early_Total_Time`
+        , sum(if(cc.`classes_clock_status` = 'EXP_SKIP_WORK',1,0)) /count(distinct aw.`date`) as `skip_Work_Num`
+        from `arrange_work` aw
+        left join `classes_clock` cc
+            on(cc.`user_id` = aw.`staff_id`
+            <if test="param.period != null and param.period.begin != null">
+                and cc.`clock_date` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cc.`clock_date` &lt; #{param.period.end}
+            </if>
+                )
+        <where>
+        aw.`arrange_work_classes_ids` != ''
+        <if test="param.userId != null and param.userId != ''">
+            and aw.`staff_id` = #{param.userId}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and aw.`date` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and aw.`date` &lt; #{param.period.end}
+        </if>
+        <if test="param.userIds!=null and param.userIds.size > 0 and param.userIds != '[]' ">
+            <foreach collection="param.userIds" open=" and aw.staff_id in (" separator="," close=")" item="staffId">
+                #{staffId}
+            </foreach>
+        </if>
+        </where>
+        group by aw.`staff_id` ,aw.`staff_name`
+    </select>
+    
+    <select id="selectAttendanceSummary" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.common.querygateway.dto.AttendanceStatisticsDTO">
+        select * from `attendance_summary_statistics`
+        <where>
+            <if test="param.userId != null and param.userId != ''">
+                and `staff_id` = #{param.userId}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+               and `aw_time` &gt;= #{param.period.begin} and `owd_time` &gt;= #{param.period.begin} and `lps_time` &gt;= #{param.period.begin} and `hdd_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `aw_time` &lt; #{param.period.end} and `owd_time` &lt; #{param.period.end} and `lps_time` &lt; #{param.period.end} and `hdd_time` &lt; #{param.period.end}
+            </if>
+            <if test="param.userIds!=null and param.userIds.size > 0 and param.userIds != '[]' ">
+                <foreach collection="param.userIds" open=" and staff_id in (" separator="," close=")" item="staffId">
+                    #{staffId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+<select id="getAll" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.clock.po.ClassesClockPO">
+    SELECT a.`user_id`,
+           a.`user_name`,
+           a.`user_dept_id`,
+           a.`work_id`,
+           a.`attendance_group_id`,
+           b.`classes_id` as `arrangeClassesId`,
+           a.`clock_date`,
+           a.`start_work_time`,
+           a.`end_work_time`,
+           a.`start_real_time`,
+           a.`end_real_time`,
+           a.`start_work_clock_time`,
+           a.`end_work_clock_time`,
+           a.`start_work_clock_status`,
+           a.`end_work_clock_status`,
+           a.`classes_clock_status`,
+           a.`start_leave`,
+           a.`end_leave`,
+           a.`start_trigger`,
+           a.`end_trigger`
+    FROM `classes_clock` a
+             INNER JOIN `arrange_work_classes` b ON a.`arrange_classes_id` = b.`id`
+    where a.`clock_date` &lt;= #{endDate}
+      and a.`clock_date` >= #{startDate}
+      and a.`user_id` = #{userId}
+    order by a.`clock_date`
+</select>
+    <select id="getAllUser" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.clock.po.ClassesClockPO">
+        SELECT a.`user_id`,a.`tenant`,a.`user_dept_id`
+        FROM `classes_clock` a
+        INNER JOIN `arrange_work_classes` b ON a.`arrange_classes_id` = b.`id`
+        where a.`clock_date` &lt;= #{endDate}
+          and a.`clock_date` >= #{startDate}
+        group by a.`user_id`
+    </select>
+
+</mapper>

@@ -1,0 +1,35 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/device-center:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "metadata",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/base/file/client",
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/model:actor-type",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:string",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/jackson",
+        "//third-party/java/spring:spring_core",
+    ],
+)
+
+artifactId = "cube-base-device-center-metadata"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":metadata"],
+)

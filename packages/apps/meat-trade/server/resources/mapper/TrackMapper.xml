@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.TrackMapper">
+
+    <select id="pageTrack" resultType="com.guhecloud.cube.biz.meattrade.server.pork.entity.Track">
+        select t.id,t.supplier_id,t.pork_report_id,t.pork_arrange_audit_id
+        from meattrade_track t
+        left join meattrade_pork_report pr
+        on t.pork_report_id = pr.id
+        left join meattrade_pork_arrange_audit paa
+        on t.pork_arrange_audit_id = paa.id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and pr.code like concat("%",#{param.keyword},"%")
+                <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                    or t.supplier_id in
+                    <foreach collection="param.supplierIds" item="supplierId" open="(" separator="," close=")">
+                        #{supplierId}
+                    </foreach>
+                </if>
+            </if>
+            <if test="param.porkReportStatus != null">
+                and pr.status = #{param.porkReportStatus}
+            </if>
+            <if test="param.porkArrangeAuditStatus != null">
+                and paa.audit_status = #{param.porkArrangeAuditStatus}
+            </if>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                and pr.report_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            and pr.tenant = #{param.tenant}
+            and t.tenant = #{param.tenant}
+        </where>
+        order by pr.code desc
+    </select>
+
+</mapper>

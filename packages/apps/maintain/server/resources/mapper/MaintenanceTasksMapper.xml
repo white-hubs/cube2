@@ -1,0 +1,191 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.upkeep.dao.MaintenanceTasksMapper">
+
+
+    <select id="selectTasks"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.interfaces.vo.MaintenanceTasksVo">
+        SELECT
+            DISTINCT a.id id,
+            a.object_name objectName,
+            a.category_code categoryCode,
+            a.category_name categoryName,
+            a.maintenance_time maintenanceTime,
+            a.maintenance_finish_time maintenanceFinishTime,
+            a.maintenance_task_status maintenanceTaskStatus,
+            a.maintenance_task_person maintenanceTaskPerson,
+            b.maintenance_plan_name maintenancePlanName,
+            b.responsibility_type  responsibilityType,
+            b.receive_dept_id  receiveDeptId,
+            b.receive_post_id  receivePostId,
+            b.responsibility_person_id  responsibilityPersonId
+        FROM
+            maintenance_tasks a
+            LEFT JOIN maintenance_plan b ON a.plan_id = b.id
+        <where>
+            <if test="param.releaseStartTime !=null and param.releaseStartTime !='' and param.releaseEndTime!=null and param.releaseEndTime!=''">
+             and   a.maintenance_time between #{param.releaseStartTime} and #{param.releaseEndTime}
+            </if>
+
+            <if test="param.finishStartTime !=null and param.finishStartTime !='' and param.finishEndTime!=null and param.finishEndTime!=''">
+             and   a.maintenance_finish_time between #{param.finishStartTime} and #{param.finishEndTime}
+            </if>
+
+            <if test="param.objectName !=null and param.objectName !=''">
+             and  a.object_name LIKE CONCAT('%',#{param.objectName},'%')
+            </if>
+
+            <if test="param.categoryCode !=null and param.categoryCode !=''">
+             and  a.category_code LIKE CONCAT('%',#{param.categoryCode},'%')
+            </if>
+
+            <if test="param.maintenanceTaskStatus !=null and param.maintenanceTaskStatus !=''">
+             and  a.maintenance_task_status = #{param.maintenanceTaskStatus}
+            </if>
+
+        </where>
+        ORDER BY
+        a.maintenance_time DESC
+    </select>
+    <select id="selectAppTasks"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.interfaces.vo.MaintenanceTasksVo">
+        SELECT
+            DISTINCT a.id id,
+            a.object_name objectName,
+            a.category_code categoryCode,
+            a.category_name categoryName,
+            a.maintenance_time maintenanceTime,
+            a.maintenance_finish_time maintenanceFinishTime,
+            a.maintenance_task_status maintenanceTaskStatus,
+            a.maintenance_task_person maintenanceTaskPerson,
+            b.maintenance_plan_name maintenancePlanName,
+            b.responsibility_type  responsibilityType,
+            b.receive_dept_id  receiveDeptId,
+            b.receive_post_id  receivePostId,
+            b.responsibility_person_id  responsibilityPersonId
+        FROM
+            maintenance_tasks a
+            LEFT JOIN maintenance_plan b ON a.plan_id = b.id
+            LEFT JOIN maintenance_object c on c.plan_id = b.id
+        <where>
+            <if test="param.releaseStartTime !=null and param.releaseStartTime !='' and param.releaseEndTime!=null and param.releaseEndTime!=''">
+             and   a.maintenance_time between #{param.releaseStartTime} and #{param.releaseEndTime}
+            </if>
+
+            <if test="param.finishStartTime !=null and param.finishStartTime !='' and param.finishEndTime!=null and param.finishEndTime!=''">
+             and   a.maintenance_finish_time between #{param.finishStartTime} and #{param.finishEndTime}
+            </if>
+
+            <if test="param.objectName !=null and param.objectName !=''">
+             and  a.object_name LIKE CONCAT('%',#{param.objectName},'%')
+            </if>
+
+            <if test="param.categoryCode !=null and param.categoryCode !=''">
+             and  a.category_code = #{param.categoryCode}
+            </if>
+
+            <if test="param.maintenanceTaskStatus !=null and param.maintenanceTaskStatus !=''">
+             and  a.maintenance_task_status = #{param.maintenanceTaskStatus}
+            </if>
+
+            <if test="param.keyId !=null and param.keyId !=''">
+                and  c.key_id = #{param.keyId}
+            </if>
+            and  (b.responsibility_person_id like CONCAT('%',#{param.userId},'%') or b.receive_dept_id like CONCAT('%',#{param.organization},'%') or b.receive_post_id like CONCAT('%',#{param.position},'%'))
+
+        </where>
+
+    </select>
+
+    <select id="selectAppTasksCount" resultType="java.lang.Integer">
+        SELECT
+            COUNT(DISTINCT a.id)
+        FROM
+            maintenance_tasks a
+            LEFT JOIN maintenance_plan b ON a.plan_id = b.id
+        where
+            a.maintenance_task_status = 'BE_MAINTAINED'
+           and (b.responsibility_person_id like CONCAT('%',#{param.userId},'%') or b.receive_dept_id like CONCAT('%',#{param.organization},'%') or b.receive_post_id like CONCAT('%',#{param.position},'%'))
+
+
+    </select>
+
+    <select id="selectTasksDetail"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.interfaces.vo.MaintenanceTasksVo">
+        SELECT
+            a.id,
+            a.object_name objectName,
+            a.maintenance_time maintenanceTime,
+            a.category_code categoryCode,
+            a.category_name categoryName,
+            a.maintenance_finish_time maintenanceFinishTime,
+            a.maintenance_task_status maintenanceTaskStatus,
+            a.maintenance_task_person maintenanceTaskPerson,
+            a.code code,
+            a.picture picture,
+            a.task_remark taskRemark,
+            b.maintenance_plan_name maintenancePlanName,
+            b.responsibility_type  responsibilityType,
+            b.receive_dept_id  receiveDeptId,
+            b.receive_post_id  receivePostId,
+            b.responsibility_person_id  responsibilityPersonId
+        FROM
+            maintenance_tasks a
+            LEFT JOIN maintenance_plan b ON a.plan_id = b.id
+        where
+        a.id = #{id}
+
+
+    </select>
+
+
+    <select id="getTaskFlag" resultType="java.lang.Integer">
+        SELECT
+            IF( COUNT( 1 ) = SUM( IF ( maintenance_task_status = 'COMPLETED', 1, 0 ) ), 1, 0 ) choose
+        FROM
+            maintenance_tasks
+        where
+            plan_id = #{planId}
+        GROUP BY
+            plan_id
+    </select>
+
+    <select id="getObjectProjects" resultType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.interfaces.vo.MaintenanceProjectVo">
+        SELECT
+            a.id id,
+            a.maintenance_content maintenanceContent
+        FROM
+            maintenance_project a
+            LEFT JOIN maintenance_object_projects b ON a.id = b.project_id
+        WHERE
+            b.object_id = #{objectId}
+    </select>
+
+    <update id="updateProjectsRecord">
+        <foreach collection="list" item="item" separator=";">
+            update maintenance_proget_record set record = #{item.record},maintenance_describe =#{item.maintenanceDescribe}
+            where id =#{item.id}
+        </foreach>
+    </update>
+
+    <select id="deviceMaintenanceNumStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.DeviceOperationStatisticsDTO">
+        select
+        object_id as deviceId,
+        count(id) as num,
+        max(maintenance_finish_time) last_time
+        from maintenance_tasks
+        <where>
+            maintenance_finish_time is not null
+            <if test="param.deviceIds != null and param.deviceIds.size() > 0">
+                and object_id in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by object_id
+    </select>
+</mapper>

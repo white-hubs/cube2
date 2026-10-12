@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.work.permit.server.dao.WorkPermitTypeConfigMapper">
+    <sql id="baseSelect">
+        SELECT
+        c.id,
+        c.type_name AS typeName,
+        c.work_permit_level AS workPermitLevel,
+        c.level_definition AS levelDefinition,
+        COALESCE(SUM(CASE WHEN i.item_type = 'RISK_CHECK' THEN 1 ELSE 0 END), 0) AS riskCheckCount,
+        COALESCE(SUM(CASE WHEN i.item_type = 'ACCEPTANCE' THEN 1 ELSE 0 END), 0) AS acceptanceCount,
+        c.permit_valid_hours AS permitValidHours
+        FROM work_permit_type_config c
+        LEFT JOIN work_permit_associated_item i
+        ON i.work_permit_type_id = c.id
+        <where>
+            <if test="param.typeName != null and param.typeName != ''">
+                AND c.type_name LIKE CONCAT('%', #{param.typeName}, '%')
+            </if>
+            <if test="param.workPermitLevel != null and param.workPermitLevel != ''">
+                AND c.work_permit_level = #{param.workPermitLevel}
+            </if>
+        </where>
+        GROUP BY c.id
+    </sql>
+
+    <select id="selectConfigPage" resultType="com.guhecloud.cube.srv.gen.work.permit.server.vo.WorkPermitTypeConfigPageVO">
+        <include refid="baseSelect" />
+        ORDER BY c.update_time DESC, c.create_time DESC
+    </select>
+
+    <select id="selectConfigList" resultType="com.guhecloud.cube.srv.gen.work.permit.server.vo.WorkPermitTypeConfigPageVO">
+        <include refid="baseSelect" />
+        ORDER BY c.update_time DESC, c.create_time DESC
+    </select>
+
+    <select id="selectLevels" resultType="java.lang.String">
+        SELECT DISTINCT
+        c.work_permit_level
+        FROM work_permit_type_config c
+        <where>
+            AND c.work_permit_level IS NOT NULL
+            AND c.work_permit_level != ''
+            <if test="param.typeName != null and param.typeName != ''">
+                AND c.type_name LIKE CONCAT('%', #{param.typeName}, '%')
+            </if>
+        </where>
+        ORDER BY c.work_permit_level ASC
+    </select>
+
+    <select id="selectNames" resultType="com.guhecloud.cube.srv.gen.work.permit.server.vo.WorkPermitTypeConfigNameVO">
+        SELECT
+        c.id,
+        c.type_name AS typeName
+        FROM work_permit_type_config c
+        <where>
+            <if test="param.typeName != null and param.typeName != ''">
+                AND c.type_name LIKE CONCAT('%', #{param.typeName}, '%')
+            </if>
+        </where>
+        ORDER BY c.update_time DESC, c.create_time DESC
+    </select>
+
+    <sql id="associatedItemFromWhere">
+        FROM work_permit_associated_item i
+        INNER JOIN work_permit_type_config c
+        ON c.id = i.work_permit_type_id
+        <where>
+            AND i.item_type = #{itemType}
+            <if test="param.typeName != null and param.typeName != ''">
+                AND c.type_name LIKE CONCAT('%', #{param.typeName}, '%')
+            </if>
+            <if test="param.workPermitLevel != null and param.workPermitLevel != ''">
+                AND c.work_permit_level = #{param.workPermitLevel}
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectAssociatedItemPage" resultType="com.guhecloud.cube.srv.gen.work.permit.server.vo.WorkPermitAssociatedItemPageVO">
+        SELECT
+        i.id,
+        i.work_permit_type_id AS workPermitTypeId,
+        c.type_name AS typeName,
+        c.work_permit_level AS workPermitLevel,
+        i.item_name AS itemName,
+        i.sort_no AS sortNo
+        <include refid="associatedItemFromWhere" />
+        ORDER BY c.update_time DESC, c.create_time DESC, i.sort_no ASC, i.id ASC
+    </select>
+
+    <select id="selectAssociatedItemIds" resultType="java.lang.Long">
+        SELECT
+        i.id
+        <include refid="associatedItemFromWhere" />
+        ORDER BY c.update_time DESC, c.create_time DESC, i.sort_no ASC, i.id ASC
+    </select>
+</mapper>

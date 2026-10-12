@@ -1,0 +1,7 @@
+openapi: 3.0.3
+info:
+  title: 北向联动支持
+  description: 北向联动支持
+  version: 1.0.0
+paths:
+  

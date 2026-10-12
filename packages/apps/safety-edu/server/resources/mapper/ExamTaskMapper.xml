@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.infrastructure.repository.mapper.ExamTaskMapper">
+
+    <select id="selectExamTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.interfaces.vo.ExamTaskVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.source_code,
+        et.source_name,
+        et.source_key,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark,
+        et.exam_paper_mode as examPaperMode
+        FROM
+        exam_task et
+        LEFT JOIN theme t on et.theme_id = t.id
+        <where>
+            et.deleted = 0 and et.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and (et.name like concat('%',#{query.keyword},'%')
+                or
+                t.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examTaskStatus != null ">
+                and et.exam_task_status = #{query.examTaskStatus}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and et.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+        order by et.exam_start_time desc
+    </select>
+
+    <select id="selectUserExamTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.interfaces.vo.UserExamTaskVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.source_code,
+        et.source_name,
+        et.source_key,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark,
+        etu.exam_status as user_exam_status,
+        etu.exam_number,
+        etu.score as user_score
+        FROM
+        exam_task et
+        INNER JOIN exam_task_user etu on et.id = etu.exam_task_id
+        <where>
+            et.deleted = 0 and et.tenant = #{tenant} and et.exam_task_status != 'UNPUBLISHED'
+            <if test="query.userId != null">
+                and etu.user_id = #{query.userId}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.id != null">
+                and et.id = #{query.id}
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examTaskStatus != null ">
+                and et.exam_task_status = #{query.examTaskStatus}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.userId !=null ">
+                and etu.user_id = #{query.userId}
+            </if>
+        </where>
+        order by published_time desc
+    </select>
+
+    <select id="selectPublicUserExamTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.interfaces.vo.UserExamTaskVO">
+        SELECT
+        t.id,
+        t.`name`,
+        t.theme_id,
+        t.theme_name,
+        t.source_code,
+        t.source_name,
+        t.source_key,
+        t.exam_start_time,
+        t.exam_end_time,
+        t.charge_user_id,
+        t.charge_user_name,
+        t.timed,
+        t.exam_duration,
+        t.exam_duration_unit,
+        t.retake,
+        t.retake_number,
+        t.exam_task_type,
+        t.exam_user_number,
+        t.exam_task_status,
+        t.remark,
+        t.user_exam_status,
+        t.exam_number,
+        t.user_score
+        FROM
+        (
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.source_code,
+        et.source_name,
+        et.source_key,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark,
+        NULL AS user_exam_status,
+        NULL AS exam_number,
+        NULL AS user_score,
+        et.published_time
+        FROM
+        exam_task et
+        WHERE
+        et.deleted = 0 and et.exam_task_status != 'UNPUBLISHED'
+        AND ( SELECT COUNT( 1 ) FROM exam_task_user WHERE exam_task_id = et.id AND user_identify = #{query.userIdentify} ) &lt;= 0
+        <if test="query.tenant != null">
+            and et.tenant = #{query.tenant}
+        </if>
+        <if test="query.marketTenant != null">
+            and et.market_tenant = #{query.marketTenant}
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and (
+            et.name like concat('%',#{query.keyword},'%')
+            or
+            et.theme_name like concat('%',#{query.keyword},'%')
+            )
+        </if>
+        <if test="query.examTaskType != null ">
+            and et.exam_task_type = #{query.examTaskType}
+        </if>
+        <if test="query.examTaskStatus != null ">
+            and et.exam_task_status = #{query.examTaskStatus}
+        </if>
+        <if test="query.themeId != null">
+            and et.theme_id = #{query.themeId}
+        </if>
+        <if test="query.period != null and query.period.begin != null">
+            and et.exam_start_time &gt;= #{query.period.begin}
+        </if>
+        <if test="query.period != null and query.period.end != null">
+            and et.exam_start_time &lt;= #{query.period.end}
+        </if>
+        GROUP BY et.id
+        UNION
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.source_code,
+        et.source_name,
+        et.source_key,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark,
+        etu.exam_status AS user_exam_status,
+        etu.exam_number,
+        etu.score AS user_score,
+        et.published_time
+        FROM
+        exam_task et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.deleted = 0 and et.exam_task_status != 'UNPUBLISHED'
+            and etu.user_identify = #{query.userIdentify}
+            <if test="query.tenant != null">
+                and et.tenant = #{query.tenant}
+            </if>
+            <if test="query.marketTenant != null">
+                and et.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examTaskStatus != null ">
+                and et.exam_task_status = #{query.examTaskStatus}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY et.id
+        ) t
+        ORDER BY t.published_time desc
+    </select>
+
+    <select id="selectExamTaskStandardList"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.interfaces.vo.ExamTaskStandardVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.exam_paper_id,
+        et.exam_paper_name,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_paper_mode as examPaperMode,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark,
+        et.tenant,
+        et.deleted,
+        et.create_by,
+        et.creator_id,
+        et.creator_type,
+        et.create_time,
+        et.update_by,
+        et.update_time
+        FROM
+        exam_task et
+        <where>
+            et.deleted = 0 and et.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and (et.name like concat('%',#{query.keyword},'%')
+                or
+                t.name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examTaskStatus != null ">
+                and et.exam_task_status = #{query.examTaskStatus}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.update_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.update_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        order by et.exam_start_time desc
+    </select>
+
+    <select id="selectExamTaskStatisticsPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskStatisticsPageVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.remark,
+        COALESCE ( sum( IF ( etu.exam_status = 'EXAMINED', 1, 0 )), 0 ) AS reality_exam_user_number,
+        COALESCE ( sum( IF ( etu.exam_status = 'MISS_EXAM', 1, 0 )), 0 ) AS miss_exam_user_number,
+        COALESCE ( sum( IF ( etu.passed = 0, 1, 0 )), 0 ) AS no_passed_user_number,
+        SUM(etu.score) as total_score
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.organizationId != null">
+                and etu.user_department_id = #{query.organizationId}
+            </if>
+            <if test="query.examTaskIds != null and query.examTaskIds.size() > 0">
+                and et.id in
+                <foreach collection="query.examTaskIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by et.id
+        order by et.exam_end_time desc
+    </select>
+
+    <select id="selectExamTaskStatisticsList"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskStatisticsPageVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.remark,
+        COALESCE ( sum( IF ( etu.exam_status = 'EXAMINED', 1, 0 )), 0 ) AS reality_exam_user_number,
+        COALESCE ( sum( IF ( etu.exam_status = 'MISS_EXAM', 1, 0 )), 0 ) AS miss_exam_user_number,
+        COALESCE ( sum( IF ( etu.passed = 0, 1, 0 )), 0 ) AS no_passed_user_number,
+        SUM(etu.score) as total_score
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.examTaskIds != null and query.examTaskIds.size() > 0">
+                and et.id in
+                <foreach collection="query.examTaskIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by et.id
+        order by et.exam_end_time desc
+    </select>
+
+    <select id="selectExamTaskStatisticsExportList"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskStatisticsPageExportVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.remark,
+        COALESCE ( sum( IF ( etu.exam_status = 'EXAMINED', 1, 0 )), 0 ) AS reality_exam_user_number,
+        COALESCE ( sum( IF ( etu.exam_status = 'MISS_EXAM', 1, 0 )), 0 ) AS miss_exam_user_number,
+        COALESCE ( sum( IF ( etu.passed = 0, 1, 0 )), 0 ) AS no_passed_user_number,
+        SUM(etu.score) as total_score
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                et.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.examTaskIds != null and query.examTaskIds.size() > 0">
+                and et.id in
+                <foreach collection="query.examTaskIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        group by et.id
+        order by et.exam_end_time desc
+    </select>
+
+    <select id="selectExamTaskThemeRatioStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskThemeRatioStatisticsVO">
+        SELECT
+        et.theme_id as id,
+        et.theme_name as `name` ,
+        COUNT(id) as total_num
+        FROM
+        exam_task et
+        <where>
+            ((et.exam_task_status = 'ENDED') or (et.deleted = 0)) and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY theme_id
+    </select>
+
+    <select id="selectExamTaskTypeRatioStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskTypeRatioStatisticsVO">
+        SELECT
+        et.exam_task_type,
+        COUNT(et.id) as total_num
+        FROM
+        exam_task et
+        <where>
+            ((et.exam_task_status = 'ENDED') or (et.deleted = 0)) and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY exam_task_type
+    </select>
+
+    <select id="selectExamTaskAttendanceStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskAttendanceStatisticsVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.exam_user_number,
+        COALESCE ( sum( IF ( etu.exam_status = 'MISS_EXAM', 1, 0 )), 0 ) AS miss_exam_user_number,
+        COALESCE ( sum( IF ( etu.passed = 0, 1, 0 )), 0 ) AS no_passed_user_number
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY et.id
+        order by et.exam_end_time desc
+    </select>
+
+    <select id="selectExamTaskMonthTrendStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.exam.interfaces.vo.ExamTaskTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT( et.exam_start_time, '%Y-%m' ) AS `name`,
+        count(*) AS num
+        FROM
+        exam_task et
+        <where>
+            ((et.exam_task_status = 'ENDED') or (et.deleted = 0)) and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(
+        et.exam_start_time,
+        '%Y-%m')
+    </select>
+
+    <select id="selectExamTaskCount"
+            resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT et.id) as total_num
+        FROM
+        `exam_task` et
+        LEFT JOIN exam_task_user etu on et.id = etu.exam_task_id
+        <where>
+            ((et.exam_task_status = 'ENDED') or (et.deleted = 0)) and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectExamTaskNoPassedUserCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COALESCE ( sum( IF ( etu.passed = 0, 1, 0 )), 0 ) AS no_passed_user_number
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectExamTaskMissUserCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COALESCE ( sum( IF ( etu.exam_status = 'MISS_EXAM', 1, 0 )), 0 ) AS miss_exam_user_number
+        FROM
+        `exam_task` et
+        INNER JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.exam_task_status = 'ENDED' and et.tenant = #{tenant}
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectExamThemeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.interfaces.vo.SafetyEducationThemeRatioVO">
+        SELECT
+        et.theme_id as id,
+        et.theme_name as `name` ,
+        COUNT(DISTINCT et.id) as total_num
+        FROM
+        exam_task et
+        LEFT JOIN exam_task_user etu ON et.id = etu.exam_task_id
+        <where>
+            et.tenant = #{tenant} and et.deleted = 0
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY theme_id
+    </select>
+
+    <select id="selectVisualExamTaskCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT(id) as total_num
+        FROM
+        exam_task et
+        <where>
+            et.tenant = #{tenant} and et.deleted = 0
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+    <select id="selectExamUserCount" resultType="java.lang.Long">
+        SELECT
+        COUNT( DISTINCT et.user_identify )
+        FROM
+        exam_task_user et
+        <where>
+            et.deleted = 0
+            <if test="query.period != null and query.period.begin != null">
+                and et.create_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.create_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectUsedExamTaskCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(t1.id) as task_count
+        FROM
+        `exam_task` t1
+        INNER JOIN exam_task_paper t2 on t1.id = t2.exam_task_id
+        <where>
+            t1.deleted = 0
+            and t1.exam_task_status in ('STAY_EXAM','IN_PROGRESS')
+            and t2.user_identify is null
+            and t2.exam_paper_id in
+            <foreach collection="paperIds" item="paperId" open="(" separator="," close=")">
+                #{paperId}
+            </foreach>
+        </where>
+    </select>
+</mapper>

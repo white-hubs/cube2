@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchDeviceGpsHistoryMapper">
+
+    <select id="selectLastGpsHistoryByDeviceIds"
+            resultType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchDeviceGpsHistory">
+        SELECT
+        t1.*
+        FROM
+        dispatch_device_gps_history t1
+        INNER JOIN
+        (
+        SELECT
+        device_id,
+        MAX( upload_time ) as upload_time
+        FROM
+        dispatch_device_gps_history
+        <where>
+            device_id in
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </where>
+        GROUP BY
+        device_id
+        ) t2 on t1.device_id = t2.device_id AND t1.upload_time = t2.upload_time
+    </select>
+
+    <select id="selectHistory" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchGPSVO">
+        SELECT
+        t1.device_code as `code`,
+        t1.upload_time,
+        t1.direction,
+        t1.lng,
+        t1.lat,
+        t1.height,
+        t1.speed,
+        t1.address
+        FROM
+        dispatch_device_gps_history t1
+        <where>
+            <if test="param.code != null and param.code != ''">
+                and t1.device_code = #{param.code}
+            </if>
+            <if test="param.startTime != null">
+                and t1.update_time &gt;= #{param.startTime}
+            </if>
+            <if test="param.endTime != null">
+                and t1.update_time &lt;= #{param.endTime}
+            </if>
+        </where>
+        order by t1.upload_time desc
+    </select>
+</mapper>

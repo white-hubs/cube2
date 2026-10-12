@@ -1,0 +1,155 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.DevicePositionMapper">
+
+
+    <select id="getDeviceMonitor"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DevicePositionPageVo">
+        SELECT
+            DISTINCT a.`device_id` as `deviceId`,a.`device_name` as `deviceName`,a.`code` `code`,
+            a.`device_prod_category_name` as `deviceProdCategoryName`,
+            a.`area_name` as `area`,
+            b.`gear_position_code` as `gearPositionCode`,
+            c.`map_code` `mapCode`,
+            a.`device_status`
+        FROM
+            `security_device` a
+                LEFT JOIN `device_position` b ON a.`device_id` = b.`cold_water_device`
+                LEFT JOIN `water_map_type` c ON a.`device_prod_category_code` = c.`device_prod_category_code`
+        where
+            a.`application_code` = 'COOLINGWATER'
+         <if test="param.keyword !=null and param.keyword !=''">
+            and (a.`code` like  concat('%',#{param.keyword},'%') or a.`device_name` like concat('%',#{param.keyword},'%'))
+         </if>
+         <if test="param.areaIds !=null and param.areaIds !=''">
+            and a.`area_id` like  concat('%',#{param.areaIds},'%')
+         </if>
+         <if test="param.deviceType !=null and param.deviceType !=''">
+            and a.`device_prod_category_code_concat` like  concat('%',#{param.deviceType},'%')
+         </if>
+
+    </select>
+    <select id="getWholesalerDetail"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerDeviceVo">
+        SELECT
+            DISTINCT d.`code` `deviceCode`,
+                     c.`code` `code`,
+                     c.`shift_master` `shiftMaster`,
+                     c.`wholesaler_id` `wholesalerId`,
+                     c.`shift_master_phone` `shiftMasterPhone`,
+                     b.`gear_position_code` `gearPositionCode`,
+                     b.`gear_position_area` `gearPositionArea`,
+                     b.`department` `department`,
+                     a.`unit_traffic` `unitTraffic`,
+                     c.`update_by` `updateBy`,
+                     c.`create_time` `createTime`,
+                     c.`update_time` `updateTime`
+        FROM
+            `device_position` a
+                LEFT JOIN `gear_position` b ON a.`gear_position_id` = b.`gear_position_id`
+                LEFT JOIN `cold_wholesaler` c ON b.`wholesaler` = c.`wholesaler_id`
+                LEFT JOIN `security_device` d ON a.`cold_water_device` = d.`device_id`
+        where
+        1=1
+        <if test="param.departmentId !=null and param.departmentId !=''">
+            and  b.`department_id` like concat('%',#{param.departmentId},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  c.`shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  c.`code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  d.`code` like concat('%',#{param.deviceCode},'%')
+        </if>
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  b.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+        <if test="param.operator !=null and param.operator !=''">
+            and  c.`update_by` like concat('%',#{param.operator},'%')
+        </if>
+
+
+    </select>
+    <select id="getDeviceIds" resultType="java.lang.Long">
+        select  distinct `cold_water_device` from  `device_position`
+            <where>
+                <if test="keyword !=null and keyword !=''">
+                    `gear_position_code` like concat('%',#{keyword},'%')
+                </if>
+            </where>
+    </select>
+    <select id="getPositionInfo"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.PositionInfoVo">
+        SELECT DISTINCT
+        a.`cold_water_device` `deviceId`,
+        b.`gear_position_area` `gearPositionArea`,
+        a.`gear_position_code` `gearPositionCode`
+        FROM
+        `device_position` a LEFT JOIN `gear_position` b on a.`gear_position_id` = b.`gear_position_id`
+        where
+            a.`cold_water_device` in
+            <foreach collection="ids" item="item" open="(" close=")" separator=",">
+            #{item}
+            </foreach>
+    </select>
+    <select id="getDeviceList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerDeviceVo">
+        SELECT DISTINCT
+            d.`code` `deviceCode`,
+            c.`shift_master` `shiftMaster`,
+            c.`wholesaler_id` `wholesalerId`,
+            c.`shift_master_phone` `shiftMasterPhone`,
+            b.`gear_position_code` `gearPositionCode`,
+            b.`gear_position_area` `gearPositionArea`
+        FROM
+            `device_position` a
+                LEFT JOIN `gear_position` b ON a.`gear_position_id` = b.`gear_position_id`
+                LEFT JOIN `cold_wholesaler` c ON b.`wholesaler` = c.`wholesaler_id`
+                LEFT JOIN `security_device` d ON a.`cold_water_device` = d.`device_id`
+        where
+            d.`device_id` = #{id}
+    </select>
+    <select id="wholesalerDetailExcel"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WholesalerDeviceVo">
+        SELECT
+        DISTINCT d.`code` `deviceCode`,
+        c.`code` `code`,
+        c.`shift_master` `shiftMaster`,
+        c.`wholesaler_id` `wholesalerId`,
+        c.`shift_master_phone` `shiftMasterPhone`,
+        b.`gear_position_code` `gearPositionCode`,
+        b.`gear_position_area` `gearPositionArea`,
+        b.`department` `department`,
+        a.`unit_traffic` `unitTraffic`,
+        c.`update_by` `updateBy`,
+        c.`create_time` `createTime`,
+        c.`update_time` `updateTime`
+        FROM
+        `device_position` a
+        LEFT JOIN `gear_position` b ON a.`gear_position_id` = b.`gear_position_id`
+        LEFT JOIN `cold_wholesaler` c ON b.`wholesaler` = c.`wholesaler_id`
+        LEFT JOIN `security_device` d ON a.`cold_water_device` = d.`device_id`
+        where
+        1=1
+
+        <if test="param.departmentId !=null and param.departmentId !=''">
+            and  b.`department_id` like concat('%',#{param.departmentId},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  c.`shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  c.`code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  d.`code` like concat('%',#{param.deviceCode},'%')
+        </if>
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  b.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+        <if test="param.operator !=null and param.operator !=''">
+            and  c.`update_by` like concat('%',#{param.operator},'%')
+        </if>
+    </select>
+</mapper>

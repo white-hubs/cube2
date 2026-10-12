@@ -1,0 +1,91 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "tree",
+    srcs = glob(["Tree.java"]),
+    deps = [
+        "//third-party/java:lombok",
+    ],
+)
+
+java_library(
+    name = "pagination",
+    srcs = glob(["Pagination.java"]),
+    deps = [
+        "//third-party/java:lombok",
+    ],
+)
+
+java_library(
+    name = "paging",
+    srcs = glob(["Paging.java"]),
+    deps = [
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:collection",
+        "//third-party/java:lombok",
+        "//third-party/java/jakarta:validation_api",
+    ],
+)
+
+java_library(
+    name = "period",
+    srcs = glob(["Period.java"]),
+    deps = [
+        "//packages/platform/base/model:period-type",
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//third-party/java:lombok",
+    ],
+)
+
+java_library(
+    name = "requester",
+    srcs = glob(["Requester.java"]),
+    deps = [
+        "//third-party/java:lombok",
+    ],
+)
+
+java_library(
+    name = "period-type",
+    srcs = glob(["PeriodTypeEnum.java"]),
+)
+
+java_library(
+    name = "error-response",
+    srcs = ["ErrorResponse.java"],
+)
+
+java_library(
+    name = "legacy-response",
+    srcs = ["LegacyResponse.java"],
+)
+
+java_library(
+    name = "pair",
+    srcs = ["Pair.java"],
+)
+
+java_library(
+    name = "actor-type",
+    srcs = ["ActorTypeEnum.java"],
+)
+
+java_library(
+    name = "models",
+    exports = [
+        ":actor-type",
+        ":legacy-response",
+        ":pagination",
+        ":paging",
+        ":pair",
+        ":period",
+        ":period-type",
+        ":requester",
+        ":tree",
+    ],
+)

@@ -1,0 +1,103 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.VisualizationConsumableMapper">
+
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableAddPageVO">
+        SELECT a.id,
+        a.stock_id,
+        sum(num) as num,
+        sum(price) as price,
+        b.add_date,
+        b.store_id,
+        b.HANDLER,
+        b.STATUS,
+        b.supplier,
+        b.depository_numbers,
+        b.process_instance_id
+        FROM consumable_stock_detail a
+        INNER JOIN consumable_add_record b ON a.stock_id = b.id
+        inner join consumable c on a.consumable_id=c.id
+        <where>
+            <if test="param.addDate !=null">
+                b.add_date = #{param.addDate}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and b.add_date = #{param.status}
+            </if>
+            <if test="param.storeId !=null and param.storeId !=''">
+                and b.store_id = #{param.storeId}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (c.name like concat('%',#{param.keyword},'%')
+                or b.depository_numbers concat('%',#{param.keyword},'%'))
+            </if>
+        </where>
+        GROUP BY b.id
+        order by b.create_time desc
+    </select>
+    <select id="getReduceRecord"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        SELECT
+        <if test="dimension == 'TODAY'">
+            HOUR(reduce_date) as `name`,
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            DAY(reduce_date) as `name`,
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            MONTH(reduce_date) as `name`,
+        </if>
+        sum(num) AS `value`
+        from consumable_reduce_record a
+        inner join consumable_stock_detail b on a.id=b.stock_id
+        where a.status='PASS'
+        and reduce_date between #{date.startTime}
+        and #{date.endTime}
+        <if test="dimension == 'TODAY'">
+            GROUP BY HOUR(reduce_date)
+            order by HOUR(reduce_date)
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            GROUP BY DAY(reduce_date)
+            order by DAY(reduce_date)
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            GROUP BY MONTH(reduce_date)
+            order by MONTH(reduce_date)
+        </if>
+    </select>
+    <select id="getReduceRecordToday" resultType="java.lang.String">
+        SELECT SUM(num) AS valus
+        FROM consumable_reduce_record a
+                 INNER JOIN consumable_stock_detail b ON a.id = b.stock_id
+        WHERE a.status = 'PASS'
+          AND reduce_date BETWEEN #{date.startTime}
+            AND #{date.endTime}
+    </select>
+    <select id="consumableByDep" resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        SELECT dept_id AS `name`, SUM(amount) AS `value`
+        FROM consumable_stock_detail a
+        INNER JOIN consumable_reduce_record b ON a.stock_id = b.id
+        WHERE stock_flag = 'REDUCE'
+          AND b.status = 'PASS'
+          AND reduce_date BETWEEN #{date.startTime}
+            AND #{date.endTime}
+        GROUP BY dept_id
+    </select>
+    <select id="stockAvailability" resultType="com.guhecloud.cube.property.management.client.common.vo.ConsumableStockVO">
+        SELECT CASE
+                   WHEN stock &gt; stock_max THEN 'stockMax'
+                   WHEN stock &lt; stock_min THEN 'stockMin'
+                   ELSE 'consumableNumber'
+                   END AS status,
+               COUNT(*) AS count
+        FROM consumable
+        where status = 'NO_DELETE'
+        GROUP BY
+            CASE
+            WHEN stock &gt; stock_max THEN 'stockMax'
+            WHEN stock &lt; stock_min THEN 'stockMin'
+            ELSE 'consumableNumber'
+        END
+    </select>
+</mapper>

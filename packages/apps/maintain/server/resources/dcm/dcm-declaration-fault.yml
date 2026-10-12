@@ -1,0 +1,23 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: FAULT   # 提供方标识
+  appDescription: 提供故障维修服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: FaultType, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: FAULT  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: FaultType  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        tenants: All
+        isFailOnMissingProvider: True
+        vargs:
+          - "name": "物业设施报修"
+          - "name": "消防设施报修"
+          - "name": "资产报修"
+          - "name": "客服设备报修"

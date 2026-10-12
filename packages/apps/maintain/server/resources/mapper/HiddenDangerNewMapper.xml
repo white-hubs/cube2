@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.dao.HiddenDangerNewMapper">
+
+
+    <select id="hiddenDangerTypeStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.interfaces.vo.HiddenDangerTypeStatistics">
+    select count(h.id) as num,t.name  from hidden_danger_new h
+    left join hidden_danger_type t on h.hidden_type_id = t.id
+    where h.submit_time between #{period.begin,jdbcType=TIMESTAMP} and #{param1.end,jdbcType=TIMESTAMP}
+    group by h.hidden_type_id order by num desc
+</select>
+
+    <select id="deviceHiddenNumStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.DeviceOperationStatisticsDTO">
+        select
+        hidden_obj_id as deviceId,
+        count(id) as num,
+        COALESCE(SUM(if(`state` = 'FINISHED',1,0)),0) as `handler_num`,
+        COALESCE(SUM(if(`state` != 'FINISHED',1,0)),0) as `un_handler_num`
+        from hidden_danger_new
+        <where>
+            hidden_obj_type = 'DEVICE'
+            <if test="param.deviceIds != null and param.deviceIds.size() > 0">
+                and hidden_obj_id in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by hidden_obj_id
+    </select>
+
+    <select id="selectHiddenDangerTotal"
+            resultType="java.lang.Long">
+        SELECT
+            count( h.id )
+        FROM
+            hidden_danger_new h
+        where h.submit_time between #{period.begin,jdbcType=TIMESTAMP} and #{param1.end,jdbcType=TIMESTAMP}
+    </select>
+    <select id="selectHiddenDangerForSafetyReport"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.interfaces.vo.HiddenDangerReportVO">
+        SELECT
+            count( h.id ) AS num,
+            t.NAME AS type_name,
+            hdl.NAME AS level_name,
+            COALESCE ( SUM( IF ( h.state = 'FINISHED', 1, 0 )), 0 ) AS finishNum
+        FROM
+            hidden_danger_new h
+                INNER JOIN hidden_danger_type t ON h.hidden_type_id = t.id
+                INNER JOIN hidden_danger_level hdl ON hdl.id = h.urgency_level
+        where h.submit_time between #{period.begin,jdbcType=TIMESTAMP} and #{param1.end,jdbcType=TIMESTAMP}
+        GROUP BY
+            h.hidden_type_id,
+            h.urgency_level
+    </select>
+    <select id="selectHiddenDangerNewList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.po.HiddenDangerNew">
+        SELECT
+        *
+        FROM
+        hidden_danger_new hdn
+        WHERE
+        hdn.tenant = #{tenant}
+        <if test="period != null">
+            and hdn.update_time between #{period.begin} and #{period.end}
+        </if>
+    </select>
+
+    <select id="isFaultValid" resultType="java.lang.Integer">
+        SELECT COUNT(id) from hidden_danger_new
+        WHERE
+              hidden_obj_id = #{deviceId}
+            and submit_time BETWEEN #{begin} and #{end}
+    </select>
+
+    <select id="getHiddenDangerCount"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.fault.interfaces.vo.PageVO">
+        SELECT
+            a.*
+        FROM
+            ( SELECT COUNT( id ) num, hidden_obj_id deviceId FROM hidden_danger_new WHERE hidden_obj_type = 'DEVICE' GROUP BY hidden_obj_id ORDER BY submit_time ) a
+        WHERE
+            a.num >=#{num}
+    </select>
+
+    <select id="getHiddenDangerDetail"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.HiddenDangerDetailVO">
+        select a.submit_time as submitTime,a.name,a.hidden_obj_name as hiddenDangerObj,t.type_name as source,d.name as classify,
+        e.name as levelName, a.submit_staff as submitter,a.state,a.result
+        from hidden_danger_new a
+        left join hidden_danger_type d on a.hidden_type_id = d.id
+        left join hidden_danger_level e on a.urgency_level = e.id
+        left join inspect_record_to_business b on a.process_ins_id = b.business_id and b.business_category = 'HIDDENDANGER'
+        left JOIN inspect_record c on b.record_id = c.id
+        LEFT JOIN inspect_task t on t.id = c.task_id
+        <where>
+            <if test="param.taskId != null">
+                and c.task_id = #{param.taskId}
+            </if>
+            <if test="param.depId != null ">
+                and c.organization_id = #{param.depId}
+            </if>
+            <if test="param.staffId != null ">
+                and c.user_id = #{param.staffId}
+            </if>
+            <if test="param.objId != null ">
+                and c.target_id = #{param.objId}
+            </if>
+            <if test="param.period != null and param.period.begin !=null and param.period.end !=null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.state != null and param.state == 'CONFIRMED'">
+                and a.state = 'WAITING_FOR_HANDLE'
+            </if>
+            <if test="param.state != null and param.state == 'COMPLETE'">
+                and a.state = 'FINISHED'
+            </if>
+            <if test="param.state != null and param.state == 'UNTREATED'">
+                and a.state = 'WAITING_FOR_HANDLE'
+            </if>
+        </where>
+    </select>
+
+    <select id="countHiddenDangerNum" resultType="java.lang.Integer">
+        select count(DISTINCT a.id) from hidden_danger_new a
+        left join inspect_record_to_business b on a.process_ins_id = b.business_id and b.business_category = 'HIDDENDANGER'
+        left join inspect_record c on b.record_id = c.id
+        <where>
+            <if test="param.taskId != null">
+                and c.task_id = #{param.taskId}
+            </if>
+            <if test="param.depId != null ">
+                and c.organization_id = #{param.depId}
+            </if>
+            <if test="param.staffId != null ">
+                and c.user_id = #{param.staffId}
+            </if>
+            <if test="param.objId != null ">
+                and c.target_id = #{param.objId}
+            </if>
+            <if test="param.period != null and param.period.begin !=null and param.period.end !=null">
+                and a.submit_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.state != null and param.state == 'CONFIRMED'">
+                and a.state = 'WAITING_FOR_HANDLE'
+            </if>
+            <if test="param.state != null and param.state == 'COMPLETE'">
+                and a.state = 'FINISHED'
+            </if>
+            <if test="param.state != null and param.state == 'UNTREATED'">
+                and a.state = 'WAITING_FOR_HANDLE'
+            </if>
+        </where>
+    </select>
+
+    <select id="countDepartmentHiddenDangerStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.DepartmentHiddenDangerStatisticsVO">
+        select c.organization_id as depId,
+               count(DISTINCT a.id) as abnormalHiddenDangerNum,
+               count(DISTINCT case when a.state = 'FINISHED' then a.id end) as haveDoneHiddenDangerNum
+        from hidden_danger_new a
+        left join inspect_record_to_business b on a.process_ins_id = b.business_id and b.business_category = 'HIDDENDANGER'
+        left join inspect_record c on b.record_id = c.id
+        <where>
+            <if test="depIds != null and depIds.size() > 0">
+                and c.organization_id in
+                <foreach collection="depIds" item="depId" open="(" close=")" separator=",">
+                    #{depId}
+                </foreach>
+            </if>
+            <if test="period != null and period.begin != null and period.end != null">
+                and a.submit_time between #{period.begin} and #{period.end}
+            </if>
+        </where>
+        group by c.organization_id
+    </select>
+
+    <select id="countStaffHiddenDangerStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.StaffHiddenDangerStatisticsVO">
+        select c.user_id as staffId,
+               count(DISTINCT a.id) as abnormalHiddenDangerNum,
+               count(DISTINCT case when a.state = 'FINISHED' then a.id end) as haveDoneHiddenDangerNum
+        from hidden_danger_new a
+        left join inspect_record_to_business b on a.process_ins_id = b.business_id and b.business_category = 'HIDDENDANGER'
+        left join inspect_record c on b.record_id = c.id
+        <where>
+            <if test="staffIds != null and staffIds.size() > 0">
+                and c.user_id in
+                <foreach collection="staffIds" item="staffId" open="(" close=")" separator=",">
+                    #{staffId}
+                </foreach>
+            </if>
+            <if test="period != null and period.begin != null and period.end != null">
+                and a.submit_time between #{period.begin} and #{period.end}
+            </if>
+        </where>
+        group by c.user_id
+    </select>
+
+    <select id="getHazardStatisticsByType"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.interfaces.vo.HazardStatisticsTopVO">
+        SELECT
+            IFNULL(hdcg.NAME,'其他') as `name`,
+            count(1) as `value`
+        FROM
+            hidden_danger_new hd
+        LEFT JOIN  hidden_danger_type t on hd.hidden_type_id = t.id
+        LEFT JOIN hidden_danger_category hdcg ON t.hidden_danger_category_id = hdcg.id
+        where hd.submit_time BETWEEN #{period.begin} AND #{period.end}
+        GROUP BY `name`
+        ORDER BY `value` desc
+    </select>
+    <select id="getHazardStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.hiddendanger.interfaces.vo.HazardStatisticsTopVO">
+        SELECT
+            hd.state as `name`,
+            count(1) as `value`
+        FROM
+            hidden_danger_new hd
+        where hd.submit_time BETWEEN #{period.begin} AND #{period.end}
+        GROUP BY `name`
+    </select>
+</mapper>

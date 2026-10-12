@@ -1,0 +1,89 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.dao.SurgicalDemonstrationMapper">
+
+
+    <select id="getOverview"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.vo.OverviewVo">
+        SELECT `modality` `name`,COALESCE(count(`id`),0) `num`
+        FROM `surgical_demonstration`
+        <where>
+            <if test="param.period !=null and param.period.begin !=null">
+               and `date_operation` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period !=null and param.period.end !=null">
+                and `date_operation` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY modality
+    </select>
+    <select id="teachingLiveBroadcastSessions"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.vo.OverviewVo" databaseId="mysql">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        DATE_FORMAT(`date_operation`,${dateFormat}) `timeFlag`
+        FROM
+        `surgical_demonstration`
+        <where>
+            <if test="st != null">
+                and `date_operation` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `date_operation` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`date_operation`, ${dateFormat})
+    </select>
+    <select id="teachingLiveBroadcastSessions"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.vo.OverviewVo" databaseId="dm">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        DATE_FORMAT(`date_operation`,${dateFormat}) `timeFlag`
+        FROM
+        `surgical_demonstration`
+        <where>
+            <if test="st != null">
+                and `date_operation` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `date_operation` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`date_operation`, ${dateFormat})
+    </select>
+    <select id="teachingLiveBroadcastSessions"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.vo.OverviewVo" databaseId="pg">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        to_char(`date_operation`,${dateFormat}) `timeFlag`
+        FROM
+        `surgical_demonstration`
+        <where>
+            <if test="st != null">
+                and `date_operation` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `date_operation` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`date_operation`, ${dateFormat})
+    </select>
+    <select id="mostPopularVideos"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.surgicaldemonstration.vo.OverviewVo">
+        SELECT `name` `name`,`playback_count` `num`
+        FROM `surgical_demonstration`
+        <where>
+            <if test="param.period !=null and param.period.begin !=null">
+                and `date_operation` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period !=null and param.period.end !=null">
+                and `date_operation` &lt;= #{param.period.end}
+            </if>
+        </where>
+        order by `playback_count` DESC
+        limit 10
+    </select>
+
+</mapper>

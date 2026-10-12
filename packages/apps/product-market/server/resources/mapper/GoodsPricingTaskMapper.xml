@@ -1,0 +1,67 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.pricing.dao.GoodsPricingTaskMapper">
+
+    <!-- 采价任务查询 -->
+    <select id="getGoodsPricingTaskPage" resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.entity.GoodsPricingTask">
+        select distinct t.* from goods_pricing_task t
+        inner join goods_pricing_task_detail d on t.id = d.task_id
+        where t.deleted = 0
+        <if test="param.name != null and param.name != ''">
+            and (t.name like concat('%',#{param.name},'%') or d.user_names like concat('%',#{param.name},'%'))
+        </if>
+        <if test="param.urgency != null and param.urgency != ''">
+            and t.urgency = #{param.urgency}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and t.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and t.create_time &lt; #{param.period.end}
+        </if>
+        <if test="param.status != null and param.status != ''">
+            <if test="param.userId != null and param.userId != ''">
+                and d.user_ids like concat('%',#{param.userId},'%')
+            </if>
+            <if test="param.receiverId != null and param.receiverId != ''">
+                and d.user_id = #{param.receiverId}
+            </if>
+            and t.status = #{param.status}
+        </if>
+        <if test="(param.userId != null or param.receiverId != null) and (param.status == null or param.status == '')">
+            and ((d.user_ids like concat('%',#{param.userId},'%') and d.user_id is null) or d.user_id = #{param.receiverId})
+        </if>
+        <if test="param.userName != null and param.userName != ''">
+            and ((d.user_names like concat('%',#{param.userName},'%') and d.user_id is null) or d.user_name like concat('%',#{param.userName}))
+        </if>
+        order by t.create_time desc
+    </select>
+
+    <select id="getGoodsPricingTaskStat" resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.CommonStatVO">
+      select t.status as code,count(id) as value from goods_pricing_task t
+      where t.deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and t.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and t.create_time &lt; #{param.period.end}
+        </if>
+      group by t.status
+    </select>
+
+    <select id="getMyPricingTaskStat" resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.MyTaskStatVO">
+        select
+        sum(if(t.status = 'WAIT',1,0)) as waitNum,
+        sum(if(td.user_id = #{param.userId} and t.status = 'EXEC',1,0)) as execNum,
+        sum(if(td.user_id = #{param.userId} and t.status = 'OVER',1,0)) as overNum
+        from goods_pricing_task t
+        inner join goods_pricing_task_detail td on t.id = td.task_id
+        where t.deleted = 0 and td.user_ids like concat('%',#{param.userId},'%')
+        <if test="param.period != null and param.period.begin != null">
+            and t.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and t.create_time &lt; #{param.period.end}
+        </if>
+    </select>
+
+</mapper>

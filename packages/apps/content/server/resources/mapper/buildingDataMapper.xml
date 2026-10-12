@@ -1,0 +1,46 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.content.management.server.knowledgedocument.dao.BuildingDataMapper">
+
+
+    <select id="getBuildingPage"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.knowledgedocument.interfaces.vo.BuildingDataVO">
+        SELECT
+        a.`id` `id`,
+        a.`name` `name`,
+        a.`area_id` `areaId`,
+        a.`create_by` `createBy`,
+        a.`creator_id` `creatorId`,
+        a.`creator_type` `creatorType`,
+        a.`dept_id` `deptId`,
+        a.`update_time` `updateTime`,
+        a.`type` `type`,
+        b.`type_name` `typeName`
+
+        FROM
+        `building_data` a
+        LEFT JOIN `model_type` b ON a.`type` = b.`id`
+        <where>
+            <if test="query.keyword !=null and query.keyword !=''">
+
+                and a.`name` like '%' || #{query.keyword} || '%'
+            </if>
+            <if test="query.type !=null and query.type !=''">
+                and a.`type` =#{query.type}
+            </if>
+            <if test="query.deptId !=null and query.deptId !=null">
+                and a.`dept_id` =#{query.deptId}
+            </if>
+            <if test="query.areaIds !=null and query.areaIds.size > 0">
+                and a.`area_id` in
+                <foreach collection="query.areaIds" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+
+
+    </select>
+
+
+</mapper>

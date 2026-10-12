@@ -1,0 +1,353 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.dao.ArrangeWorkClassesMapper">
+
+    <select id="getArrangeWorkClasses" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.dao.dto.ClassesDTO">
+        select `wc`.`id`,
+        `w`.`date`,
+        `wc`.`start_work_time`,
+        `wc`.`end_work_time`,
+        `wc`.`mark`,
+        `wc`.`start_real_time`,
+        `wc`.`end_real_time`
+        from `arrange_work` w
+        left join `arrange_work_classes` wc on w.`arrange_work_classes_ids` like CONCAT('%',wc.`id`,'%')
+        where `wc`.`id` is not null
+        <if test="param.userId != null and param.userId != ''">
+            and w.`staff_id` = #{param.userId}
+        </if>
+        <if test="param.date != null and param.date != ''">
+            and w.`date` = #{param.date}
+        </if>
+        <if test="param.groupId != null and param.groupId != ''">
+            and w.`group_id` = #{param.groupId}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and wc.`start_real_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and wc.`start_real_time` &lt; #{param.period.end}
+        </if>
+        order by wc.`start_real_time` asc
+    </select>
+
+    <resultMap id="currentClasses" type="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.CurrentClassesVO" autoMapping="true">
+        <id property="workId" column="id"/>
+        <collection property="wayList" javaType="java.util.ArrayList" ofType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.CurrentClassesVO$Way">
+            <id property="id" column="apcId"/>
+            <result property="way" column="way"/>
+            <result property="address" column="address"/>
+            <result property="latitude" column="latitude"/>
+            <result property="longitude" column="longitude"/>
+            <result property="effectiveRange" column="effective_range"/>
+            <result property="wifi" column="wifi"/>
+            <result property="mac" column="mac"/>
+            <result property="deviceName" column="device_name"/>
+            <result property="deviceModel" column="device_model"/>
+            <result property="deviceCode" column="device_code"/>
+            <result property="deviceGenre" column="device_genre"/>
+        </collection>
+    </resultMap>
+
+    <sql id="basicQueryArrangeClasses">
+        select
+        `aw`.`id`,
+        `aw`.`group_id` AS `attendanceGroupId`,
+        `aw`.`staff_id`,
+        `aw`.`date` AS `clockDate`,
+        `aw`.`week`,
+        `aw`.`is_holiday`,
+        `awc`.`id` AS `arrangeClassesId`,
+        `awc`.`name` AS `arrangeClassesName`,
+        `awc`.`start_work_time`,
+        `awc`.`end_work_time`,
+        `awc`.`start_real_time`,
+        `awc`.`end_real_time`,
+        `awc`.`before_start_real_time`,
+        `awc`.`after_start_real_time`,
+        `awc`.`before_end_real_time`,
+        `awc`.`after_end_real_time`,
+        `awc`.`mark`,
+        `cc`.`start_work_clock_time`,
+        `cc`.`start_work_clock_status`,
+        `cc`.`end_work_clock_time`,
+        `cc`.`end_work_clock_status`,
+        `apc`.`id` AS `apcId`,
+        `apc`.`way`,
+        `apc`.`address`,
+        `apc`.`latitude`,
+        `apc`.`longitude`,
+        `apc`.`effective_range`,
+        `apc`.`wifi`,
+        `apc`.`mac`,
+        `apc`.`device_name`,
+        `apc`.`device_model`,
+        `apc`.`device_code`,
+        `apc`.`device_genre`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        LEFT JOIN `attendance_group` ag ON aw.`group_id` = ag.`id`
+        LEFT JOIN `attendance_group_punch_card_way` apc ON ag.`id` = apc.`group_id`
+        LEFT JOIN `classes_clock` cc ON aw.`staff_id` = cc.`user_id` AND awc.`id` = cc.`arrange_classes_id`
+        where 1 = 1
+    </sql>
+
+    <select id="getUserClassesInCurrentDate" resultMap="currentClasses">
+        <include refid="basicQueryArrangeClasses"/>
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="dateTime != null">
+            AND awc.`start_real_time` &lt;= #{dateTime} AND awc.`end_real_time` &gt;= #{dateTime}
+        </if>
+    </select>
+
+    <select id="getUserClassesAfterCurrentDate" resultMap="currentClasses">
+        <include refid="basicQueryArrangeClasses"/>
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null and date != ''">
+            AND aw.`date` = #{date}
+        </if>
+        <if test="dateTime != null">
+            AND awc.`start_real_time` &gt; #{dateTime}
+        </if>
+
+        order by awc.`start_real_time` asc limit 10
+    </select>
+    <!--<if test="dateTime != null">
+            AND
+            (
+            (
+            awc.start_real_time &gt; #{dateTime}
+            AND awc.before_start_real_time IS NULL
+            )
+            OR
+            (
+            awc.start_real_time &gt; #{dateTime}
+            AND awc.before_start_real_time &lt;= #{dateTime}
+            )
+            )
+        </if>-->
+
+    <select id="getUserClassesBeforeCurrentDate" resultMap="currentClasses">
+        <include refid="basicQueryArrangeClasses"/>
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null and date != ''">
+            AND aw.`date` = #{date}
+        </if>
+        <if test="dateTime != null">
+            AND
+            (
+            (
+            awc.`end_real_time` &lt;= #{dateTime}
+            AND awc.`after_end_real_time` IS NULL
+            )
+            OR
+            (
+            awc.`end_real_time` &lt;= #{dateTime}
+            AND awc.`after_end_real_time` &gt;= #{dateTime}
+            )
+            )
+        </if>
+        order by awc.`end_real_time` desc
+    </select>
+
+    <select id="getUserClassesBeforeCurrentDateNotBeforeTimeWhere" resultMap="currentClasses">
+        <include refid="basicQueryArrangeClasses"/>
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null and date != ''">
+            AND aw.`date` = #{date}
+        </if>
+        <if test="dateTime != null">
+            AND awc.`end_real_time` &lt;= #{dateTime}
+        </if>
+        order by awc.`end_real_time` desc limit 10
+    </select>
+
+    <select id="getUserClassesByPeriod" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.CurrentClassesVO">
+        select
+        aw.`id` AS `workId`,
+        aw.`group_id` AS `attendanceGroupId`,
+        aw.`staff_id`,
+        aw.`date` AS `clockDate`,
+        awc.`id` AS `arrangeClassesId`,
+        awc.`start_work_time`,
+        awc.`end_work_time`,
+        awc.`start_real_time`,
+        awc.`end_real_time`,
+        awc.`before_start_real_time`,
+        awc.`after_start_real_time`,
+        awc.`before_end_real_time`,
+        awc.`after_end_real_time`,
+        awc.`mark`,
+        aw.`tenant`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1 = 1
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="queryStartTime">
+            AND awc.`start_real_time` >= #{period.begin} AND awc.`start_real_time` &lt;= #{period.end}
+        </if>
+        <if test="queryEndTime">
+            AND awc.`end_real_time` >= #{period.begin} AND awc.`end_real_time` &lt;= #{period.end}
+        </if>
+    </select>
+
+    <select id="getUserClassesByClassesId" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkClassesVO">
+        select
+        aw.`id` AS `workId`,
+        aw.`group_id` AS `attendanceGroupId`,
+        awc.`start_work_time`,
+        awc.`end_work_time`,
+        awc.`start_real_time`,
+        awc.`end_real_time`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1 = 1
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null and date != ''">
+            AND aw.`date` = #{date}
+        </if>
+        <if test="arrangeClassesId != null">
+            AND awc.`id` = #{arrangeClassesId}
+        </if>
+    </select>
+
+    <select id="getUserClassesByRestPeriod" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkClassesVO">
+        select
+        awc.`rest_start_real_time`,
+        awc.`rest_end_real_time`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1 = 1
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="null != period.begin and null != period.end">
+            AND awc.rest_start_real_time >= #{period.begin}
+            AND awc.rest_end_real_time &lt;= #{period.end}
+        </if>
+    </select>
+
+    <select id="filterUserInClasses2" resultType="java.lang.Long">
+        -- 这里有问题，在连表条件用like时，查询条件用in,会导致报错，有空可以深究一下什么问题
+        select
+        aw.`staff_id`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1= 1
+        <if test="userIds != null and userIds.size > 0">
+            AND aw.`staff_id` in
+            <foreach collection="userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="date != null">
+            AND awc.`start_real_time` &lt;= #{date} AND awc.`end_real_time` &gt;= #{date}
+        </if>
+    </select>
+
+    <select id="getUserClassesByDay" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.domain.classes.Classes">
+        select
+        awc.`id`,
+        awc.`classes_id`,
+        awc.`name`,
+        awc.`start_work_time`,
+        awc.`end_work_time`
+        from `arrange_work` aw
+        INNER JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1=1
+        <if test="userId != null">
+            AND aw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null">
+            AND aw.date = #{date}
+        </if>
+        order by awc.`start_real_time`
+    </select>
+
+    <select id="getUserClassesInPeriod" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkClassesVO">
+        select
+        CONCAT(aw.`date`,' ',awc.`start_work_time`, ':00') as `start_real_time`,
+        awc.`end_real_time`,
+        awc.`rest_start_real_time`,
+        awc.`rest_end_real_time`
+        from `arrange_work` aw
+        LEFT JOIN  `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT('%',awc.`id`,'%')
+        where 1 = 1
+        <if test="staffId != null">
+            AND aw.`staff_id` = #{staffId}
+        </if>
+        <if test="period != null and period.begin != null and period.end != null">
+            AND awc.`start_real_time` &lt; #{period.end}
+            AND awc.`end_real_time` > #{period.begin}
+        </if>
+        order by awc.`start_real_time`
+    </select>
+
+    <select id="getToadyStaff" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkTodayStatVO$Staff">
+        SELECT
+        s.`id`,
+        s.`user_id`,
+        s.`name`,
+        s.`mobile`,
+        CONCAT(
+        awc.`name`,'（',
+        IF
+        ( aw.`date` &lt; #{date} and awc.`end_time_is_morrow`, CONCAT( '昨日', awc.`start_work_time` ), awc.`start_work_time` ),
+        '-',
+        IF
+        ( aw.`date` = #{date} and awc.`end_time_is_morrow`, CONCAT( '次日', awc.`end_work_time` ), awc.`end_work_time` )
+        ,
+	    '）'
+        ) AS `className`,
+        IF
+        ( s.`state` = 'ON_DUTY', 1, 0 ) AS `onDuty`
+        FROM
+        `arrange_work` aw
+        LEFT JOIN `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT( '%', awc.`id` , '%' )
+        LEFT JOIN `attendance_group` g ON aw.`group_id` = g.`id`
+        LEFT JOIN `cube-srv-gen-personnel-management`.staff s ON aw.`staff_id` = s.`id`
+        WHERE
+        g.`classes_type` = 'ARRANGE'
+        AND s.`state` IN ( 'ON_DUTY', 'OFF_DUTY', '' )
+        AND ( awc.`start_real_time` >= #{beginOfDay} AND awc.`start_real_time` &lt;= #{endOfDay} OR awc.`end_real_time` >= #{beginOfDay} AND awc.`start_real_time` &lt;= #{endOfDay} )
+        ORDER BY
+	    `onDuty`
+	    DESC
+    </select>
+
+    <select id="getNoUseWorkClasses" resultType="java.lang.Long">
+        SELECT
+        awc.`id`
+        FROM
+        `arrange_work_classes` awc
+        LEFT JOIN `arrange_work` aw ON aw.`arrange_work_classes_ids` LIKE CONCAT( '%', awc.`id` , '%' )
+        WHERE
+        awc.`end_real_time` &lt; #{dateTime}
+        AND aw.`id` IS NULL
+    </select>
+
+    <select id="getToadyStaffNoClasses" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkTodayStatVO$Staff">
+        SELECT
+            aw.`staff_id` as `id`,
+            aw.`tenant`
+        FROM
+            `arrange_work` aw
+            LEFT JOIN `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT( '%', awc.`id` , '%' )
+        WHERE
+            aw.`date` = #{date}
+            AND aw.`arrange_work_classes_ids` = ''
+    </select>
+
+</mapper>

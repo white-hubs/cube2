@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.leavepost.dao.LeavePostSituationMapper">
+
+    <select id="getLeavePostDurationStat" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.leavepost.dao.dto.LeavePostDurationStatDTO">
+        select ps.`applicant_id` as `userId`,
+        sum(timestampdiff(MINUTE ,ps.`start_time`,ps.`end_time`)) as `leavePostDuration`
+        from `leave_post_situation` ps
+        where ps.`deleted` = 0
+        <if test="param.userId != null and param.userId != ''">
+            and ps.`applicant_id` = #{param.userId}
+        </if>
+        <if test="param.userIds != null and param.userIds.size > 0">
+            and ps.`applicant_id` in
+            <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and ps.`start_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and ps.`start_time` &lt; #{param.period.end}
+        </if>
+        group by ps.`applicant_id`
+    </select>
+
+    <select id="getWorkOvertimeSummaryPage" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.common.querygateway.dto.AttendanceStatisticsDTO">
+        select ps.`applicant_id` as `staff_Id`,
+        sum(timestampdiff(MINUTE ,ps.`start_time`,ps.`end_time`)) as `leave_Post_Duration`
+        from `leave_post_situation` ps
+        where ps.`deleted` = 0
+        <if test="param.userId != null and param.userId != ''">
+            and ps.`applicant_id` = #{param.userId}
+        </if>
+        <if test="param.userIds != null and param.userIds.size > 0">
+            and ps.`applicant_id` in
+            <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and ps.`start_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and ps.`start_time` &lt; #{param.period.end}
+        </if>
+        group by ps.`applicant_id`
+     </select>
+
+</mapper>

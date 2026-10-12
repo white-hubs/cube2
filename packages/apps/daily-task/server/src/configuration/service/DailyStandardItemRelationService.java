@@ -1,0 +1,7 @@
+package com.guhecloud.cube.biz.daily.task.configuration.service;
+
+import com.baomidou.mybatisplus.extension.service.IService;
+import com.guhecloud.cube.biz.daily.task.domain.po.DailyStandardItemResultRelationPO;
+
+public interface DailyStandardItemRelationService extends IService<DailyStandardItemResultRelationPO> {
+}

@@ -1,0 +1,994 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.SafetyAlarmRecordMapper">
+
+    <resultMap id="alarmHandlerSituationAnalysisMap"
+               type="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmHandlerSituationAnalysisVO">
+        <id column="market_tenant" property="marketTenant" />
+        <result column="market_name" property="marketName" />
+        <collection property="statusGroups" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmStatusGroupVO">
+            <result column="status" property="status" />
+            <result column="status_name" property="statusName" />
+            <result column="total_num" property="totalNum" />
+        </collection>
+    </resultMap>
+
+    <select id="selectAlarmRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.AlarmRecordPageVO">
+        SELECT
+        ar.id,
+        ar.`code`,
+        ar.alarm_level_id,
+        ar.alarm_level_code,
+        ar.alarm_level_name,
+        ar.alarm_level_sort,
+        ar.alarm_type_id,
+        ar.alarm_type_code,
+        ar.alarm_type_name,
+        ar.alarm_type_file_id,
+        ar.alarm_target_key,
+        ar.alarm_target_code,
+        ar.alarm_target_name,
+        ar.alarm_target_type_id,
+        ar.alarm_target_type_name,
+        ar.alarm_target_longitude,
+        ar.alarm_target_address,
+        ar.business_type,
+        ar.business_key,
+        ar.alarm_time,
+        ar.area,
+        ar.area_name,
+        ar.alarm_threshold,
+        ar.alarm_event,
+        ar.alarm_event_name,
+        ar.alarm_event_type_name,
+        ar.alarm_event_type_code,
+        ar.alarm_event_type_id,
+        ar.alarm_status,
+        ar.alarm_status_name,
+        ar.alarm_confirmed_by,
+        ar.alarm_confirmed_name,
+        ar.alarm_confirmed_time,
+        ar.estimate_handler_time,
+        ar.estimate_handler_time,
+        ar.alarm_handler_by,
+        ar.alarm_handler_name,
+        ar.alarm_handler_time,
+        ar.alarm_handler_result,
+        ar.alarm_handler_result_name,
+        ar.alarm_handler_result_remark,
+        ar.timeout_equipped,
+        ar.timeout_process_time,
+        ar.timeout_process_times,
+        ar.timeout_process_times_unit,
+        ar.timeout_process_times_name,
+        ar.assist_confirm_result,
+        ar.application_id,
+        ar.application_code,
+        ar.application_name,
+        ar.tenant,
+        ar.market_tenant,
+        mc.market_name
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                ar.alarm_event_name like concat('%',#{query.keyword},'%')
+                or
+                ar.alarm_target_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmLevelId != null and query.alarmLevelId != ''">
+                and ar.alarm_level_id = #{query.alarmLevelId}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.alarmEventTypeCode != null and query.alarmEventTypeCode != ''">
+                and ar.alarm_event_type_code = #{query.alarmEventTypeCode}
+            </if>
+            <if test="query.alarmEventTypeCodes != null and query.alarmEventTypeCodes.size > 0">
+                and ar.alarm_event_type_code in
+                <foreach collection="query.alarmEventTypeCodes" item="eventTypeCode" open="(" separator="," close=")">
+                    #{eventTypeCode}
+                </foreach>
+            </if>
+            <if test="query.filterAlarmEventTypeCodes != null and query.filterAlarmEventTypeCodes.size > 0">
+                and ar.alarm_event_type_code not in
+                <foreach collection="query.filterAlarmEventTypeCodes" item="eventTypeCode" open="(" separator="," close=")">
+                    #{eventTypeCode}
+                </foreach>
+            </if>
+            <if test="query.alarmHandlerResult != null and query.alarmHandlerResult != ''">
+                and ar.alarm_handler_result = #{query.alarmHandlerResult}
+            </if>
+            <if test="query.filterAlarmStatus != null and query.filterAlarmStatus != ''">
+                and ar.alarm_status != #{query.filterAlarmStatus}
+            </if>
+            <if test="query.alarmStatus != null and query.alarmStatus != ''">
+                and ar.alarm_status = #{query.alarmStatus}
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == query.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.alarm_status != 'ALARM_HANDLER' and ar.timeout_process_time &lt;= now()) or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= ar.alarm_handler_time))
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'NORMAL' == query.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.timeout_equipped = false
+                OR
+                ar.timeout_process_time is NULL
+                OR
+                (ar.alarm_status != 'ALARM_HANDLER'and ar.timeout_process_time &gt;= now())
+                or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &gt;= ar.alarm_handler_time))
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.assistConfirmResult != null and query.assistConfirmResult != ''">
+                and ar.assist_confirm_result = #{query.assistConfirmResult}
+            </if>
+        </where>
+        order by
+        ar.alarm_status_order asc,
+        ar.alarm_level_sort asc,
+        ar.alarm_time desc
+    </select>
+
+    <select id="selectAlarmRecords"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.AlarmRecordPageVO">
+        SELECT
+        ar.id,
+        ar.`code`,
+        ar.alarm_level_id,
+        ar.alarm_level_code,
+        ar.alarm_level_name,
+        ar.alarm_level_sort,
+        ar.alarm_type_id,
+        ar.alarm_type_code,
+        ar.alarm_type_name,
+        ar.alarm_type_file_id,
+        ar.alarm_target_key,
+        ar.alarm_target_code,
+        ar.alarm_target_name,
+        ar.alarm_target_type_id,
+        ar.alarm_target_type_name,
+        ar.alarm_target_longitude,
+        ar.alarm_target_address,
+        ar.business_type,
+        ar.business_key,
+        ar.alarm_time,
+        ar.area,
+        ar.area_name,
+        ar.alarm_threshold,
+        ar.alarm_event,
+        ar.alarm_event_name,
+        ar.alarm_status,
+        ar.alarm_status_name,
+        ar.alarm_confirmed_by,
+        ar.alarm_confirmed_name,
+        ar.alarm_confirmed_time,
+        ar.estimate_handler_time,
+        ar.alarm_handler_by,
+        ar.alarm_handler_time,
+        ar.alarm_handler_name,
+        ar.alarm_handler_result,
+        ar.alarm_handler_result_name,
+        ar.alarm_handler_result_remark,
+        ar.timeout_equipped,
+        ar.timeout_process_time,
+        ar.timeout_process_times,
+        ar.timeout_process_times_unit,
+        ar.timeout_process_times_name,
+        ar.assist_confirm_result,
+        ar.application_id,
+        ar.application_code,
+        ar.application_name,
+        ar.tenant,
+        ar.market_tenant,
+        mc.market_name
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                ar.alarm_event_name like concat('%',#{query.keyword},'%')
+                or
+                ar.alarm_target_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmLevelId != null and query.alarmLevelId != ''">
+                and ar.alarm_level_id = #{query.alarmLevelId}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.alarmEventTypeCode != null and query.alarmEventTypeCode != ''">
+                and ar.alarm_event_type_code = #{query.alarmEventTypeCode}
+            </if>
+            <if test="query.alarmHandlerResult != null and query.alarmHandlerResult != ''">
+                and ar.alarm_handler_result = #{query.alarmHandlerResult}
+            </if>
+            <if test="query.alarmStatus != null and query.alarmStatus != ''">
+                and ar.alarm_status = #{query.alarmStatus}
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == query.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.alarm_status != 'ALARM_HANDLER' and ar.timeout_process_time &lt;= now()) or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= ar.alarm_handler_time))
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'NORMAL' == query.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.timeout_equipped = false
+                OR
+                ar.timeout_process_time is NULL
+                OR
+                (ar.alarm_status != 'ALARM_HANDLER'and ar.timeout_process_time &gt;= now())
+                or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &gt;= ar.alarm_handler_time))
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.assistConfirmResult != null and query.assistConfirmResult != ''">
+                and ar.assist_confirm_result = #{query.assistConfirmResult}
+            </if>
+        </where>
+        order by
+        ar.alarm_status_order asc,
+        ar.alarm_level_sort asc,
+        ar.alarm_time desc
+    </select>
+
+    <select id="selectAlarmReportPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.AlarmReportPageVO">
+        SELECT
+        subalarm.total_num,
+        subalarm.un_confirmed_num,
+        subalarm.progress_confirmed_num,
+        subalarm.suspend_num ,
+        subalarm.handler_num ,
+        subalarm.actual_num ,
+        subalarm.impractical_num ,
+        subalarm.timeout_num ,
+        subalarm.market_tenant ,
+        subalarm.processing_time,
+        mc.market_name
+        FROM
+        market_config mc
+        INNER JOIN
+        (
+        SELECT
+        COUNT( 1 ) AS total_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS un_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_PROGRESS_CONFIRMED', 1, 0 )), 0 ) AS progress_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_SUSPEND', 1, 0 )), 0 ) AS suspend_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_HANDLER', 1, 0 )), 0 ) AS handler_num,
+        COALESCE ( SUM( IF ( ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num,
+        COALESCE ( SUM( IF ( ar.alarm_handler_result = 'ALARM_IMPRACTICAL', 1, 0 )), 0 ) AS impractical_num,
+        COALESCE ( SUM( IF ( ar.alarm_status != 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= NOW() OR
+        ar.alarm_status = 'ALARM_HANDLER' AND timeout_process_time &lt;= ar.alarm_handler_time, 1, 0 )), 0 ) AS
+        timeout_num,
+        COALESCE (SUM(ar.processing_time),0) as processing_time,
+        ar.market_tenant
+        FROM
+        safety_alarm_record ar
+        <where>
+            ar.displayed = true
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                ar.alarm_event_name like concat('%',#{query.keyword},'%')
+                or
+                ar.alarm_target_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmLevelId != null and query.alarmLevelId != ''">
+                and ar.alarm_level_id = #{query.alarmLevelId}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.alarmHandlerResult != null and query.alarmHandlerResult != ''">
+                and ar.alarm_handler_result = #{query.alarmHandlerResult}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY
+        ar.market_tenant
+        ) subalarm on mc.market_tenant = subalarm.market_tenant
+        where mc.status = true
+    </select>
+
+    <select id="selectAlarmReports"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.AlarmReportPageVO">
+        SELECT
+        subalarm.total_num,
+        subalarm.un_confirmed_num,
+        subalarm.progress_confirmed_num,
+        subalarm.suspend_num ,
+        subalarm.handler_num ,
+        subalarm.actual_num ,
+        subalarm.impractical_num ,
+        subalarm.timeout_num ,
+        subalarm.market_tenant ,
+        subalarm.processing_time,
+        mc.market_name
+        FROM
+        market_config mc
+        INNER JOIN
+        (
+        SELECT
+        COUNT( 1 ) AS total_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS un_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_PROGRESS_CONFIRMED', 1, 0 )), 0 ) AS progress_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_SUSPEND', 1, 0 )), 0 ) AS suspend_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_HANDLER', 1, 0 )), 0 ) AS handler_num,
+        COALESCE ( SUM( IF ( ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num,
+        COALESCE ( SUM( IF ( ar.alarm_handler_result = 'ALARM_IMPRACTICAL', 1, 0 )), 0 ) AS impractical_num,
+        COALESCE ( SUM( IF ( ar.alarm_status != 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= NOW() OR
+        ar.alarm_status = 'ALARM_HANDLER' AND timeout_process_time &lt;= ar.alarm_handler_time, 1, 0 )), 0 ) AS
+        timeout_num,
+        COALESCE (SUM(ar.processing_time),0) as processing_time,
+        ar.market_tenant
+        FROM
+        safety_alarm_record ar
+        <where>
+            ar.displayed = true
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                ar.alarm_event_name like concat('%',#{query.keyword},'%')
+                or
+                ar.alarm_target_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmLevelId != null and query.alarmLevelId != ''">
+                and ar.alarm_level_id = #{query.alarmLevelId}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.alarmHandlerResult != null and query.alarmHandlerResult != ''">
+                and ar.alarm_handler_result = #{query.alarmHandlerResult}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        GROUP BY
+        ar.market_tenant
+        ) subalarm on mc.market_tenant = subalarm.market_tenant
+        where mc.status = true
+    </select>
+
+    <select id="selectAlarmCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT( ar.id ) AS total_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenants != null and query.marketTenants.size() > 0">
+                and ar.market_tenant in
+                <foreach collection="query.marketTenants" open="(" separator="," close=")" item="marketTenant">
+                    #{marketTenant}
+                </foreach>
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                and ar.alarm_status = #{query.status}
+            </if>
+            <if test="query.filterStatus != null and query.filterStatus != ''">
+                and ar.alarm_status != #{query.filterStatus}
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == query.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.alarm_status != 'ALARM_HANDLER' and ar.timeout_process_time &lt;= now()) or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= ar.alarm_handler_time))
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmStatus"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmStatusVO">
+        SELECT
+        COUNT( ar.id ) AS total_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS un_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_PROGRESS_CONFIRMED', 1, 0 )), 0 ) AS progress_confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_status = 'ALARM_HANDLER', 1, 0 )), 0 ) AS handler_num,
+        COALESCE ( SUM( IF ( ar.alarm_status != 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS confirmed_num,
+        COALESCE ( SUM( IF ( ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num,
+        COALESCE ( SUM( IF ( ar.alarm_status != 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= NOW(),1,0)), 0 ) AS
+        timeout_not_handler_num,
+        COALESCE ( SUM( IF ( ar.alarm_status != 'ALARM_HANDLER',1,0)), 0 ) AS not_handler_num,
+        COALESCE ( SUM( IF ( ar.timeout_process_time &lt;= NOW(),1,0)), 0 ) AS timeout_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAlarmEventTypeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmEventTypeRatioVO">
+        SELECT
+        ar.alarm_event_type_code as id,
+        ar.alarm_event_type_name as `name`,
+        COUNT(ar.id) as total_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenants != null and query.marketTenants.size() > 0">
+                and ar.market_tenant in
+                <foreach collection="query.marketTenants" open="(" separator="," close=")" item="marketTenant">
+                    #{marketTenant}
+                </foreach>
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.alarmEventTypeCodes != null and query.alarmEventTypeCodes.size() > 0">
+                and ar.alarm_event_type_code in
+                <foreach collection="query.alarmEventTypeCodes" item="code" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        ar.alarm_event_type_code,
+        ar.alarm_event_type_name
+    </select>
+
+    <select id="selectAlarmConfirmSituation"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmConfirmSituationVO">
+        SELECT
+        mc.market_tenant,
+        COALESCE(subalarm.total_num,0) as total_num,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (
+        SELECT
+        market_tenant,
+        COUNT(id) as total_num
+        FROM
+        safety_alarm_record
+        <where>
+            displayed = true
+            and alarm_status = 'ALARM_UN_CONFIRMED'
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY market_tenant
+        ) subalarm on mc.market_tenant = subalarm.market_tenant
+        where mc.status = true
+        ORDER BY subalarm.total_num desc
+    </select>
+
+    <select id="selectAlarmTrendAnalysis"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmTrendVO">
+        SELECT
+        DATE_FORMAT(t1.alarm_time,#{query.dateExp}) as period,
+        COUNT(t1.id) as total_num
+        FROM
+        safety_alarm_record t1
+        left join market_config mc on mc.market_tenant = t1.market_tenant
+        <where>
+            t1.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and t1.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenants != null and query.marketTenants.size() > 0">
+                and t1.market_tenant in
+                <foreach collection="query.marketTenants" open="(" separator="," close=")" item="marketTenant">
+                    #{marketTenant}
+                </foreach>
+            </if>
+            <if test="query.status != null and query.status != ''">
+                and t1.alarm_status = #{query.status}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and t1.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and t1.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and t1.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(t1.alarm_time,#{query.dateExp})
+    </select>
+
+    <select id="selectAlarmHandlerSituationAnalysis"
+            resultMap="alarmHandlerSituationAnalysisMap">
+        SELECT
+        subalarm.`status`,
+        subalarm.status_name,
+        mc.market_tenant,
+        subalarm.total_num,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN
+        (
+        SELECT
+        alarm_status as `status`,
+        alarm_status_name as status_name,
+        market_tenant,
+        COUNT(id) as total_num
+        FROM
+        safety_alarm_record
+        <where>
+            displayed = true
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY alarm_status,alarm_status_name,market_tenant
+        ) subalarm on mc.market_tenant = subalarm.market_tenant
+        where mc.status = true
+    </select>
+
+    <select id="selectAlarmSituation"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmSituationVO">
+        SELECT
+        COUNT( 1 ) AS total_num,
+        COALESCE ( SUM( IF (ar.alarm_status = 'ALARM_HANDLER', 1, 0 )), 0 ) AS handler_num,
+        COALESCE ( SUM( IF (ar.alarm_status != 'ALARM_UN_CONFIRMED', 1, 0 )), 0 ) AS confirmed_num,
+        COALESCE ( SUM( IF (ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num,
+        COALESCE (
+        SUM(
+        IF
+        ( ar.alarm_status != 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= NOW() OR ar.alarm_status = 'ALARM_HANDLER' AND
+        ar.timeout_process_time &lt;= ar.alarm_handler_time, 1, 0 )),
+        0
+        ) AS timeout_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.alarmEventTypeCode != null and query.alarmEventTypeCode != ''">
+                and ar.alarm_event_type_code = #{query.alarmEventTypeCode}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="selectAlarmRanks"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmRankVO">
+        SELECT
+        mc.market_tenant,
+        COALESCE(subalarm.total_num,0) as total_num,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN (
+        SELECT
+        market_tenant as market_tenant,
+        market_name,
+        COUNT(1) as total_num
+        FROM
+        safety_alarm_record
+        <where>
+            displayed = true
+            <if test="query.stateRange != null and query.stateRange == 'ALARM_HANDLER'">
+                and alarm_status = 'ALARM_HANDLER'
+            </if>
+            <if test="query.stateRange != null and query.stateRange == 'ALARM_PROGRESS'">
+                and alarm_status != 'ALARM_UN_CONFIRMED'
+            </if>
+            <if test="query.stateRange != null and query.stateRange == 'ALARM_UN_HANDLER'">
+                and alarm_status != 'ALARM_HANDLER'
+            </if>
+            <if test="query.stateRange != null and query.stateRange == 'ALARM_TIMEOUT'">
+                and (( alarm_status != 'ALARM_HANDLER' and timeout_process_time &lt;= now()) or
+                (alarm_status = 'ALARM_HANDLER' AND timeout_process_time &lt;= alarm_handler_time))
+            </if>
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and application_code = #{query.applicationCode}
+            </if>
+            <if test="query.alarmEventTypeCode != null and query.alarmEventTypeCode != ''">
+                and alarm_event_type_code = #{query.alarmEventTypeCode}
+            </if>
+        </where>
+        GROUP BY market_tenant
+        ) subalarm ON mc.market_tenant = subalarm.market_tenant
+        where mc.status = true
+        ORDER BY
+        subalarm.total_num DESC
+    </select>
+
+    <select id="selectEventTypeActualRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmEventTypeActualRatioVO">
+        SELECT
+        ar.alarm_event_type_code as `id`,
+        ar.alarm_event_type_name as `name`,
+        COUNT(ar.id) as total_num,
+        COALESCE ( SUM( IF (ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and ar.alarm_status = 'ALARM_HANDLER'
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenants != null and query.marketTenants.size() > 0">
+                and ar.market_tenant in
+                <foreach collection="query.marketTenants" open="(" separator="," close=")" item="marketTenant">
+                    #{marketTenant}
+                </foreach>
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY ar.alarm_event_type_code,ar.alarm_event_type_name
+    </select>
+
+    <select id="selectAlarmTypeChainRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmTypeVO">
+        SELECT
+        ar.alarm_type_code as `id`,
+        ar.alarm_type_name as `name`,
+        COUNT(ar.id) as total_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY ar.alarm_type_code,ar.alarm_type_name
+    </select>
+
+    <select id="selectAlarmStatusGroup"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmStatusGroupVO">
+        SELECT ar.alarm_status as status, COUNT(ar.id) as total_num
+        FROM safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenants != null and query.marketTenants.size() > 0">
+                and ar.market_tenant in
+                <foreach collection="query.marketTenants" item="marketTenant" open="(" separator="," close=")">
+                    #{marketTenant}
+                </foreach>
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.alarmEventTypeCode != null and query.alarmEventTypeCode != ''">
+                and ar.alarm_event_type_code = #{query.alarmEventTypeCode}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'TIMED_OUT' == query.alarmHandlerTimeoutStatus.toString()">
+                and (( ar.alarm_status != 'ALARM_HANDLER' and ar.timeout_process_time &lt;= now()) or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= ar.alarm_handler_time))
+            </if>
+            <if test="query.alarmHandlerTimeoutStatus != null and 'NORMAL' == query.alarmHandlerTimeoutStatus.toString()">
+                and (
+                ar.timeout_equipped = false
+                OR
+                ar.timeout_process_time is NULL
+                OR
+                (ar.alarm_status != 'ALARM_HANDLER'and ar.timeout_process_time &gt;= now())
+                or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &gt;= ar.alarm_handler_time))
+            </if>
+        </where>
+        GROUP BY ar.alarm_status
+    </select>
+
+    <select id="selectLevelTimeoutAlarms"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.po.SafetyAlarmRecordPO">
+        SELECT ar.* FROM safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            and ar.alarm_status != 'ALARM_HANDLER' AND ar.timeout_equipped = TRUE AND (
+            ar.alarm_level_code = #{alarmLevelCode} AND ar.timeout_process_time &gt;= #{begin} AND ar.timeout_process_time &lt;=
+            #{end} )
+        </where>
+    </select>
+
+    <select id="getModelEventTypeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmEventTypeRatioVO">
+        SELECT
+        ar.alarm_type_id as id,
+        ar.alarm_type_name as `name`,
+        COUNT(ar.id) as total_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY
+        ar.alarm_type_code,
+        ar.alarm_type_name
+    </select>
+
+    <select id="getModelEventTypeActualRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.alarm.AlarmEventTypeActualRatioVO">
+        SELECT
+        ar.alarm_type_code as `id`,
+        ar.alarm_type_name as `name`,
+        COUNT(ar.id) as total_num,
+        COALESCE ( SUM( IF (ar.alarm_handler_result = 'ALARM_ACTUAL', 1, 0 )), 0 ) AS actual_num
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            and ar.alarm_status = 'ALARM_HANDLER'
+            <if test="query.marketTenant != null">
+                and ar.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.alarmTypeCode != null and query.alarmTypeCode != ''">
+                and ar.alarm_type_code = #{query.alarmTypeCode}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and ar.alarm_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ar.alarm_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and ar.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        GROUP BY ar.alarm_type_code,ar.alarm_type_name
+    </select>
+
+    <select id="getTimeoutAlarmRecords" resultType="com.guhecloud.cube.srv.gen.safety.management.po.SafetyAlarmRecordPO">
+        SELECT
+        ar.*
+        FROM
+        safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = false
+            and mc.status = true
+            and
+            <foreach collection="timeoutPushConfigs" item="config" open="(" separator="or" close=")">
+                (
+                ar.alarm_type_code = #{config.alarmTypeCode}
+                and ar.alarm_level_code = #{config.alarmLevelCode}
+                and ar.update_time >= #{config.updateTime}
+                and (( ar.alarm_status != 'ALARM_HANDLER' and ar.timeout_process_time &lt;= now()) or
+                (ar.alarm_status = 'ALARM_HANDLER' AND ar.timeout_process_time &lt;= ar.alarm_handler_time))
+                )
+            </foreach>
+
+        </where>
+    </select>
+
+    <update id="updateDisplayedKeepUpdateTime">
+        UPDATE safety_alarm_record
+        SET displayed = #{displayed},
+        update_time = update_time
+        WHERE id = #{id}
+        AND (displayed IS NULL OR displayed != #{displayed})
+    </update>
+
+    <select id="selectRiskIndexAlarmRecord"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.AlarmRiskIndexVO">
+        select ar.alarm_level_sort as "alarmLevel",ar.alarm_status as "alarmStatus"
+        from safety_alarm_record ar
+        left join market_config mc on mc.market_tenant = ar.market_tenant
+        <where>
+            ar.displayed = true
+            and mc.status = true
+            <if test="marketTenant != null">
+                and ar.market_tenant = #{marketTenant}
+            </if>
+            <if test="period != null and period.begin != null">
+                and ar.alarm_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and ar.alarm_time &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,47 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.CameraPatrolRecordDeviceMapper">
+
+    <select id="selectCameraPatrolTrendStatistics"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.statistics.bim.CameraPatrolTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`patrol_time`,#{param.dateExp}) as period,
+        COUNT( DISTINCT t1.`id` ) AS total_num
+        FROM
+        `camera_patrol_record_device` t1
+        <where>
+            <if test="param.patrolResult != null and param.patrolResult != ''">
+                and t1.`result` = #{param.patrolResult}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(
+        t1.`patrol_time`,#{param.dateExp})
+    </select>
+
+    <select id="selectCameraPatrolPointTop"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.statistics.bim.CameraPatrolPointStatisticsVO">
+        SELECT
+        `device_id` as id,
+        `device_name` as name,
+        COUNT(1) as total_num
+        FROM
+        `camera_patrol_record_device`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and `patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY `device_id`,`device_name`
+        ORDER BY COUNT(1) desc
+        limit #{param.topSize}
+    </select>
+</mapper>

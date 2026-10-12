@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.open.mapper.DeviceCenterAssociatedMapper">
+    <select id="getAssociatedVideosByDeviceId"
+            resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.AssociatedVideoVO">
+        SELECT `dev`.`thirdparty_id`,
+               `dev`.`device_name` AS `name`,
+               `dev`.`id`,
+               `dev`.`device_code`
+        FROM `center_biz_device` `dev`
+                 JOIN `center_biz_device_ref` `dev_ref` ON `dev_ref`.`ref_device_id` = `dev`.`id`
+                 JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`device_id` = `dev`.`id`
+        WHERE `dev_ref`.`device_id` = #{deviceInstanceId}
+          AND `tag_ref`.`tag_id` = #{tagId}
+    </select>
+
+    <select id="getAssociatedDevices"
+            resultType="java.lang.Long">
+        SELECT
+        `dev`.`id`
+        FROM `center_biz_device` `dev`
+        JOIN `center_biz_device_ref` `devref` ON `devref`.`device_id` = `dev`.`id`
+        WHERE `devref`.`device_id` = #{deviceId}
+    </select>
+
+    <select id="filterNotVideoDeviceIds" parameterType="java.lang.Long" resultType="java.lang.Long">
+        SELECT `ref`.`device_id`
+        FROM `center_biz_tag_ref` `ref`
+        LEFT JOIN `center_biz_tag` `tag` ON `tag`.`id` = `ref`.`tag_id`
+        LEFT JOIN `center_biz_tag_type` `type` ON `type`.`id` = `tag`.`tag_type_id`
+        WHERE `type`.`tag_type_code` =
+        '${@com.guhecloud.cube.base.device.center.metadata.lang.Const@VIDEO_DEVICE_TAG_TYPE}'
+        AND `tag`.`tag_code` = '${@com.guhecloud.cube.base.device.center.metadata.lang.Const@VIDEO_DEVICE_TAG_CODE}'
+        <if test="deviceIds != null and deviceIds.size() > 0">
+            AND `ref`.`device_id` IN
+            <foreach collection="deviceIds" separator="," item="id" open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getAssociatedVideos"
+            resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.AssociatedVideoVO">
+        SELECT `dev`.`thirdparty_id`,
+               `dev`.`device_name`                 AS `name`,
+               `dev`.`id`,
+               `dev`.`device_code`,
+               `dev_iot`.`iot_device_product_id`   AS `iotDeviceProductId`,
+               `dev_iot`.`iot_device_product_name` AS `iotDeviceProductName`,
+               `dev_iot`.`iot_device_model_name`   AS `iotDeviceModelName`,
+               `dev_iot`.`iot_device_brand_name`   AS `iotDeviceBrandName`
+        FROM `center_biz_device` `dev`
+                 JOIN `center_biz_device_iot` `dev_iot` ON `dev_iot`.`id` = `dev`.`id`
+                 LEFT JOIN `center_biz_tag_ref` `ref` ON `ref`.`device_id` = `dev`.`id`
+        WHERE `ref`.`tag_id` = #{tagId}
+    </select>
+</mapper>

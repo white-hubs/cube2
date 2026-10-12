@@ -1,0 +1,27 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.sewage.dao.SewageDataMapper">
+
+    <resultMap id="groupAttributiveMap" type="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveInfoVo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <collection property="groupAttributiveDetailsVos"
+                    javaType="list"
+                    ofType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveDetailsVo"
+                    select="findListById"
+                    column="id">
+
+        </collection>
+
+    </resultMap>
+
+
+    <select id="findListById"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.electrical.vo.GroupAttributiveDetailsVo">
+        SELECT `id`,`code`,`group_id` as `groupId`,`attributive_name` as `attributiveName` FROM `group_attributive_details`
+            where
+                `group_id` = #{id}
+        ORDER BY `code` ASC
+    </select>
+
+
+</mapper>

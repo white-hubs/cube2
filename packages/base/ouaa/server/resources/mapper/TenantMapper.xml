@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.TenantMapper">
+    <sql id="BASIC_TENANT_SELECT">
+        select tt.`id`, tt.`code`, tt.`name`, tt.`remark`, tt.`enabled`, tt.`deleted`, tt.`create_by`, tt.`create_time`, tt.`update_by`,
+        tt.`update_time`
+        from `tenant` tt
+    </sql>
+</mapper>

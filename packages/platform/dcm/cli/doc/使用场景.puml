@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/use-case-diagram
+
+:管理员: as Admin
+(应用配置) as ApplyDiff
+(查看差异) as ViewDiff
+(查看配置) as GetRuntimeConfig
+(保存配置) as SaveRuntimeConfig
+
+Admin -> ApplyDiff
+Admin --> SaveRuntimeConfig
+ApplyDiff --> GetRuntimeConfig
+ApplyDiff --> ViewDiff
+
+(租户启用) as CreateTenant
+(租户下开启应用) as EnableAppForTenant
+(应用升级) as AppUpgrade
+
+(应用的系统配置) as AppSystemConfig
+(应用的租户级基础配置) as AppTenantFundamentalConfig
+
+
+@enduml

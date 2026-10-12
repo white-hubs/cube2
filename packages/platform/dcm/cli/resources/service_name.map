@@ -1,0 +1,13 @@
+# Provider 到 service的映射关系
+# 可以指定为具体的url, 也可以指定为指定的targetServerUrl下的相对位置
+# 可以使用:/=分隔， 但如果有url（包含：字符）， 需要将url用"字符包裹起来
+
+BROADCAST: broadcast
+DICT = dict
+EMERGENCY: emergency
+FAULT: fault-type
+FLOW: flow
+HIDDEN_DANGER: hidden-danger
+IOT : iot
+OUAA : ouaa
+QRCODE: qr-code

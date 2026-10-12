@@ -1,0 +1,110 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.park.management.server.dao.RoomMapper">
+
+    <select id="tenantStopRoomById"
+            resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.RoomDeletedVO">
+        select id,name,status,deleted
+        from room
+        where
+         tenant = #{tenant}
+        and id in
+        <foreach collection="list" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="tenantRoom" resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.RoomVO">
+       select id,name,room_type_id roomTypeId,area_id areaId
+            ,area_sequence areaSequence,status status,floorage floorage
+            ,floorage_billing floorageBilling
+       from room where tenant = #{tenant}
+    </select>
+
+    <select id="tenantRoomByIds"
+            resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.RoomDeletedVO">
+        select id,name,status,deleted
+        from room
+        where
+              deleted !=0
+              and tenant = #{tenant}
+                and id in
+                <foreach collection="list" item="item" separator="," open="(" close=")">
+                    #{item}
+                </foreach>
+    </select>
+    <select id="getProportion" resultType="java.math.BigDecimal">
+        SELECT  COALESCE(SUM(floorage_billing),0)  FROM room
+            <where>
+                <if test="status !=''">
+                 and status = #{status}
+                </if>
+            </where>
+
+    </select>
+    <select id="getBuildingSpaceUtilizationRate"
+            resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.UtilizationRateVo">
+        <foreach collection="list" item="item" separator="UNION">
+            SELECT  COALESCE(SUM(if(`status`='NORMAL',floorage_billing,0)),0)  useArea
+                 ,COALESCE(SUM(if(`status`='STOPPING',floorage_billing,0)),0)  disabledArea
+                ,COALESCE(SUM(floorage_billing),0)  total
+                ,${item} as areaId
+            FROM room
+                where
+            area_sequence like concat('%',${item},'%')
+        </foreach>
+    </select>
+    <select id="getIndustryStatisticsEnterprises"
+            resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.IndustryStatisticsVo">
+        SELECT
+            COALESCE(COUNT(b.id),0) num
+             ,c.`name` industry
+        FROM
+            room_rent_record a
+                LEFT JOIN enterprise b ON a.enterprise_id = b.id
+                LEFT JOIN type_data c ON b.industry_type_id = c.id
+        WHERE a.end_time > NOW()
+        GROUP BY c.`name`
+    </select>
+
+
+    <select id="getOverallSituationParkLeasing" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE( SUM( c.floorage_billing ), 0 )
+        FROM
+            room_rent_record a
+                LEFT JOIN room_rent_record_room b ON a.id = b.record_id
+                LEFT JOIN room c ON b.room_id = c.id
+        WHERE
+            a.end_time > NOW( )
+
+    </select>
+
+    <select id="getRentalTrends" resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.RentalTrendsVo">
+        SELECT
+            COALESCE( COUNT( enterprise_id ), 0 ) num,
+            DATE_FORMAT( sign_time, '%m' ) timeFlag
+        FROM
+            room_rent_record
+        where
+            sign_time between #{st} and #{et}
+        GROUP BY
+            DATE_FORMAT( sign_time, '%m' )
+
+    </select>
+
+    <select id="getRentalRatioParkFloors"
+            resultType="com.guhecloud.cube.srv.gen.park.management.server.interfaces.vo.ParkFloorsVo">
+        SELECT COALESCE
+        ( SUM( IF ( NOW()  <![CDATA[<=]]> a.end_time  and c.STATUS = 'NORMAL', c.floorage_billing, 0 ) ), 0 ) AS rentedArea,
+        COALESCE ( SUM( IF ( c.STATUS = 'NORMAL', c.floorage_billing, 0 ) ), 0 ) total ,
+        c.area_id areaId
+        FROM
+            room c LEFT JOIN room_rent_record_room b ON c.id =  b.room_id
+                   LEFT JOIN room_rent_record a  ON a.id = b.record_id
+        where
+        c.area_sequence like concat("%",#{areaId},"%")
+        GROUP BY c.area_id
+    </select>
+
+
+</mapper>

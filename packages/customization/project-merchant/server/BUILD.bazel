@@ -1,0 +1,96 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/project-merchant:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+            "//packages/platform/liquibase",
+            "//packages/platform/database",
+            "//packages/platform/server",
+            "//packages/platform/security",
+            "//packages/platform/job",
+            "//packages/base/file/client",
+            "//packages/base/mdata/client",
+            "//packages/base/dictionary/client",
+            "//packages/base/ouaa/client",
+            "//packages/base/message/bracing/client",
+            "//packages/base/message/sdk",
+            "//packages/base/ouaa/metadata",
+            "//packages/platform/base/model:pagination",
+            "//packages/platform/base/model:paging",
+            "//packages/platform/base/model:period",
+            "//packages/platform/base/utils:aes",
+            "//packages/platform/base/utils:pinyin",
+            "//packages/platform/base/utils:date",
+            "//packages/platform/base/utils:string",
+            "//packages/platform/base/utils:object",
+            "//packages/platform/base/utils:object-id",
+            "//packages/platform/base/standard:exception",
+            "//third-party/java/alibaba:easyexcel",
+            "//third-party/java/alibaba:fastjson2",
+            "//third-party/java/belerweb:pinyin4j",
+            "//third-party/java/jackson:core",
+            "//third-party/java/jackson:annotations",
+            "//third-party/java/jackson:databind",
+            "//third-party/java/glasnost:orika",
+            "//third-party/java/apache:poi",
+            "//third-party/java/google:guava",
+            "//third-party/java/yaml:snakeyaml",
+            "//third-party/java/jakarta:annotation_api",
+            "//third-party/java/hibernate:validator",
+            "@maven//:org_apache_tomcat_embed_tomcat_embed_core",
+            "@maven//:jakarta_activation_jakarta_activation_api",
+            "@maven//:org_apache_commons_commons_lang3",
+            "@maven//:cn_hutool_hutool_core",
+    ]
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = ["@maven//:com_networknt_json_schema_validator",":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.deliver.project.merchant.ProjectMerchantServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "project-merchant-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "deliver-project-merchant",
+    datasource_package = "com.guhecloud.cube.deliver.project.merchant",
+    gw_prefix = "/project-merchant/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "projectMerchant",
+    visibility = ["//packages:__subpackages__"],
+)

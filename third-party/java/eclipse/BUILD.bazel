@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "paho_mqttv3",
+    exports = [
+        "@maven//:org_eclipse_paho_org_eclipse_paho_client_mqttv3",
+    ],
+)

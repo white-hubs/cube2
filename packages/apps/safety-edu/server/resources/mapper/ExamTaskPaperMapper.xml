@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.infrastructure.repository.mapper.ExamTaskPaperMapper">
+
+    <select id="selectExamTaskPaperBaseByExamTaskIds"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.domain.po.ExamTaskPaperPO">
+        select
+        exam_paper_id,
+        exam_paper_name
+        from
+        `exam_task_paper`
+        <where>
+            exam_task_id in
+             <foreach collection="examTaskIds" item="examTaskId" open="(" separator="," close=")">
+                 #{examTaskId}
+             </foreach>
+            and user_identify is null
+        </where>
+    </select>
+</mapper>

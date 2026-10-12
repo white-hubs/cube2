@@ -1,0 +1,27 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "commons_io",
+    actual = "@maven//:commons_io_commons_io",
+)
+
+alias(
+    name = "commons_file",
+    actual = "@maven//:commons_fileupload_commons_fileupload",
+)
+
+java_library(
+    name = "codec",
+    exports = [
+        "@maven//:commons_codec_commons_codec",
+    ],
+)
+
+java_library(
+    name = "cli",
+    exports = [
+        "@maven//:commons_cli_commons_cli",
+    ],
+)

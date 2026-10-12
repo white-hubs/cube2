@@ -1,0 +1,233 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.onecard.server.consumption.dao.CopiesChangeRecordMapper">
+
+    <select id="getCopiesChangeRecord"
+            resultType="com.guhecloud.cube.onecard.server.consumption.vo.CopiesChangeRecordVo" databaseId="mysql">
+        SELECT
+        a.transaction_time,
+        a.user_card,
+        a.transaction_count,
+        a.transaction_type,
+        a.dep_name,
+        a.subsidy_begin_date,
+        a.subsidy_end_date,
+        a.transaction_status,
+        b.user_serial,
+        b.user_no,
+        b.user_name
+        FROM
+        copies_change_record a
+        LEFT JOIN account b ON a.user_card = b.user_card
+        <where>
+            1=1
+            <if test="param.transactionType!=null &amp; param.transactionType!=''">
+                and a.transaction_type=#{param.transactionType}
+            </if>
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.user_card like CONCAT('%',#{param.enterParam},'%')
+                or b.user_serial like CONCAT('%',#{param.enterParam},'%')
+                or b.user_no like CONCAT('%',#{param.enterParam},'%')
+                or b.user_name like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.transaction_time  between #{startTime} and #{endTime}
+            </if>
+        </where>
+        order by a.transaction_time desc
+    </select>
+
+    <select id="getCopiesChangeRecord"
+            resultType="com.guhecloud.cube.onecard.server.consumption.vo.CopiesChangeRecordVo" databaseId="pg">
+        SELECT
+        a.transaction_time,
+        a.user_card,
+        a.transaction_count,
+        a.transaction_type,
+        a.dep_name,
+        a.subsidy_begin_date,
+        a.subsidy_end_date,
+        a.transaction_status,
+        b.user_serial,
+        b.user_no,
+        b.user_name
+        FROM
+        copies_change_record a
+        LEFT JOIN account b ON a.user_card = b.user_card
+        <where>
+            1=1
+            <if test="param.transactionType!=null &amp; param.transactionType!=''">
+                and a.transaction_type=#{param.transactionType}
+            </if>
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.user_card like CONCAT('%',#{param.enterParam},'%')
+                or b.user_serial like CONCAT('%',#{param.enterParam},'%')
+                or b.user_no like CONCAT('%',#{param.enterParam},'%')
+                or b.user_name like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.transaction_time  between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+            </if>
+        </where>
+        order by a.transaction_time desc
+    </select>
+    <select id="getCopiesChangeRecord"
+            resultType="com.guhecloud.cube.onecard.server.consumption.vo.CopiesChangeRecordVo" databaseId="dm">
+        SELECT
+        a.`transaction_time`,
+        a.`user_card`,
+        a.`transaction_count`,
+        a.`transaction_type`,
+        a.`dep_name`,
+        a.`subsidy_begin_date`,
+        a.`subsidy_end_date`,
+        a.`transaction_status`,
+        b.`user_serial`,
+        b.`user_no`,
+        b.`user_name`
+        FROM
+        `copies_change_record` a
+        LEFT JOIN `account` b ON a.`user_card` = b.`user_card`
+        <where>
+            1=1
+            <if test="param.transactionType!=null &amp; param.transactionType!=''">
+                and a.`transaction_type`=#{param.transactionType}
+            </if>
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.`user_card` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_serial` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_no` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_name` like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.`transaction_time`  between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+            </if>
+        </where>
+        order by a.`transaction_time` desc
+    </select>
+    <select id="getShareStatistics" resultType="java.util.Map" databaseId="mysql">
+        SELECT
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 4 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS '份补贴',
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 2 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS '份消费',
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 6 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS '份清零'
+        FROM
+        copies_change_record a
+        LEFT JOIN account b ON a.user_card = b.user_card
+        <where>
+            1=1
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.user_card like CONCAT('%',#{param.enterParam},'%')
+                or b.user_serial like CONCAT('%',#{param.enterParam},'%')
+                or b.user_no like CONCAT('%',#{param.enterParam},'%')
+                or b.user_name like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.transaction_time  between #{startTime} and #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="getShareStatistics" resultType="java.util.Map" databaseId="pg">
+        SELECT
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 4 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS 份补贴,
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 2 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS 份消费,
+        (
+        sum(
+        CASE
+        a.transaction_type
+        WHEN 6 THEN
+        a.transaction_count ELSE 0
+        END
+        )) AS 份清零
+        FROM
+        copies_change_record a
+        LEFT JOIN account b ON a.user_card = b.user_card
+        <where>
+            1=1
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.user_card like CONCAT('%',#{param.enterParam},'%')
+                or b.user_serial like CONCAT('%',#{param.enterParam},'%')
+                or b.user_no like CONCAT('%',#{param.enterParam},'%')
+                or b.user_name like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.transaction_time  between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+            </if>
+        </where>
+    </select>
+    <select id="getShareStatistics" resultType="java.util.Map" databaseId="dm">
+        SELECT
+        (
+        sum(
+        CASE
+        a.`transaction_type`
+        WHEN 4 THEN
+        a.`transaction_count` ELSE 0
+        END
+        )) AS 份补贴,
+        (
+        sum(
+        CASE
+        a.`transaction_type`
+        WHEN 2 THEN
+        a.`transaction_count` ELSE 0
+        END
+        )) AS 份消费,
+        (
+        sum(
+        CASE
+        a.`transaction_type`
+        WHEN 6 THEN
+        a.`transaction_count` ELSE 0
+        END
+        )) AS 份清零
+        FROM
+        `copies_change_record` a
+        LEFT JOIN `account` b ON a.`user_card` = b.`user_card`
+        <where>
+            1=1
+            <if test="param.enterParam!=null &amp; param.enterParam!=''">
+                and b.`user_card` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_serial` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_no` like CONCAT('%',#{param.enterParam},'%')
+                or b.`user_name` like CONCAT('%',#{param.enterParam},'%')
+            </if>
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                and a.`transaction_time`  between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and to_date(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+            </if>
+        </where>
+    </select>
+</mapper>

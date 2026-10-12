@@ -1,0 +1,17 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.rule.dao.AttendanceGroupPunchCardWayMapper">
+
+    <select id="getMachineWayByCode" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.dao.dto.PunchCardWayDTO">
+        select
+        gpc.`device_name`,
+        gpc.`device_model`,
+        gpc.`device_code`,
+        gpc.`device_genre`,
+        g.`tenant`
+        from `attendance_group_punch_card_way` gpc
+        left join `attendance_group` g on g.`id` = gpc.`group_id`
+        where gpc.`device_code` = #{deviceCode}
+        group by g.`tenant`
+    </select>
+
+</mapper>

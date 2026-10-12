@@ -1,0 +1,20 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.repair.dao.OutsourceWorkOrderMapper">
+
+    <select id="selectRepairNumberByDeviceId"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.DeviceOperationStatisticsDTO">
+        select obj_id as deviceId,count(id) as num from outsource_work_order
+        <where>
+            <if test="param.deviceIds != null and param.deviceIds.size() > 0">
+                and obj_id in
+                <foreach collection="param.deviceIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by obj_id
+    </select>
+</mapper>

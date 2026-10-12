@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.order.dao.OrderMapper">
+
+    <select id="selectOrderDateGroupWeights"
+            resultType="com.guhecloud.cube.biz.meattrade.server.order.vo.OrderDateWeightVO">
+        SELECT
+        DATE(IF(HOUR(order_time) &lt; 12, DATE_SUB(order_time, INTERVAL 1 DAY), order_time)) AS summaryDate,
+        COALESCE(SUM(weight),0) as summaryWeight
+        FROM
+        `meattrade_order`
+        WHERE
+        status = 'FINISHED' and tenant = #{param.tenant}
+        <if test="param.period != null and param.period.begin != null">
+            and order_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and order_time &lt;= #{param.period.end}
+        </if>
+        GROUP BY DATE(IF(HOUR(order_time) &lt; 12, DATE_SUB(order_time, INTERVAL 1 DAY), order_time))
+        ORDER BY order_time desc
+    </select>
+
+    <select id="selectSupplierOrderTradeStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.order.vo.SupplierOrderTradeStatisticsVO">
+        SELECT
+        t1.supplier_id,
+        COALESCE(SUM(t2.weight),0) as weight,
+        COALESCE(SUM(t2.commission),0) as commission,
+        COALESCE(SUM(t2.price),0) as amount,
+        COUNT(t2.id) as slices
+        FROM
+        meattrade_order t1
+        LEFT JOIN meattrade_order_detail t2 on t1.id = t2.order_id
+        <where>
+            t1.status = 'FINISHED' and t1.tenant = #{param.tenant}
+            <if test="param.period != null and param.period.begin != null">
+                and t1.order_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.order_time &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY t1.supplier_id
+        ORDER BY SUM( t1.amount ) desc
+    </select>
+
+    <select id="selectOrderTradeStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.order.vo.OrderTradeStatisticsVO">
+        SELECT
+        t1.id,
+        COALESCE(SUM( t2.weight ),0) AS weight,
+        COALESCE(SUM( t2.price ),0) AS amount,
+        COALESCE(SUM( t2.commission ),0) AS commission,
+        COUNT( t2.id ) AS slices,
+        SUM(
+        IF
+        ( t2.unit_price > #{param.lowerPrice}, t2.price, 0 )) AS actual_amount,
+        SUM(
+        IF
+        ( t2.unit_price > #{param.lowerPrice}, t2.weight, 0 )) AS actual_weight
+        FROM
+        meattrade_order t1
+        INNER JOIN meattrade_order_detail t2 ON t1.id = t2.order_id
+        <where>
+            t1.`status` = 'FINISHED'
+            AND t1.deleted = 0
+            AND t1.tenant = #{param.tenant}
+            AND t2.tenant = #{param.tenant}
+            <if test="param.period != null and param.period.begin != null">
+                and t1.order_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.order_time &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

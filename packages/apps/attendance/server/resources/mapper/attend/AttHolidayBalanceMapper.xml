@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.holiday.infrastructure.mapper.AttHolidayBalanceMapper">
+    <!-- 增量修改余额 -->
+    <update id="incrementalUpdateBalance">
+        update `att_holiday_balance` set
+            `update_remark` = #{updateRemark}
+            <if test="available!=null">
+                , `available_balance` = `available_balance` + #{available}
+            </if>
+            <if test="occupy!=null">
+               , `occupy_balance` = `occupy_balance` + #{occupy}
+            </if>
+        where `staff_id` = #{staffId} and `holiday_rule_id` = #{holidayRuleId}
+    </update>
+
+</mapper>

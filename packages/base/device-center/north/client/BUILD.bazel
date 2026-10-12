@@ -1,0 +1,44 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/device-center:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/client",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+        "//third-party/java/jackson:annotations"
+    ],
+)
+
+java_library(
+    name = "client",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        ":deps",
+        "//packages/base/device-center/metadata",
+    ],
+)
+
+java_test(
+    name = "serializer-tests",
+    srcs = glob(["tests/**/*.java"], allow_empty = True),
+    test_class = "com.guhecloud.cube.iot.north.bridge.client.pj.dto.EventConfigSerializerTest",
+    deps = [
+        ":client",
+        "//third-party/java/junit",
+        "//third-party/java/jackson:databind",
+    ],
+)

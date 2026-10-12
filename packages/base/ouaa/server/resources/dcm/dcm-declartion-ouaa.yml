@@ -1,0 +1,174 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: OUAA   # 提供方标识
+  appDescription: 提供通用字典服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: ApplicationGroup,versions: [1.0]}
+  - {type: Application,versions: [1.0]}
+  - {type: ApplicationCard,versions: [1.0]}
+  - {type: Product,versions: [1.0]}
+  - {type: ProductApplication,versions: [1.0]}
+  - {type: Terminal,versions: [1.0]}
+  - {type: TerminalApplication,versions: [1.0]}
+  - {type: Menu,versions: [1.0]}
+  - {type: Position, versions: [1.0]}
+  - {type: Role, versions: [1.0]}
+  - {type: RoleTerminal, versions: [1.0]}
+  - {type: RoleApplication, versions: [1.0]}
+  - {type: OuaaRuleMenu, versions: [1.0]}
+  - {type: OuaaRoleMenuDataPermission, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: OUAA  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: ApplicationGroup  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        vargs: [{
+                  "name": "运维作业",
+                  "remark": ""
+                }]
+      - configType: Application  # 应用数据
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          applicationGroupName: "运维作业"
+        vargs: [{
+                  "code": "RISK_SOURCE",
+                  "name": "风险源管理",
+                  "icon": "/resource/app-icons/风险源管理/main.png",
+                  "enabled": "true",
+                  "remark": ""
+                }]
+      - configType: Product  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        vargs: [{
+                  "code": "ibimops-manege",
+                  "name": "数智建筑综合运维管理系统",
+                  "domain": "bimops-test-manage",
+                  "remark": "",
+                  "enabled": "true"
+                }]
+      - configType: ProductApplication  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          productName: "数智建筑综合运维管理系统"
+        vargs: ["appCode1","appCode2"]
+      - configType: Terminal  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          productName: "数智建筑综合运维管理系统"
+        vargs: [{
+                  "code": "bimops-manage-web",
+                  "name": "业务平台(Web)",
+                  "appId": "",
+                  "appSecret": "",
+                  "enabled": "true",
+                  "remark": ""
+                }]
+      - configType: TerminalApplication  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          terminalCode: "bimops-manage-web"
+        vargs: ["appCode1","appCode2"]
+      - configType: ApplicationCard  # 应用卡片
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          applicationCode: "RISK_SOURCE"
+          terminalCode:
+        vargs: [{
+                  "code": "deviceOverview",
+                  "name": "设备总览",
+                  "sort": "0",
+                  "enabled": "true",
+                  "remark": ""
+                }]
+      - configType: Menu  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          terminalCode: "bimops-manage-web"
+          applicationCode: "RISK_SOURCE"
+          level: 1
+        vargs: [{"code":"fxyfl","name":"风险源分类","icon":"","path":"/portal/risk-management/risk-type","enabled":"true","sort":"1"}]
+      - configType: Menu  # 需要的配置能力类型
+        isMandatory: True
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          terminalCode: "bimops-manage-web"
+          applicationCode: "RISK_SOURCE"
+          level: 2
+          parentCode: fxyfl
+        vargs: [{"code":"fxyfl","name":"风险源分类","icon":"","path":"/portal/risk-management/risk-type","enabled":"true","sort":"1"}]
+      - configType: Position  # 需要的配置能力类型
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        vargs: ["员工", "部门主管", "部门副经理","部门经理","总经理助理","总经理","董事长"]
+      - configType: Role  # 角色
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          productName: "数智建筑综合运维管理系统"
+        vargs: [{"name": "度中心调角色","remark": "管理现场安全调度","enabled": "true"},
+                {"name": "现场作业角色-电气", "remark": "现场电气报警接收处理角色","enabled": "true"},
+                {"name": "现场作业角色-安防", "remark": "现场安防报警接收处理角色（明火、烟雾、车辆违停、占用消防通道等）,","enabled": "true"},
+                {"name": "现场作业角色-燃气", "remark": "现场燃气报警接收处理角色","enabled": "true"},
+                {"name": "现场作业角色-现场秩序", "remark": "现场秩序相关的报警接收处理角色（占道经营、车辆违停等）","enabled": "true"},
+                {"name": "系统运维角色", "remark": "系统运维管理角色（一般为运维部门人员），承担系统配置、调试等","enabled": "true"},
+                {"name": "现场管理角色-电气", "remark": "现场电气安全、电气日常管理的统筹管理角色","enabled": "true"},
+                {"name": "现场管理角色-安防", "remark": "现场消防安全统筹管理角色","enabled": "true"},
+                {"name": "现场管理角色-现场秩序", "remark": "现场秩序统筹管理角色","enabled": "true"},
+                {"name": "现场管理角色-燃气", "remark": "现场燃气报警安全统筹管理角色","enabled": "true"},
+                {"name": "资产管理角色", "remark": "客户方内部资产管理员角色（资产管理、耗材管理、资产盘点）","enabled": "true"},
+                {"name": "部门资产管理角色", "remark": "各部门资产管理员角色（资产盘点）","enabled": "true"},
+                {"name": "部门信息管理员", "remark": "各部门的信息管理角色（负责各部门日常信息化工作处理）","enabled": "true"},
+                {"name": "安全管理角色", "remark": "现场安全总负责人","enabled": "true"},
+                {"name": "员工通用角色", "remark": "基础应用权限","enabled": "true"},
+                {"name": "部门管理角色", "remark": "各部门正、副经理","enabled": "true"},
+                {"name": "设备管理角色", "remark": "现场设备统筹管理角色（维修维保等）","enabled": "true"},
+                {"name": "分管副总", "remark": "分管副总","enabled": "true"},
+                {"name": "公司领导", "remark": "董事长、总经理","enabled": "true"},
+                {"name": "超级管理员", "remark": "超级管理员（系统全部权限）","enabled": "true"}]
+      - configType: RoleTerminal  # 角色关联的访问端
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          roleName: "调度中心调角色"
+        vargs: ["bimops-manage-web","bimops-manage-app"]
+      - configType: RoleApplication  # 角色关联的应用
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          roleName: "调度中心调角色"
+          terminalCode: "bimops-manage-web"
+        vargs: ["appCode1","appCode2"]
+      - configType: OuaaRuleMenu  # 需要的配置能力类型
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          roleName: "调度中心调角色"
+          terminalCode: "bimops-manage-web"
+          applicationCode: "RISK_SOURCE"
+        vargs: ["fxyfl","xxpz"]
+      - configType: OuaaRoleMenuDataPermission  # 需要的配置能力类型
+        isMandatory: True
+        tenants: all
+        version: 1.0 # 配置能力描述使用的版本号
+        kwargs:
+          roleName: "调度中心调角色"
+          terminalCode: "bimops-manage-web"
+          applicationCode: "RISK_SOURCE"
+          menuCode: "fxyfl"
+        vargs: ["ALL","SELF","DEPT"]

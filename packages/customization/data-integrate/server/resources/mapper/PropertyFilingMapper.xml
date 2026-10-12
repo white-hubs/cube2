@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.PropertyFilingMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.PropertyFiling">
+        insert into
+        property_filing(id,property_name,property_type,put_in_time,expiration_time,status,
+        manager_id,manager_name,area_id,area_name,user_id,username,
+        market_tenant,market_name,num,property_sub_type,property_sub_type_name,
+        serial_number,receive_dep_name,maintenance_dep_name,`attribute`,bim_code,site_point_name,stall_name,
+        address,electron_mobile_type,tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.propertyName},#{item.propertyType},#{item.putInTime},#{item.expirationTime},#{item.status},
+            #{item.managerId},#{item.managerName},#{item.areaId},#{item.areaName},#{item.userId},#{item.username},
+            #{item.marketTenant},#{item.marketName},#{item.num},#{item.propertySubType},#{item.propertySubTypeName},
+            #{item.serialNumber},#{item.receiveDepName},#{item.maintenanceDepName},#{item.attribute},#{item.bimCode},#{item.sitePointName},
+            #{item.stallName},#{item.address},#{item.electronMobileType},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        property_name = values(property_name),
+        property_type = values(property_type),
+        put_in_time = values(put_in_time),
+        expiration_time = values(expiration_time),
+        status = values(status),
+        manager_id = values(manager_id),
+        manager_name = values(manager_name),
+        area_id = values(area_id),
+        area_name = values(area_name),
+        user_id = values(user_id),
+        username = values(username),
+        market_tenant = values(market_tenant),
+        market_name = values(market_name),
+        num = values(num),
+        property_sub_type = values(property_sub_type),
+        property_sub_type_name = values(property_sub_type_name),
+        serial_number = values(serial_number),
+        receive_dep_name = values(receive_dep_name),
+        maintenance_dep_name = values(maintenance_dep_name),
+        bim_code = values(bim_code),
+        site_point_name = values(site_point_name),
+        stall_name=values(stall_name),
+        address = values(address),
+        deleted = values(deleted),
+        electron_mobile_type = values(electron_mobile_type),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

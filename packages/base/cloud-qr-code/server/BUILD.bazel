@@ -1,0 +1,84 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/base/work-center:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/file/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/utils:base64",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/liquibase",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/github:jsqlparser",
+        "//third-party/java/hutool:extra",
+        "//third-party/java/jackson",
+        "//third-party/java/mybatis-plus:jsqlparser",
+        "//third-party/java/spring:spring_boot_starter_jdbc",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        ":deps",
+        "@maven//:com_aliyun_alibabacloud_dysmsapi20170525",
+    ],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.base.cloud.qr.code.server.CloudQrCodeServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "cloud-qr-code-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_base_cloud_qr_code",
+    datasource_package = "com.guhecloud.cube.base.cloud.qr.code",
+    gw_prefix = "/cloudQrCode/",
+    main_class = _MAIN_CLASS,
+    public_path_patterns = "/qr/**",
+    server = ":server",
+    server_id = "cloudQrCode",
+    visibility = ["//packages:__subpackages__"],
+)

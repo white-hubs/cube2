@@ -1,0 +1,18 @@
+package com.guhecloud.cube.srv.electron.guide.param.query;
+
+import com.guhecloud.platform.base.model.Paging;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import jakarta.validation.constraints.Size;
+
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class GuideDeviceManagePageQueryParam extends Paging {
+
+    /**
+     * 关键字
+     */
+    @Size(max = 100, message = "关键字不能大于100")
+    private String keyword;
+}

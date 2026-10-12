@@ -1,0 +1,20 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.message2.server.base.dao.MsgRecordTerminalMapper">
+
+    <update id="deletedByBusinessIds">
+        update
+        `msg_record_terminal`
+        set `deleted` = #{deleteTimestamp}
+        where `msg_record_id` in
+        (
+            select
+            `id`
+            from
+            `msg_record`
+            where `business_id` in
+            <foreach collection="businessIds" item="businessId" open="(" separator="," close=")">
+                #{businessId}
+            </foreach>
+        )
+    </update>
+</mapper>

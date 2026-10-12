@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.dao.WorkOvertimeLedgerAdvanceMapper">
+    <select id="getWorkOvertimeLedgerByUserIds" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.result.WorkOvertimeLedgerPageResult" databaseId="mysql">
+        SELECT `user_id`
+        , IFNULL(sum(`work_duration`),0) as `work_duration`
+        , IFNULL(sum(`work_pay_duration`),0) as `work_pay_duration`
+        , IFNULL(sum(`rest_duration`),0) as `rest_duration`
+        , IFNULL(sum(`rest_pat_duration`),0) as `rest_pat_duration`
+        , IFNULL(sum(`fest_duration`),0) as `fest_duration`
+        , IFNULL(sum(`fest_oat_duration`),0) as `fest_oat_duration`
+        FROM `work_overtime_ledger_advance`
+        where `work_date` between #{period.begin} and #{period.end}
+        and `status` in ('PASS', 'FINISHED')
+        and `user_id` in
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by `user_id`
+    </select>
+
+    <select id="getWorkOvertimeLedgerByUserIds" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.result.WorkOvertimeLedgerPageResult" databaseId="pg">
+        SELECT `user_id`
+        , COALESCE(sum(`work_duration`),0) as `work_duration`
+        , COALESCE(sum(`work_pay_duration`),0) as `work_pay_duration`
+        , COALESCE(sum(`rest_duration`),0) as `rest_duration`
+        , COALESCE(sum(`rest_pat_duration`),0) as `rest_pat_duration`
+        , COALESCE(sum(`fest_duration`),0) as `fest_duration`
+        , COALESCE(sum(`fest_oat_duration`),0) as `fest_oat_duration`
+        FROM `work_overtime_ledger_advance`
+        where `work_date` between #{period.begin} and #{period.end}
+        and `status` in ('PASS', 'FINISHED')
+        and `user_id` in
+        <foreach collection="userIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by `user_id`
+    </select>
+</mapper>

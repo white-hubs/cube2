@@ -1,0 +1,28 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.PatrolLocationMapper">
+
+    <select id="queryLocationByPlan"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolLocationVO">
+        select b.*
+        from patrol_plan_location a
+                 inner join patrol_location b on a.location_id = b.id
+        where a.plan_id = #{planId}
+    </select>
+
+    <select id="locationDistributeStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.statistics.LocationAreaStatisticsVO">
+        select area_id, count(id) as num from patrol_location
+        <if test="period != null">
+            where create_time between #{period.begin,jdbcType=TIMESTAMP} and #{period.end,jdbcType=TIMESTAMP}
+        </if>
+        group by area_id order by num desc
+    </select>
+
+    <select id="listByRoute" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolLocation">
+        select b.*
+        from patrol_route a
+        inner join patrol_location b on a.patrol_location_id = b.id
+        where a.uuid = #{routeId,jdbcType=BIGINT}
+        ORDER BY a.`rule_order`
+    </select>
+</mapper>

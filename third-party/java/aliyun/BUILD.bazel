@@ -1,0 +1,71 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "oss",
+    exports = [
+        "@maven//:com_aliyun_oss_aliyun_sdk_oss",
+    ],
+)
+java_library(
+    name = "ocr-vehicle",
+    exports = [
+        "@maven//:com_aliyun_alibabacloud_ocr_api20210707",
+    ],
+)
+
+java_library(
+    name = "aliyun_tea",
+    exports = [
+        "@maven//:com_aliyun_tea",
+        "@maven//:com_aliyun_tea_openapi",
+        "@maven//:com_aliyun_tea_util",
+    ],
+)
+
+java_library(
+    name = "aliyun_sms",
+    exports = [
+        "@maven//:com_aliyun_alibabacloud_dysmsapi20170525",
+        "@maven//:com_aliyun_aliyun_java_auth",
+        "@maven//:com_aliyun_darabonba_java_core",
+        ":aliyun_tea",
+    ],
+)
+
+java_library(
+    name = "aliyun_vms",
+    exports = [
+        "@maven//:com_aliyun_dyvmsapi20170525",
+        ":aliyun_tea",
+    ],
+)
+
+java_library(
+    name = "aliyun_face",
+    exports = [
+        "@maven//:com_aliyun_facebody20191230",
+        ":aliyun_tea",
+    ],
+)
+
+java_library(
+    name = "aliyun_push",
+    exports = [
+        "@maven//:com_aliyun_alibabacloud_push20160801",
+    ],
+)
+java_library(
+    name = "aliyun_java_auth",
+    exports = [
+        "@maven//:com_aliyun_aliyun_java_auth",
+    ],
+)
+
+java_library(
+    name = "aliyun_darabonba",
+    exports = [
+        "@maven//:com_aliyun_darabonba_java_core",
+    ],
+)

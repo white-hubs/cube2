@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "json_schema_validator",
+    exports = [
+        "@maven//:com_networknt_json_schema_validator",
+    ],
+)

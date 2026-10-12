@@ -1,0 +1,114 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.TaskMapper">
+    <select id="getTaskCollectData"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.InspectTaskPO">
+        select * from inspect_task
+        <where>
+            <if test="period != null and period.begin != null ">
+                update_time &gt;= #{period.begin}
+            </if>
+            <if test="period.end != null and period.end != null">
+                and update_time &lt;= #{period.end}
+            </if>
+            <if test="true">
+                and tenant = #{tenant} and parent_id = 0
+            </if>
+        </where>
+    </select>
+    <select id="selectInspectTaskCompleteEfficiencyMetric"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.HandlerEfficiencyDTO">
+        SELECT
+        it.receive_ids as name,
+        COALESCE(ROUND( SUM( TIMESTAMPDIFF( MINUTE, it.begin_time, it.end_time )) / COUNT( it.id ), 0 ),0) avgTime
+        FROM
+        `inspect_task` it
+        WHERE
+        it.`status` = 'OVER'
+        <if test="period != null and period.begin != null">
+            and it.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and it.create_time &lt;= #{period.end}
+        </if>
+        GROUP BY
+        it.receive_ids
+        ORDER BY
+        avgTime
+        <if test="sort != null ">
+            DESC
+        </if>
+        LIMIT 5
+    </select>
+    <select id="selectInspectTaskCompleteTimeNumMetric"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.vo.TaskHandlerTimeVO">
+        SELECT
+        COALESCE (COUNT( it.id ),0) taskHandlerNumber,
+        COALESCE (SUM(TIMESTAMPDIFF( MINUTE, it.begin_time, it.end_time )),0) taskTotalTime
+        FROM
+        `inspect_task` it
+        WHERE
+        it.`status` = 'OVER'
+        <if test="period != null and period.begin != null">
+            and it.create_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and it.create_time &lt;= #{period.end}
+        </if>
+    </select>
+
+    <!-- 获取任务总数 -->
+    <select id="getTaskTotal" resultType="java.lang.Long">
+        SELECT COUNT(1)
+        FROM inspect_task
+        <where>
+            <!-- 如果传入了taskIds，则在这些ID中查询 -->
+            <if test="taskIds != null and taskIds.size() > 0">
+                AND id IN
+                <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <!-- 考核周期开始时间条件 -->
+            <if test="param.period != null and param.period.begin != null">
+                AND create_time &gt;= #{param.period.begin}
+            </if>
+            <!-- 任务状态条件 -->
+            <choose>
+                <when test="param.statusList != null and param.statusList.size() > 0">
+                    AND status IN
+                    <foreach collection="param.statusList" item="status" open="(" separator="," close=")">
+                        #{status}
+                    </foreach>
+                </when>
+                <when test="param.status != null and param.status != ''">
+                    AND status = #{param.status}
+                </when>
+            </choose>
+            <!-- 考核周期结束时间条件 -->
+            <if test="param.period != null and param.period.end != null">
+                AND create_time &lt;= #{param.period.end}
+            </if>
+            <!-- 计划ID列表条件 -->
+            <if test="param.planIdList != null and param.planIdList.size() > 0">
+                AND plan_id IN
+                <foreach collection="param.planIdList" item="planId" open="(" separator="," close=")">
+                    #{planId}
+                </foreach>
+            </if>
+            <if test="param.overTimeBool != null and param.overTimeBool">
+                AND (
+                <!-- 字段非空保障 -->
+                valid_begin_time IS NOT NULL
+                AND limit_total_minute IS NOT NULL
+                AND (
+                <!-- 情况1: 已结束但超时 -->
+                (end_time IS NOT NULL AND end_time > DATE_ADD(valid_begin_time, INTERVAL limit_total_minute MINUTE))
+                OR
+                <!-- 情况2: 未结束但已过截止时间（当前时间超过允许完成时间）-->
+                (end_time IS NULL AND NOW() > DATE_ADD(valid_begin_time, INTERVAL limit_total_minute MINUTE))
+                )
+                )
+            </if>
+        </where>
+    </select>
+</mapper>

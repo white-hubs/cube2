@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.base.dao.AbattoirMapper">
+
+    <select id="statPage" resultType="com.guhecloud.cube.biz.meattrade.server.base.dto.AbattoirStatDTO">
+        select
+        ar.id,
+        ar.name as abattoir_name,
+        COUNT(odl.id) as trade_slices,
+        (case when COUNT(case when odl.weight >= ${param.standardWeight} then 1 end) is not null then COUNT(case when
+        odl.weight >= ${param.standardWeight} then 1 end) else 0 end) as higher_standard_weight,
+        (case when COUNT(case when odl.weight &lt; ${param.standardWeight} then 1 end) is not null then COUNT(case when
+        odl.weight &lt; ${param.standardWeight} then 1 end) else 0 end) as lower_standard_weight,
+        (case when MAX( odl.unit_price ) is not null then MAX( odl.unit_price ) else 0 end) as higher_amount,
+        (case when MIN( odl.unit_price ) is not null then Min( odl.unit_price ) else 0 end) as lower_amount,
+        --(case when AVG( odl.price ) is not null then AVG( odl.price ) else 0 end) as average_amount,
+        --(case when AVG( case when odl.price > ${param.lowerPrice} then odl.price end ) is not null then AVG(case when
+        --odl.price > ${param.lowerPrice} then odl.price end) else 0 end ) AS actual_amount,
+        (case when SUM(odl.weight) is not null then SUM(odl.weight) else 0 end ) as deal_weight,
+        (case when SUM(odl.price) is not null then SUM(odl.price) else 0 end ) as deal_amount,
+        sum(if(odl.unit_price > ${param.lowerPrice},odl.price,0)) AS actual_amount,
+        sum(if(odl.unit_price > ${param.lowerPrice},odl.weight,0)) AS actual_weight,
+        (case when SUM(odl.commission) is not null then SUM(odl.commission) else 0 end ) as commission
+        from abattoir ar
+        left join meattrade_pork_report prt on ar.id = prt.abattoir_id
+        left join meattrade_pork_arrange_detail padl on prt.code = padl.pork_report_code
+        left join meattrade_order_detail odl on padl.id = odl.pork_arrange_detail_id
+        left join meattrade_order o on odl.order_id = o.id
+        <where>
+            o.status = 'FINISHED'
+            <if test="param.keyword != null and param.keyword != ''">
+                and ar.name like concat("%",#{param.keyword},"%")
+            </if>
+            <if test="param.period != null">
+                and odl.update_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by ar.id
+        <if test="param.item != null and param.sort != null">
+            order by ${param.item} ${param.sort}
+        </if>
+    </select>
+
+    <select id="selectStatGoodsCategoryPage"
+            resultType="com.guhecloud.cube.biz.meattrade.server.base.dto.AbattoirStatDTO">
+        select
+        ar.id,
+        ar.name as abattoir_name,
+        odl.goods_category_id,
+        odl.goods_category_name,
+        COUNT(odl.id) as trade_slices,
+        -- (case when COUNT(case when odl.weight >= ${param.standardWeight} then 1 end) is not null then COUNT(case when
+        -- odl.weight >= ${param.standardWeight} then 1 end) else 0 end) as higher_standard_weight,
+        -- (case when COUNT(case when odl.weight &lt; ${param.standardWeight} then 1 end) is not null then COUNT(case
+        -- when
+        -- odl.weight &lt; ${param.standardWeight} then 1 end) else 0 end) as lower_standard_weight,
+        (case when MAX( odl.unit_price ) is not null then MAX( odl.unit_price ) else 0 end) as higher_amount,
+        (case when MIN( odl.unit_price ) is not null then Min( odl.unit_price ) else 0 end) as lower_amount,
+        (case when SUM(odl.weight) is not null then SUM(odl.weight) else 0 end ) as deal_weight,
+        (case when SUM(odl.price) is not null then SUM(odl.price) else 0 end ) as deal_amount,
+        sum(if(odl.unit_price > ${param.lowerPrice},odl.price,0)) AS actual_amount,
+        sum(if(odl.unit_price > ${param.lowerPrice},odl.weight,0)) AS actual_weight,
+        (case when SUM(odl.commission) is not null then SUM(odl.commission) else 0 end ) as commission
+        from abattoir ar
+        left join meattrade_pork_report prt on ar.id = prt.abattoir_id
+        left join meattrade_pork_arrange_detail padl on prt.code = padl.pork_report_code
+        left join meattrade_order_detail odl on padl.id = odl.pork_arrange_detail_id
+        left join meattrade_order o on odl.order_id = o.id
+        <where>
+            o.status = 'FINISHED'
+            <if test="param.keyword != null and param.keyword != ''">
+                and ar.name like concat("%",#{param.keyword},"%")
+            </if>
+            <if test="param.period != null">
+                and odl.update_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.goodsCategoryId != null and param.goodsCategoryId != ''">
+                and prt.goods_category_Id = #{param.goodsCategoryId}
+            </if>
+        </where>
+        group by ar.id,odl.goods_category_id
+        <if test="param.item != null and param.sort != null">
+            order by ${param.item} ${param.sort}
+        </if>
+    </select>
+
+    <select id="bimStatPage" resultType="com.guhecloud.cube.biz.meattrade.server.base.dto.AbattoirBimStatDTO">
+        SELECT
+        a.id,
+        a.`name`,
+        SUM( pa.slices ) AS slices,
+        SUM( pa.weight ) AS weight
+        FROM
+        abattoir a
+        LEFT JOIN meattrade_pork_report pr ON a.id = pr.abattoir_id
+        LEFT JOIN meattrade_pork_arrange pa ON pr.id = pa.pork_report_id
+        <where>
+            pa.tenant = #{param.tenant}
+            <if test="param.period != null">
+                and pa.pork_arrange_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY a.id
+        ORDER BY weight DESC
+    </select>
+
+    <select id="bimStatList" resultType="com.guhecloud.cube.biz.meattrade.server.base.dto.AbattoirBimStatDTO">
+        SELECT
+        a.id,
+        a.`name`,
+        SUM( pa.slices ) AS slices,
+        SUM( pa.weight ) AS weight
+        FROM
+        abattoir a
+        LEFT JOIN meattrade_pork_report pr ON a.id = pr.abattoir_id
+        LEFT JOIN meattrade_pork_arrange pa ON pr.id = pa.pork_report_id
+        <where>
+            pa.tenant = #{param.tenant}
+            <if test="param.period != null">
+                and pa.pork_arrange_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY a.id
+        ORDER BY weight DESC
+    </select>
+
+</mapper>

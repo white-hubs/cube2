@@ -1,0 +1,12 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.emergency.server.dao.EmergencySuppliesMapper">
+
+    <select id="getEmergencySuppliesStatForStock"
+            resultType="com.guhecloud.cube.biz.emergency.server.vo.EmergencySuppliesStatVO">
+        select t.id,t.name,sum(if(sio.inout_type = 'IN',sio.inout_num,0)) as inValue,sum(if(sio.inout_type = 'OUT',sio.inout_num,0)) as outValue
+        from emergency_supplies_type t
+        left join emergency_supplies s on t.id = s.type
+        left join emergency_supplies_inout_record sio on s.id = sio.supplies_id
+        group by t.id
+    </select>
+</mapper>

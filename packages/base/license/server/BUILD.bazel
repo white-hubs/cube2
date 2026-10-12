@@ -1,0 +1,77 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/base/license:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/license",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/commons:cli",
+        "//third-party/java/jackson",
+        "//third-party/java/spring:spring_beans",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_boot_starter",
+        "//third-party/java/spring:spring_web",
+        "//third-party/java/truelicense",
+        "//third-party/java/typesafe:config",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    runtime_deps = [
+        "//third-party/java/logback:logback_classic",
+    ],
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.base.license.server.cli.LicenseClientMain"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "license-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    datasource_package = "com.guhecloud.cube.base.license",
+    gw_prefix = "/license/",
+    main_class = _MAIN_CLASS,
+    no_datasource = True,
+    server = ":server",
+    server_id = "license",
+    visibility = ["//packages:__subpackages__"],
+)

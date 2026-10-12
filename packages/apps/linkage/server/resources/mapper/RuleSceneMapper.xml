@@ -1,0 +1,24 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.scene.dao.RuleSceneMapper">
+
+    <select id="page"
+            resultType="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.scene.vo.RuleScenePageVO">
+        SELECT
+        t1.id,
+        t1.`code`,
+        t1.`name`,
+        t1.update_time,
+        t1.trigger_num
+        FROM
+        rule t1
+        INNER JOIN rule_scene t2 on t1.id = t2.rule_id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        order by
+        t1.create_time desc
+    </select>
+
+</mapper>

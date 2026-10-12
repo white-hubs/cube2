@@ -1,0 +1,205 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--批量更新计划字段-->
+<mapper namespace="com.guhecloud.cube.biz.daily.task.task.dao.DailyTaskMapper">
+
+    <select id="selectTaskPage" resultType="com.guhecloud.cube.biz.daily.task.domain.po.DailyTaskPO">
+        SELECT
+        dt.id,
+        dt.`name`,
+        dt.daily_type,
+        dt.deadline,
+        dt.end_time,
+        dt.file_ref_key,
+        dt.`status`,
+        dt.target_count,
+        dt.task_category_id,
+        dt.urgency_id,
+        dt.progress,
+        dt.task_day,
+        dt.task_hour,
+        dt.task_minute,
+        dt.parent_id,
+        dt.create_by,
+        dt.create_time
+        FROM
+        daily_task dt
+        INNER JOIN daily_task_user dtu ON dtu.master_id = dt.id
+        <where>
+            and dtu.superintendent_type = 'USER' AND dtu.task_user_type in ('ASSIGNEE','SUPERINTENDENT')
+            <if test="param.dailyType != null and param.dailyType != ''">
+                and dt.daily_type = #{param.dailyType}
+            </if>
+            <if test="dailyTypeList != null and dailyTypeList.size > 0">
+                and dt.daily_type IN
+                <foreach collection="dailyTypeList" item="dailyType" open="(" close=")"
+                         separator=",">
+                    #{dailyType}
+                </foreach>
+            </if>
+            <if test="param.userId != null">
+                AND dtu.target_id = #{param.userId}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND dt.`name` LIKE CONCAT('%',#{param.keyword},'%')
+            </if>
+            <if test="param.status != null and param.status != ''">
+                AND dt.`status` = #{param.status}
+            </if>
+            <if test="param.status == null or param.status == ''">
+                AND dt.`status` != 'DRAFT'
+            </if>
+            <if test="param.taskCategoryId != null and param.taskCategoryId != ''">
+                AND dt.task_category_id = #{param.taskCategoryId}
+            </if>
+            <if test="param.urgencyId != null and param.urgencyId != ''">
+                AND dt.urgency_id = #{param.urgencyId}
+            </if>
+            <if test="param.period != null and param.period.begin !=null and param.period.end != null">
+                AND dt.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.queryType != null and param.queryType != ''">
+                <choose>
+                    <when test="param.queryType == 'MAIN'">
+                        AND dt.parent_id IS NULL
+                    </when>
+                    <when test="param.queryType == 'SUB'">
+                        AND dt.parent_id IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+            <if test="param.taskIdList != null and param.taskIdList.size > 0">
+                AND dt.id IN
+                <foreach collection="param.taskIdList" item="taskId" open="(" close=")"
+                         separator=",">
+                    #{taskId}
+                </foreach>
+            </if>
+
+        </where>
+        GROUP BY
+        dt.id
+        ORDER BY
+        dt.create_time DESC
+    </select>
+    <select id="getTaskTenantList" resultType="java.lang.Integer">
+        select distinct tenant from daily_task
+    </select>
+    <select id="getTaskType" resultType="java.lang.String">
+        select distinct daily_type from daily_task
+    </select>
+    <select id="selectTaskNumGroupByStatus" resultType="java.lang.Long">
+        SELECT
+        COUNT(DISTINCT dt.id)
+        FROM
+        daily_task dt
+        INNER JOIN daily_task_user dtu ON dtu.master_id = dt.id
+        WHERE
+        dt.daily_type = #{param.dailyType}
+        and dtu.superintendent_type = 'USER'
+        <if test="param.period != null and param.period.begin !=null and param.period.end != null">
+            AND dt.create_time between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="states != null and states.size > 0">
+            AND dt.`status` in
+            <foreach collection="states" item="state" open="(" separator="," close=")">
+                #{state}
+            </foreach>
+        </if>
+
+    </select>
+
+    <select id="countTargetTaskNum" resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT dt.id)
+        FROM
+        daily_task t1
+        INNER JOIN daily_task_target t2 ON t1.id = t2.task_id
+        <where>
+            <if test="targetId != null">
+                AND t2.target_id = #{targetId}
+            </if>
+            <if test="dailyType != null and dailyType != ''">
+                AND t1.daily_type = #{dailyType}
+            </if>
+            <if test="period != null and period.begin != null">
+                and t1.create_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.create_time &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSnapshotTaskIds" resultType="java.lang.Long">
+        SELECT DISTINCT
+        dt.id
+        FROM
+        daily_task dt
+        INNER JOIN daily_task_target_ref dttr ON dttr.task_id = dt.id
+        INNER JOIN daily_task_target dtt ON dtt.id = dttr.target_ref_id
+        WHERE
+        dt.require_progress IS NULL
+        AND dtt.snapshot = 1
+        <if test="taskIds != null and taskIds.size() > 0">
+            AND dt.id IN
+            <foreach collection="taskIds" item="taskId" open="(" separator="," close=")">
+                #{taskId}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectGridAreaOpenTasks" resultType="com.guhecloud.cube.biz.daily.task.domain.po.DailyTaskPO">
+        SELECT DISTINCT
+        dt.id,
+        dt.`name`,
+        dt.daily_type,
+        dt.deadline,
+        dt.end_time,
+        dt.file_ref_key,
+        dt.`status`,
+        dt.target_count,
+        dt.task_category_id,
+        dt.urgency_id,
+        dt.progress,
+        dt.task_day,
+        dt.task_hour,
+        dt.task_minute,
+        dt.parent_id,
+        dt.is_on_duty,
+        dt.create_by,
+        dt.create_time,
+        dt.tenant
+        FROM
+        daily_task dt
+        INNER JOIN daily_task_user dtu ON dtu.master_id = dt.id
+        WHERE
+        dtu.task_user_type = 'ASSIGNEE'
+        AND dtu.superintendent_type = 'GRID_AREA'
+        AND dtu.target_id = #{gridAreaId}
+        AND dt.daily_type = #{dailyType}
+        AND dt.create_time &lt;= #{now}
+        <if test="statusList != null and statusList.size > 0">
+            AND dt.`status` IN
+            <foreach collection="statusList" item="status" open="(" separator="," close=")">
+                #{status}
+            </foreach>
+        </if>
+    </select>
+    <select id="selectGridAbnormalTaskCount"
+            resultType="com.guhecloud.cube.biz.daily.task.task.result.GridAbnormalTaskCountResult">
+        SELECT
+        dtu.target_id AS gridAreaId,
+        COUNT(DISTINCT dt.id) AS abnormalTaskCount
+        FROM daily_task dt
+        INNER JOIN daily_task_user dtu ON dtu.master_id = dt.id
+        INNER JOIN daily_record_exception dre ON dre.task_id = dt.id
+        WHERE
+        dt.daily_type = #{dailyType}
+        AND dtu.task_user_type = 'ASSIGNEE'
+        AND dtu.superintendent_type = 'GRID_AREA'
+        AND dtu.target_id IN
+        <foreach collection="gridAreaIds" item="gridAreaId" open="(" separator="," close=")">
+            #{gridAreaId}
+        </foreach>
+        GROUP BY dtu.target_id
+    </select>
+</mapper>

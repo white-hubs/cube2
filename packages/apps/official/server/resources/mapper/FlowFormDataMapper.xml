@@ -1,0 +1,192 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.official.management.server.dao.FlowFormDataMapper">
+
+    <!-- 通用流程审批统计 -->
+    <select id="cmmFlowStat" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.CmmFlowStatDTO">
+        select applicant_dept_id as deptId,
+        applicant_dept_name as deptName,
+        count(id) as applyNum,
+        sum(if(`status` = 'PASS',1,0)) AS passNum
+        from flow_form_data ff
+        where ff.deleted = 0
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.deptId != null and param.deptId != ''">
+            and ff.applicant_dept_id = #{param.deptId}
+        </if>
+        <if test="param.status != null and param.status != ''">
+            and ff.status = #{param.status}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+        group by applicant_dept_id
+    </select>
+
+    <!-- 通用流程审批统计详情 -->
+    <select id="cmmFlowStatDetail" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.CmmFlowStatDetailDTO">
+        select applicant_dept_id,
+        applicant_dept_name as deptName,
+        applicant_id,applicant_name as applicantName,
+        status,
+        apply_time,
+        apply_done_time
+        from flow_form_data ff
+        where ff.deleted = 0
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.deptId != null and param.deptId != ''">
+            and ff.applicant_dept_id = #{param.deptId}
+        </if>
+        <if test="param.status != null and param.status != ''">
+            and ff.status = #{param.status}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+    </select>
+
+    <!-- 用印统计 -->
+    <select id="officialSealStat" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.OfficialSealStatDTO">
+        select ff.json_form ->> '$.sealId' as sealId,count(id) as applyNum,count(DISTINCT ff.applicant_id) as applicantNum
+        from flow_form_data ff
+        where ff.deleted = 0 and ff.status = 'PASS'
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+        GROUP BY ff.json_form ->> '$.sealId'
+    </select>
+
+    <!-- 用印统计详情 -->
+    <select id="officialSealStatDetail" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.OfficialSealStatDetailDTO">
+        select ff.json_form ->> '$.sealName' as sealName,ff.applicant_id,ff.applicant_name,ff.`status`,ff.apply_time,ff.apply_done_time
+        from flow_form_data ff
+        where ff.deleted = 0 and ff.status = 'PASS'
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.name != null and param.name != ''">
+            and ff.json_form ->> '$.sealName' like concat("%",#{param.name},"%")
+        </if>
+        <if test="param.id != null">
+            and ff.json_form ->> '$.sealId' = #{param.id}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+    </select>
+
+    <!-- 来文处理 -->
+    <select id="documentReceivedStat" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.DocumentReceivedStatDTO">
+        select
+        ff.json_form ->> '$.fromUnit' as fromUnit,
+        ff.json_form ->> '$.fileCode' as fileCode,
+        ff.json_form ->> '$.timeLimit' as timeLimit,
+        ff.applicant_id,
+        ff.applicant_name,
+        ff.apply_time,
+        ff.apply_done_time
+        from flow_form_data ff
+        where ff.deleted = 0
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.status != null and param.status != ''">
+            and ff.status = #{param.status}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+        order by ff.apply_time desc
+    </select>
+
+    <!-- 督办事项统计 -->
+    <select id="focusWorkStat" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.FocusWorkStatDTO">
+        select ff.applicant_id,
+        ff.applicant_name,
+        ff.applicant_dept_id as deptId,
+        ff.applicant_dept_name as deptName,
+        ff.json_form ->> '$.workCategoryId' as workCategoryId,
+        COUNT(id) as applyNum,
+        sum(if(ff.`status` = 'PASS',1,0)) AS passNum
+        from flow_form_data ff
+        where ff.deleted = 0
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+        GROUP BY ff.applicant_id,ff.json_form -> '$.workCategoryId'
+    </select>
+
+    <!-- 督办事项变更统计 -->
+    <select id="focusWorkUpdateStat" resultType="com.guhecloud.cube.srv.gen.official.management.server.dao.dto.FocusWorkUpdateStatDTO">
+        select ff.applicant_dept_id as deptId,ff.applicant_dept_name as deptName,
+        ff.json_form ->> '$.focusWorkId' as focusWorkId,
+        COUNT(id) as applyNum,
+        sum(if(ff.json_form -> '$.status' = 'STOP',1,0)) AS stopNum,
+        sum(if(ff.json_form -> '$.status' = 'PROCESSING_DELAY',1,0)) as delayNum
+        from flow_form_data ff
+        where ff.deleted = 0
+        <if test="param.businessType != null and param.businessType != ''">
+            and ff.business_type = #{param.businessType}
+        </if>
+        <if test="param.status != null and param.status != ''">
+            and ff.status = #{param.status}
+        </if>
+        <if test="param.startTime != null">
+            and ff.apply_time &gt;= #{param.startTime}
+        </if>
+        <if test="param.endTime != null">
+            and ff.apply_time &lt; #{param.endTime}
+        </if>
+        GROUP BY ff.applicant_dept_id,ff.json_form -> '$.focusWorkId'
+    </select>
+    <select id="administrationStat"
+            resultType="com.guhecloud.cube.srv.gen.official.management.server.interfaces.vo.HomePageStatisticsVO">
+        select  ff.business_type,
+        count(id) as applyNum
+        from flow_form_data ff
+        where ff.deleted = 0
+          and ff.status = 'PASS'
+        <if test="businessTypeList != null and businessTypeList.size() > 0">
+            and ff.business_type in
+            <foreach collection="businessTypeList" item="businessType" open="(" close=")" separator=",">
+                #{businessType}
+            </foreach>
+        </if>
+        <if test="period != null and period.begin != null">
+            and ff.apply_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and ff.apply_time &lt; #{period.end}
+        </if>
+        group by ff.business_type
+
+    </select>
+
+</mapper>

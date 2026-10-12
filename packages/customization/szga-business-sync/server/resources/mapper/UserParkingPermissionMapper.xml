@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.business.info.sync.server.mapper.UserParkingPermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.srv.gen.business.info.sync.server.entity.UserParkingPermission">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="userId" column="user_id" jdbcType="VARCHAR"/>
+            <result property="vehicleNo" column="vehicle_no" jdbcType="VARCHAR"/>
+            <result property="status" column="status" jdbcType="VARCHAR"/>
+            <result property="parkinglotCode" column="parkinglot_code" jdbcType="BIGINT"/>
+            <result property="deleted" column="deleted" jdbcType="BIGINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,vehicle_no,
+        status,parkinglot_code,deleted,
+        create_time,update_time
+    </sql>
+</mapper>

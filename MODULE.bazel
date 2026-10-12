@@ -1,0 +1,452 @@
+module(
+    name = "cube-repo",
+    version = "1.0.0",
+)
+
+bazel_dep(name = "rules_jvm_external", version = "6.9")
+bazel_dep(name = "rules_java", version = "9.0.3")
+bazel_dep(name = "rules_spring", version = "2.6.3")
+bazel_dep(name = "rules_rust", version = "0.67.0")
+bazel_dep(name = "rules_pkg", version = "1.1.0")
+
+maven = use_extension("@rules_jvm_external//:extensions.bzl", "maven")
+
+### variables start ###
+SPRING_BOOT_VERSION = "3.5.6"
+
+SPRING_SECURITY_VERSION = "6.5.5"
+
+SPRING_FRAMEWORK_VERSION = "6.2.11"
+
+ALIBABA_SPRING_BOOT_VERSION = "0.2.12"
+
+ALIBABA_SPRING_CLOUD_VERSION = "2023.0.3.3"
+
+ALIBABA_NACOS_VERSION = "3.1.0"
+
+JACKSON_VERSION = "2.19.2"
+
+RIBBON_VERSION = "2.7.18"
+
+ROCKETMQ_VERSION = "5.3.3"
+
+ROCKETMQ_SPRING_VERSION = "2.3.4"
+
+NETTY_VERSION = "4.2.5.Final"
+
+NETTY_BOM = "io.netty:netty-bom:" + NETTY_VERSION
+
+ROCKETMQ_DEPENDENCIES_BOM = "org.apache.rocketmq:rocketmq-all:" + ROCKETMQ_VERSION
+
+JACKSON_BOM = "com.fasterxml.jackson:jackson-bom:" + JACKSON_VERSION
+
+ACTIVITI_BOMS = [
+    "org.activiti:activiti-dependencies:8.7.0",
+    "org.activiti:activiti-core-dependencies:8.7.0",
+    "org.activiti:activiti-api-dependencies:8.7.0",
+    "org.activiti:activiti-core-common-dependencies:8.7.0",
+]
+
+ALIBABA_SPRING_CLOUD_BOM = "com.alibaba.cloud:spring-cloud-alibaba-dependencies:" + ALIBABA_SPRING_CLOUD_VERSION
+
+SPRING_BOOT_DEPENDENCIES_BOM = "org.springframework.boot:spring-boot-dependencies:" + SPRING_BOOT_VERSION
+
+SPRING_FRAMEWORK_DEPENDENCIES_BOM = "org.springframework:spring-framework-bom:" + SPRING_FRAMEWORK_VERSION
+
+SPRING_SECURITY_DEPENDENCIES_BOM = "org.springframework.security:spring-security-bom:" + SPRING_SECURITY_VERSION
+
+SPRING_CLOUD_DEPENDENCIES_2025_0_0_BOM_DEPS = [
+    "org.springframework.cloud:spring-cloud-commons-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-netflix-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-stream-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-task-dependencies:3.3.0",
+    "org.springframework.cloud:spring-cloud-circuitbreaker-dependencies:3.3.0",
+    "org.springframework.cloud:spring-cloud-config-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-function-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-gateway-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-consul-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-vault-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-zookeeper-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-bus-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-contract-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-openfeign-dependencies:4.3.0",
+    "org.springframework.cloud:spring-cloud-kubernetes-dependencies:3.3.0",
+]
+
+JUNIT_VERSION = "5.13.4"
+
+JUNIT_BOM = "org.junit:junit-bom:" + JUNIT_VERSION
+
+MYBATIS_PLUS_VERSION = "3.5.14"
+
+FASTJSON_VERSION = "2.0.58"
+
+DYNAMIC_DATASOURCE_VERSION = "4.3.1"
+
+maven.artifact(
+    artifact = "fastdfs-client",
+    exclusions = [
+        "org.hibernate:hibernate-validator",
+    ],
+    group = "com.github.tobato",
+    version = "1.27.2",
+)
+maven.artifact(
+    artifact = "commons-validator",
+    exclusions = [
+    ],
+    group = "commons-validator",
+    version = "1.9.0",
+)
+maven.artifact(
+    artifact = "commons-beanutils",
+    exclusions = [
+    ],
+    group = "commons-beanutils",
+    version = "1.11.0",
+)
+maven.artifact(
+    artifact = "commons-configuration2",
+    exclusions = [
+    ],
+    group = "org.apache.commons",
+    version = "2.12.0",
+)
+maven.artifact(
+    artifact = "commons-configuration",
+    exclusions = [
+    ],
+    group = "commons-configuration",
+    version = "1.8",
+)
+
+# TODO-legacy: fix this deps
+maven.artifact(
+    artifact = "pay-client",
+    exclusions = [
+        "com.guhecloud.platform:platform-client",
+    ],
+    group = "com.guhecloud.cube.biz",
+    version = "1.0.0",
+)
+
+# TODO-legacy: fix this deps
+maven.artifact(
+    artifact = "order-client",
+    exclusions = [
+        "com.guhecloud.platform:platform-client",
+    ],
+    group = "com.guhecloud.cube.biz",
+    version = "1.0.0",
+)
+
+# TODO-legacy: fix this deps
+maven.artifact(
+    artifact = "mall-client",
+    exclusions = [
+        "com.guhecloud.platform:platform-client",
+    ],
+    group = "com.guhecloud.cube.biz",
+    version = "1.0.0",
+)
+
+# TODO-legacy: fix this deps
+maven.artifact(
+    artifact = "wallet-client",
+    exclusions = [
+        "com.guhecloud.platform:platform-client",
+    ],
+    group = "com.guhecloud.cube.biz",
+    version = "1.0.0",
+)
+
+# TODO-legacy: fix this deps
+maven.artifact(
+    artifact = "finance-client",
+    exclusions = [
+        "com.guhecloud.platform:platform-client",
+    ],
+    group = "com.guhecloud.cube.biz",
+    version = "1.0.0",
+)
+
+EASYPOI_VERSION = "4.5.0"
+
+EASYEXCEL_VERSION = "4.0.3"
+
+# TODO hutool 已被商业收购，存在投毒风险，后续需逐步替代之
+HUTOOL_VERSION = "5.8.4"
+
+maven.install(
+    artifacts = [
+        "cn.afterturn:easypoi-base:" + EASYPOI_VERSION,
+        "cn.afterturn:easypoi-web:" + EASYPOI_VERSION,
+        "cn.afterturn:easypoi-annotation:" + EASYPOI_VERSION,
+        "cn.hutool:hutool-core:" + HUTOOL_VERSION,
+        "cn.hutool:hutool-http:" + HUTOOL_VERSION,
+        "cn.hutool:hutool-poi:" + HUTOOL_VERSION,
+        "cn.hutool:hutool-crypto:" + HUTOOL_VERSION,
+        "cn.hutool:hutool-extra:" + HUTOOL_VERSION,
+        "ch.qos.logback:logback-classic:1.5.18",
+        "com.alibaba.boot:nacos-config-spring-boot-autoconfigure:" + ALIBABA_SPRING_BOOT_VERSION,
+        "com.alibaba.boot:nacos-config-spring-boot-starter:" + ALIBABA_SPRING_BOOT_VERSION,
+        "com.alibaba.boot:nacos-spring-boot-base:" + ALIBABA_SPRING_BOOT_VERSION,
+        "com.alibaba.cloud:spring-cloud-alibaba-commons",
+        "com.alibaba.cloud:spring-alibaba-nacos-config",
+        "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery",
+        "com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config",
+        "com.alibaba.nacos:nacos-client:" + ALIBABA_NACOS_VERSION,
+        "com.alibaba.nacos:nacos-spring-context:2.1.1",
+        "com.alibaba.spring:spring-context-support:1.0.11",
+        "com.alibaba:easyexcel-core:" + EASYEXCEL_VERSION,
+        "com.alibaba:easyexcel-support:" + EASYEXCEL_VERSION,
+        "com.aliyun:facebody20191230:5.1.2",
+        "com.aliyun:tea:1.2.7",
+        "com.aliyun:tea-openapi:0.3.2",
+        "com.aliyun:tea-util:0.2.21",
+        "com.aliyun.oss:aliyun-sdk-oss:3.10.2",
+        "com.aliyun:dyvmsapi20170525:2.1.4",
+        # 此依赖必须辅助添加 org.jetbrains:annotations 依赖，因为该包依赖的 `com.aliyun:aliyun-http-apache` 依赖了 `org.jetbrains:annotations`
+        "com.aliyun:alibabacloud-dysmsapi20170525:4.0.5",
+        "org.jetbrains:annotations:26.0.2",
+        "com.aliyun:aliyun-java-auth:0.2.15-beta",
+        "com.aliyun:darabonba-java-core:0.2.15-beta",
+        "com.aliyun:alibabacloud-push20160801:1.0.4",
+        "com.tencentcloudapi:tencentcloud-sdk-java-sms:3.1.1101",
+        "com.tencentcloudapi:tencentcloud-sdk-java-trtc:3.1.1195",
+        "com.tencentcloudapi:tencentcloud-sdk-java-common:3.1.1195",
+        "com.github.tencentyun:tls-sig-api-v2:2.0",
+        "com.baomidou:mybatis-plus:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-annotation:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-boot-starter:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-core:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-extension:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-jsqlparser:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:mybatis-plus-spring:" + MYBATIS_PLUS_VERSION,
+        "com.baomidou:dynamic-datasource-spring-boot3-starter:" + DYNAMIC_DATASOURCE_VERSION,
+        "com.baomidou:dynamic-datasource-spring:" + DYNAMIC_DATASOURCE_VERSION,
+        "com.baomidou:dynamic-datasource-creator:" + DYNAMIC_DATASOURCE_VERSION,
+        "com.baomidou:dynamic-datasource-spring-boot-common:" + DYNAMIC_DATASOURCE_VERSION,
+        "com.belerweb:pinyin4j:2.5.1",
+        "com.dameng:DmJdbcDriver18:8.1.3.140",
+        "com.dahuatech.icc:java-sdk-oauth:1.0.13.10",
+        "com.dahuatech.icc:java-sdk-common:1.0.13.10",
+        "com.fasterxml.jackson.core:jackson-annotations",
+        "com.fasterxml.jackson.core:jackson-core",
+        "com.fasterxml.jackson.core:jackson-databind",
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jdk8",
+        "com.fasterxml.jackson.datatype:jackson-datatype-jsr310",
+        "com.fasterxml.jackson.module:jackson-module-afterburner",
+        "com.fasterxml.jackson.module:jackson-module-parameter-names",
+        "com.github.fge:jackson-coreutils:1.8",
+        "com.fasterxml:classmate:1.5.1",
+        "com.github.jsqlparser:jsqlparser:5.3",
+        "com.github.whvcse:easy-captcha:1.6.2",
+        "com.github.fge:json-schema-core:1.2.5",
+        "com.github.fge:json-schema-validator:2.2.6",
+        "com.google.guava:guava:33.4.8-jre",
+        "com.google.zxing:core:3.5.3",
+        "com.google.zxing:javase:3.5.3",
+        "com.highgo:HgdbJdbc:6.2.2",
+        "com.hikvision.ga:artemis-http-client:1.1.3",
+        "com.netflix.ribbon:ribbon-loadbalancer:" + RIBBON_VERSION,
+        "com.networknt:json-schema-validator:1.5.7",
+        "com.nimbusds:nimbus-jose-jwt:10.3",
+        "jakarta.mail:jakarta.mail-api:2.1.3",
+        "com.xuxueli:xxl-job-core:3.1.1",
+        "com.zaxxer:HikariCP:6.3.0",
+        "com.deepoove:poi-tl:1.12.2",
+        "commons-cli:commons-cli:1.9.0",
+        "commons-codec:commons-codec:1.18.0",
+        "commons-fileupload:commons-fileupload:1.4",
+        "commons-io:commons-io:2.19.0",
+        "dom4j:dom4j:1.6.1",
+        "eu.bitwalker:UserAgentUtils:1.21",
+        "io.oss84.geotools:gt-main:24.2-oss84-1",
+        "io.github.mouzt:bizlog-sdk:3.0.4-guhecloud",
+        "io.github.openfeign.form:feign-form:3.8.0",
+        "io.github.openfeign.form:feign-form-spring:3.8.0",
+        "io.github.openfeign:feign-core:13.6",
+        "io.github.openfeign:feign-jackson:13.6",
+        "io.github.openfeign:feign-httpclient:13.6",
+        "io.github.openfeign:feign-hystrix:13.6",
+        "io.github.openfeign:feign-slf4j:13.6",
+        "io.lettuce:lettuce-core:6.7.1.RELEASE",
+        "io.netty:netty-common",
+        "io.netty:netty-handler",
+        "io.netty:netty-transport",
+        "io.projectreactor:reactor-core:3.7.6",
+        "io.projectreactor.netty:reactor-netty:1.2.7",
+        "io.projectreactor.netty:reactor-netty-http:1.2.10",
+        "io.projectreactor.netty:reactor-netty-core:1.2.10",
+        "io.protostuff:protostuff-api:1.8.0",
+        "io.protostuff:protostuff-core:1.8.0",
+        "io.protostuff:protostuff-runtime:1.8.0",
+        "io.minio:minio:8.5.17",
+        "jakarta.annotation:jakarta.annotation-api:3.0.0",
+        "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2",
+        "jakarta.activation:jakarta.activation-api:2.1.3",
+        "jakarta.annotation:jakarta.annotation-api:3.0.0",
+        "jakarta.inject:jakarta.inject-api:2.0.1",
+        "jakarta.servlet:jakarta.servlet-api:6.1.0",
+        "jakarta.validation:jakarta.validation-api:3.1.1",
+        "jakarta.ws.rs:jakarta.ws.rs-api:4.0.0",
+        "jakarta.xml.bind:jakarta.xml.bind-api:4.0.2",
+        "ma.glasnost.orika:orika-core:1.5.4",
+        "mysql:mysql-connector-java:8.0.25",
+        "com.microsoft.sqlserver:mssql-jdbc:12.4.2.jre8",
+        "net.coobird:thumbnailator:0.4.20",
+        "org.aspectj:aspectjweaver:1.9.24",
+        "org.locationtech.jts:jts-core:1.20.0",
+        "org.quartz-scheduler:quartz:2.5.0",
+        "org.apache.commons:commons-collections4:4.5.0",
+        "org.apache.commons:commons-lang3:3.17.0",
+        "org.apache.commons:commons-math3:3.6.1",
+        "org.apache.commons:commons-pool2:2.12.1",
+        "org.apache.commons:commons-text:1.13.1",
+        "org.apache.httpcomponents.client5:httpclient5:5.5",
+        "org.apache.httpcomponents.core5:httpcore5:5.3.5",
+        "org.apache.poi:poi:5.4.1",
+        "org.apache.poi:poi-ooxml:5.4.1",
+        "org.apache.poi:poi-ooxml-schemas:4.1.2",
+        "org.apache.poi:poi-scratchpad:5.4.1",
+        "org.apache.rocketmq:rocketmq-acl",
+        "org.apache.rocketmq:rocketmq-client",
+        "org.apache.rocketmq:rocketmq-common",
+        "org.apache.rocketmq:rocketmq-logging:5.0.0",
+        "org.apache.rocketmq:rocketmq-remoting",
+        "org.apache.rocketmq:rocketmq-spring-boot:" + ROCKETMQ_SPRING_VERSION,
+        "org.apache.rocketmq:rocketmq-spring-boot-starter:" + ROCKETMQ_SPRING_VERSION,
+        "org.apache.rocketmq:rocketmq-srvutil",
+        "org.apache.tomcat.embed:tomcat-embed-core:11.0.8",
+        "org.apache.tomcat.embed:tomcat-embed-websocket:11.0.8",
+        "org.apache.tomcat:tomcat-annotations-api:10.1.46",
+        "org.apache.tomcat:annotations-api:6.0.53",
+        "org.apache.shardingsphere:shardingsphere-jdbc:5.5.2",
+        "org.apache.shardingsphere:shardingsphere-infra-database-core:5.5.2",
+        "org.apache.shardingsphere:shardingsphere-infra-exception-core:5.5.2",
+        "org.apache.shardingsphere:shardingsphere-infra-spi:5.5.2",
+        "org.apache.shardingsphere:shardingsphere-infra-url-spi:5.5.2",
+        "org.activiti:activiti-spring-boot-starter",
+        "org.activiti:activiti-bpmn-layout",
+        "org.activiti:activiti-expression-language",
+        "org.activiti:activiti-api-runtime-shared",
+        "org.activiti:activiti-bpmn-model",
+        "org.activiti:activiti-engine",
+        "org.activiti:activiti-process-validation",
+        "org.activiti:activiti-spring",
+        "org.activiti:activiti-bpmn-converter",
+        "org.activiti:activiti-api-process-runtime-impl",
+        "org.bouncycastle:bcprov-jdk15on:1.70",
+        "org.codehaus.janino:commons-compiler:3.1.12",
+        "org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5",
+        "org.hibernate.validator:hibernate-validator:9.0.1.Final",
+        "org.jodd:jodd-core:5.1.6",
+        "org.liquibase:liquibase-core:4.32.0",
+        "org.mybatis:mybatis:3.5.19",
+        "org.mybatis:mybatis-spring:3.0.4",
+        "org.projectlombok:lombok:1.18.38",
+        "org.redisson:redisson:3.49.0",
+        "org.slf4j:jul-to-slf4j:2.0.17",
+        "org.slf4j:slf4j-api:2.0.17",
+        "org.springframework.boot:spring-boot",
+        "org.springframework.boot:spring-boot-autoconfigure",
+        "org.springframework.boot:spring-boot-loader",
+        "org.springframework.boot:spring-boot-starter",
+        "org.springframework.boot:spring-boot-starter-test",
+        "org.springframework.boot:spring-boot-starter-aop",
+        "org.springframework.boot:spring-boot-starter-data-redis",
+        "org.springframework.boot:spring-boot-starter-jdbc",
+        "org.springframework.boot:spring-boot-starter-security",
+        "org.springframework.boot:spring-boot-starter-validation",
+        "org.springframework.boot:spring-boot-starter-actuator",
+        "org.springframework.boot:spring-boot-starter-webflux",
+        "org.springframework.cloud:spring-cloud-commons",
+        "org.springframework.cloud:spring-cloud-context",
+        "org.springframework.cloud:spring-cloud-openfeign-core",
+        "org.springframework.cloud:spring-cloud-loadbalancer",
+        "org.springframework.cloud:spring-cloud-starter",
+        "org.springframework.cloud:spring-cloud-starter-openfeign",
+        "org.springframework.cloud:spring-cloud-starter-gateway",
+        "org.springframework.cloud:spring-cloud-starter-bootstrap",
+        "org.springframework.cloud:spring-cloud-starter-loadbalancer",
+        "org.springframework.cloud:spring-cloud-gateway-server",
+        "org.springframework.data:spring-data-commons",
+        "org.springframework.data:spring-data-keyvalue",
+        "org.springframework.data:spring-data-redis",
+        "org.springframework.retry:spring-retry",
+        "org.springframework.amqp:spring-rabbit",
+        "org.springframework.amqp:spring-amqp",
+        "org.springframework.security:spring-security-config",
+        "org.springframework.security:spring-security-core",
+        "org.springframework.security:spring-security-crypto",
+        "org.springframework.security:spring-security-jwt:1.1.1.RELEASE",
+        "org.springframework.security:spring-security-oauth2-client",
+        "org.springframework.security:spring-security-oauth2-core",
+        "org.springframework.security:spring-security-oauth2-jose",
+        "org.springframework.security:spring-security-oauth2-resource-server",
+        "org.springframework.security:spring-security-oauth2-authorization-server",
+        "org.springframework.security:spring-security-web",
+        "org.springframework:spring-aop",
+        "org.springframework:spring-beans",
+        "org.springframework:spring-context",
+        "org.springframework:spring-context-support",
+        "org.springframework:spring-core",
+        "org.springframework:spring-expression",
+        "org.springframework:spring-jcl",
+        "org.springframework:spring-jdbc",
+        "org.springframework:spring-messaging",
+        "org.springframework:spring-oxm",
+        "org.springframework:spring-tx",
+        "org.springframework:spring-web",
+        "org.springframework:spring-webmvc",
+        "org.springframework:spring-websocket",
+        "org.springframework:spring-test",
+        "org.springframework:spring-webflux",
+        "org.yaml:snakeyaml:2.4",
+        "com.influxdb:influxdb-client-java:3.0.0",
+        "com.influxdb:influxdb-client-core:3.0.0",
+        "com.typesafe:config:1.4.3",
+        "org.hamcrest:hamcrest:2.2",
+        "com.antherd:sm-crypto:0.3.2",
+        "de.schlichtherle.truelicense:truelicense-core:1.33",
+        "de.schlichtherle.truelicense:truelicense-xml:1.33",
+        "org.mvel:mvel2:2.5.2.Final",
+        "jakarta.servlet:jakarta.servlet-api:6.1.0",
+        "com.rabbitmq:amqp-client",
+        "com.clickhouse:clickhouse-jdbc:0.9.1",
+        "com.alibaba.fastjson2:fastjson2:" + FASTJSON_VERSION,
+        "com.alibaba.fastjson2:fastjson2-extension:" + FASTJSON_VERSION,
+        "junit:junit",
+        "com.aliyun:alibaba-dingtalk-service-sdk:2.0.0",
+        "com.aliyun:dingtalk:2.2.25",
+        "org.jsoup:jsoup:1.21.1",
+        "com.aliyun:alibabacloud-ocr_api20210707:3.0.4",
+    ],
+    boms = [
+        SPRING_BOOT_DEPENDENCIES_BOM,
+        SPRING_FRAMEWORK_DEPENDENCIES_BOM,
+        SPRING_SECURITY_DEPENDENCIES_BOM,
+        ROCKETMQ_DEPENDENCIES_BOM,
+        ALIBABA_SPRING_CLOUD_BOM,
+        JACKSON_BOM,
+        NETTY_BOM,
+        JUNIT_BOM,
+    ] + SPRING_CLOUD_DEPENDENCIES_2025_0_0_BOM_DEPS + ACTIVITI_BOMS,
+    fail_if_repin_required = True,
+    fetch_sources = True,
+    generate_compat_repositories = True,
+    known_contributing_modules = [
+        "cube-repo",
+        "protobuf",
+    ],
+    lock_file = "//:maven_install.json",
+    repositories = [
+        "http://maven.guhecloud.com:8082/repository/maven-public/",
+    ],
+    # 严格定义依赖版本，禁止传递依赖自动升级
+    strict_visibility = True,
+    version_conflict_policy = "pinned",
+)
+use_repo(maven, "maven")

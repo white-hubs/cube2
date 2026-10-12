@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.repair.dao.OutsourceModelMapper">
+
+
+    <resultMap id="outsourceCompanyList" type="com.guhecloud.cube.srv.gen.maintain.server.repair.interfaces.vo.OutsourceModelVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+    </resultMap>
+
+    <select id="listByCompany" resultType="com.guhecloud.cube.srv.gen.maintain.server.repair.po.OutsourceModelPO">
+        select model.* from outsource_model model
+        left join outsource_company_model company on model.id = company.outsource_model_id
+        <where>
+            <if test="companyId != null">
+                company.outsource_company_id = #{companyId,jdbcType=BIGINT}
+            </if>
+        </where>
+    </select>
+</mapper>

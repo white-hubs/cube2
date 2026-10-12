@@ -1,0 +1,7 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.upkeep.dao.MaintenanceProjectMapper">
+
+    <select id="countCategoryMaintenanceItemNum" resultType="int">
+        select count(*) from maintenance_project where category_code = #{categoryCode,jdbcType=VARCHAR}
+    </select>
+</mapper>

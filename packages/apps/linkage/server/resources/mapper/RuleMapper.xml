@@ -1,0 +1,10 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.linkage.server.rule.base.dao.RuleMapper">
+
+    <update id="addTriggerNum">
+        update
+        rule
+        set trigger_num = trigger_num + 1
+        where id = #{id}
+    </update>
+</mapper>

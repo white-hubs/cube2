@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.things.mapper.MdProductMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.things.model.MdProduct">
+        <!--@mbg.generated-->
+        <!--@Table iot_md_product-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="prod_number" jdbcType="VARCHAR" property="prodNumber"/>
+        <result column="prod_name" jdbcType="VARCHAR" property="prodName"/>
+        <result column="is_custom" jdbcType="INTEGER" property="isCustom"/>
+        <result column="prod_category_id" jdbcType="BIGINT" property="prodCategoryId"/>
+        <result column="node_type" jdbcType="BIGINT" property="nodeType"/>
+        <result column="prod_brand_id" jdbcType="BIGINT" property="prodBrandId"/>
+        <result column="prod_model" jdbcType="BIGINT" property="prodModel"/>
+        <result column="access_type_id" jdbcType="BIGINT" property="accessTypeId"/>
+        <result column="protocol_id" jdbcType="BIGINT" property="protocolId"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="extend_config" jdbcType="VARCHAR" property="extendConfig"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="admin_id" jdbcType="INTEGER" property="adminId"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `prod_number`, `prod_name`, `is_custom`, `prod_category_id`, `node_type`,
+        `prod_brand_id`, `prod_model`, `access_type_id`, `protocol_id`, `remark`, `extend_config`, `status`, `admin_id`
+    </sql>
+
+    <select id="listStorageProdIds" resultType="java.lang.Long">
+        select `prod`.`id`
+        from `iot_md_product` `prod`
+        where `prod`.`is_custom` = 0
+    </select>
+
+    <select id="queryProdNameAndNodeType" resultType="com.guhecloud.cube.iot.mgt.things.vo.ProdNameAndNodeTypeVo">
+        select `prod`.`prod_name`, `prod`.`node_type`
+        from `iot_md_product` `prod`
+        where `prod`.`id` = #{productId}
+    </select>
+
+    <select id="countDeviceByProdId" parameterType="long" resultType="long">
+        select count(1) as count_
+        from `iot_dev_device` `dev`
+        where `dev`.`product_id` = #{prodId}
+          and `dev`.`deleted` = 0
+    </select>
+
+    <select id="queryProductPropSchema"
+            resultType="com.guhecloud.cube.iot.mgt.core.data.vo.cache.ProductPropSchema">
+        SELECT `prop`.`prop_code`                                                                            AS `propCode`,
+               `prop`.`name`                                                                                 AS `propName`,
+               `prop`.`prod_id`                                                                              AS `prodId`,
+               (select `unit_name`
+                from `iot_sys_unit` `item`
+                where `item`.`unit_code` = `prop`.`unit_code`)                                               as `unitName`,
+               `prop`.`data_type`                                                                            AS `dataType`,
+               `prop`.`precision`                                                                            AS `dataPrecision`,
+               `prop`.`data_write`                                                                           AS `dataWrite`,
+               `prop`.`data_config`                                                                          AS `dataConfig`
+        FROM `iot_md_product_prop` `prop`
+        WHERE `prop`.`prod_id` = #{productId}
+          and `prop`.`deleted` = 0
+    </select>
+
+    <select id="queryProdIdByCategory" resultType="java.lang.Long">
+        select `id`
+        from `iot_md_product`
+        where `prod_category_id` = #{prodCategoryId}
+          and `deleted` = 0
+    </select>
+
+    <select id="isGateway" resultType="boolean">
+        select count(1)
+        from `iot_md_product`
+        where `id` = #{productId}
+          and `node_type` = 2
+    </select>
+</mapper>

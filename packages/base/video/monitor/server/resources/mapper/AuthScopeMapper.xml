@@ -1,0 +1,19 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.auth.dao.AuthScopeMapper">
+
+    <select id="selectAuthScopesByAuthTargetIds" resultType="com.guhecloud.cube.biz.vmonitor.server.auth.po.AuthScopePO">
+        SELECT
+        t1.*
+        from
+        auth_scope t1
+        INNER JOIN auth_grant_target t2 on t1.auth_group_id = t2.auth_group_id
+        <where>
+            <if test="targetIds != null and targetIds.size > 0">
+                and t2.target_id IN
+                <foreach collection="targetIds" item="targetId" open="(" separator="," close=")">
+                    #{targetId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,32 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "common",
+    exports = [
+        "@maven//:io_netty_netty_common",
+    ],
+)
+
+java_library(
+    name = "handler",
+    exports = [
+        "@maven//:io_netty_netty_handler",
+    ],
+)
+
+java_library(
+    name = "transport",
+    exports = [
+        "@maven//:io_netty_netty_transport",
+    ],
+)
+
+java_library(
+    name = "netty",
+    exports = [
+        ":handler",
+        ":transport",
+    ],
+)

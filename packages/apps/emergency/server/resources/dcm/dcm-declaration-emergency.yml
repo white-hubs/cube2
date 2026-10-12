@@ -1,0 +1,218 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: EMERGENCY   # 提供方标识
+  appDescription: 提供通用预案规则服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: EventType, versions: [1.0]}
+  - {type: RuleType, versions: [1.0]}
+  - {type: Rule, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: EMERGENCY  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: EventType  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: False
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "code": "firecontrolEvent_mhbj"
+            "name": "消防事件-明火报警"
+            "initialized": True
+            "remark": ""
+          - "code": "firecontrolEvent_ywbj"
+            "name": "消防事件-烟雾报警"
+            "initialized": True
+            "remark": ""
+          - "code": "firecontrolEvent_wgzyxftd"
+            "name": "消防事件-违规占用消防通道"
+            "initialized": True
+            "remark": ""
+          - "code": "firecontrolEvent_sybj"
+            "name": "消防事件-水压报警"
+            "initialized": True
+            "remark": ""
+          - "code": "firecontrolEvent_sbbj"
+            "name": "消防事件-手报报警"
+            "initialized": True
+            "remark": ""
+          - "code": "firecontrolEvent_wgbj"
+            "name": "消防事件-温感报警"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_clwt"
+            "name": "管理事件-车辆违停"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_zdjy"
+            "name": "管理事件-占道经营"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_jtyd"
+            "name": "管理事件-交通拥堵"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_cybj"
+            "name": "管理事件-违规抽烟"
+            "initialized": True
+            "remark": ""
+          - "code": "electricEvent_dlbj"
+            "name": "电气事件-电流报警"
+            "initialized": True
+            "remark": ""
+          - "code": "electricEvent_dybj"
+            "name": "电气事件-电压报警"
+            "initialized": True
+            "remark": ""
+          - "code": "electricEvent_wdbj"
+            "name": "电气事件-温度报警"
+            "initialized": True
+            "remark": ""
+          - "code": "rotatingEvent_wsdbj"
+            "name": "机房动环-温湿度报警"
+            "initialized": True
+            "remark": ""
+          - "code": "rotatingEvent_upsbj"
+            "name": "机房动环-UPS报警"
+            "initialized": True
+            "remark": ""
+          - "code": "gas_rqxl"
+            "name": "用气安全-燃气泄漏"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_ddcgl"
+            "name": "管理事件-电动车管理"
+            "initialized": True
+            "remark": ""
+          - "code": "manageEvent_xsgcgl"
+            "name": "管理事件-小散工程管理"
+            "initialized": True
+            "remark": ""
+      - configType: RuleType  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        vargs:
+          - applicationCode: SECURITY_MONITORING
+            applicationName: 安防监控
+          - applicationCode: ELECTRICMANAGE
+            applicationName: 电气管理
+          - applicationCode: ROTATINGMANAGE
+            applicationName: 动环报警
+          - applicationCode: AIRCONDITIONER
+            applicationName: 空调管理
+          - applicationCode: FIRECONTROL
+            applicationName: 消防管理
+          - applicationCode: WATERSUPPLYDRAINAGE
+            applicationName: 给排水
+          - applicationCode: AIRSUPPLYANDEXHAUST
+            applicationName: 送排风
+          - applicationCode: INFORMATION_PUBLISH
+            applicationName: 信息发布
+          - applicationCode: MEDICAL_INTERCOM
+            applicationName: 医护对讲
+          - applicationCode: LIFT_MANAGEMENT
+            applicationName: 电梯管理
+          - applicationCode: INTRUDER_ALARM
+            applicationName: 入侵报警
+          - applicationCode: MEDICAL_GAS
+            applicationName: 医用气体
+          - applicationCode: TRIAGE_RANK
+            applicationName: 分诊排号
+          - applicationCode: SURGICAL_INSTRUCTION
+            applicationName: 手术示教
+          - applicationCode: ICU_MONITORING
+            applicationName: ICU监测
+          - applicationCode: MEDICAL_CRYOEXTRACTO
+            applicationName: 医用冷冻冷藏
+          - applicationCode: MEAT_TRADE
+            applicationName: 肉类交易
+          - applicationCode: GAS_MANAGEMENT
+            applicationName: 用气管理
+          - applicationCode: COOLINGWATER
+            applicationName: 冷冻水
+          - applicationCode: COLDANDHEATSOURCES
+            applicationName: 冷热源
+          - applicationCode: PERIMETER_PREVENTION
+            applicationName: 周界防范
+          - applicationCode: BOLIER
+            applicationName: 锅炉系统
+          - applicationCode: WATERPURIFICATION
+            applicationName: 净水系统
+          - applicationCode: LOGISTICS
+            applicationName: 物流管理
+          - applicationCode: FRESH_AIR_MANAGEMENT
+            applicationName: 新风管理
+          - applicationCode: SECURITY_CHECKP
+            applicationName: 安检通道
+          - applicationCode: PASSENGER_FLOW_ANAL
+            applicationName: 客流分析
+          - applicationCode: CLEANCONDITIONING
+            applicationName: 洁净空调
+          - applicationCode: SEWAGE_TREATMENT
+            applicationName: 污水处理
+          - applicationCode: MEDICAL-REFRIGERATIO
+            applicationName: 医用冷藏
+          - applicationCode: SECURITY_MONITORING
+            applicationName: 安防监控
+          - applicationCode: GARDENS
+            applicationName: 园林系统
+          - applicationCode: EMERGENCY_RESOURCES
+            applicationName: 应急资源
+          - applicationCode: EMERGENCY_CALL
+            applicationName: 紧急电话
+          - applicationCode: ENVIRONMENT_MONITORI
+            applicationName: 环境监控
+          - applicationCode: TRAFFIC_LIGHT_SYS
+            applicationName: 交通灯系统
+          - applicationCode: TRAFFIC_CONTROL
+            applicationName: 交通控制
+          - applicationCode: TRAFFIC_FLOW_MONIRIN
+            applicationName: 车流量监测
+          - applicationCode: OPERATING_ROOM
+            applicationName: 洁净手术室
+          - applicationCode: ENERGY_CONSUMPTION
+            applicationName: 能碳管理
+      - configType: Rule  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        kwargs:
+          appCode: SECURITY_MONITORING #应用编号
+        vargs:
+          - name: 明火报警事件
+            alarmLevelCode: one_level
+            emergencyEventTypeCode: firecontrolEvent_mhbj
+            enabled: True
+            repeatTime: 5
+            repeatTimeUnit: MINUTE
+            estimatedHandlerTime: 30
+            estimatedHandlerUnit: MINUTE
+            remark: ""
+            emergencyRuleCondGroups:
+              - emergencyRuleCondList:
+                  - deviceProdName: "海康摄像机" #产品名称
+                    brandName: "海康"      #品牌名称
+                    modelName: "监控摄像机"      #型号名称
+                    conditionType: DEVICE_EVENT_CONDITION  #条件类型 CUSTOM_RULE_CONDITION:属性联动条件,DEVICE_EVENT_CONDITION:设备事件
+                    deviceEventCode: flame #当conditionType=DEVICE_EVENT_CONDITION,需要填写事件编号
+                    logicalOp:  #逻辑运算符,OR或AND,当conditionType=CUSTOM_RULE_CONDITION设值该值才会生效,目前只实现了OR(缺省值为OR)
+                    emergencyRuleConditionExps:
+                      - propCode: "@dev_event_delay@"  #属性code(在事件设值中这里填事件参数名称)
+                        op:         #表达式(EQ,NE,IN,GT,GE,LE,LT,BETWEEN,NOT_IN),仅在属性规则中可用
+                        oprand: "5"    #属性值(在事件设值中这里填事件参数值,目前只支持秒如果需要分钟需*60后填入)
+                        delayTime:  #属性规则时设置该参数才会生效
+                      - propCode: "@dev_event_interval@"
+                        op:
+                        oprand: "30"
+                        delayTime:
+                emergencyRuleTime:  #规则时段配置
+                  timeType: "ALL"  #ALL:全天,WEEK:周,MONTH:月,TIME:时段
+                  timeConditions:  #时段的json配置,若timeType=ALL,则不用填写。周配置样例"[3,4,5,6]",月配置样例"[1,2,3,4,5,6,7]",时段配置样例:"[{"beginTime":"16:00","endTime":"16:05"}]"
+

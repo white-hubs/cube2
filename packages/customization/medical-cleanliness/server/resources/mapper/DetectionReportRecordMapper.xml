@@ -1,0 +1,23 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.repo.mapper.DetectionReportRecordMapper">
+    <select id="getAdminReportDetail" resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.entity.ReportRecord">
+                        SELECT * FROM detection_report_record r WHERE r.id = #{id} and r.deleted = 0
+    </select>
+
+    <select id="getAdminReportPage" resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.vo.DetectionReportVO">
+        SELECT * FROM `detection_report_record` r
+        <where>
+            r.deleted = 0
+            <if test="param.period != null and param.period.begin != null">
+                and r.detection_date &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and r.detection_date &lt; #{param.period.end}
+            </if>
+            <if test="param.tenant != null">
+                and r.tenant = #{param.tenant}
+            </if>
+        </where>
+        order by r.create_time DESC
+    </select>
+</mapper>

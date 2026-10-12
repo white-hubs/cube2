@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3MdProductEventMapper">
+
+    <!-- 产品事件实体ResultMap -->
+    <resultMap id="MdProductEventResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.MdProductEvent">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="event_code" property="eventCode"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="config" property="config"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.dto.event.EventConfig"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 产品事件VO的ResultMap -->
+    <resultMap id="ProductEventVOResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.vo.ProductEventVO">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="event_code" property="eventCode"/>
+        <result column="event_category_id" property="eventCategoryId"/>
+        <result column="event_category_name" property="eventCategoryName"/>
+        <result column="config" property="config"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.dto.event.EventConfig"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 根据产品ID查询事件列表(关联查询事件类别名称) -->
+    <select id="selectByProdIdNoCategoryName" resultMap="ProductEventVOResultMap">
+        SELECT
+            e.`id`,
+            e.`prod_id`,
+            e.`name`,
+            e.`event_code`,
+            e.`category_id` AS event_category_id,
+            NULL AS event_category_name,
+            e.`config`,
+            e.`remark`,
+            e.`status`,
+            e.`sort_order`,
+            e.`create_time`
+        FROM iot_md_product_event_v3 e
+        WHERE e.`prod_id` = #{prodId}
+        ORDER BY e.`sort_order` ASC, e.`create_time` ASC
+    </select>
+
+    <!-- 根据产品ID和事件Code查询事件 -->
+    <select id="selectByProdIdAndCode" resultMap="MdProductEventResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `name`,
+            `event_code`,
+            `category_id`,
+            `config`,
+            `remark`,
+            `status`,
+            `sort_order`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_md_product_event_v3
+        WHERE `prod_id` = #{prodId}
+          AND `event_code` = #{eventCode}
+    </select>
+
+</mapper>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3MdProductPropMapper">
+
+    <!-- 产品属性实体ResultMap -->
+    <resultMap id="MdProductPropResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.MdProductProp">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="prop_code" property="propCode"/>
+        <result column="data_type" property="dataType"/>
+        <result column="precision" property="precision"/>
+        <result column="unit_symbol" property="unitSymbol"/>
+        <result column="data_write" property="dataWrite"/>
+        <result column="data_config" property="dataConfig"/>
+        <result column="remark" property="remark"/>
+        <result column="default_value" property="defaultValue"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 产品属性VO的ResultMap -->
+    <resultMap id="ProductPropVOResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.vo.ProductPropVO">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="prop_code" property="propCode"/>
+        <result column="data_type" property="dataType"/>
+        <result column="precision" property="precision"/>
+        <result column="unit_symbol" property="unitSymbol"/>
+        <result column="data_write" property="dataWrite"/>
+        <result column="data_config" property="dataConfig"/>
+        <result column="remark" property="remark"/>
+        <result column="default_value" property="defaultValue"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 根据产品ID查询属性列表 -->
+    <select id="selectByProdId" resultMap="ProductPropVOResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `name`,
+            `prop_code`,
+            `data_type`,
+            `precision`,
+            `unit_symbol`,
+            `data_write`,
+            `data_config`,
+            `remark`,
+            `default_value`,
+            `sort_order`,
+            `create_time`
+        FROM iot_md_product_prop_v3
+        WHERE `prod_id` = #{prodId}
+        ORDER BY `sort_order` ASC, `create_time` ASC
+    </select>
+
+    <!-- 根据产品ID和属性Code查询属性 -->
+    <select id="selectByProdIdAndCode" resultMap="MdProductPropResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `name`,
+            `prop_code`,
+            `data_type`,
+            `precision`,
+            `unit_symbol`,
+            `data_write`,
+            `data_config`,
+            `remark`,
+            `default_value`,
+            `sort_order`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_md_product_prop_v3
+        WHERE `prod_id` = #{prodId}
+          AND `prop_code` = #{propCode}
+    </select>
+
+</mapper>

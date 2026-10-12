@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.file.server.dao.FileConfigMapper">
+    <select id="getList" resultType="com.guhecloud.cube.base.file.server.vo.FileConfigVO">
+        SELECT
+        b.`id`,
+        b.`endpoint`,
+        b.`bucket`,
+        b.`access_key_id`,
+        b.`access_key_secret`,
+        b.`access_prefix`,
+        a.`type`
+        FROM
+        `file_store_sign_up` a
+        INNER JOIN `file_config` b ON a.file_store = b.id
+        <where>
+            <if test="type !=null and type !=''">
+                a.`type` = #{type}
+            </if>
+        </where>
+    </select>
+</mapper>

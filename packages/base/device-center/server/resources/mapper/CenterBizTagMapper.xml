@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizTagMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        <!--@mbg.generated-->
+        <!--@Table center_biz_tag-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <!--        <result column="tag_type_id" jdbcType="BIGINT" property="tagTypeId"/>-->
+        <result column="tag_code" jdbcType="VARCHAR" property="tagCode"/>
+        <result column="tag_name" jdbcType="VARCHAR" property="tagName"/>
+    </resultMap>
+
+    <resultMap id="DeviceRefTagMap" type="com.guhecloud.cube.base.device.center.metadata.vo.DeviceRefTagVO">
+        <id column="id" property="id"/>
+        <collection property="tags" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.base.device.center.metadata.std.vo.CustomerTagVO">
+            <result column="tag_id" property="id"/>
+            <result column="tag_name" property="tagName"/>
+            <result column="tag_code" property="tagCode"/>
+            <result column="description" property="description"/>
+            <result column="update_time" property="updateTime"/>
+            <result column="enable_status" property="enableStatus"/>
+        </collection>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `tag_code`, `tag_name`
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        <!--@mbg.generated-->
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `center_biz_tag`
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        <!--@mbg.generated-->
+        DELETE FROM `center_biz_tag`
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </delete>
+
+    <insert id="insertSelective" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_tag`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="tagCode != null">
+                `tag_code`,
+            </if>
+            <if test="tagName != null">
+                `tag_name`,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="tagCode != null">
+                #{tagCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tagName != null">
+                #{tagName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag`
+        <set>
+            <if test="tagCode != null">
+                `tag_code` = #{tagCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tagName != null">
+                `tag_name` = #{tagName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag`
+        SET
+        `tag_code` = #{tagCode,jdbcType=VARCHAR},
+        `tag_name` = #{tagName,jdbcType=VARCHAR}
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </update>
+
+    <insert id="batchInsert" parameterType="map">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_tag`
+        (`id`, `tag_code`, `tag_name`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.tagCode,jdbcType=VARCHAR},
+            #{item.tagName,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <select id="queryDeviceIdsByTagCode" resultType="java.lang.Long">
+        <!--@mbg.generated-->
+        SELECT
+        `tag_ref`.`business_key`
+        FROM `center_biz_tag` `tag`
+        JOIN `center_biz_tag_ref` `tag_ref` ON `tag`.`id` = `tag_ref`.`tag_id`
+        WHERE `tag`.`tag_code` = #{tagCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryDeviceIdsByTagCodeAndArea" resultType="java.lang.Long">
+        SELECT
+        `tag_ref`.`business_key`
+        FROM `center_biz_tag` `tag`
+        JOIN `center_biz_tag_ref` `tag_ref` ON `tag`.`id` = `tag_ref`.`tag_id`
+        JOIN `center_biz_device` `bd` ON `bd`.`id` = `tag_ref`.`business_key`
+        WHERE `tag`.`tag_code` = #{tagCode,jdbcType=VARCHAR}
+        <if test="param.startWithAreaSeq != null and param.startWithAreaSeq != ''">
+            AND `bd`.`area_id` LIKE CONCAT(#{param.startWithAreaSeq},'%')
+        </if>
+    </select>
+
+    <select id="queryDeivceSelfInfoPage"
+            resultType="com.guhecloud.cube.base.device.center.metadata.vo.DeviceSelfInfoVO">
+        SELECT
+        `dev`.`id`,
+        `dev`.`device_code`,
+        `dev`.`device_name`,
+        `dev`.`area_id`,
+        `dev`.`thirdparty_id`,
+        `dev`.`thirdparty_cfg`,
+        `iot`.`iot_device_product_id`,
+        `iot`.`iot_device_product_name`,
+        `iot`.`iot_device_brand_name` AS `brand_name`,
+        `dev_expand`.`picture` AS `picture`
+        FROM `center_biz_device` `dev`
+        JOIN `center_biz_tag_ref` `btr` ON `dev`.`id` = `btr`.`device_id`
+        LEFT JOIN `center_biz_device_iot` `iot` ON `iot`.`id` = `dev`.`id`
+        LEFT JOIN `center_biz_device_expand` `dev_expand` ON `dev_expand`.`id` = `dev`.`id`
+        WHERE `btr`.`tag_id` = #{tagId,jdbcType=BIGINT}
+        <if test="param.keyword != null and param.keyword != ''">
+            AND (`dev`.`device_code` LIKE CONCAT('%',#{param.keyword},'%') OR `dev`.`device_name` LIKE
+            CONCAT('%',#{param.keyword},'%'))
+        </if>
+        <if test="param.genreId != null and param.genreId != ''">
+            AND `dev`.`device_biz_type` = #{param.genreId}
+        </if>
+        <if test="param.productId != null and param.productId != ''">
+            AND `iot`.`iot_device_product_id` = #{param.productId}
+        </if>
+        <if test="param.filteredDeviceIds != null and param.filteredDeviceIds.size() > 0">
+            AND `dev`.`id` IN
+            <foreach collection="param.filteredDeviceIds" separator="," item="id" open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getEquipmentOverview" resultType="java.lang.Integer">
+        SELECT
+        COUNT( DISTINCT `a`.`tag_code` )
+        FROM `center_biz_tag` `a`
+        JOIN `center_biz_tag_ref` `b` ON `a`.`id` = `b`.`tag_id`
+        WHERE
+        `a`.`tag_code` LIKE CONCAT ('builtin.app::','%')
+        AND `b`.`business_key` IN
+        <foreach collection="ids" open="(" close=")" separator="," item="item">
+            #{item}
+        </foreach>
+    </select>
+
+    <select id="selectSecurityDeviceApplicationStatistics"
+            resultType="com.guhecloud.cube.base.device.center.open.vo.SecurityDeviceApplicationCodeStatisticsVO">
+        SELECT `tag_code` AS `applicationCode`,
+               COUNT(1)   AS `num`
+        FROM `center_biz_tag`
+        WHERE `tag_code` LIKE CONCAT('builtin.app::', '%')
+        GROUP BY `tag_code`
+    </select>
+
+    <select id="getIds" resultType="java.lang.Long">
+        SELECT `b`.`business_key`
+        FROM `center_biz_tag` `a`
+                 JOIN `center_biz_tag_ref` `b` ON `a`.`id` = `b`.`tag_id`
+        WHERE `a`.`tag_code` = #{code}
+    </select>
+
+    <select id="findTenantIdByDeviceId" resultType="java.lang.Integer">
+        SELECT `tenant`
+        FROM `center_biz_device`
+        WHERE `id` = #{deviceId}
+    </select>
+
+    <select id="selectDeviceTags" resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.DeviceTagFullVO">
+        SELECT
+        `dev_tag_ref`.`business_key` AS `deviceId`,
+        `dev_tag`.`tag_code`,
+        `dev_tag`.`tag_name`
+        FROM `center_biz_tag_ref` `dev_tag_ref`
+        INNER JOIN `center_biz_tag` `dev_tag` ON `dev_tag`.`id` = `dev_tag_ref`.`tag_id`
+        <where>
+            `dev_tag_ref`.`business_key` IN
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="selectDeviceTagsByCodeLeftLike"
+            resultType="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        SELECT
+        `id`,
+        `tag_code`,
+        `tag_name`,
+        `description`
+        FROM `center_biz_tag`
+        <where>
+            `tag_code` LIKE CONCAT(#{tagCode},'%')
+        </where>
+    </select>
+
+    <select id="queryByTagCode" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `center_biz_tag`
+        WHERE `tag_code` = #{tagCode,jdbcType=VARCHAR}
+    </select>
+
+    <update id="updateTageName">
+        UPDATE `center_biz_tag`
+        SET `tag_name`    = #{tagName,jdbcType=VARCHAR},
+            `description` = #{description,jdbcType=VARCHAR}
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateEnableState">
+        UPDATE `center_biz_tag`
+        SET `enable_status` = #{status,jdbcType=INTEGER}
+        WHERE `id` = #{tagId,jdbcType=BIGINT}
+    </update>
+
+    <select id="customerTagPage" resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.CustomerTagVO">
+        SELECT `id`, `tag_code`, `tag_name`, `description`, `update_time`, `enable_status` FROM `center_biz_tag`
+        <where>
+            `tag_code` LIKE CONCAT(#{prefix,jdbcType=VARCHAR},'%')
+            <if test="param.status != null">
+                AND `enable_status` = #{param.status,jdbcType=INTEGER}
+            </if>
+            <if test="param.tagName != null and param.tagName != ''">
+                AND `tag_name` LIKE CONCAT('%',#{param.tagName,jdbcType=VARCHAR},'%')
+            </if>
+            <if test="param.period != null ">
+                AND `update_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+        ORDER BY `update_time` DESC
+    </select>
+
+    <delete id="realDeleteById">
+        DELETE
+        FROM `center_biz_tag`
+        WHERE `id` = #{tagId}
+    </delete>
+
+    <select id="deviceTagList" resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.CustomerTagVO">
+        SELECT `tag`.`id`, `tag`.`tag_code`, `tag`.`tag_name`, `tag`.`description`, `tag`.`update_time`,
+        `tag`.`enable_status`
+        FROM `center_biz_tag_ref` `ref`
+        INNER JOIN `center_biz_tag` `tag` ON `ref`.`tag_id` = `tag`.`id`
+        <where>
+            `ref`.`business_key` = #{devId,jdbcType=BIGINT}
+            AND `tag`.`tag_code` LIKE CONCAT(#{tagPrefix},'%')
+        </where>
+    </select>
+
+
+    <select id="deviceAllTag" resultMap="DeviceRefTagMap">
+        SELECT
+        `dev`.`id`,
+        `cbt`.`id` AS `tag_id`,
+        `cbt`.`tag_name`,
+        `cbt`.`tag_code`,
+        `cbt`.`description`,
+        `cbt`.`update_time`,
+        `cbt`.`enable_status`
+        FROM `center_biz_device` `dev`
+        INNER JOIN `center_biz_tag_ref` `cbtr` ON `dev`.`id` = `cbtr`.`business_key`
+        INNER JOIN `center_biz_tag` `cbt` ON `cbtr`.`tag_id` = `cbt`.`id`
+        WHERE
+        `dev`.`id` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+        UNION ALL
+        SELECT
+        `dev`.`id`,
+        `cbt`.`id` AS `tag_id`,
+        `cbt`.`tag_name`,
+        `cbt`.`tag_code`,
+        `cbt`.`description`,
+        `cbt`.`update_time`,
+        `cbt`.`enable_status`
+        FROM `center_biz_device` `dev`
+        INNER JOIN `center_biz_tag_ref` `cbtr` ON `dev`.`device_iot_prod_id` = `cbtr`.`business_key`
+        INNER JOIN `center_biz_tag` `cbt` ON `cbtr`.`tag_id` = `cbt`.`id`
+        WHERE
+        `dev`.`id` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </select>
+
+    <select id="customerTagList" resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.CustomerTagVO">
+        SELECT `id`, `tag_code`, `tag_name`, `description`, `update_time`, `enable_status`
+        FROM `center_biz_tag`
+        <where>
+            `tag_code` LIKE CONCAT(#{prefix,jdbcType=VARCHAR},'%') AND `enable_status` = 1
+        </where>
+    </select>
+
+    <select id="getTagByNameAndCodePrefix" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        ,`deleted`
+        FROM `center_biz_tag`
+        <where>
+            `tag_code` LIKE CONCAT(#{codePrefix,jdbcType=VARCHAR},'%')
+            AND `tag_name` = #{tagName,jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <update id="recoverTag">
+        UPDATE `center_biz_tag`
+        SET `deleted` = 0
+        WHERE `id` = #{tagId,jdbcType=BIGINT}
+    </update>
+</mapper>

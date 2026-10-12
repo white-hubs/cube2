@@ -1,0 +1,67 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.subsystem.parking.server.parking.infrastructure.repository.dao.ParkingInfoMapper">
+
+    <select id="selectDockConfigParkingInfoPage"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.domain.po.ParkingInfoPO">
+        SELECT
+        t1.*
+        from
+        parking_info t1
+        INNER JOIN parking_info_dock_config t2 on t1.id = t2.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (t1.name LIKE concat('%', #{keyword}, '%') OR t1.code LIKE concat('%', #{keyword}, '%'))
+            </if>
+            <if test="source != null and source != ''">
+                AND t1.source = #{source}
+            </if>
+            <if test="providerCode != null and providerCode != ''">
+                AND t2.provider_code = #{providerCode}
+            </if>
+        </where>
+        order by t2.create_time DESC
+    </select>
+
+    <select id="selectDockConfigsParkingInfoByProviderCode"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.domain.po.ParkingInfoPO">
+        SELECT
+        t1.*
+        from
+        parking_info t1
+        INNER JOIN parking_info_dock_config t2 on t1.id = t2.id
+        <where>
+            <if test="providerCode != null and providerCode != ''">
+                AND t2.provider_code = #{providerCode}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectParkingInfosByDeviceIds"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.domain.po.ParkingInfoPO">
+        SELECT
+        t1.*
+        from
+        parking_info t1
+        INNER JOIN parking_info_device t2 on t1.id = t2.parking_info_id
+        WHERE
+        t2.device_id IN
+        <foreach collection="deviceIds" item="deviceId" open="(" close=")" separator=",">
+            #{deviceId}
+        </foreach>
+    </select>
+
+    <select id="selectParkingInfoDevicesByProviderCode"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.domain.po.ParkingInfoDevicePO">
+        SELECT
+        t3.*
+        from
+        parking_info t1
+        INNER JOIN parking_info_dock_config t2 on t1.id = t2.id
+        inner join parking_info_device t3 on t1.id = t3.parking_info_id
+        <where>
+            <if test="providerCode != null and providerCode != ''">
+                AND t2.provider_code = #{providerCode}
+            </if>
+        </where>
+    </select>
+</mapper>

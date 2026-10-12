@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "slf4j",
+    exports = [
+        "@maven//:org_slf4j_jul_to_slf4j",
+        "@maven//:org_slf4j_slf4j_api",
+    ],
+)

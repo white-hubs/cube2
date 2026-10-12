@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.InspectTaskMapper">
+
+    <insert id="insertOrUpdateInspectBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyInspectTask">
+        insert into
+        `safety_inspect_task`(id,task_name,task_create_time,type_name,task_type,
+        level_code,level_name,status_code,status_name,
+        executor,valid_end_time,target_num,progress,market_tenant,market_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted,business_type)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.taskName},#{item.taskCreateTime},#{item.typeName},#{item.taskType},
+            #{item.levelCode},#{item.levelName},#{item.statusCode},#{item.statusName},
+            #{item.executor},#{item.validEndTime},#{item.targetNum},#{item.progress},#{item.marketTenant},#{item.marketName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted},#{item.businessType})
+        </foreach>
+        on duplicate key update
+        type_name = values(type_name),
+        task_type = values(task_type),
+        level_code = values(level_code),
+        level_name = values(level_name),
+        status_code = values(status_code),
+        status_name = values(status_name),
+        executor = values(executor),
+        valid_end_time = values(valid_end_time),
+        target_num = values(target_num),
+        progress = values(progress),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

@@ -1,0 +1,84 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/apps/official:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/file/client",
+        "//packages/base/message/bracing/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/base/work-center/client",
+        "//packages/base/process-engine/client",
+        "//packages/base/todo/client",
+        "//packages/platform/database",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/jackson",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:json",
+        # jdk21
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/hutool:poi",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.official.management.server.OfficialManagementServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "official-management-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-gen-official-management",
+    datasource_package = "com.guhecloud.cube.srv.gen.official.management",
+    gw_prefix = "/official/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "officialManagement",
+    visibility = ["//packages:__subpackages__"],
+)

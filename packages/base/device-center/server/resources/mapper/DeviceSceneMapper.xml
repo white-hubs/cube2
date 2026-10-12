@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.scene.mapper.DeviceSceneMapper">
+    <resultMap id="visualDeviceInfo"
+               type="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO">
+        <id column="id" property="id"/>
+        <result column="device_name" property="name"/>
+        <result column="device_code" property="code"/>
+        <association property="brand"
+                     javaType="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO$BrandVO">
+            <result column="prod_brand_name" property="brandName"/>
+        </association>
+        <association property="prodCategory"
+                     javaType="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO$ProdCategoryVO">
+            <result column="prod_category_code" property="code"/>
+            <result column="prod_category_name" property="name"/>
+        </association>
+        <association property="product"
+                     javaType="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO$ProductVO">
+            <result column="prod_id" property="id"/>
+            <result column="prod_name" property="name"/>
+            <result column="prod_model_name" property="modelName"/>
+        </association>
+        <association property="expand"
+                     javaType="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO$ExpandVO">
+            <result column="install_date" property="installDate"/>
+            <result column="purchase_date" property="purchaseDate"/>
+        </association>
+        <association property="status"
+                     javaType="com.guhecloud.cube.base.device.center.scene.vo.DeviceVisualCollectionVO$StatusVO">
+            <result column="device_state" property="onlineState"/>
+            <result column="communication_time" property="communicationTime"/>
+        </association>
+        <association property="department"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.lang.Pair">
+            <result column="department_id" property="key"/>
+            <result column="department_name" property="val"/>
+        </association>
+        <association property="area"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.AreaBaseInfoDTO">
+            <result column="area_last_id" property="id"/>
+            <result column="area_name" property="name"/>
+        </association>
+    </resultMap>
+
+    <sql id="visualDeviceBaseSql">
+        SELECT `dev`.`id`,
+               `dev`.`device_name`,
+               `dev`.`device_code`,
+               `dev`.`device_state`,
+               `dev`.`communication_time`,
+               `dev`.`department_id`,
+               `dev`.`department_name`,
+               `dev`.`area_last_id`,
+               `dev`.`area_name`,
+               `devp`.`install_date`,
+               `devp`.`purchase_date`,
+               `iot_prod_info`.`prod_brand_name`,
+               `iot_prod_info`.`prod_category_code`,
+               `iot_prod_info`.`prod_category_name`,
+               `iot_prod_info`.`id` AS `prod_id`,
+               `iot_prod_info`.`prod_name`,
+               `iot_prod_info`.`prod_model_name`
+        FROM `center_biz_device` `dev`
+                 LEFT JOIN `center_biz_device_expand` `devp` ON `dev`.`id` = `devp`.`id`
+                 LEFT JOIN `iot_prod_view` `iot_prod_info` ON `dev`.`device_iot_prod_id` = `iot_prod_info`.`id`
+                 LEFT JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+    </sql>
+
+    <select id="getVisualDeviceList"
+            resultMap="visualDeviceInfo">
+        <include refid="visualDeviceBaseSql"/>
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="query.keyword != null and query.keyword != ''">
+                AND (`dev`.`device_code` LIKE CONCAT('%',#{query.keyword},'%')
+                OR
+                `dev`.`device_name` LIKE CONCAT('%',#{query.keyword},'%'))
+            </if>
+            <if test="query.status != null and 'ONLINE' == query.status.toString()">
+                AND `dev`.`device_state` = 1
+            </if>
+            <if test="query.status != null and 'OFFLINE' == query.status.toString()">
+                AND `dev`.`device_state` = 0
+            </if>
+            <if test="query.prodCategoryCode != null and query.prodCategoryCode != ''">
+                AND `iot_prod_info`.`prod_category_code` = #{query.prodCategoryCode}
+            </if>
+            <if test="query.areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%',#{query.areaId},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getDeviceIds" resultType="java.lang.Long">
+        SELECT
+        `dev`.`id`
+        FROM
+        `center_biz_device` `dev`
+        LEFT JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%',#{areaId},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="getVisualDevice"
+            resultMap="visualDeviceInfo">
+        <include refid="visualDeviceBaseSql"/>
+        <where>
+            `dev`.`id` = #{id}
+        </where>
+    </select>
+
+    <select id="selectNumberOfGroupByStatus"
+            resultType="com.guhecloud.cube.base.device.center.metadata.std.dto.DeviceStateCountDTO">
+        SELECT COUNT(`dev`.`id`) AS `totalNumber`,
+        SUM(CASE WHEN `dev`.`device_state` = 0 THEN 1 ELSE 0 END) AS `offlineNumber`,
+        SUM(CASE WHEN `dev`.`device_state` = 1 THEN 1 ELSE 0 END) AS `normalNumber`
+        FROM `center_biz_device` `dev`
+        INNER JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%',#{areaId},'%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectEquipmentOverview" resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT `a`.`tag_code`)
+        FROM
+        `center_biz_tag` `a`
+        JOIN `center_biz_tag_ref` `b` ON `a`.`id` = `b`.`tag_id`
+        JOIN ( SELECT `tagref`.`business_key`
+        FROM `center_biz_device` `dev`
+        JOIN `center_biz_tag_ref` `tagref` ON `dev`.`id` = `tagref`.`business_key`
+        <where>
+            `tagref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%',#{areaId},'%')
+            </if>
+        </where>
+        ) `dev` ON `b`.`business_key` = `dev`.`business_key`
+        WHERE
+        `a`.`tag_code` LIKE CONCAT('builtin.app::', '%')
+    </select>
+
+
+    <select id="selectGenreDevicesNum"
+            resultType="com.guhecloud.cube.base.device.center.metadata.vo.GenreVO">
+        SELECT
+        `c`.`category_name` AS `genreName`,
+        COUNT(1) AS `num`
+        FROM
+        `center_biz_device` `dev`
+        INNER JOIN `iot_prod_view` `b` ON `dev`.`device_iot_prod_id` = `b`.`id` AND `b`.`tenant` = #{tenant} AND
+        `b`.`deleted` = 0
+        INNER JOIN `iot_category_view` `c` ON `b`.`prod_category_code` = `c`.`category_code` AND `c`.`tenant` =
+        #{tenant} AND `b`.`deleted` = 0
+        INNER JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%', #{areaId}, '%')
+            </if>
+        </where>
+        GROUP BY `c`.`category_name`
+    </select>
+
+    <select id="selectDevicesVo"
+            resultType="com.guhecloud.cube.base.device.center.metadata.vo.DevicesVO">
+        SELECT
+        `dev`.`id` AS `deviceId`,
+        `dev`.`device_code` AS `deviceCode`,
+        `dev`.`device_name` AS `deviceName`,
+        -- `icv`.`category_id` AS `genreId`,
+        `dev`.`area_name` AS `areaName`,
+        `dev`.`area_id` AS `areaId`,
+        `dev`.`device_state` AS `deviceStatusCode`,
+        `cbde`.`lnt_and_lat` AS `lntAndLat`,
+        `dev`.`thirdparty_id` AS `thirdPartyId`,
+        `dev`.`thirdparty_cfg` AS `thirdpartyCfg`
+        FROM
+        `center_biz_device` `dev`
+        LEFT JOIN `center_biz_device_expand` `cbde` ON `dev`.`id` = `cbde`.`id`
+        INNER JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%', #{areaId}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectApplicationCodeNum"
+            resultType="com.guhecloud.cube.base.device.center.open.vo.DeviceStatusVo">
+        SELECT
+        `a`.`tag_code` AS `applicationCode`,
+        COUNT(CASE WHEN `c`.`device_state` = '1' THEN 1 END) AS `normalNum`,
+        COUNT(CASE WHEN `c`.`device_state` = '0' THEN 1 END) AS `offLineNum`
+        FROM
+        `center_biz_tag` `a`
+        LEFT JOIN `center_biz_tag_ref` `b` ON `a`.`id` = `b`.`tag_id`
+        LEFT JOIN `center_biz_device` `c` ON `b`.`business_key` = `c`.`id`
+        JOIN (
+        SELECT `tagref`.`business_key`
+        FROM `center_biz_device` `dev`
+        JOIN `center_biz_tag_ref` `tagref` ON `dev`.`id` = `tagref`.`business_key`
+        <where>
+            `tagref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%', #{areaId}, '%')
+            </if>
+        </where>
+        ) `dev` ON `b`.`business_key` = `dev`.`business_key`
+        WHERE
+        `a`.`tag_code` LIKE CONCAT('builtin.app::', '%')
+        GROUP BY `a`.`tag_code`
+    </select>
+
+
+    <select id="selectDeviceOffline"
+            parameterType="java.util.List"
+            resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.DeviceOfflineCountVO">
+        SELECT
+        COUNT(1) AS `num`,
+        COUNT(`offLineId`) AS `offLineNum`,
+        COUNT(`onLineId`) AS `onLineNum`
+        FROM `center_biz_device` `dev`
+        LEFT JOIN ( SELECT `id` AS `offLineId` FROM `center_biz_device` WHERE `device_state` = 0 ) `ofl` ON
+        `ofl`.`offLineId` = `dev`.`id`
+        LEFT JOIN ( SELECT `id` AS `onLineId` FROM `center_biz_device` WHERE `device_state` = 1 ) `ol` ON
+        `ol`.`onLineId` = `dev`.`id`
+        INNER JOIN `center_biz_tag_ref` `tag_ref` ON `tag_ref`.`business_key` = `dev`.`id`
+        <where>
+            `tag_ref`.`tag_id` = #{tagId}
+            <if test="areaId != null">
+                AND `dev`.`area_id` LIKE CONCAT('%', #{areaId}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>

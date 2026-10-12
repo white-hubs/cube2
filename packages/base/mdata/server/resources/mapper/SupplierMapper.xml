@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.supplier.dao.SupplierMapper">
+
+    <select id="pageSupplier" resultType="com.guhecloud.cube.biz.mdata.server.supplier.entity.Supplier">
+        select s.id,s.name,s.code,s.admin_user_id,s.admin_phone,s.liaison,s.phone,s.area,s.address,s.remark,s.category,
+        s.risk_level,s.supplier_tenant,s.tenant,s.deleted,s.create_by,s.creator_id,s.creator_type,s.create_time,s.update_by,s.updater_id,s.updater_type,s.update_time
+        from supplier s
+        left join supplier_authentication sa
+        on s.id = sa.supplier_id
+        <where>
+            <if test="param.ids != null and param.ids.size() > 0">
+                and s.id in
+                <foreach collection="param.ids" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and s.name like concat("%",#{param.keyword},"%")
+            </if>
+            <if test="param.status != null">
+                and sa.status = #{param.status}
+            </if>
+            <if test="param.type != null">
+                and sa.type = #{param.type}
+            </if>
+            and sa.status != "INVALID"
+            and s.tenant = #{param.tenant}
+        </where>
+    </select>
+
+    <select id="getCustomers" resultType="com.guhecloud.cube.biz.ouaa.client.dto.UserDTO">
+        SELECT
+        s.admin_user_id AS id ,s.admin_user_name as name
+        FROM
+        supplier s
+        LEFT JOIN supplier_authentication sa ON s.id = sa.supplier_id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and s.admin_user_name like concat("%",#{param.keyword},"%")
+            </if>
+            <!--            <if test="param.userIds != null and !param.userIds.isEmpty()">-->
+            <!--                and s.admin_user_id in-->
+            <!--                <foreach collection="param.userIds" item="userId" open="(" close=")" separator=",">-->
+            <!--                    #{userId}-->
+            <!--                </foreach>-->
+            <!--            </if>-->
+            and sa.STATUS = 'CERTIFIED' and s.tenant = ${param.tenant}
+        </where>
+        UNION
+        SELECT
+        p.user_id AS id,p.user_name as name
+        FROM
+        purchaser p
+        LEFT JOIN purchaser_authentication pa ON p.id = pa.purchaser_id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and p.user_name like concat("%",#{param.keyword},"%")
+            </if>
+            <!--            <if test="param.userIds != null and !param.userIds.isEmpty()">-->
+            <!--                and p.user_id in-->
+            <!--                <foreach collection="param.userIds" item="userId" open="(" close=")" separator=",">-->
+            <!--                    #{userId}-->
+            <!--                </foreach>-->
+            <!--            </if>-->
+            and pa.`status` = 'CERTIFIED' and p.tenant = ${param.tenant};
+        </where>
+    </select>
+
+    <select id="getCustomersV2" resultType="com.guhecloud.cube.biz.mdata.server.supplier.vo.SupplierVO">
+        select s.admin_user_id as adminUserId,s.liaison as adminName,s.phone as adminPhone,s.id,s.name,s.phone,s.liaison,c.`code` from
+        supplier s
+        left join `cube-biz-meattrade`.meattrade_vip_card c on s.id = c.supplier_id
+        LEFT JOIN supplier_authentication sa ON s.id = sa.supplier_id
+        where sa.STATUS = 'CERTIFIED' and s.tenant = ${param.tenant} and (s.`name` like concat("%",#{param.keyword},"%") or s.liaison like
+        concat("%",#{param.keyword},"%") or s.phone like concat("%",#{param.keyword},"%") or c.`code` like concat("%",#{param.keyword},"%"))
+        UNION ALL
+        select u.id as adminUserId,u.name as adminName,u.mobile as adminPhone,null,null,null,null,null from purchaser p
+        INNER JOIN `cube-biz-ouaa`.`user` u on p.user_id = u.id
+        LEFT JOIN purchaser_authentication pa ON p.id = pa.purchaser_id
+        where pa.STATUS = 'CERTIFIED' and p.tenant = ${param.tenant} and (u.`name` like concat("%",#{param.keyword},"%") or u.mobile like
+        concat("%",#{param.keyword},"%"))
+    </select>
+
+</mapper>

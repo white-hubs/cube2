@@ -1,0 +1,130 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.linkage.server.record.infrastructure.repository.mapper.LinkageEventRecordMapper">
+
+    <resultMap id="eventRecordPageMap" type="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventRecordVO">
+        <id column="id" property="id" />
+        <result column="code" property="code" />
+        <result column="name" property="name" />
+        <result column="event_id" property="eventId" />
+        <result column="event_time" property="eventTime" />
+        <association property="eventDevice" javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventDeviceVO">
+            <id column="device_id" property="id" />
+            <result column="device_code" property="code" />
+            <result column="device_name" property="name" />
+            <result column="device_area_name" property="areaName" />
+            <result column="device_lnt_and_lat" property="lntAndLat" />
+            <result column="device_address" property="address" />
+        </association>
+        <association property="eventLevel" javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventLevelVO">
+            <id column="level_id" property="id" />
+            <result column="level_code" property="code" />
+            <result column="level_name" property="name" />
+        </association>
+        <association property="eventSnapshot" javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventSnapshotVO">
+            <result column="snapshot" property="snapshot" />
+        </association>
+        <association property="eventApp" javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventAppVO">
+            <result column="application_code" property="code" />
+            <result column="application_name" property="name" />
+        </association>
+        <association property="eventType" javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventTypeVO">
+            <id column="event_type_id" property="id" />
+            <result column="event_type_code" property="code" />
+            <result column="event_type_name" property="name" />
+        </association>
+        <association property="assistConfirmResult"
+                     javaType="com.guhecloud.cube.biz.linkage.server.record.interfaces.vo.EventAssistConfirmVO">
+            <result column="assist_confirm_result" property="result" />
+        </association>
+    </resultMap>
+
+    <select id="selectEventRecordPage" resultMap="eventRecordPageMap">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`name`,
+        t1.`event_id`,
+        t1.`event_time`,
+        t1.`level_id`,
+        t1.`level_code`,
+        t1.`level_name`,
+        t1.`device_id`,
+        t1.`device_code`,
+        t1.`device_name`,
+        t1.`device_area_name`,
+        t1.`device_lnt_and_lat`,
+        t1.`device_address`,
+        t1.`event_type_id`,
+        t1.`event_type_code`,
+        t1.`event_type_name`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t1.`snapshot`
+        FROM
+        linkage_event_record t1
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                t1.`name` like concat('%',#{query.keyword},'%')
+                OR
+                t1.`device_name` like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.applicationCode != null and query.applicationCode != ''">
+                and t1.`application_code` = #{query.applicationCode}
+            </if>
+            <if test="query.level != null and query.level != ''">
+                and t1.`level_code` = #{query.level}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and t1.`event_time` &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and t1.`event_time` &lt;= #{query.period.end}
+            </if>
+            <if test="query.assistConfirmResult != null and query.assistConfirmResult != ''">
+                and exists (
+                SELECT
+                1
+                FROM
+                event_ai_result t2
+                WHERE
+                t2.`event_record_id` = t1.`id`
+                and t2.`result` = #{query.assistConfirmResult}
+                )
+            </if>
+        </where>
+        order by t1.`event_time` DESC
+    </select>
+
+    <select id="selectEventRecordById" resultMap="eventRecordPageMap">
+        SELECT
+        t1.`id`,
+        t1.`code`,
+        t1.`name`,
+        t1.`event_id`,
+        t1.`event_time`,
+        t1.`level_id`,
+        t1.`level_code`,
+        t1.`level_name`,
+        t1.`device_id`,
+        t1.`device_code`,
+        t1.`device_name`,
+        t1.`device_area_name`,
+        t1.`device_lnt_and_lat`,
+        t1.`device_address`,
+        t1.`event_type_id`,
+        t1.`event_type_code`,
+        t1.`event_type_name`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t1.`snapshot`,
+        t2.`result` as `assist_confirm_result`
+        FROM
+        linkage_event_record t1
+        left JOIN event_ai_result t2 on t1.id = t2.event_record_id
+        <where>
+            t1.`id` = #{id}
+        </where>
+    </select>
+</mapper>

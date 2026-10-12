@@ -1,0 +1,108 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.CameraPatrolRecordMapper">
+
+    <resultMap id="CameraPatrolRecordUserVOMap"
+               type="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolRecordUserVO">
+        <id column="camera_patrol_line_id" property="cameraPatrolLineId" />
+        <collection property="userNames" javaType="java.util.ArrayList" ofType="java.lang.String">
+            <result column="user_name" />
+        </collection>
+    </resultMap>
+
+    <select id="selectPatrolUserNamesByLineId" resultType="java.lang.String">
+        SELECT
+        t1.`user_name`
+        FROM
+        `camera_patrol_record` t1
+        <where>
+            t1.`camera_patrol_line_id` = #{cameraPatrolLineId}
+        </where>
+        GROUP BY t1.`user_id`
+    </select>
+
+    <select id="selectPatrolAbnormalNum" resultType="java.lang.Integer">
+        SELECT
+        COALESCE(SUM(cpr.`abnormal_num`),0) as abnormal_num
+        FROM
+        `camera_patrol_record` cpr
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPatrolRecordNum" resultType="java.lang.Integer">
+        SELECT
+        count(cpr.`id`) as record_num
+        FROM
+        `camera_patrol_record` cpr
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectPatrolUserNameByLineIds" resultMap="CameraPatrolRecordUserVOMap">
+        SELECT
+        t1.`camera_patrol_line_id`,
+        t1.`user_id`,
+        t1.`user_name`
+        FROM
+        `camera_patrol_record` t1
+        <where>
+            t1.`camera_patrol_line_id` in
+            <foreach collection="ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </where>
+        GROUP BY t1.`camera_patrol_line_id`,t1.`user_id`
+    </select>
+
+    <select id="selectPatrolRecordHourTrend"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.statistics.bim.CameraPatrolTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT( patrol_time, '%H' ) AS period,
+        COUNT( 1 ) AS total_num
+        FROM
+        `camera_patrol_record`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and `patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`patrol_time`,'%H')
+    </select>
+
+    <select id="selectCameraPatrolPersonPointStatistics"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.statistics.bim.CameraPatrolPersonPointStatisticsVO">
+        SELECT
+        t1.`user_id`,
+        t1.`user_name`,
+        COUNT(t2.`id`) as patrol_camera_count
+        FROM
+        `camera_patrol_record` t1
+        INNER JOIN `camera_patrol_record_device` t2 on t1.`id` = t2.`camera_patrol_record_id`
+        <where>
+            t2.`status` = 'CAMERA_PATROL_COMPLETE'
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY t1.`user_id`,t1.`user_name`
+    </select>
+</mapper>

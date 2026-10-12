@@ -1,0 +1,17 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.traffic.detection.server.detection.infrastructure.repository.dao.TrafficDetectionAreaMapper">
+
+    <select id="selectTrafficDetectionAreasByDeviceIds"
+            resultType="com.guhecloud.cube.biz.traffic.detection.server.detection.domain.po.TrafficDetectionAreaPO">
+        SELECT
+        t1.*
+        from
+        parking_info t1
+        INNER JOIN parking_info_device t2 on t1.id = t2.parking_info_id
+        WHERE
+        t2.device_id IN
+        <foreach collection="deviceIds" item="deviceId" open="(" close=")" separator=",">
+            #{deviceId}
+        </foreach>
+    </select>
+</mapper>

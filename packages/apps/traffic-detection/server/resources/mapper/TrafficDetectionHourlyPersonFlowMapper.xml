@@ -1,0 +1,73 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.traffic.detection.server.detection.infrastructure.repository.dao.TrafficDetectionHourlyPersonFlowMapper">
+
+    <sql id="AreaPersonFlowRankQuery">
+        SELECT
+            a.id AS id,
+            a.name AS name,
+            a.model_area AS modelArea,
+            a.remarks AS remarks,
+            COALESCE(SUM(h.person_count), 0) AS totalPersonNumber,
+            ROUND(COALESCE(SUM(h.person_count), 0) / #{bucketCount}) AS avgPersonNumber,
+            COALESCE((
+                SELECT SUM(h2.person_count) AS peak_person_number
+                FROM traffic_detection_area_device ad2
+                INNER JOIN traffic_detection_hourly_person_flow h2 ON h2.device_id = ad2.device_id
+                    AND h2.record_time &gt;= #{begin}
+                    AND h2.record_time &lt; #{end}
+                WHERE ad2.traffic_detection_area_id = a.id
+                GROUP BY CASE
+                    WHEN #{granularity} = 'MONTH' THEN DATE_FORMAT(h2.record_time, '%Y-%m')
+                    WHEN #{granularity} = 'DAY' THEN DATE_FORMAT(h2.record_time, '%Y-%m-%d')
+                    ELSE DATE_FORMAT(h2.record_time, '%Y-%m-%d %H:00')
+                END
+                ORDER BY peak_person_number DESC
+                LIMIT 1
+            ), 0) AS peakPersonNumber,
+            COALESCE((
+                SELECT CASE
+                    WHEN #{granularity} = 'MONTH' THEN DATE_FORMAT(h2.record_time, '%Y-%m')
+                    WHEN #{granularity} = 'DAY' THEN DATE_FORMAT(h2.record_time, '%Y-%m-%d')
+                    ELSE DATE_FORMAT(h2.record_time, '%Y-%m-%d %H:00')
+                END AS peak_period
+                FROM traffic_detection_area_device ad2
+                INNER JOIN traffic_detection_hourly_person_flow h2 ON h2.device_id = ad2.device_id
+                    AND h2.record_time &gt;= #{begin}
+                    AND h2.record_time &lt; #{end}
+                WHERE ad2.traffic_detection_area_id = a.id
+                GROUP BY peak_period
+                ORDER BY SUM(h2.person_count) DESC
+                LIMIT 1
+            ), #{defaultPeakPeriod}) AS peakPeriod
+        FROM traffic_detection_area a
+        LEFT JOIN traffic_detection_area_device ad ON ad.traffic_detection_area_id = a.id
+        LEFT JOIN traffic_detection_hourly_person_flow h ON h.device_id = ad.device_id
+            AND h.record_time &gt;= #{begin}
+            AND h.record_time &lt; #{end}
+        WHERE 1 = 1
+        <if test="param != null and param.trafficDetectionAreaIds != null and param.trafficDetectionAreaIds.size > 0">
+            AND a.id IN
+            <foreach collection="param.trafficDetectionAreaIds" item="areaId" open="(" separator="," close=")">
+                #{areaId}
+            </foreach>
+        </if>
+        GROUP BY a.id, a.name, a.model_area, a.remarks
+        ORDER BY
+        <choose>
+            <when test="param != null and param.sortField != null and param.sortField.equalsIgnoreCase('AVG')">
+                avgPersonNumber DESC,
+            </when>
+        </choose>
+            totalPersonNumber DESC
+    </sql>
+
+    <select id="selectAreaPersonFlowRankPage"
+            resultType="com.guhecloud.cube.biz.traffic.detection.server.detection.interfaces.vo.statistics.TrafficDetectionAreaPersonFlowRankVO">
+        <include refid="AreaPersonFlowRankQuery"/>
+    </select>
+
+    <select id="selectAreaPersonFlowRankList"
+            resultType="com.guhecloud.cube.biz.traffic.detection.server.detection.interfaces.vo.statistics.TrafficDetectionAreaPersonFlowRankVO">
+        <include refid="AreaPersonFlowRankQuery"/>
+    </select>
+</mapper>

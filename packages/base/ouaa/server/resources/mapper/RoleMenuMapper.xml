@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.RoleMenuMapper">
+
+    <select id="listByRoleTerminalApplication" resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleMenu">
+        SELECT
+        `t2`.`id`,
+        `t2`.`menu_id`,
+        `t2`.`application_id`,
+        `t2`.`role_id`,
+        `t2`.`terminal_id`
+        FROM
+        `role` `t1`
+        INNER JOIN `ouaa_role_menu` `t2` ON `t1`.`id` = `t2`.`role_id`
+        <where>
+            `t1`.`id` = #{roleId} AND `t2`.`terminal_id` = #{terminalId} AND `t2`.`application_id` = #{applicationId}
+        </where>
+    </select>
+
+    <select id="listByRoleTerminal" resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleMenu">
+        SELECT
+        `t2`.`id`,
+        `t2`.`menu_id`,
+        `t2`.`application_id`,
+        `t2`.`role_id`,
+        `t2`.`terminal_id`
+        FROM
+        `role` `t1`
+        INNER JOIN `ouaa_role_menu` `t2` ON `t1`.`id` = `t2`.`role_id`
+        <where>
+            `t1`.`id` = #{roleId} AND `t2`.`terminal_id` = #{terminalId}
+        </where>
+    </select>
+
+    <select id="listByTenant" resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleMenu">
+        SELECT
+        `orm`.`id`,
+        `orm`.`menu_id`,
+        `orm`.`application_id`,
+        `orm`.`role_id`,
+        `orm`.`terminal_id`
+        FROM `role` `r` JOIN `ouaa_role_menu` `orm` ON `r`.`id` = `orm`.`role_id`
+        <where>
+            `r`.`tenant` = #{tenantId}
+        </where>
+    </select>
+
+    <select id="listByRoleTerminalApplicationBatch"
+            resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleMenu">
+        SELECT
+        `t2`.`id`,
+        `t2`.`menu_id`,
+        `t2`.`application_id`,
+        `t2`.`role_id`,
+        `t2`.`terminal_id`
+        FROM
+        `role` `t1`
+        INNER JOIN `ouaa_role_menu` `t2` ON `t1`.`id` = `t2`.`role_id`
+        <where>
+            <if test="roleIds != null and roleIds.size() > 0">
+                `t1`.`id` IN
+                <foreach collection="roleIds" item="roleId" open="(" separator="," close=")">
+                    #{roleId}
+                </foreach>
+            </if>
+            <if test="terminalIdList != null and terminalIdList.size() > 0">
+                AND `t2`.`terminal_id` IN
+                <foreach collection="terminalIdList" item="terminalId" open="(" separator="," close=")">
+                    #{terminalId}
+                </foreach>
+            </if>
+            <if test="applicationIdList != null and applicationIdList.size() > 0">
+                AND `t2`.`application_id` IN
+                <foreach collection="applicationIdList" item="applicationId" open="(" separator="," close=")">
+                    #{applicationId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

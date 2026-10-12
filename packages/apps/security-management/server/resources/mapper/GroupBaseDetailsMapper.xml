@@ -1,0 +1,30 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.common.dao.GroupBaseDetailsMapper">
+
+    <select id="getByGroupId"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.GroupBaseDetailsVo">
+
+    </select>
+    <select id="getGroupBaseDetails"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.GroupBaseDetailsVo">
+        SELECT
+            a.`id` `id`,
+            a.`device_id` `deviceId`,
+            a.`group_control_id` `groupControlId`,
+            b.`device_name` `deviceName`
+        FROM
+            `group_base_details` a
+                LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        where
+        a.`group_control_id` = #{param.groupControlId}
+        and b.`application_code` = #{param.applicationCode}
+    </select>
+
+    <select id="getHlInGroupStat"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.CommonStat">
+        select g.`id`,g.`group_control_name` as `name`,count(r.`device_id`) as `num` from `group_base_info` g
+        left join `group_base_details` r on g.`id` = r.`group_control_id`
+        where g.`deleted` = 0
+        group by g.`id`
+    </select>
+</mapper>

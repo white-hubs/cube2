@@ -1,0 +1,21 @@
+package com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.hidden;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class HiddenFinishedStatisticsVO {
+
+    /**
+     * 完成数
+     */
+    private Integer totalNum;
+
+    /**
+     * 处理率
+     */
+    private Double ratio;
+}

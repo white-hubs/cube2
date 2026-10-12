@@ -1,0 +1,25 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "httpclient",
+    actual = "@maven//:io_github_openfeign_feign_httpclient",
+)
+
+alias(
+    name = "openfeign_core",
+    actual = "@maven//:io_github_openfeign_feign_core",
+)
+
+java_library(
+    name = "openfeign",
+    exports = [
+        ":httpclient",
+        ":openfeign_core",
+        "@maven//:io_github_openfeign_feign_hystrix",
+        "@maven//:io_github_openfeign_feign_slf4j",
+        "@maven//:io_github_openfeign_form_feign_form",
+        "@maven//:io_github_openfeign_form_feign_form_spring",
+    ],
+)

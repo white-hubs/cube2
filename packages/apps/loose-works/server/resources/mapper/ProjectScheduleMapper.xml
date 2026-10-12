@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.loose.works.dao.ProjectScheduleMapper">
+
+    <select id="getProjectScheduleList" resultType="com.guhecloud.cube.srv.gen.loose.works.po.ProjectSchedulePO">
+        select s.* from project_schedule s
+        left join project_feedback f on s.id = f.schedule_id
+        <where>
+            <if test="query.getDepId != null">
+                s.supervise_dep = #{query.depId,jdbcType=BIGINT}
+            </if>
+            <if test="query.status != null and query.status == 'ABNORMAL'">
+                and f.has_problem = 1
+            </if>
+            <if test="query.status != null and query.status != 'ABNORMAL' and query.status != ''">
+                and s.status = #{query.status,jdbcType=VARCHAR}
+            </if>
+            <if test="query.typeId != null ">
+                and s.type_id = #{query.typeId,jdbcType=BIGINT}
+            </if>
+            <if test="query.startUser != null">
+                and s.start_user = #{query.startUser,jdbcType=BIGINT}
+            </if>
+            <if test="query.period != null">
+                and s.create_time between #{query.period.begin,jdbcType=TIMESTAMP} and #{query.period.end,jdbcType=TIMESTAMP}
+            </if>
+            <if test="query.completePeriod != null">
+                and s.completion_time between #{query.completePeriod.begin,jdbcType=TIMESTAMP} and
+                #{query.completePeriod.end,jdbcType=TIMESTAMP}
+            </if>
+            <if test="query.keyword != null and query.keyword != ''">
+                and (s.project_name like concat('%',#{query.keyword,jdbcType=VARCHAR},'%')
+                or s.party_b like concat('%',#{query.keyword,jdbcType=VARCHAR},'%')
+                or s.project_num like concat('%',#{query.keyword,jdbcType=VARCHAR},'%')
+                <if test="query.leaderList != null and query.leaderList.size() > 0">
+                    or
+                    <foreach collection="query.leaderList" item="leader" open="(" separator="or" close=")">
+                        s.supervise_users like concat('%',#{leader,jdbcType=VARCHAR},'%')
+                    </foreach>
+
+                </if>
+                )
+
+            </if>
+            <if test="query.idList != null and query.idList.size() > 0">
+                and s.`id` in
+                <foreach collection="query.idList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+
+            </if>
+        </where>
+        group by s.id order by s.create_time desc
+    </select>
+    <select id="selectProjectTrendStatistics"
+            resultType="com.guhecloud.cube.srv.gen.loose.works.dto.vo.ProjectTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.create_time,#{param.dateExp}) as period,
+        COUNT(t1.id) as num
+        FROM
+        project_schedule t1
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.create_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.create_time &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(t1.create_time,#{param.dateExp})
+    </select>
+    <select id="selectAll" resultType="com.guhecloud.cube.srv.gen.loose.works.po.ProjectSchedulePO">
+        SELECT
+        t1.*
+        FROM
+        project_schedule t1
+        where
+        t1.tenant = #{tenant}
+        <if test="period != null and period.begin != null">
+            and t1.update_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and t1.update_time &lt;= #{period.end}
+        </if>
+    </select>
+</mapper>

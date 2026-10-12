@@ -1,0 +1,4 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+
+package(default_visibility = ["//packages:__subpackages__"])

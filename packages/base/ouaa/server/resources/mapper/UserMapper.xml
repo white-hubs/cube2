@@ -1,0 +1,563 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.UserMapper">
+    <sql id="BASIC_USER_SELECT">
+        select ur.`id`,
+               ur.`name`,
+               ur.`email`,
+               ur.`phone`,
+               ur.`mobile`,
+               ur.`avatar`,
+               ur.`gender`,
+               ur.`remark`,
+               ur.`username`,
+               ur.`password`,
+               ur.`admin`,
+               ur.`enabled`,
+               ur.`entry_date`,
+               ur.`last_login_time`,
+               ur.`last_login_address`,
+               ur.`last_update_password_time`,
+               ur.`extension`,
+               ur.`deleted`,
+               ur.`create_by`,
+               ur.`create_time`,
+               ur.`update_by`,
+               ur.`update_time`,
+               ur.`validity`
+        from `user` ur
+    </sql>
+
+    <select id="getAdmin" resultType="com.guhecloud.cube.biz.ouaa.server.entity.User">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_tenant` utt on utt.`user_id` = ur.`id`
+        where utt.`admin` = 1 and utt.`tenant` = #{tenant}
+        limit 1
+    </select>
+
+    <select id="lookupUser" resultType="com.guhecloud.cube.biz.ouaa.server.entity.User">
+        <include refid="BASIC_USER_SELECT" />
+        where ur.`username` = #{key} or ur.`mobile` = #{key} limit 1
+    </select>
+
+    <select id="positionUsers" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_organization` uon on ur.`id` = uon.`user_id`
+        inner join `position` pn on uon.`position_id` = pn.`id`
+        where uon.`position_id` = #{positionId}
+    </select>
+
+    <select id="organizationUsers" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_organization` uon on ur.`id` = uon.`user_id`
+        inner join `organization` ozn on uon.`organization_id` = ozn.`id`
+        where uon.`organization_id` = #{organizationId}
+    </select>
+
+    <select id="organizationAndPostUsers" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_organization` uon on ur.`id` = uon.`user_id`
+        where uon.`organization_id` = #{organizationId} and uon.`position_id`= #{positionId}
+    </select>
+
+    <select id="organizationAndPostEnabledUsers" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_organization` uon on ur.`id` = uon.`user_id`
+        where ur.`enabled` = true and uon.`organization_id` = #{organizationId} and uon.`position_id`= #{positionId}
+    </select>
+
+    <select id="organizationEnableUsers" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <include refid="BASIC_USER_SELECT" />
+        inner join `user_organization` uon on ur.`id` = uon.`user_id`
+        inner join `organization` ozn on uon.`organization_id` = ozn.`id`
+        where uon.`organization_id` = #{organizationId}
+        and ur.`enabled` = true
+    </select>
+    <sql id="registerOrUpdateBase">
+        insert into `user` (`id`, `name`, `email`, `phone`, `mobile`, `avatar`, `gender`, `remark`, `username`, `password`, `admin`, `enabled`,
+                            `entry_date`,
+                            `deleted`, `create_by`, `create_time`, `update_by`, `update_time`,`source`)
+        values (#{id}, #{name}, #{email}, #{phone}, #{mobile}, #{avatar}, #{gender}, #{remark}, #{username},
+                #{password},
+                #{admin}, #{enabled}, #{entryDate}, #{deleted}, #{createBy}, #{createTime}, #{updateBy},
+                #{updateTime}, #{source}) on duplicate key
+        update `username` = #{username}
+    </sql>
+    <insert id="registerOrUpdate" databaseId="mysql">
+        <include refid="registerOrUpdateBase" />
+    </insert>
+    <insert id="registerOrUpdate" databaseId="pg">
+        <include refid="registerOrUpdateBase" />
+    </insert>
+    <insert id="registerOrUpdate" databaseId="dm">
+        MERGE INTO `user` USING dual ON (mobile = #{mobile})
+        WHEN MATCHED THEN
+            update set  `username` = #{username}
+        WHEN NOT MATCHED THEN
+            insert(`id`, `name`, `email`, `phone`, `mobile`, `avatar`, `gender`, `remark`, `username`, `password`, `admin`, `enabled`,
+                    `entry_date`,`deleted`, `create_by`, `create_time`, `update_by`, `update_time`,`source`)
+            values(#{id}, #{name}, #{email}, #{phone}, #{mobile}, #{avatar}, #{gender}, #{remark}, #{username},#{password},
+                   #{admin}, #{enabled}, #{entryDate}, #{deleted}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, #{source});
+    </insert>
+
+    <sql id="getUserPostNameBase">
+        SELECT
+            GROUP_CONCAT( b.`name` SEPARATOR ',' ) `postName`
+        FROM
+            `user_role` a
+                LEFT JOIN `role` b ON a.`role_id` = b.`id`
+        WHERE
+            `user_id` = #{id}
+    </sql>
+    <select id="getUserPostName" resultType="java.lang.String" databaseId="mysql">
+        <include refid="getUserPostNameBase" />
+    </select>
+
+    <select id="getUserPostName" resultType="java.lang.String" databaseId="pg">
+        <include refid="getUserPostNameBase" />
+    </select>
+    <select id="getUserPostName" resultType="java.lang.String" databaseId="dm">
+        SELECT
+            LISTAGG( b.`name`, ',' ) `postName`
+        FROM
+            `user_role` a
+                LEFT JOIN `role` b ON a.`role_id` = b.`id`
+        WHERE
+            `user_id` = #{id}
+    </select>
+    <sql id="getUserOrganizationNameBase">
+        SELECT
+            GROUP_CONCAT( b.`name` SEPARATOR ',' ) `organizationName`
+        FROM
+            `user_organization` a
+                LEFT JOIN `organization` b ON a.`organization_id` = b.`id`
+        WHERE
+            a.`user_id` = #{id}
+    </sql>
+    <select id="getUserOrganizationName" resultType="java.lang.String" databaseId="mysql">
+        <include refid="getUserOrganizationNameBase" />
+    </select>
+    <select id="getUserOrganizationName" resultType="java.lang.String" databaseId="pg">
+        <include refid="getUserOrganizationNameBase" />
+    </select>
+    <select id="getUserOrganizationName" resultType="java.lang.String" databaseId="dm">
+        SELECT
+            LISTAGG( b.`name`, ',' ) `organizationName`
+        FROM
+            `user_organization` a
+                LEFT JOIN `organization` b ON a.`organization_id` = b.`id`
+        WHERE
+            a.`user_id` = #{id}
+    </select>
+
+    <select id="selectUsersByRoles" resultMap="userMap">
+        select ur.`id`,
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`avatar`,
+        ur.`gender`,
+        ur.`photograph_key`,
+        ur.`remark`,
+        ur.`username`,
+        ur.`password`,
+        ur.`admin`,
+        ut.`enabled`,
+        ur.`entry_date`,
+        ur.`last_login_time`,
+        ur.`last_login_address`,
+        ur.`last_update_password_time`,
+        ur.`extension`,
+        ur.`deleted`,
+        ur.`create_by`,
+        ur.`create_time`,
+        ur.`update_by`,
+        ur.`update_time`,
+        ur.`validity`,uon.`organization_id` `organizationId`,o.`name` `organizationName`,o.`parent_id` `organizationParentId`,
+        urole.`id` `roleId`,r.`name` `roleName`,p.`id` `positionId`,p.`name` `positionName`
+        from `user` ur
+        left join `user_tenant` ut on ur.`id` = ut.`user_id`
+        left join `user_role` urole on ur.`id` = urole.`user_id`
+        left join `role` r on r.`id` = urole.`role_id`
+        left join `user_organization` uon on uon.`user_id` = ur.`id`
+        left join `organization` o on o.`id` = uon.`organization_id` and o.`tenant`=#{tenant}
+        left join `position` p on p.`id` = uon.`position_id`
+        <where>
+            ut.`tenant` = #{tenant}
+            <if test="keyword != null and keyword != ''">
+                and (ur.`name` like concat('%',#{keyword},'%')
+                or
+                ur.`phone` like concat('%',#{keyword},'%'))
+            </if>
+            and urole.`role_id` in
+            <foreach collection="roleIds" item="roleId" open="(" close=")" separator=",">
+                #{roleId}
+            </foreach>
+        </where>
+    </select>
+
+
+    <resultMap id="userMap" type="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        <id property="id" column="id" />
+        <result property="enabled" column="enabled" />
+        <result property="name" column="name" />
+        <result property="email" column="email" />
+        <result property="entryDate" column="entry_date" />
+        <result property="gender" column="gender" />
+        <result property="photographKey" column="photograph_key" />
+        <result property="mobile" column="mobile" />
+        <result property="remark" column="remark" />
+        <result property="username" column="username" />
+        <result property="workStatus" column="work_status" />
+        <association property="organization" javaType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO$Organization">
+            <id property="id" column="organizationId" />
+            <result property="name" column="organizationName" />
+            <result property="parentId" column="organizationParentId" />
+        </association>
+        <collection property="roles" ofType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO$Role">
+            <id property="id" column="roleId" />
+            <result property="name" column="roleName" />
+        </collection>
+        <collection property="positions" ofType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO$Position">
+            <id property="id" column="positionId" />
+            <result property="name" column="positionName" />
+        </collection>
+        <collection property="appointments" ofType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO$Appointment">
+            <id property="id" column="appointmentId" />
+            <result property="name" column="appointmentName" />
+        </collection>
+    </resultMap>
+
+    <select id="selectUsers" resultMap="userMap">
+        SELECT
+        ur.`id`,
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`avatar`,
+        ur.`gender`,
+        ur.`photograph_key`,
+        ur.`remark`,
+        ur.`username`,
+        ur.`password`,
+        ur.`admin`,
+        ut.`enabled`,
+        ut.`work_status`,
+        ur.`entry_date`,
+        ur.`last_login_time`,
+        ur.`last_login_address`,
+        ur.`last_update_password_time`,
+        ur.`extension`,
+        ur.`deleted`,
+        ur.`create_by`,
+        ur.`create_time`,
+        ur.`update_by`,
+        ur.`update_time`,
+        ur.`validity`,
+        role_temp.`id` roleId,
+        `role_temp`.`name` `roleName`,
+        org_temp.appointment_id AS appointmentId,
+        org_temp.appointment_name AS appointmentName,
+        org_temp.organizationName,
+        org_temp.organization_id AS organizationId,
+        org_temp.position_id AS positionId,
+        org_temp.positionName,
+        ut.work_status
+        FROM
+        `user` ur
+        JOIN `user_tenant` ut ON ur.`id` = ut.`user_id`
+        LEFT JOIN (
+        SELECT
+        r.id,
+        urole.user_id,
+        r.`name`
+        FROM
+        user_role urole
+        LEFT JOIN role r ON r.id = urole.role_id
+        WHERE
+        r.`tenant` = #{tenant}
+        ) role_temp ON role_temp.`user_id` = ur.`id`
+        LEFT JOIN (
+        SELECT
+        uon.user_id,
+        uon.organization_id,
+        o.`name` AS `organizationName`,
+        uon.position_id,
+        p.`name` AS `positionName`,
+        uon.appointment_id,
+        apm.`name` AS `appointment_name`
+        FROM
+        user_organization uon
+        LEFT JOIN `organization` o ON o.`id` = uon.`organization_id`
+        LEFT JOIN `position` p ON p.`id` = uon.`position_id`AND p.`tenant` = #{tenant}
+        LEFT JOIN appointment apm ON apm.id = uon.appointment_id AND apm.tenant = #{tenant}
+        WHERE
+        o.`tenant` = #{tenant}
+        ) org_temp ON org_temp.user_id = ur.id
+        where ut.`tenant` = #{tenant}
+        and `ur`.`deleted` = 0
+        <if test="query.enabled != null">
+            and ut.`enabled` = #{query.enabled}
+            and ur.`enabled` = #{query.enabled}
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and ur.`name` like concat('%', #{query.keyword}, '%')
+        </if>
+        <if test="query.userIds != null and query.userIds.size() >0">
+            and ur.`id` in
+            <foreach collection="query.userIds" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.roleIds != null and query.roleIds.size() >0">
+            and role_temp.`id` in
+            <foreach collection="query.roleIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.userNameList != null and query.userNameList.size() >0">
+            and ur.`username` in
+            <foreach collection="query.userNameList" item="username" open="(" close=")" separator=",">
+                #{username}
+            </foreach>
+        </if>
+        <if test="query.mobileList != null and query.mobileList.size() >0">
+            and ur.`mobile` in
+            <foreach collection="query.mobileList" item="mobile" open="(" close=")" separator=",">
+                #{mobile}
+            </foreach>
+        </if>
+        <!-- 这里有一次迭把职位和岗位换了，只是把概念换了，没有换字段，现在appointment_id字段是岗位 -->
+        <if test="query.positionIds != null and query.positionIds.size() > 0">
+            and org_temp.`appointment_id` in
+            <foreach collection="query.positionIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.appointmentIds != null and query.appointmentIds.size() > 0">
+            and org_temp.`position_id` in
+            <foreach collection="query.appointmentIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.organizationIds != null and query.organizationIds.size() > 0">
+            and org_temp.`organization_id` in
+            <foreach collection="query.organizationIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectSystemUsers" resultMap="userMap">
+        select ur.`id`,
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`avatar`,
+        ur.`gender`,
+        ur.`photograph_key`,
+        ur.`remark`,
+        ur.`username`,
+        ur.`password`,
+        ur.`admin`,
+        ur.`enabled`,
+        ur.`entry_date`,
+        ur.`last_login_time`,
+        ur.`last_login_address`,
+        ur.`last_update_password_time`,
+        ur.`extension`,
+        ur.`deleted`,
+        ur.`create_by`,
+        ur.`create_time`,
+        ur.`update_by`,
+        ur.`update_time`,
+        ur.`validity`
+        ,uon.`organization_id` `organizationId`,o.`name` `organizationName`,
+        urole.`id` `roleId`,r.`name` `roleName`,p.`id` `positionId`,p.`name` `positionName`
+        from `user` ur
+        join `user_tenant` ut on ur.`id` = ut.`user_id`
+        left join `user_role` urole on ur.`id` = urole.`user_id`
+        left join `role` r on r.`id` = urole.`role_id`
+        left join `user_organization` uon on uon.`user_id` = ur.`id`
+        left join `organization` o on o.`id` = uon.`organization_id` and o.`tenant`=#{tenant}
+        left join `position` p on p.`id` = uon.`position_id`
+        where ut.`tenant` = #{tenant} and `ur`.`deleted` = 0
+        AND (ut.`belong_tenant` IS NULL OR ut.`belong_tenant` != 'NOT_BELONG')
+        <if test="query.enabled != null">
+            and ur.`enabled` = #{query.enabled}
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and ur.`name` like concat('%', #{query.keyword}, '%')
+        </if>
+        <if test="query.userIds != null and query.userIds.size() >0">
+            and ur.`id` in
+            <foreach collection="query.userIds" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.roleIds != null and query.roleIds.size() >0">
+            and urole.`role_id` in
+            <foreach collection="query.roleIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <!-- 这里有一次迭把职位和岗位换了，只是把概念换了，没有换字段，现在appointment_id字段是岗位 -->
+        <if test="query.positionIds != null and query.positionIds.size() > 0">
+            and uon.`appointment_id` in
+            <foreach collection="query.positionIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.organizationIds != null and query.organizationIds.size() > 0">
+            and uon.`organization_id` in
+            <foreach collection="query.organizationIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getUserListByAppointmentIds" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserDTO">
+        SELECT
+        b.`id`,
+        b.`NAME`,
+        b.`mobile`,
+        b.`gender`,
+        b.`remark`,
+        b.`username`,
+        ut.`enabled`
+        FROM
+        `user_organization` a
+        INNER JOIN `USER` b ON a.`user_id` = b.`id`
+        INNER JOIN `user_tenant` ut on b.`id` = ut.`user_id`
+        where ut.enabled = true
+        AND a.`appointment_id` in
+        <foreach collection="appointmentIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="pageUsersByRoles" resultMap="userMap">
+        select ur.`id`,
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`avatar`,
+        ur.`gender`,
+        ur.`photograph_key`,
+        ur.`remark`,
+        ur.`username`,
+        ur.`password`,
+        ur.`admin`,
+        ut.`enabled`,
+        ur.`entry_date`,
+        ur.`last_login_time`,
+        ur.`last_login_address`,
+        ur.`last_update_password_time`,
+        ur.`extension`,
+        ur.`deleted`,
+        ur.`create_by`,
+        ur.`create_time`,
+        ur.`update_by`,
+        ur.`update_time`,
+        ur.`validity`
+        ,uon.`organization_id` `organizationId`,o.`name` `organizationName`,o.`parent_id` `organizationParentId`,
+        urole.`id` `roleId`,r.`name` `roleName`,p.`id` `positionId`,p.`name` `positionName`
+        from `user` ur
+        left join `user_tenant` ut on ur.`id` = ut.`user_id`
+        left join `user_role` urole on ur.`id` = urole.`user_id`
+        left join `role` r on r.`id` = urole.`role_id`
+        left join `user_organization` uon on uon.`user_id` = ur.`id`
+        left join `organization` o on o.`id` = uon.`organization_id` and o.`tenant`=#{query.tenant}
+        left join `position` p on p.`id` = uon.`position_id`
+        where ut.`tenant` = #{query.tenant}
+        <if test="query.keyword != null and query.keyword != ''">
+            and ur.`name` like concat('%', #{query.keyword}, '%')
+        </if>
+        <if test="query.userIds != null and query.userIds.size() >0">
+            and ur.`id` in
+            <foreach collection="query.userIds" separator="," open="(" close=")" item="id">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.ids != null and query.ids.size() >0">
+            and urole.`role_id` in
+            <foreach collection="query.ids" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="query.organizationIds != null and query.organizationIds.size() >0">
+            and uon.`organization_id` in
+            <foreach collection="query.organizationIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY ur.`id`
+    </select>
+    <select id="selectRegisterInfoPage" resultType="com.guhecloud.cube.biz.ouaa.server.vo.UserVO">
+        select
+        DISTINCT(ur.`id`),
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`username`,
+        ur.`gender`,
+        ur.`enabled`
+        from `user` ur
+        <where>
+            ur.`source` != 'SYSTEM'
+
+            and ur.`source` is not null
+            <if test="param.keyword != null and  param.keyword != ''">
+                and ur.`name` like concat('%', #{param.keyword}, '%')
+            </if>
+            <if test="param.mobile != null and  param.mobile != ''">
+                and ur.`mobile` = #{param.mobile}
+            </if>
+        </where>
+        order by
+        `create_time` DESC
+    </select>
+
+    <select id="getSysUsers" resultType="com.guhecloud.cube.biz.ouaa.server.entity.User">
+        select
+        DISTINCT
+        `u`.*
+        from
+        `user` `u`
+        <if test="query.isAdmin != null">
+            inner join `user_tenant` `ut` on u.`id` = `ut`.`user_id` and `ut`.`admin` = #{query.isAdmin}
+        </if>
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and
+                (
+                `u`.`name` like concat('%',#{query.keyword},'%')
+                or
+                `u`.mobile like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.gender != null and query.gender != ''">
+                and `u`.`gender` = #{query.gender}
+            </if>
+            <if test="query.enabled != null">
+                and `u`.`enabled` = #{query.enabled}
+            </if>
+        </where>
+        order by `u`.`create_time` desc
+    </select>
+    <select id="getUserByIdCard" resultType="java.lang.Long">
+        SELECT
+            u.id
+        FROM
+            `user` `u`
+                INNER JOIN `user_tenant` `ut` ON u.`id` = `ut`.`user_id`
+        WHERE
+            u.id_card = #{idCard}
+          AND ut.tenant = #{tenant}
+    </select>
+</mapper>

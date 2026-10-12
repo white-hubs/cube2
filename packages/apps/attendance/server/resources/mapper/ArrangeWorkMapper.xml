@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.dao.ArrangeWorkMapper">
+
+    <select id="getArrangeWorkDays" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.dao.dto.ArrangeWorkDaysDTO">
+        select aw.`staff_id` as `userId`,
+        count(DISTINCT aw.`date`) as `workDays`
+        from `arrange_work` aw
+        where aw.`deleted` = 0 and aw.`arrange_work_classes_ids` is not null and aw.`arrange_work_classes_ids` != ''
+        <if test="param.userId != null and param.userId != ''">
+            and aw.`staff_id` = #{param.userId}
+        </if>
+        <if test="param.userIds != null and param.userIds.size > 0">
+            and aw.`staff_id` in
+            <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and aw.`date` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and aw.`date` &lt; #{param.period.end}
+        </if>
+        GROUP by aw.`staff_id`
+    </select>
+
+    <resultMap id="userWorkList" type="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkVO" autoMapping="true">
+        <id property="id" column="id"/>
+        <collection property="dayOfClasses" javaType="java.util.ArrayList" ofType="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.interfaces.vo.ArrangeWorkVO$DateOfClasses">
+            <id property="date" column="date"/>
+            <result property="month" column="month"/>
+            <result property="week" column="week"/>
+            <collection property="classesVOS" javaType="java.util.ArrayList" ofType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.domain.classes.Classes">
+                <id property="id" column="awcId"/>
+                <result property="classesId" column="classes_id"/>
+                <result property="name" column="name"/>
+                <result property="startWorkTime" column="start_work_time"/>
+                <result property="endWorkTime" column="end_work_time"/>
+                <result property="endTimeIsMorrow" column="end_time_is_morrow"/>
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getList" resultMap="userWorkList">
+        SELECT
+            aw.`id`,
+            aw.`staff_id`,
+            aw.`staff_name`,
+            aw.`staff_mobile`,
+            aw.`arrange_work_classes_ids`,
+            aw.`month`,
+            aw.`week`,
+            aw.`date`,
+            aw.`group_id`,
+            awc.`id` AS awcId,
+            awc.`classes_id`,
+            awc.`NAME`,
+            awc.`start_work_time`,
+            awc.`end_work_time`,
+            awc.`end_time_is_morrow`
+        FROM
+            `arrange_work` aw
+            LEFT JOIN `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT( '%', awc.`id` , '%' )
+        WHERE
+            1 = 1
+            <if test="param.keyword != '' and param.keyword != null">
+                and aw.`staff_name` like CONCAT('%', #{param.keyword}, '%')
+            </if>
+            <if test="param.groupId != null" >
+                and aw.`group_id` = #{param.groupId}
+            </if>
+            <if test="param.month != '' and param.month != null">
+                and aw.month = #{param.month}
+            </if>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                and aw.date between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.organizationId != null">
+                and aw.`staff_organizationId` = #{param.organizationId}
+            </if>
+            <if test="param.currentUserId != null">
+                and aw.`staff_id` = #{param.currentUserId}
+            </if>
+            ORDER BY aw.`date`, date_format(CONCAT(aw.`date`, ' ', awc.`start_work_time` ),'%Y-%m-%d %H:%i')
+    </select>
+
+    <select id="getListV2" resultMap="userWorkList">
+        SELECT
+        aw.`id`,
+        aw.`staff_id`,
+        aw.`staff_name`,
+        aw.`staff_mobile`,
+        aw.`arrange_work_classes_ids`,
+        aw.`month`,
+        aw.`week`,
+        aw.`date`,
+        aw.`group_id`,
+        awc.`id` AS awcId,
+        awc.`classes_id`,
+        awc.`NAME`,
+        awc.`start_work_time`,
+        awc.`end_work_time`,
+        awc.`end_time_is_morrow`
+        FROM
+        `arrange_work` aw
+        LEFT JOIN `arrange_work_classes` awc on find_in_set(awc.`id` ,aw.`arrange_work_classes_ids`)
+        <where>
+        <if test="param.userIds != null and param.userIds.size > 0">
+             aw.`staff_id` in
+            <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        </where>
+        ORDER BY aw.`date`, date_format(CONCAT(aw.`date`, ' ', awc.`start_work_time` ),'%Y-%m-%d %H:%i')
+    </select>
+
+    <select id="getWorkListHaveGroup" resultMap="userWorkList" >
+        SELECT
+        aw.`id`,
+        aw.`staff_id`,
+        aw.`staff_name`,
+        aw.`staff_mobile`,
+        aw.`arrange_work_classes_ids`,
+        aw.`month`,
+        aw.`week`,
+        aw.`date`,
+        ag.`name` AS `groupName`,
+        o.`name` AS `deptName`,
+        awc.`id` AS `awcId`,
+        awc.`classes_id`,
+        awc.`NAME`,
+        awc.`start_work_time`,
+        awc.`end_work_time`,
+        awc.`end_time_is_morrow`
+        FROM
+        `arrange_work` aw
+        LEFT JOIN `arrange_work_classes` awc ON aw.`arrange_work_classes_ids` LIKE CONCAT( '%', awc.`id` , '%' )
+        LEFT JOIN `attendance_group` ag ON aw.`group_id` = ag.`id`
+        LEFT JOIN `cube-biz-ouaa`.`organization` o ON aw.`staff_organization_id` = o.`id`
+        LEFT JOIN `attendance_group_staff` ags ON aw.`staff_id` = ags.`staff_id` and ags.`group_type` = 'ARRANGE'
+        WHERE
+        1 = 1
+        AND ag.`name` IS NOT NULL
+        AND ags.`id` IS NOT NULL
+        <if test="param.keyword != '' and param.keyword != null">
+            and aw.`staff_name` like CONCAT('%', #{param.keyword}, '%')
+        </if>
+        <if test="param.groupId != null" >
+            and aw.`group_id` = #{param.groupId}
+        </if>
+        <if test="param.month != '' and param.month != null">
+            and aw.`month` = #{param.month}
+        </if>
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            and aw.`date` between #{param.period.begin} and #{param.period.end}
+        </if>
+        <if test="param.organizationId != null">
+            and aw.`staff_organizationId` = #{param.organizationId}
+        </if>
+        ORDER BY aw.`date`, date_format(CONCAT(aw.`date`, ' ', awc.`start_work_time` ),'%Y-%m-%d %H:%i')
+    </select>
+
+    <select id="getAttendanceStaff" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.common.querygateway.dto.AttendanceStatisticsDTO">
+        select DISTINCT aw.`staff_id`,
+        aw.`staff_name`,
+        aw.`staff_mobile`,
+        aw.`staff_organization_id`,
+        aw.`group_id`
+        from `arrange_work` aw
+        WHERE aw.`deleted` = 0
+        <if test="param.groupId != null and param.groupId != ''">
+            AND aw.`group_id` = #{param.groupId}
+        </if>
+        <if test="param.organizationId != null and param.organizationId != ''">
+            AND aw.`staff_organization_id` = #{param.organizationId}
+        </if>
+        <if test="param.month != null and param.month != ''">
+            AND aw.`month` = #{param.month}
+        </if>
+        <if test="param.staffName != null and param.staffName != ''">
+            AND aw.`staff_name` like CONCAT('%',#{param.staffName},'%')
+        </if>
+        order by aw.`staff_id`,aw.`staff_name`
+    </select>
+
+</mapper>

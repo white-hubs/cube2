@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.business.info.sync.server.mapper.OrganizationMapper">
+
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.srv.gen.business.info.sync.server.entity.Organization">
+            <id property="id" column="id" jdbcType="BIGINT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="remark" column="remark" jdbcType="VARCHAR"/>
+            <result property="enabled" column="enabled" jdbcType="TINYINT"/>
+            <result property="level" column="level" jdbcType="INTEGER"/>
+            <result property="parentId" column="parent_id" jdbcType="BIGINT"/>
+            <result property="orgPathId" column="org_path_id" jdbcType="VARCHAR"/>
+            <result property="orgPathName" column="org_path_name" jdbcType="VARCHAR"/>
+            <result property="deleted" column="deleted" jdbcType="BIGINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,remark,
+        enabled,level,parent_id,
+        org_path_id,org_path_name,deleted,
+        create_time,update_time
+    </sql>
+</mapper>

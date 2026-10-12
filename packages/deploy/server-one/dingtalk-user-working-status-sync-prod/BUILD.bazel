@@ -1,0 +1,20 @@
+load("//packages/deploy/template/server-one:generate_server_one.bzl", "SERVER_ONE_MAIN_CLASS", "generate_server_one")
+load("//tools/springboot:springboot.bzl", "springboot")
+load(":vars.bzl", "SERVERS")
+
+generate_server_one(
+    name = "dingtalk-user-working-status-sync-prod",
+    servers = SERVERS,
+)
+
+springboot(
+    name = "dingtalk-user-working-status-sync-prod-spring-exec",
+    boot_app_class = SERVER_ONE_MAIN_CLASS,
+    java_library = ":dingtalk-user-working-status-sync-prod",
+)
+
+java_binary(
+    name = "dingtalk-user-working-status-sync-prod-bin",
+    main_class = SERVER_ONE_MAIN_CLASS,
+    runtime_deps = [":dingtalk-user-working-status-sync-prod"],
+)

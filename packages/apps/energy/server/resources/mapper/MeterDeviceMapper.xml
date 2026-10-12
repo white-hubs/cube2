@@ -1,0 +1,31 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.MeterDeviceMapper">
+
+    <update id="updateDevices">
+        <foreach collection="list" item="item" separator=";">
+            update meter_device set deleted = #{date} where device_id = #{item}
+        </foreach>
+    </update>
+    <update id="updateItemDevices">
+        <foreach collection="list" item="item" separator=";">
+            update energy_project_item set deleted = #{date} where device_id = #{item}
+        </foreach>
+    </update>
+    <select id="getChildrenDevice" resultType="java.lang.Long" databaseId="mysql">
+         SELECT t3.id FROM (
+                                SELECT t1.*, t2.*,
+                                    IF(FIND_IN_SET(parent_id, @pids) > 0, @pids := CONCAT(@pids, ',', id), '0') AS isChild
+                                FROM (
+                                    SELECT * FROM meter_device where tenant = 58197260 and deleted = 0 ORDER by device_name ,parent_id,id desc
+                                ) AS t1,
+                                ( SELECT @pids := #{deviceId} ) AS t2
+                            ) t3 WHERE t3.isChild != '0'
+    </select>
+    <select id="getChildrenDevice" resultType="java.lang.Long" databaseId="pg">
+        select id from meter_device where parent_id = to_char(#{deviceId},'99999999999999999999999') or device_id = to_char(#{deviceId},'99999999999999999999999')
+    </select>
+
+    <update id="updateMeterProduct" >
+        update meter_device set product_brand_name = #{productName} where product_id = #{productId}
+    </update>
+</mapper>

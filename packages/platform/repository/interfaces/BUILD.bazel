@@ -1,0 +1,58 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "repository",
+    srcs = [
+        "Repository.java",
+    ],
+)
+
+java_library(
+    name = "cache-repository",
+    srcs = [
+        "CacheRepository.java",
+    ],
+    deps = [
+        ":repository",
+    ],
+)
+
+java_library(
+    name = "paging",
+    srcs = [
+        "Paging.java",
+    ],
+)
+
+java_library(
+    name = "business-repository",
+    srcs = [
+        "BussinessRepository.java",
+    ],
+    deps = [
+        ":paging",
+        ":repository",
+    ],
+)
+
+java_library(
+    name = "statisitcs-repository",
+    srcs = [
+        "StatisitcsRepository.java",
+    ],
+    deps = [
+        ":repository",
+    ],
+)
+
+java_library(
+    name = "interfaces",
+    exports = [
+        ":business-repository",
+        ":cache-repository",
+        ":repository",
+        ":statisitcs-repository",
+    ],
+)

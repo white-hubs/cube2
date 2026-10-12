@@ -1,0 +1,24 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.auth.dao.AuthGroupMapper">
+
+    <select id="selectPage" resultType="com.guhecloud.cube.biz.vmonitor.server.auth.po.AuthGroupPO">
+        SELECT
+        t1.*
+        from
+        auth_group t1
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                exists (
+                select
+                1
+                from
+                `auth_scope`
+                where `scope_name` like concat('%',#{param.keyword},'%')
+                AND
+                `auth_scope`.`auth_group_id` = t1.`id`
+                )
+            </if>
+        </where>
+        order by t1.create_time desc
+    </select>
+</mapper>

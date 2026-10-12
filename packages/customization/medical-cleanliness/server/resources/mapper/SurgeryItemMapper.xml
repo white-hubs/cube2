@@ -1,0 +1,94 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.resources.dao.SurgeryItemMapper">
+
+    <select id="getSurgeryItemDevicePage"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.resources.vo.ItemDevicePageVO">
+
+        select si.id,si.device_id as deviceId, si.name, si.`size`, si.`number`, si.manufacturer, si.model , m.id as machinesId, m.code as
+        machinesCode, m.arguments, m.file_ids
+        from surgery_item si
+        left join machines m on (si.machines_id = m.id)
+        <where>
+            <if test="param != null and param.id != null">
+                and si.id = #{param.id}
+            </if>
+            <if test="param != null and param.tenant != null">
+                and si.tenant = #{param.tenant}
+            </if>
+            <if test="param != null and param.name != null and param != ''">
+                and si.name like concat('%',#{name},'%')
+            </if>
+            <if test="param != null and param.deviceIdList != null and param.deviceIdList.size > 0">
+                and si.device_id in
+                <foreach collection="param.deviceIdList" open=" (" separator="," close=")" item="deviceId">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        group BY si.device_id
+        order by si.create_time DESC
+    </select>
+
+    <select id="getSurgeryItemDeviceList"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.resources.vo.ItemDevicePageVO">
+
+        select si.id,si.device_id as deviceId, si.name, si.`size`, si.`number`, si.manufacturer, si.model , m.id as machinesId, m.code as
+        machinesCode, m.arguments, m.file_ids
+        from surgery_item si
+        left join machines m on (si.machines_id = m.id)
+        <where>
+            <if test="param != null and param.tenant != null">
+                and si.tenant = #{param.tenant}
+            </if>
+            <if test="param != null and param.name != null and param != ''">
+                and si.name like concat('%',#{name},'%')
+            </if>
+            <if test="param != null and param.deviceIdList != null and param.deviceIdList.size > 0">
+                and si.device_id in
+                <foreach collection="param.deviceIdList" open=" (" separator="," close=")" item="deviceId">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        group BY si.device_id
+        order by si.create_time DESC
+    </select>
+
+    <select id="getSurgeryItemOnlyList"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.resources.vo.SurgeryItemVO">
+        select si.id,si.device_id as deviceId, si.name, si.`size`, si.`number`, si.manufacturer, si.model, si.machines_Id
+        from surgery_item si
+        <where>
+            <if test="param != null and param.id != null">
+                and si.id = #{param.id}
+            </if>
+            <if test="param != null and param.tenant != null">
+                and si.tenant = #{param.tenant}
+            </if>
+            <if test="param != null and param.name != null and param != ''">
+                and si.name like concat('%',#{name},'%')
+            </if>
+            <if test="param != null and param.deviceIdList != null and param.deviceIdList.size > 0">
+                and si.device_id in
+                <foreach collection="param.deviceIdList" open=" (" separator="," close=")" item="deviceId">
+                    #{deviceId}
+                </foreach>
+            </if>
+        </where>
+        order by si.create_time DESC
+    </select>
+
+    <insert id="insertItemBatch">
+        INSERT INTO `surgery_item`
+        (`id`, `device_id`, `device_code`, `device_name`, `name`, `size`, `number`, `manufacturer`, `model`, `machines_id`, `machines_code`
+        , `tenant`, `deleted`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`,`update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},#{item.deviceId},#{item.deviceCode},#{item.deviceName},#{item.name},#{item.size},#{item.number},#{item.manufacturer},#{item.model},#{item.machinesId},#{item.machinesCode}
+            ,#{item.tenant},#{item.deleted},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime}
+            )
+        </foreach>
+    </insert>
+</mapper>

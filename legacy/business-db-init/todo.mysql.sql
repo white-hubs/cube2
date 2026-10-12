@@ -1,0 +1,2 @@
+INSERT IGNORE INTO `cube-srv-gen-todo`.`todo_tag_refer_business_type` (`id`, `todo_tag_code`, `business_type`, `tenant`, `deleted`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES (58, 'ELECTRONIC_PATROL', 'ELECTRON_TASK', 1, 0, NULL, NULL, NULL, NULL);
+INSERT IGNORE INTO `cube-srv-gen-todo`.`todo_tag_refer_business_type` (`id`, `todo_tag_code`, `business_type`, `tenant`, `deleted`, `create_by`, `create_time`, `update_by`, `update_time`) VALUES (57, 'INSPECT_TASK', 'SMALL_ENGINEERING', 1, 0, '1', '2023-02-27 18:07:16', '1', '2023-02-27 18:07:16');

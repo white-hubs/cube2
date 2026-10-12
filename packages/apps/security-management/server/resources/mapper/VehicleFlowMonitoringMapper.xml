@@ -1,0 +1,195 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.dao.VehicleFlowMonitoringMapper">
+
+
+    <select id="getVehicleFlowMonitoringPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringVo">
+        SELECT
+            a.`id` `id`,
+            a.`record_id` `recordId`,
+            a.`data_time` `dataTime`,
+            a.`direction` `direction`,
+            a.`lane` `lane`,
+            a.`traffic_volume` `trafficVolume`,
+            a.`average_speed` `averageSpeed`,
+            a.`time_occupancy_rate` `timeOccupancyRate`,
+            a.`average_headway` `averageHeadway`,
+            a.`average_time_interval` `averageTimeInterval`,
+            b.`code` `deviceCode`,
+            b.`area_name` `areaName`
+
+        FROM
+            `vehicle_flow_monitoring` a
+                LEFT JOIN `security_device` b ON a.`device_id` = b.`third_party_id`
+        <where>
+            <if test="st != null">
+                and a.`data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and a.`data_time` &lt;= #{et}
+            </if>
+        </where>
+        order by a.`data_time` DESC
+    </select>
+    <select id="getDirectionTotal" resultType="java.lang.Integer">
+        SELECT
+            SUM( `traffic_volume` )
+        FROM
+            `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+    </select>
+    <select id="getDirectionList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="mysql">
+        SELECT
+        COALESCE(sum(`traffic_volume`), 0 ) `num`,
+        DATE_FORMAT(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`data_time`, ${dateFormat})
+    </select>
+    <select id="getDirectionList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="dm">
+        SELECT
+        COALESCE(sum(`traffic_volume`), 0 ) `num`,
+        DATE_FORMAT(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`data_time`, ${dateFormat})
+    </select>
+    <select id="getDirectionList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="pg">
+        SELECT
+        COALESCE(sum(`traffic_volume`), 0 ) `num`,
+        to_char(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        to_char(`data_time`, ${dateFormat})
+    </select>
+    <select id="getAnalysisDifferentLanesTunnels"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo">
+        SELECT
+            COALESCE ( SUM( IF ( `direction` = 'DIRECTION_IN', `traffic_volume`, 0 )), 0 ) AS `inNum`,
+            COALESCE ( SUM( IF ( `direction` = 'DIRECTION_OUT', `traffic_volume`, 0 )), 0 ) AS `outNum`,
+            lane
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY `lane`
+    </select>
+    <select id="getRealAverageSpeedAnalysis"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="mysql">
+        SELECT
+        COALESCE(avg(`average_speed`), 0 ) `speed`,
+        DATE_FORMAT(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`data_time`, ${dateFormat})
+    </select>
+    <select id="getRealAverageSpeedAnalysis"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="dm">
+        SELECT
+        COALESCE(avg(`average_speed`), 0 ) `speed`,
+        DATE_FORMAT(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`data_time`, ${dateFormat})
+    </select>
+    <select id="getRealAverageSpeedAnalysis"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.vehicleflowmonitoring.vo.VehicleFlowMonitoringTimeVo" databaseId="pg">
+        SELECT
+        COALESCE(avg(`average_speed`), 0 ) `speed`,
+        to_char(`data_time`,${dateFormat}) `timeFlag`
+        FROM
+        `vehicle_flow_monitoring`
+        <where>
+            <if test="st != null">
+                and `data_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `data_time` &lt;= #{et}
+            </if>
+            <if test="direction !=null and direction !=''">
+                and `direction` = #{direction}
+            </if>
+        </where>
+        GROUP BY
+        to_char(`data_time`, ${dateFormat})
+    </select>
+</mapper>

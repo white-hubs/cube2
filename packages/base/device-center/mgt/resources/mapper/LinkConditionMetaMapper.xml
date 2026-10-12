@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.north.mapper.LinkConditionMetaMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.north.model.LinkConditionMeta">
+        <!--@mbg.generated-->
+        <!--@Table iot_link_condition_meta-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="rule_num" jdbcType="VARCHAR" property="ruleNum"/>
+        <result column="rule_name" jdbcType="VARCHAR" property="ruleName"/>
+        <result column="category_id" jdbcType="VARCHAR" property="categoryId"/>
+        <result column="device_id" jdbcType="BIGINT" property="deviceId"/>
+        <result column="prop_code" jdbcType="VARCHAR" property="propCode"/>
+        <result column="compare_type" jdbcType="VARCHAR" property="compareType"/>
+        <result column="compare_value" jdbcType="VARCHAR" property="compareValue"/>
+        <result column="delay_time" jdbcType="INTEGER" property="delayTime"/>
+        <result column="transparent_statement" jdbcType="VARCHAR" property="transparentStatement"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `rule_num`, `rule_name`, `category_id`, `device_id`, `prop_code`, `compare_type`, `compare_value`,
+        `delay_time`, `transparent_statement`
+    </sql>
+</mapper>

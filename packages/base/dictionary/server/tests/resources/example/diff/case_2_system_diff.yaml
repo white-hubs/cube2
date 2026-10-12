@@ -1,0 +1,26 @@
+- configType: "DictType"
+  version: "1.0"
+  isMandatory: true
+  isSystem: true
+  isRemoval: false
+  vargs:
+    - code: "TypeA"
+      remark: "Type A"
+    - code: "TypeB"
+      remark: "Type B"
+- configType: "DictEntry"
+  version: "1.0"
+  isMandatory: true
+  isSystem: true
+  isRemoval: false
+  kwargs:
+    isCascade: false
+    parent: ""
+    dictType: TypeA
+  vargs:
+    - label: item1
+      key: item1
+    - label: item2
+      key: item2
+    - label: item3
+      key: item3

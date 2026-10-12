@@ -1,0 +1,131 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.area.dao.AreaMapper">
+
+    <sql id="Basic_Query_Column">
+        id,code,name,level,parent_id,sequence,enabled,alias_name,sort,tenant,deleted,create_by,create_time,update_by,update_time,area_manager_id,visualization_area_type,status_id,feature_ids,tag_ids,built_up_area
+    </sql>
+    <update id="updateAreaSort" parameterType="java.util.Map">
+        <foreach collection="areaMap.entrySet()" item="value" index="key" separator=";">
+            update area
+            <set>
+                sort = #{value}
+            </set>
+            where id = #{key}
+        </foreach>
+    </update>
+
+    <select id="getBySequences" resultType="com.guhecloud.cube.biz.mdata.server.area.entity.Area">
+        select
+        <include refid="Basic_Query_Column" />
+        from area
+        <where>
+            <if test="sequences != null and sequences.size() > 0">
+                and sequence in
+                <foreach collection="sequences" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by sort asc
+    </select>
+
+    <select id="innerList" resultType="com.guhecloud.cube.biz.mdata.server.area.vo.EnergyAreaVo">
+        select id,code,name areaName,parent_id,sort from area
+    </select>
+
+
+    <select id="getListBySequences" resultType="com.guhecloud.cube.biz.mdata.server.area.entity.Area">
+        select
+        <include refid="Basic_Query_Column" />
+        from area
+        <where>
+            sequence like concat(#{sequence},'%')
+        </where>
+    </select>
+
+    <select id="getAreaNames" resultType="java.lang.String">
+        SELECT GROUP_CONCAT(name SEPARATOR '/') as employee_names from area
+        WHERE id in
+        <foreach collection="list" item="item" separator="," close=")" open="(">
+            #{item}
+        </foreach>
+        ORDER BY `level` asc
+    </select>
+
+    <select id="getImportArea" resultType="com.guhecloud.cube.biz.mdata.server.area.entity.Area">
+        select a.id, a.sequence,a.parent_id,a.level, a.sort, a.name, a.status_id, a.built_up_area, a.feature_ids, a.tag_ids
+        from `area` a
+        <where>
+            <if test="queryParam.keyword != null and queryParam.keyword != ''">
+                and a.name like concat('%',#{queryParam.keyword},'%')
+            </if>
+            <if test="queryParam.statusId != null">
+                and a.status_id = #{queryParam.statusId}
+            </if>
+            <if test="queryParam.areaSymbol != null and queryParam.areaNumber != null">
+                <if test="queryParam.areaSymbol == 'LT'">
+                    and a.built_up_area &lt; #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'LE'">
+                    and a.built_up_area &lt;= #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'EQ'">
+                    and a.built_up_area = #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'GT'">
+                    and a.built_up_area &gt; #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'GE'">
+                    and a.built_up_area &gt;= #{queryParam.areaNumber}
+                </if>
+            </if>
+            <if test="queryParam.featureId != null">
+                and a.feature_ids like concat('%',#{queryParam.featureId},'%')
+            </if>
+        </where>
+        order by a.sequence
+    </select>
+
+    <select id="getSpaceExportList" resultType="com.guhecloud.cube.biz.mdata.server.area.vo.AreaVO">
+        select a.id, a.sequence,a.parent_id,a.level, a.sort, a.name, a.status_id, a.built_up_area, a.feature_ids, a.tag_ids
+        ,`as`.name as statusName, ae.introduce
+        from `area` a
+        left join area_status as `as` on (a.status_id = `as`.id)
+        left join area_extend as ae on (a.id = ae.id)
+        <where>
+            <if test="queryParam.keyword != null and queryParam.keyword != ''">
+                and a.name like concat('%',#{queryParam.keyword},'%')
+            </if>
+            <if test="queryParam.statusId != null">
+                and a.status_id = #{queryParam.statusId}
+            </if>
+            <if test="queryParam.areaSymbol != null and queryParam.areaNumber != null">
+                <if test="queryParam.areaSymbol == 'LT'">
+                    and a.built_up_area &lt; #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'LE'">
+                    and a.built_up_area &lt;= #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'EQ'">
+                    and a.built_up_area = #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'GT'">
+                    and a.built_up_area &gt; #{queryParam.areaNumber}
+                </if>
+                <if test="queryParam.areaSymbol == 'GE'">
+                    and a.built_up_area &gt;= #{queryParam.areaNumber}
+                </if>
+            </if>
+            <if test="queryParam.featureId != null">
+                and a.feature_ids like concat('%',#{queryParam.featureId},'%')
+            </if>
+            <if test="queryParam.sequences != null and queryParam.sequences.size() > 0">
+                and a.sequence in
+                <foreach collection="queryParam.sequences" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by a.sequence
+    </select>
+</mapper>

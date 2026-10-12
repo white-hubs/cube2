@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.identity.server.qrcode.dao.QrcodeEntityStyleMapper">
+
+    <select id="getDefaultStyleIdByEntityType" resultType="java.lang.Long">
+        SELECT s.`style_id` from `qrcode_entity_style` s
+        LEFT JOIN `qrcode_entity_type` t ON s.`entity_type` = t.`id`
+        where t.`entity_type` = #{entityType}
+    </select>
+</mapper>

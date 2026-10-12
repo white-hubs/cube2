@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchDeviceGroupReferMapper">
+
+    <!-- 注意：在表上加入唯一索引 -->
+    <insert id="insertOrUpdateDeviceGroupReferBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchDeviceGroupRefer">
+        insert into
+        `dispatch_device_group_refer`(id,group_id,device_id,
+        tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.groupId},#{item.deviceId},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        update_time = values(update_time)
+    </insert>
+</mapper>

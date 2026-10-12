@@ -1,0 +1,9 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.emergency.server.dao.EmergencyFacilityMapper">
+
+    <select id="getEmergencyFacilityStatForUsed"
+            resultType="com.guhecloud.cube.biz.emergency.server.vo.EmergencyFacilityStatVO">
+        select count(id) as total,sum(if(status = 'USED',1,0)) as usedValue,sum(if(status = 'NOT_USED',1,0)) as notUsedValue
+        from emergency_facility
+    </select>
+</mapper>

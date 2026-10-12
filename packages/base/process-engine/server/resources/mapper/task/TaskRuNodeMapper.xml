@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.task.infrastructure.mapper.TaskRuNodeMapper">
+
+    <sql id="actRunTaskSql">
+        SELECT a.`ID_` as id,
+               a.`PROC_INST_ID_` as processInstanceId,
+               a.`NAME_` as name,
+               a.`CREATE_TIME_` as createTime,
+               a.`ASSIGNEE_` as assignee,
+               a.`TENANT_ID_` as tenantId,
+               a.`TASK_DEF_KEY_` as nodeId
+        FROM `act_ru_task` a
+        INNER JOIN  process_instance_running pir ON a.`PROC_INST_ID_` = pir.`id`
+    </sql>
+
+    <select id="queryTaskByVariables"
+            resultType="com.guhecloud.cube.base.flow.client.dto.TaskVariableDTO">
+        <include refid="actRunTaskSql"/>
+        <where>
+            <if test="endTime != null">
+                a.`CREATE_TIME_` &lt;= #{endTime}
+            </if>
+        </where>
+    </select>
+    <select id="queryRunTaskByProInsIdAndAssignee"
+            resultType="com.guhecloud.cube.base.flow.client.dto.TaskVariableDTO">
+        <include refid="actRunTaskSql"/>
+        <where>
+            <if test="processInstanceId != null and processInstanceId != ''">
+                a.`PROC_INST_ID_` = #{processInstanceId}
+            </if>
+            <if test="assignee != null and assignee != ''">
+               AND  a.`ASSIGNEE_` = #{assignee}
+            </if>
+        </where>
+
+    </select>
+    <select id="getSourceProcessIdByProcessId" resultType="java.lang.String">
+        SELECT
+            ahr.TEXT_
+        FROM
+            `act_hi_varinst` ahr
+        WHERE
+            ahr.NAME_ = 'sourceProcessId'
+          AND ahr.PROC_INST_ID_ = #{processInstanceId}
+        GROUP BY
+            ahr.TEXT_
+            LIMIT 1
+    </select>
+    <select id="getProcessIdBySourceId"
+            resultType="com.guhecloud.cube.base.flow.flowable.task.interfaces.dto.ProcessIdBySourceDTO">
+        SELECT
+            ahr.PROC_INST_ID_ as processId,
+            ahr.TEXT_ as sourceId
+        FROM
+            `act_hi_varinst` ahr
+        WHERE
+            ahr.NAME_ = 'sourceProcessId'
+          AND ahr.TEXT_ in
+        <foreach collection="processInstanceIdList" item="processInsId" open="(" close=")" separator=",">
+            #{processInsId}
+        </foreach>
+        GROUP BY
+            ahr.PROC_INST_ID_, ahr.TEXT_
+
+    </select>
+</mapper>

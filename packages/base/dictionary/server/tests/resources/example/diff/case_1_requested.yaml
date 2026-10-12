@@ -1,0 +1,18 @@
+- provider: DICT
+  isPartialMode: True
+  isFailureOnMissingProvider: True
+  requirements:
+    - configType: DictType
+      version: 1.0
+      isMandatory: True
+      vargs: [{"code":"TypeA","remark":""}]
+    - configType: DictType
+      version: 1.0
+      isMandatory: True
+      vargs: [{"code":"TypeB"}]
+    - configType: DictEntry
+      isMandatory: True
+      tenants: ["all"]
+      kwargs:
+        dictType: TypeA
+      vargs: [{"key":"item1", "label":"item1"}, {"key":"item2", "label":"item2"}, {"key":"item3", "label":"item3"}]

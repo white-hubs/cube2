@@ -1,0 +1,159 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyAllotMapper">
+    <resultMap id="getAllotPage" type="com.guhecloud.cube.property.management.client.property.vo.property.AllotPageVO">
+        <id column="id" property="id"></id>
+        <result column="allot_numbers" property="allotNumbers"></result>
+        <result column="receive_time" property="receiveTime"></result>
+        <result column="receive_user_id" property="receiveUserId"></result>
+        <result column="receive_dep_name" property="receiveDepName"></result>
+        <result column="create_by" property="createBy"></result>
+        <result column="creator_id" property="creatorId"></result>
+        <result column="creator_type" property="creatorType"></result>
+        <result column="remarks" property="remarks"></result>
+        <result column="status" property="status"></result>
+        <result column="over_dep_name" property="overDepName"></result>
+        <result column="process_instance_id" property="processInstanceId"></result>
+    </resultMap>
+    <select id="queryById" resultMap="getAllotPage">
+        SELECT a.id,
+        a.receive_user_id,
+        a.receive_dep_name,
+        a.area_name,
+        a.receive_time,
+        a.files,
+        a.remarks,
+        a.status,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.over_dep_name,
+        c.`name`,
+        c.serial_number,
+        c.type_id,
+        c.type_name,
+        c.admin_id,
+        c.purchase_date,
+        c.price,
+        c.number,
+        c.norms,
+        c.unit,
+        c.status as propertyStatus,
+        c.imgs as imgsStr
+        FROM property_allot a
+        INNER JOIN property_allot_relation b ON a.id = b.allot_id
+        INNER JOIN property_detailed c ON b.property_id = c.id
+        where a.id = #{id}
+    </select>
+    <select id="getAllotPage" resultMap="getAllotPage">
+        select a.id,a.allot_numbers,a.receive_time,a.receive_user_id,
+        a.receive_dep_name,a.create_by,a.creator_id,a.creator_type,a.remarks,a.status,a.over_dep_name,
+        c.id as c_id,c.`name`,c.serial_number,c.type_id,c.status as propertyStatus,
+        a.process_instance_id
+        from property_allot a
+        inner join property_allot_relation b on a.id=b.allot_id
+        inner join property_detailed c on b.property_id=c.id
+        <where>
+            <if test="param.receiveTime != null">
+                and a.receive_time=#{param.receiveTime}
+            </if>
+            <if test="param.overDepId !=null">
+                and a.over_dep_id=#{param.overDepId}
+            </if>
+            <if test="param.receiveDepId !=null">
+                and a.receive_dep_id=#{param.receiveDepId}
+            </if>
+            <if test="param.status !=null and param.status != ''">
+                and a.status=#{param.status}
+            </if>
+            <if test="param.typeId != null">
+                and c.type_id=#{param.typeId}
+            </if>
+            <if test="param.type !=null and param.type !=''">
+                and a.type= #{param.type}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (a.allot_numbers like CONCAT('%',#{param.keyword},'%')
+                or c.name like CONCAT('%',#{param.keyword},'%'))
+            </if>
+        </where>
+        group by a.id
+        order by a.receive_time desc
+    </select>
+    <select id="queryByPropertyId"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.AllotPageVO">
+        select b.receive_dep_name, b.receive_user_id
+        from property_allot_relation a
+        inner join property_allot b on a.allot_id = b.id
+        WHERE a.property_id = #{propertyId}
+        order by b.create_time desc limit 1
+    </select>
+    <select id="propertyDetailed"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+        select a.*
+        from property_detailed a
+        inner join property_allot_relation b on a.id = b.property_id
+    </select>
+    <select id="getAllotDetails" resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+        select
+        c.`name`,c.serial_number
+        from property_allot a
+        inner join property_allot_relation b on a.id=b.allot_id
+        inner join property_detailed c on b.property_id=c.id
+        where a.id=#{id}
+        <if test="param.receiveTime != null">
+            and a.receive_time=#{param.receiveTime}
+        </if>
+        <if test="param.overDepId !=null">
+            and a.over_dep_id=#{param.overDepId}
+        </if>
+        <if test="param.receiveDepId !=null">
+            and a.receive_dep_id=#{param.receiveDepId}
+        </if>
+        <if test="param.status !=null and param.status != ''">
+            and a.status=#{param.status}
+        </if>
+        <if test="param.typeId != null">
+            and c.type_id=#{param.typeId}
+        </if>
+        <if test="param.type !=null and param.type !=''">
+            and a.type= #{param.type}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (a.allot_numbers like CONCAT('%',#{param.keyword},'%')
+            or c.name like CONCAT('%',#{param.keyword},'%'))
+        </if>
+        group by c.id
+        order by a.receive_time desc
+    </select>
+    <select id="getExcel" resultType="com.guhecloud.cube.property.management.client.property.param.property.AllotExcelParam">
+        select c.type_name,
+        c.name,
+        c.norms,
+        c.unit,
+        c.number,
+        a.receive_dep_name,
+        a.receive_user_id as receiveUserName,
+        a.receive_time
+        from property_allot a
+        inner join property_allot_relation b on a.id = b.allot_id
+        inner join property_detailed c on b.property_id = c.id
+        where a.id = #{id}
+    </select>
+    <select id="getAllotUnitExcel" resultType="com.guhecloud.cube.property.management.client.property.param.property.AllotUnitExcelParam">
+        select c.serial_number,
+        c.name,
+        c.norms,
+        c.unit,
+        c.number,
+        a.remarks
+        from property_allot a
+        inner join property_allot_relation b on a.id = b.allot_id
+        inner join property_detailed c on b.property_id = c.id
+        where a.id = #{id}
+    </select>
+    <select id="getPropertyDetailedIds" resultType="java.lang.Long">
+        select property_id
+        from property_allot_relation
+        where allot_numbers = #{allotNumbers}
+    </select>
+</mapper>

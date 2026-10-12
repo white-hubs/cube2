@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchDeviceExtendMapper">
+
+    <insert id="insertOrUpdateDeviceExtendBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchDeviceExtend">
+        insert into
+        `dispatch_device_extend`(id,device_id,is_record,is_video,device_level,remark,
+        tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.deviceId},#{item.isRecord},#{item.isVideo},#{item.deviceLevel},#{item.remark},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        is_record = values(is_record),
+        is_video = values(is_video),
+        device_level = values(device_level),
+        remark = values(remark),
+        update_time = values(update_time)
+    </insert>
+</mapper>

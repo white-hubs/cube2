@@ -1,0 +1,202 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.WaterDataMonthMapper">
+
+    <select id="reportDetailMonth" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailMonthVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`statistical_flag` `statisticalFlag`,
+        a.`statistical_cycle` `statisticalCycle`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`shift_master_phone` `shiftMasterPhone`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`duration` `duration`,
+        a.`flow` `flow`,
+        a.`unit_price` `unitPrice`,
+        a.`total` `total`
+        FROM
+        `water_data_month` a
+        where
+              1=1
+            <if test="param.startTime !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  a.`data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+             and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+
+            <if test="param.duration  !=null and param.duration.startDuration !=null  and param.duration.endDuration !=null">
+                and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+            </if>
+
+            <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+                and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+            </if>
+
+
+    </select>
+
+    <select id="reportDetailMonthExcel" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailMonthVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`statistical_flag` `statisticalFlag`,
+        a.`statistical_cycle` `statisticalCycle`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`shift_master_phone` `shiftMasterPhone`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`duration` `duration`,
+        a.`flow` `flow`,
+        a.`unit_price` `unitPrice`,
+        a.`total` `total`
+        FROM
+        `water_data_month` a
+        where
+              1=1
+            <if test="param.startTime !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  a.`data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+
+        <if test="param.duration !=null and param.duration.startDuration !=null  and param.duration.endDuration !=null">
+            and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+        </if>
+
+        <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+            and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+        </if>
+
+
+    </select>
+
+    <select id="reportDetailMonthTotal"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataTotalVo">
+        SELECT
+
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`flow` ),0)	 `flow`,
+        COALESCE(sum( a.`duration` ),0)	 `duration`
+
+        FROM
+        `water_data_month` a
+        where
+        1=1
+        <if test="param.startTime !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+            and  a.`data_time` between #{param.startTime} and #{param.endTime}
+        </if>
+        <if test="param.departmentId !=null and param.departmentId !=''">
+            and  a.`department_id` like concat('%',#{param.departmentId},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  a.`code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+        </if>
+
+        <if test="param.duration !=null and param.duration.startDuration !=null  and param.duration.endDuration !=null">
+            and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+        </if>
+
+        <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+            and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+        </if>
+    </select>
+
+
+    <select id="numberOfActiveMerchants" resultType="java.lang.Integer">
+        SELECT COUNT(distinct `code`) FROM `water_data_month` WHERE `duration` <![CDATA[>]]> 24
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  `data_time` between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="numberOfMerchants" resultType="java.lang.Integer">
+        SELECT COUNT(distinct `code`) FROM `water_data_month` WHERE 1=1
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  `data_time` between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="numberOfActiveDevice" resultType="java.lang.Integer">
+        SELECT COUNT(distinct `device_code`) FROM `water_data_month` WHERE `duration` <![CDATA[>]]> 24
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  `data_time` between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="numberOfDevice" resultType="java.lang.Integer">
+        SELECT COUNT(distinct `device_code`) FROM `water_data_month` WHERE 1=1
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  `data_time` between #{startTime} and #{endTime}
+        </if>
+    </select>
+
+    <select id="getNumberOfActiveMerchants"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataKeyValueVo">
+        SELECT `data_time` keyName,COUNT(distinct `code`) `value`  FROM `water_data_month` WHERE `duration` <![CDATA[>]]> 24
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  `data_time` between #{startTime} and #{endTime}
+        </if>
+        GROUP BY `keyName`
+    </select>
+
+    <select id="getNumberOfActiveDevice"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataKeyValueVo">
+        SELECT
+            ( a.`VALUE` / b.`VALUE` )*100 AS `VALUE`,a.`keyName`
+        FROM
+            ( SELECT `data_time` `keyName`, COUNT( DISTINCT `device_code` ) VALUE FROM `water_data_month` WHERE `duration`  <![CDATA[>]]>  24
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and  `data_time` between #{startTime} and #{endTime}
+            </if>
+            GROUP BY `keyName` ) a
+            LEFT JOIN ( SELECT `data_time` `keyName`, COUNT( DISTINCT `device_code` ) VALUE FROM `water_data_month`
+            where 1=1
+            <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+                and  `data_time` between #{startTime} and #{endTime}
+            </if>
+            GROUP BY `keyName` ) b ON a.`keyName` = b.`keyName`
+    </select>
+
+
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.ExtDeviceCmdMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.ExtDeviceCmd">
+        <!--@mbg.generated-->
+        <!--@Table center_ext_device_cmd-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="batch_cmd_seq" jdbcType="BIGINT" property="batchCmdSeq"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `batch_cmd_seq`
+    </sql>
+</mapper>

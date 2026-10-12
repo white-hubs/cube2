@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.merchant.dao.MerchantMapper">
+    <sql id="BASIC_MERCHANT_SELECT">
+        select mt.id,
+        mt.user_id,
+        mt.code,
+        mt.name,
+        mt.owner,
+        mt.seller,
+        mt.buyer,
+        mt.liaison,
+        mt.phone,
+        mt.area,
+        mt.address,
+        mt.status,
+        mt.enabled,
+        mt.tenant,
+        mt.deleted,
+        mt.create_by,
+        mt.creator_id,
+        mt.creator_type,
+        mt.create_time,
+        mt.update_by,
+        mt.updater_id,
+        mt.updater_type,
+        mt.update_time
+        from `merchant` mt
+    </sql>
+
+    <select id="page" resultType="com.guhecloud.cube.biz.mdata.server.merchant.dto.MerchantDTO">
+        select
+        m.id,m.code,m.name,m.user_id,m.owner,m.seller,m.buyer,m.liaison,m.phone,m.area,m.address,
+        m.remark,m.status,m.enabled,a.type,m.create_time
+        from merchant m
+        left join authentication a
+        on m.id = a.merchant_id
+        <where>
+            <if test="param.type != null">
+                and a.type = #{param.type.name}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                m.name like concat("%",#{param.keyword},"%")
+                or
+                m.liaison like concat("%",#{param.keyword},"%")
+                or
+                m.phone like concat("%",#{param.keyword},"%")
+                )
+            </if>
+            <if test="param.bizType != null and param.bizType.name == 'BIZ_TYPE_SELLER'">
+                and m.seller = 1
+            </if>
+            <if test="param.bizType != null and param.bizType.name == 'BIZ_TYPE_BUYER'">
+                and m.buyer = 1
+            </if>
+            <if test="param.auditStatus != null">
+                and m.status = #{param.auditStatus.name}
+            </if>
+        </where>
+        group by id
+        order by m.status asc
+    </select>
+
+    <select id="lookupMerchants" resultType="com.guhecloud.cube.biz.mdata.server.merchant.entity.Merchant">
+        <include refid="BASIC_MERCHANT_SELECT" />
+        where mt.name like concat('%', #{keyword}, '%') or mt.phone like concat('%', #{keyword}, '%')
+    </select>
+
+    <select id="lookupMerchantPage" resultType="com.guhecloud.cube.biz.mdata.server.merchant.entity.Merchant">
+        <include refid="BASIC_MERCHANT_SELECT" />
+        <where>
+            <if test="keyword != null">
+                and mt.name like concat('%', #{keyword}, '%') or mt.phone like concat('%', #{keyword}, '%')
+            </if>
+            <if test="merchantIds != null and merchantIds.size() > 0">
+                or mt.id in
+                <foreach collection="merchantIds" item="merchantId" open="(" close=")" separator=",">
+                    #{merchantId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

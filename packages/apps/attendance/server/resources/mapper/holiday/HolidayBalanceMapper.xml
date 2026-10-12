@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.holiday.infrastructure.mapper.HolidayBalanceMapper">
+   <select id="page" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.holiday.application.querygateway.dto.EmployeeBalanceDTO">
+  select ht.*,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'MATERNITY_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'MATERNITY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) AS maternityLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'COMPENSATORY_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'COMPENSATORY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) compensatoryLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'PATERNITY_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'PATERNITY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) paternityLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'BEREAVEMENT_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'BEREAVEMENT_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) bereavementLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'COMPASSIONATE_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'COMPASSIONATE_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) compassionateLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'MARRIAGE_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'MARRIAGE_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) marriageLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'SICK_LEAVE',
+       IF
+       (( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'SICK_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.remain_balance ),
+       0
+       )),
+       0
+       ) sickLeave,
+       IFNULL(
+       SUM(
+       IF
+       (
+       ht.`holidayType` = 'ANNUAL_LEAVE',
+       IF
+       (
+       ( SELECT is_need_limit_quota FROM holiday_type WHERE type = 'ANNUAL_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1,
+       0,
+       hb.remain_balance
+       ),
+       0
+       )
+       ),
+       0
+       )  annualLeave
+       from (
+       SELECT
+       hur.`id`,
+       hur.`user_id` userId,
+       ht.`type` holidayType,
+       hur.`time_of_induction`,
+       hur.`employee_organization` organizationId,
+       hur.`attendance_group_id_of_arrange` attendanceGroupId,
+       hur.`employee_name` employeeName
+       FROM
+       `holiday_balance_list` hur
+       LEFT JOIN `holiday_type` ht ON ht.id = hur.holiday_type_id
+       LEFT JOIN `holiday_balance` hb ON hur.`user_id` = hb.`user_id`
+       WHERE
+       hur.`show` = 1
+       <if test="query.timeOfInduction != null">
+           and   hur.`time_of_induction` between #{query.timeOfInduction.begin} and #{query.timeOfInduction.end}
+       </if>
+       <if test="query.keyword != null and query.keyword != ''">
+           and  hur.`employee_name` like concat('%',#{query.keyword},'%')
+       </if>
+       <if test="query.organizationId != null">
+           and hur.`employee_organization` = #{query.organizationId}
+       </if>
+       <if test="query.attendanceGroupId != null">
+           and hur.`attendance_group_id_of_arrange` = #{query.attendanceGroupId}
+       </if>
+       GROUP BY 	hur.`user_id`,ht.`type`
+       ) ht
+
+       LEFT JOIN `holiday_balance` hb ON hb.`user_id` = ht.`userId` and ht.`holidayType` = hb.`holiday_type`
+
+       GROUP BY ht.`userId`
+   </select>
+   <select id="listByEmployee"
+           resultType="com.guhecloud.cube.srv.gen.attendance.management.server.holiday.application.querygateway.dto.EmployeeBalanceDTO">
+      SELECT hb.`user_id` `userId`, hur.`employee_name` `employeeName`,
+             hb.`holiday_type` `holidayType`,
+            SUM(IF(hb.`holiday_type`='MATERNITY_LEAVE',hb.`remain_balance`,0)) as maternityLeave ,
+             SUM(IF(hb.`holiday_type`='COMPENSATORY_LEAVE',hb.`remain_balance`,0)) as compensatoryLeave ,
+             SUM(IF(hb.`holiday_type`='PATERNITY_LEAVE',hb.`remain_balance`,0)) as paternityLeave,
+             SUM(IF(hb.`holiday_type`='BEREAVEMENT_LEAVE',hb.`remain_balance`,0)) as bereavementLeave,
+             SUM(IF(hb.`holiday_type`='COMPASSIONATE_LEAVE',hb.`remain_balance`,0)) as compassionateLeave,
+             SUM(IF(hb.`holiday_type`='MARRIAGE_LEAVE',hb.`remain_balance`,0)) as marriageLeave,
+             SUM(IF(hb.`holiday_type`='SICK_LEAVE',hb.`remain_balance`,0)) as sickLeave,
+             SUM(IF(hb.`holiday_type`='ANNUAL_LEAVE',hb.`remain_balance`,0)) as annualLeave
+      FROM `holiday_balance` hb
+    where hb.`user_id` in
+<foreach collection="employee" item="id" open="(" close=")" separator=",">
+   #{id}
+</foreach>
+      GROUP BY hb.`user_id`
+   </select>
+    <select id="list"
+            resultType="com.guhecloud.cube.srv.gen.attendance.management.server.holiday.application.querygateway.dto.EmployeeBalanceDTO">
+        select ht.*,
+        IFNULL(
+        SUM(
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'MATERNITY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` )
+        ),
+        0
+        ) AS `maternityLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'COMPENSATORY_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'COMPENSATORY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `compensatoryLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'PATERNITY_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'PATERNITY_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `paternityLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'BEREAVEMENT_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'BEREAVEMENT_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `bereavementLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'COMPASSIONATE_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'COMPASSIONATE_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `compassionateLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'MARRIAGE_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'MARRIAGE_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `marriageLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'SICK_LEAVE',
+        IF
+        (( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'SICK_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1, 0, hb.`remain_balance` ),
+        0
+        )),
+        0
+        ) `sickLeave`,
+        IFNULL(
+        SUM(
+        IF
+        (
+        ht.`holidayType` = 'ANNUAL_LEAVE',
+        IF
+        (
+        ( SELECT `is_need_limit_quota` FROM `holiday_type` WHERE `type` = 'ANNUAL_LEAVE' AND tenant = #{tenant} AND deleted = 0 ) = 1,
+        0,
+        hb.`remain_balance`
+        ),
+        0
+        )
+        ),
+        0
+        ) `annualLeave`
+        from (
+        SELECT
+        hur.`id`,
+        hur.`user_id` `userId`,
+        ht.`type` `holidayType`,
+        hur.`time_of_induction`,
+        hur.`employee_organization` `organizationId`,
+        hur.`attendance_group_id_of_arrange` `attendanceGroupId`,
+        hur.`employee_name` `employeeName`
+        FROM
+        `holiday_balance_list` hur
+        LEFT JOIN `holiday_type` ht ON ht.`id` = hur.`holiday_type_id`
+        LEFT JOIN `holiday_balance` hb ON hur.`user_id` = hb.`user_id`
+        WHERE
+        hur.`show` = 1
+        <if test="query.timeOfInduction != null">
+            and   hur.`time_of_induction` between #{query.timeOfInduction.begin} and #{query.timeOfInduction.end}
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and  hur.`employee_name` like concat('%',#{query.keyword},'%')
+        </if>
+        <if test="query.organizationId != null">
+            and hur.`employee_organization` = #{query.organizationId}
+        </if>
+        <if test="query.attendanceGroupId != null">
+            and hur.`attendance_group_id_of_arrange` = #{query.attendanceGroupId}
+        </if>
+        GROUP BY `hur`.`user_id`,`ht`.`type`
+        ) ht
+
+        LEFT JOIN holiday_balance hb ON hb.`user_id` = ht.`userId` and ht.`holidayType` = hb.`holiday_type`
+
+        GROUP BY ht.`userId`
+    </select>
+</mapper>

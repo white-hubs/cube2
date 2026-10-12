@@ -1,0 +1,171 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.WaterDataYearMapper">
+
+    <select id="reportDetailYear" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailYearVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`one` `one`,
+        a.`two` `two`,
+        a.`three` `three`,
+        a.`four` `four`,
+        a.`five` `five`,
+        a.`six` `six`,
+        a.`seven` `seven`,
+        a.`eight` `eight`,
+        a.`nine` `nine`,
+        a.`ten` `ten`,
+        a.`eleven` `eleven`,
+        a.`twelve` `twelve`,
+        a.`total` `total`
+        FROM
+        `water_data_year` a
+        where
+              1=1
+            <if test="param.timeFlag !=null and param.timeFlag !=''">
+             and  a.`data_time` = #{param.timeFlag}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+
+    </select>
+
+    <select id="reportDetailYearExcel" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailYearVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`one` `one`,
+        a.`two` `two`,
+        a.`three` `three`,
+        a.`four` `four`,
+        a.`five` `five`,
+        a.`six` `six`,
+        a.`seven` `seven`,
+        a.`eight` `eight`,
+        a.`nine` `nine`,
+        a.`ten` `ten`,
+        a.`eleven` `eleven`,
+        a.`twelve` `twelve`,
+        a.`total` `total`
+        FROM
+        `water_data_year` a
+        where
+              1=1
+            <if test="param.timeFlag !=null and param.timeFlag !=''">
+                and  a.`data_time` = #{param.timeFlag}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+
+
+    </select>
+
+    <select id="reportDetailYearTotal"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataTotalVo">
+        SELECT
+
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`duration` ),0)	`duration`
+        FROM
+        `water_data_year` a
+        where
+        1=1
+        <if test="param.timeFlag !=null and param.timeFlag !=''">
+            and  a.`data_time` = #{param.timeFlag}
+        </if>
+        <if test="param.departmentId !=null and param.departmentId !=''">
+            and  a.`department_id` like concat('%',#{param.departmentId},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  a.`code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+        </if>
+
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+
+    </select>
+
+    <select id="getReportDetailYear"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WaterDataDetailVo">
+        SELECT
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`duration` ),0)	`duration`,
+        COALESCE(sum( a.`flow` ),0)	 `flow`
+        FROM
+        `water_data_month` a
+        where
+        1=1
+        <if test="startTime !=null and endTime !=null ">
+            and  a.`data_time` between #{startTime} and #{endTime}
+        </if>
+
+        <if test="deviceCode !=null and deviceCode !=''">
+            and  a.`device_code` = #{deviceCode}
+        </if>
+
+    </select>
+
+    <select id="getReportDetailMonth"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WaterDataDetailVo">
+        SELECT
+        a.`data_time`  `dataTime`,
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`duration` ),0)	`duration`,
+        COALESCE(sum( a.`flow` ),0)	 `flow`
+        FROM
+        `water_data_month` a
+        where
+        1=1
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  a.`data_time` between #{startTime} and #{endTime}
+        </if>
+
+        <if test="deviceCode !=null and deviceCode !=''">
+            and  a.`device_code` = #{deviceCode}
+        </if>
+
+    </select>
+</mapper>

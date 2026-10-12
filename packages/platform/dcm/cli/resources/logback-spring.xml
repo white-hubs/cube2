@@ -1,0 +1,18 @@
+<configuration>
+	<property name="LOG_FILE" value="./target/app.log"/>
+	<property name="LOG_FILE_MAX_SIZE" value="100mb" />
+	<property name="LOG_FILE_MAX_HISTORY" value="14" />
+	<include resource="org/springframework/boot/logging/logback/base.xml" />
+
+	<appender name="RAW_CONSOLE_APPENDER" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.guhecloud.platform.dcm"  additivity="false">
+		<appender-ref ref="RAW_CONSOLE_APPENDER"/>
+		<appender-ref ref="FILE" />
+	</logger>
+
+</configuration>

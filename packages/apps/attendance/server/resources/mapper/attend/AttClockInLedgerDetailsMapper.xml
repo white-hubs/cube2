@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.mapper.AttClockInLedgerDetailsMapper">
+
+  <insert id="addLedgerDetails">
+      INSERT INTO `att_clock_in_ledger_details`
+          (`iedger_id`, `week`, `today`,`tenant`,`deleted`,`create_time`,`state`,`user_id`,`user_name`,`ledger_belong_date`,`classes_details`)
+      VALUES
+          <foreach collection="list" item="item" separator=",">
+              (#{item.iedgerId},#{item.week},#{item.today},#{item.tenant},0,#{item.createTime},#{item.state},
+              #{item.userId},#{item.userName},#{item.ledgerBelongDate},#{item.classesDetails})
+          </foreach>
+  </insert>
+    <insert id="addLedgerDetailsAll">
+        INSERT INTO `att_clock_in_ledger_details`
+        (`iedger_id`, `week`, `today`,`tenant`,`deleted`,`create_time`,`state`,`start_work_time`,
+        `end_work_time`,`start_work_state`,`end_work_state`,`end_work_details`,
+        `start_work_details`,`classes_id`,`classes_version`,`clock_in_uuid`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.iedgerId},#{item.week},#{item.today},#{item.tenant},0,#{item.createTime},#{item.state},
+            #{item.startWorkTime},#{item.endWorkTime},#{item.startWorkState},#{item.endWorkState},
+            #{item.endWorkDetails},#{item.startWorkDetails},#{item.classesId},
+            #{item.classesVersion},#{item.clockInUuid}
+            )
+        </foreach>
+    </insert>
+    <select id="getLedgerDetails" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInLedgerDetailsPO">
+        select b.*
+        from `att_clock_in_ledger` a
+        inner join `att_clock_in_ledger_details` b on a.`id` = b.`iedger_id`
+        where a.`ledger_date` = #{ledgerDate}
+          and a.`user_id` = #{clock.userId}
+          and b.`today` = #{today}
+          and b.`classes_id` = #{clock.classesId}
+          and b.`classes_version` = #{clock.classesVersion}
+    </select>
+    <select id="getAll" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInLedgerDetailsPO">
+        select a.`user_id` ,a.`user_name`,b.*
+        from `att_clock_in_ledger` a
+        inner join `att_clock_in_ledger_details` b on a.`id` = b.`iedger_id`
+        where a.`ledger_date` = #{ledgerDate}
+    </select>
+    <select id="getLedgerDetailsAbnormalNumber" resultType="java.lang.Integer">
+        select count(1)
+        from `att_clock_in_ledger_details`
+        where `user_id` = #{param.userId}
+        and `ledger_belong_date` between #{param.period.begin} AND #{param.period.end}
+        <if test="'NEGLECT_WORK' == param.type">
+            and `state` = #{param.type}
+        </if>
+        <if test="'LATE_CHECKED' == param.type">
+            and `start_work_state` =#{param.type}
+        </if>
+        <if test="'EARLY_CHECKED' == param.type">
+            and `end_work_state` =#{param.type}
+        </if>
+    </select>
+</mapper>

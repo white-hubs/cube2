@@ -1,0 +1,110 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "maven_bom")
+load("//packages/base/alarm:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/alarm/client",
+        "//packages/base/device-center/north/client",
+        "//packages/apps/emergency/client",
+        "//packages/apps/loose-works/client",
+        "//packages/apps/maintain/client",
+        "//packages/base/work-center/client",
+        "//packages/apps/risk-source/client",
+        "//packages/apps/risk-source/risk-score/sdk",
+        "//packages/apps/safety-edu/client",
+        "//packages/base/device-center/client",
+        "//packages/base/dictionary/client",
+        "//packages/base/file/client",
+        "//packages/base/mdata/client",
+        "//packages/base/message/bracing/client",
+        "//packages/base/message/sdk",
+        "//packages/apps/linkage/client",
+        "//packages/base/ouaa/client",
+        "//packages/base/todo/client",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/apache:hc5-client",
+        "//third-party/java/alibaba:easyexcel",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/platform/event",
+        "//packages/platform/base/standard:http",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/standard:jackson",
+        # jdk21
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/apache:tomcat_annotations_api",
+        "//third-party/java/spring:spring_boot_starter_jdbc",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+        "src-dcm/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.base.alarm.server.AlarmServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "alarm-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [
+        ":server",
+    ],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-base-alarm",
+    datasource_package = "com.guhecloud.cube.base.alarm",
+    gw_prefix = "/alarm/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "alarm",
+    visibility = ["//packages:__subpackages__"],
+)

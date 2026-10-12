@@ -1,0 +1,90 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: QRCODE   # 提供方标识
+  appDescription: 提供通用二维码服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: Style, versions: [1.0]}
+  - {type: App, versions: [1.0]}
+  - {type: EntityType, versions: [1.0]}
+  - {type: EntityStyle, versions: [1.0]}
+  - {type: EntityApp, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: QRCODE  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: Style  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "code": "20231103001"
+            "name": "标准二维码样式1"
+            "width": "800"
+            "height": "400"
+            "configJson": "{\"name\":\"标准二维码样式1\",\"width\":\"800\",\"height\":\"400\",\"backgroundColor\":\"#FFFFFF\",\"backgroundImage\":\"https://minio-test.guhecloud.com:30000/guhecloud-prod-mdata/1720270800742854657.gif\",\"imgId\":\"1720270800977735682\",\"layers\":[{\"type\":\"qrBox\",\"url\":\"\",\"component\":{\"name\":\"qr\",\"left\":290,\"top\":105,\"width\":200,\"height\":200},\"option\":{},\"index\":\"a2932ffc-e62c-428f-b673-66ad1ce9d7ff\",\"id\":\"2186aaf0-61da-4cf1-89ec-a6995729d75d\"}]}"
+      - configType: App  #二维码应用
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "code": "HIDDENDANGER"
+            "name": "隐患排查"
+          - "code": "FAULT"
+            "name": "故障报修"
+          - "code": "INSPECTION"
+            "name": "日常巡检"
+          - "code": "MAINTENACE"
+            "name": "维保作业"
+          - "code": "OUTSOURCE_REPAIR"
+            "name": "委外维修"
+          - "code": "RETROFIT"
+            "name": "更新改造"
+          - "code": "PROPERTY_MANAGEMENT"
+            "name": "资产管理"
+          - "code": "FOOD_SAFETY"
+            "name": "食安溯源"
+      - configType: EntityType
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "name": "资产设备"
+            "entityType": "PROPERTY"
+          - "name": "巡更点"
+            "entityType": "PATROL_POINT"
+          - "name": "现场点"
+            "entityType": "SITE_POINT"
+          - "name": "档位"
+            "entityType": "STALL"
+          - "name": "设备"
+            "entityType": "DEVICE"
+          - "name": "风险源管理"
+            "entityType": "RISK_SOURCE"
+      - configType: EntityStyle
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "entityType": "PROPERTY"
+            "styleName": "新风险源"
+      - configType: EntityApp
+        isMandatory: True
+        isSystem: false
+        tenants: all
+        isFailOnMissingProvider: True
+        kwargs:
+          entityType: PROPERTY
+        vargs:
+          - "applicationCode": "PROPERTY_MANAGEMENT"
+            "selected": True
+          - "applicationCode": "FAULT"
+            "selected": True
+
+

@@ -1,0 +1,12 @@
+- configType: DictType
+  version: 1.0
+  isMandatory: True
+  isSystem: True
+  vargs: [{"code":"TypeA","remark":""}]
+- configType: DictEntry
+  isMandatory: True
+  isSystem: False
+  tenants: ["1"]
+  kwargs:
+    dictType: TypeA
+  vargs: [{"key":"item1", "label":"item1"}, {"key":"item2", "label":"item2"}]

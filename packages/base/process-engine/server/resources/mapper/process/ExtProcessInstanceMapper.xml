@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.process.infrastructure.mapper.ExtProcessInstanceMapper">
+    <select id="selectNumberGroupByResult"
+            resultType="com.guhecloud.cube.base.flow.flowable.process.application.querygateway.dto.ProcessInstanceNumberOfGroupByResultDTO">
+        select `result`, count(*) number from `process_instance_running`
+        <where>
+            <if test="appCodes != null and appCodes.size() > 0">
+                and `application_code` in
+                <foreach collection="appCodes" item="code" open="(" close=")" separator=",">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        group by `result`
+    </select>
+
+    <select id="selectTaskPage"
+            resultType="com.guhecloud.cube.base.flow.flowable.process.interfaces.dto.ProcessInstanceDTO">
+        SELECT
+        `r`.id as processInstanceId,
+        `r`.`start_user_id`,
+        `r`.`start_user_name`,
+        `r`.`organization_id`,
+        `r`.`organization_name`,
+        `r`.`result` AS `status`,
+        `r`.instance_name,
+        `r`.`tenant` AS `tenant`,
+        `r`.`instance_name` AS `apply_name`,
+        `r`.`business_type` AS `business_type`,
+        `p`.`PROC_INST_ID_` AS `proc_inst_id`,
+        `p`.`START_TIME_` AS `submitedTime`,
+        `p`.`END_TIME_` AS `end_time`,
+        `t`.`ASSIGNEE_` AS `assignee`,
+        `t`.`END_TIME_` AS `task_end_time`,
+        v.TEXT_ as formNo,
+        vt.NAME_ as activeNodeName
+        FROM
+        `act_hi_taskinst` `t`
+        INNER JOIN `act_hi_procinst` `p` ON `t`.`PROC_INST_ID_` = `p`.`PROC_INST_ID_`
+        INNER JOIN `process_instance_running` `r` ON `r`.`id` = `p`.`PROC_INST_ID_`
+        inner join act_hi_varinst as v on r.id= v.PROC_INST_ID_ and v.NAME_='formNo'
+        inner join act_hi_taskinst as vt on r.id= vt.PROC_INST_ID_
+        <choose>
+            <when test="query.type != null and query.type =='PROCESSED'">
+                AND `t`.`END_TIME_` IS NOT NULL
+                AND `t`.TASK_DEF_KEY_ != 'root'
+                AND ((`t`.`DELETE_REASON_` != 'Multi-instance complete condition expression passed')
+                OR (`t`.`DELETE_REASON_` IS NULL ))
+            </when>
+            <otherwise>
+                AND `t`.`END_TIME_` IS NULL
+            </otherwise>
+        </choose>
+        <where>
+            <if test="userId !=null and userId !=''">
+                `t`.`ASSIGNEE_`=#{userId}
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `p`.`START_TIME_` BETWEEN #{query.submitTime.begin}
+                AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type=#{query.businessType}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code=#{query.applicationCode}
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                r.start_user_id =#{query.startUserId}
+            </if>
+            <if test="query.organizationId !=null and query.organizationId !=''">
+                r.organization_id =#{query.organizationId}
+            </if>
+        </where>
+        group by r.id
+        order by p.`START_TIME_` desc
+    </select>
+    <select id="selectInitiatedPage"
+            resultType="com.guhecloud.cube.base.flow.flowable.process.interfaces.dto.ProcessInstanceDTO">
+        SELECT
+        r.id as processInstanceId,
+        r.start_user_id,
+        r.start_user_name,
+        r.organization_id,
+        r.organization_name,
+        r.instance_name,
+        COALESCE(`r`.`result`, 'ACTIVE') AS `status`,
+        r.`tenant` AS `tenant`,
+        r.`business_type` AS `business_type`,
+        p.`START_TIME_` AS `submitedTime`,
+        v.TEXT_ as formNo,
+        vt.NAME_ as activeNodeName,
+        r.create_time,
+        r.update_time
+        FROM `process_instance_running` r
+        inner JOIN `act_hi_procinst` p ON r.`id` = p.`PROC_INST_ID_`
+        inner JOIN `act_hi_taskinst` t ON t.`PROC_INST_ID_` = p.`PROC_INST_ID_`
+        inner join act_hi_varinst as v on r.id= v.PROC_INST_ID_ and v.NAME_='formNo'
+        left join act_hi_taskinst as vt on r.id= vt.PROC_INST_ID_ and vt.END_TIME_ is NULL
+        <where>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                r.start_user_id =#{query.startUserId}
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and p.`START_TIME_` BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.organizationId != null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.processInstanceIdsList !=null">
+                and r.id in
+                <foreach collection="query.processInstanceIdsList" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type=#{query.businessType}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code=#{query.applicationCode}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and r.result is null
+                    </when>
+                    <otherwise>
+                        and r.result = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        group by r.id
+        order by p.START_TIME_ desc
+    </select>
+
+    <select id="getProcessInstanceIds" resultType="java.lang.String">
+        select id
+        from process_instance_running
+        <where>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and application_code = #{query.applicationCode}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and business_type = #{query.businessType}
+            </if>
+            <if test="query.organizationId !=null">
+                and organization_id = #{query.organizationId}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `result` is null
+                    </when>
+                    <otherwise>
+                        and `result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and start_user_name like concat('%',#{query.username},'%')
+            </if>
+        </where>
+        GROUP BY id
+        ORDER BY create_time DESC
+    </select>
+    <select id="getProcessInstanceIdsByUser" resultType="java.lang.String">
+        select processInstanceId
+        from (SELECT r.id as processInstanceId,r.create_time
+        FROM `process_instance_running` r
+        <where>
+            <if test="query.assignee !=null">
+                r.start_user_id = #{query.assignee}
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+        </where>
+        union
+        SELECT `r`.id as processInstanceId,r.create_time
+        FROM `act_hi_taskinst` `t`
+        INNER JOIN `process_instance_running` `r` ON `r`.`id` = `t`.`proc_inst_id_`
+        AND ((`t`.`DELETE_REASON_` != 'Multi-instance complete condition expression passed')
+        OR (`t`.`DELETE_REASON_` IS NULL ))
+        <where>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.assignee !=null and query.assignee !=''">
+                and `t`.`assignee_` = #{query.assignee}
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                and `r`.`start_user_id` = #{query.startUserId}
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+        </where>
+        UNION
+        SELECT `r`.id as process_instance_id,r.create_time
+        FROM `copy_log` `t`
+        inner JOIN `process_instance_running` `r` ON `r`.`id` = `t`.`process_instance_id`
+        <where>
+            <if test="query.assignee !=null and query.assignee !=''">
+                t.user_ids like concat('%', #{query.assignee}, '%')
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                and `r`.`start_user_id` = #{query.startUserId}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        order by create_time desc
+        ) a
+    </select>
+    <select id="listProcessInstanceIdsByUser" resultType="java.lang.String">
+        select processInstanceId
+        from (SELECT r.id as processInstanceId,r.create_time
+        FROM `process_instance_running` r
+        <where>
+            <if test="query.assignee !=null">
+                r.start_user_id = #{query.assignee}
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+        </where>
+        union
+        SELECT `r`.id as processInstanceId,r.create_time
+        FROM `act_hi_taskinst` `t`
+        INNER JOIN `process_instance_running` `r` ON `r`.`id` = `t`.`proc_inst_id_`
+        AND ((`t`.`DELETE_REASON_` != 'Multi-instance complete condition expression passed')
+        OR (`t`.`DELETE_REASON_` IS NULL ))
+        <where>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+            <if test="query.assignee !=null and query.assignee !=''">
+                and `t`.`assignee_` = #{query.assignee}
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                and `r`.`start_user_id` = #{query.startUserId}
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+        </where>
+        UNION
+        SELECT `r`.id as process_instance_id,r.create_time
+        FROM `copy_log` `t`
+        inner JOIN `process_instance_running` `r` ON `r`.`id` = `t`.`process_instance_id`
+        <where>
+            <if test="query.assignee !=null and query.assignee !=''">
+                t.user_ids like concat('%', #{query.assignee}, '%')
+            </if>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                and `r`.create_time BETWEEN #{query.submitTime.begin} AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.business_type= #{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and `r`.`result` is null
+                    </when>
+                    <otherwise>
+                        and `r`.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="query.organizationId !=null">
+                and r.organization_id = #{query.organizationId}
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                and `r`.`start_user_id` = #{query.startUserId}
+            </if>
+            <if test="query.username !=null and query.username !=''">
+                and r.start_user_name like concat('%', #{query.username}, '%')
+            </if>
+            <if test="query.applicationCode !=null and query.applicationCode !=''">
+                and r.application_code = #{query.applicationCode}
+            </if>
+        </where>
+        order by create_time desc
+        ) a
+    </select>
+    <select id="selectHistoryUserLastSign" resultType="java.lang.String">
+        SELECT
+        ahv.TEXT_
+        FROM
+        act_hi_taskinst aht
+        INNER JOIN act_hi_varinst ahv ON ahv.PROC_INST_ID_ = aht.PROC_INST_ID_
+        AND ahv.TASK_ID_ = aht.ID_
+        AND ahv.EXECUTION_ID_ = aht.EXECUTION_ID_
+        WHERE
+        aht.ASSIGNEE_ = #{assigneeId}
+        AND aht.`DELETE_REASON_` IS NULL
+        AND ahv.NAME_ = 'internal_approval_opinion'
+        AND (ahv.TEXT_ NOT LIKE '%"sign":null%' AND ahv.TEXT_ NOT LIKE '%"sign":""%')
+        AND aht.END_TIME_ IS NOT NULL
+        ORDER BY
+        ahv.LAST_UPDATED_TIME_ DESC
+        LIMIT 1
+    </select>
+    <select id="selectLastedFinishTask" resultType="java.lang.String">
+        SELECT DISTINCT
+        RES.ID_
+        FROM
+        ACT_HI_TASKINST RES
+        LEFT OUTER JOIN ACT_HI_VARINST VAR ON RES.ID_ = VAR.TASK_ID_
+        OR ( RES.PROC_INST_ID_ = VAR.EXECUTION_ID_ AND VAR.TASK_ID_ IS NULL )
+        WHERE
+        RES.PROC_INST_ID_ = #{procInstId}
+        ORDER BY
+        RES.END_TIME_ DESC,
+        VAR.LAST_UPDATED_TIME_ ASC
+        LIMIT 1;
+    </select>
+</mapper>

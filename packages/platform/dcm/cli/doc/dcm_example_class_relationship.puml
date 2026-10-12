@@ -1,0 +1,65 @@
+@startuml
+'https://plantuml.com/class-diagram
+' DCM 实现示例： 类关系图
+
+class DcmDeclaration {
+    String schemaVersion;
+    String dataVersion;
+    ModuleCommonSpec common;
+    List<ProvidedConfigSpec> provides;
+    List<DcmRequirements> requests;
+}
+
+class DcmRequirements {
+    String provider;
+    Boolean isPartialMode;
+    List<RequestedConfigItem> requirements;
+}
+
+class RequestedConfigItem {
+    String configType;
+    Boolean isSystem;
+    List<String> tenants;
+    Map<String, String> kwargs;
+    List<Object> vargs;
+}
+
+DcmDeclarationParam o-R- DcmRequirementsParam
+DcmRequirementsParam o-R- RequestedConfigItemParam
+
+DcmDeclaration o-R- DcmRequirements
+DcmRequirements o-R- RequestedConfigItem
+
+class RequestedConfigItemParam {
+    String configType;
+    Boolean isMandatory;
+    Boolean isRemoval;
+    Boolean isSystem;
+    Object tenants;
+    Map<String, String> kwargs;
+    List<Object> vargs;
+}
+DcmDeclaration -U- DcmDeclarationParam  : 映射
+DcmRequirements -U- DcmRequirementsParam : 映射
+RequestedConfigItem -U- RequestedConfigItemParam : 映射
+
+RequestedConfigItem -- DictTypeCollParam : 转换
+RequestedConfigItem -- DictEntryCollParam : 转换
+
+class DictTypeCollParam {
+List<DictTypeParam> dictTypeEntries;
+}
+
+class DictEntryCollParam {
+List<DictEntryParam> dictEntryEntries;
+}
+
+DictTypeCollParam o-- DictTypeParam
+DictEntryCollParam o-- DictEntryParam
+
+DictTypeParam -- DictionaryItemCode : 转换
+DictEntryParam -- DataDictionary : 转换
+DictEntryParam -- CascadeDictionary : 转换
+DictEntryParam -- SysDictionary : 转换
+
+@enduml

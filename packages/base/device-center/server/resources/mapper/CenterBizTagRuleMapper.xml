@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizTagRuleMapper">
+
+
+    <sql id="Base_Select_Column_List">
+
+        `id`, `batch_cmd_seq`
+    </sql>
+
+    <select id="getCenterBizTagRule" resultType="com.guhecloud.cube.base.device.center.core.model.BizTagRule">
+        select
+        `id`,
+        `tag_code`,
+        `rule`,
+        `tenant`,
+        `deleted`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        from
+        `center_biz_tag_rule`
+        where `tag_code` = #{tagCode}
+    </select>
+</mapper>

@@ -1,0 +1,75 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/guhecloud-website:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:spring-file",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/database",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        ":deps",
+        "//packages/base/file/client",
+    ],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.customized.guhecloudwebsite.GuHeCloudWebsiteServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "guhecloudWebsite-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_customized_guhecloud_website",
+    datasource_package = "com.guhecloud.cube.customized.guhecloudwebsite",
+    gw_prefix = "/guhecloudWebsite/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "guhecloudWebsite",
+    visibility = ["//packages:__subpackages__"],
+)

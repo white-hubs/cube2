@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizTagTypeMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.BizTagType">
+        <!--@mbg.generated-->
+        <!--@Table center_biz_tag_type-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="tag_type_code" jdbcType="VARCHAR" property="tagTypeCode"/>
+        <result column="tag_type_name" jdbcType="VARCHAR" property="tagTypeName"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `tag_type_code`, `tag_type_name`
+    </sql>
+
+    <insert id="insert" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTagType">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_tag_type` (`id`, `tag_type_code`, `tag_type_name`)
+        VALUES (#{id,jdbcType=BIGINT}, #{tagTypeCode,jdbcType=VARCHAR}, #{tagTypeName,jdbcType=VARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTagType">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_tag_type`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                `id`,
+            </if>
+            <if test="tagTypeCode != null">
+                `tag_type_code`,
+            </if>
+            <if test="tagTypeName != null">
+                `tag_type_name`,
+            </if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="tagTypeCode != null">
+                #{tagTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tagTypeName != null">
+                #{tagTypeName,jdbcType=VARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.guhecloud.cube.base.device.center.core.model.BizTagType">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag_type`
+        <set>
+            <if test="tagTypeCode != null">
+                `tag_type_code` = #{tagTypeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="tagTypeName != null">
+                `tag_type_name` = #{tagTypeName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="com.guhecloud.cube.base.device.center.core.model.BizTagType">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_tag_type`
+        SET `tag_type_code` = #{tagTypeCode,jdbcType=VARCHAR},
+        `tag_type_name` = #{tagTypeName,jdbcType=VARCHAR}
+        WHERE `id` = #{id,jdbcType=BIGINT}
+    </update>
+
+    <insert id="batchInsert" parameterType="map">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_tag_type`
+        (`id`, `tag_type_code`, `tag_type_name`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id,jdbcType=BIGINT}, #{item.tagTypeCode,jdbcType=VARCHAR}, #{item.tagTypeName,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <select id="getTagByType" resultType="com.guhecloud.cube.base.device.center.core.model.BizTag">
+        SELECT `tag`.`id`, `tag`.`tag_type_id`, `tag`.`tag_code`, `tag`.`tag_name`
+        FROM `center_biz_tag` `tag`
+                 LEFT JOIN `center_biz_tag_ref` `ref` ON `ref`.`tag_id` = `tag`.`id` AND `ref`.`deleted` = 0
+                 LEFT JOIN `center_biz_tag_type` `type` ON `type`.`id` = `ref`.`tag_type_id`
+        WHERE `type`.`tag_type_code` = #{tagType,jdbcType=VARCHAR}
+    </select>
+</mapper>

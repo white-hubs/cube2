@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--批量更新计划字段-->
+<mapper namespace="com.guhecloud.cube.biz.daily.task.task.dao.DailyTaskTargetMapper">
+    <select id="selectDailyTaskTargetPage"
+            resultType="com.guhecloud.cube.biz.daily.task.commons.result.DailyTaskTargetResult">
+        SELECT
+        target.target_id AS id,
+        target.task_id,
+        target.target_name,
+        target.target_code,
+        target.target_category as target_type,
+        target.status,
+        target.target_code,
+        target.area_name,
+        target.location,
+        target.target_lnt_and_lat,
+        target.rule_id
+        FROM
+        daily_task_target_ref ref INNER JOIN
+        daily_task_target target
+        ON ref.target_ref_id = target.id
+        <where>
+            <if test="param.status != null and param.status != ''">
+                AND target.status = #{param.status}
+            </if>
+            <if test="param.tagId != null">
+                AND target.tag_ids like CONCAT('%',#{param.tagId},'%')
+            </if>
+            <if test="param.targetType != null and param.targetType != ''">
+                AND target.target_category = #{param.targetType}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                AND target.target_name LIKE CONCAT('%',#{param.keyword},'%')
+            </if>
+            <if test="param.taskIds != null and param.taskIds.size() > 0">
+                AND ref.task_id IN
+                <foreach collection="param.taskIds" item="taskId" open="(" separator="," close=")">
+                    #{taskId}
+                </foreach>
+            </if>
+            <if test="param.taskId != null">
+                AND ref.task_id = #{param.taskId}
+            </if>
+            <if test="param.targetIds != null and param.targetIds.size() > 0">
+                AND target.target_id IN
+                <foreach collection="param.targetIds" item="targetId" open="(" separator="," close=")">
+                    #{targetId}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY
+        target.status DESC,
+        target.distributed ASC,
+        target.id DESC
+
+
+    </select>
+    <select id="selectCurrentUserWaitHandlerTask"
+            resultType="com.guhecloud.cube.biz.daily.task.commons.result.DailyTaskTargetRefResult">
+        SELECT
+        dt.id AS task_id,
+        dt.`name` AS task_name,
+        dat.target_id,
+        dat.target_name,
+        dat.area_name,
+        dat.location
+        FROM
+        daily_task_target dat
+        LEFT JOIN daily_task_target_ref datr ON datr.target_ref_id = dat.id
+        LEFT JOIN daily_task dt ON dt.id = datr.task_id
+        LEFT JOIN daily_task_user dtu ON dtu.master_id = datr.task_id
+        WHERE
+        dat.target_id IN
+        <foreach collection="targetIds" item="targetId" open="(" separator="," close=")">
+            #{targetId}
+        </foreach>
+        AND dat.`status` = 'WAIT'
+        AND dt.`status` = 'WAIT'
+        AND dtu.target_id = #{userId}
+        GROUP BY
+        dt.id
+
+    </select>
+</mapper>

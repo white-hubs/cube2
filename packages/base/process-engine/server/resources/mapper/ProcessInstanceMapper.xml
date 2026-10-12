@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.process.infrastructure.mapper.ProcessInstanceMapper">
+    <select id="handlePage" resultType="com.guhecloud.cube.base.flow.flowable.definition.infrastructure.po.ProcessInstancePO">
+        select a.* from `all_process_instance` a
+        inner join `act_hi_taskinst` b on a.`proc_inst_id`=b.`PROC_INST_ID_`
+        where
+        `type` ='APPROVAL'
+        and `TENANT_ID_` = #{tenant}
+        <if test="param.submitTime !=null and param.submitTime.begin !=null">
+            and b.`END_TIME_` &gt;= #{param.submitTime.begin}
+            and b.`END_TIME_` &lt;= #{param.submitTime.end}
+        </if>
+        <if test="param.applicationCode !=null and param.applicationCode !=''">
+            and a.`business_model`=#{param.applicationCode}
+        </if>
+        <if test="param.businessType !=null and param.businessType !=''">
+            and a.`business_type`=#{param.businessType}
+        </if>
+        AND b.`TASK_DEF_KEY_` != 'root'
+        and b.`ASSIGNEE_`=#{param.startUserId}
+        GROUP BY b.`PROC_INST_ID_`
+        ORDER BY b.`END_TIME_` DESC
+    </select>
+</mapper>

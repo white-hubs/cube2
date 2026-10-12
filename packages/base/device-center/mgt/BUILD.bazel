@@ -1,0 +1,83 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/device-center:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+package(default_visibility = ["//packages/base/device-center:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/device-center/north/consumer",
+        "//packages/base/file/client",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/utils:bean",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:digest",
+        "//packages/platform/base/utils:id",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//packages/platform/event",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/afterturn:easypoi",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:poi",
+        "//third-party/java/apache:tomcat_annotations_api_legacy",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/clickhouse:jdbc",
+        "//third-party/java/codehaus:janino_commons_compiler",
+        "//third-party/java/google:guava",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/jackson:annotations",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jodd:core",
+        "//third-party/java/netty:common",
+        "//third-party/java/zaxxer:hikari_cp",
+    ],
+)
+
+java_library(
+    name = "mgt",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        ":deps",
+    ],
+)
+
+java_test(
+    name = "serializer-tests",
+    srcs = glob(["tests/**/*.java"], allow_empty = True),
+    test_class = "com.guhecloud.cube.iot.mgt.things.vo.EventConfigSerializerTest",
+    deps = [
+        ":mgt",
+        "//third-party/java/apache:poi",
+        "//third-party/java/junit",
+        "//third-party/java/jackson:databind",
+    ],
+)
+
+java_test(
+    name = "excel-tools-tests",
+    srcs = ["tests/comm/excel/ExcelToolsTest.java"],
+    test_class = "com.guhecloud.cube.iot.mgt.comm.excel.ExcelToolsTest",
+    deps = [
+        ":mgt",
+        "//third-party/java/apache:poi",
+        "//third-party/java/junit",
+    ],
+)

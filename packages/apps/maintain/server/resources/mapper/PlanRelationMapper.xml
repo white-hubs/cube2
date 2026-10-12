@@ -1,0 +1,258 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.PlanRelationMapper">
+    <select id="selectRelationListRaw"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.PlanRelationDTO" databaseId="mysql">
+        SELECT
+        ipr.target_category,
+        ipr.target_type,
+        ipr.plan_id,
+        ipr.target_id,
+        ipr.standard_id,
+        is2.NAME AS standard_name,
+        ipr.item_id,
+        isi.alias AS item_name,
+        isi.NAME AS itemContent,
+        ir.item_name AS defaultResult,
+        GROUP_CONCAT( ir2.item_name SEPARATOR ',' ) AS resultNames
+        FROM
+        inspect_plan_relation ipr
+        LEFT JOIN inspect_standard is2 ON ( is2.id = ipr.standard_id )
+        LEFT JOIN inspect_standard_item isi ON ( isi.id = ipr.item_id )
+        LEFT JOIN inspect_result ir ON ( ir.id = isi.result_id AND isi.result_item_value = ir.item_value )
+        LEFT JOIN inspect_result ir2 ON ( ir2.id = isi.result_id )
+        where ipr.is_raw_item = 1
+        and ipr.plan_id = #{plainId}
+        <if test="targetId != null">
+            and ipr.target_id = #{targetId}
+        </if>
+        GROUP BY
+        ipr.standard_id,
+        is2.NAME,
+        ipr.item_id,
+        ir.NAME,
+        isi.NAME
+    </select>
+    <select id="selectRelationListRaw"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.PlanRelationDTO" databaseId="dm">
+        SELECT
+        ipr.target_category,
+        ipr.target_type,
+        ipr.plan_id,
+        ipr.target_id,
+        ipr.standard_id,
+        is2.NAME AS standard_name,
+        ipr.item_id,
+        isi.alias AS item_name,
+        isi.NAME AS itemContent,
+        ir.item_name AS defaultResult,
+
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(ir2.item_name SEPARATOR ',') AS resultNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(ir2.item_name, ',') AS resultNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(ir2.item_name, ',') AS resultNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(ir2.item_name SEPARATOR ',') AS resultNames
+            </otherwise>
+        </choose>
+        FROM
+        inspect_plan_relation ipr
+        LEFT JOIN inspect_standard is2 ON ( is2.id = ipr.standard_id )
+        LEFT JOIN inspect_standard_item isi ON ( isi.id = ipr.item_id )
+        LEFT JOIN inspect_result ir ON ( ir.id = isi.result_id AND isi.result_item_value = ir.item_value )
+        LEFT JOIN inspect_result ir2 ON ( ir2.id = isi.result_id )
+        GROUP BY
+        ipr.standard_id,
+        is2.NAME,
+        ipr.item_id,
+        ir.NAME,
+        isi.NAME
+    </select>
+    <select id="selectRelationListAdd"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.PlanRelationDTO" databaseId="mysql">
+        SELECT
+        ipr.target_category,
+        ipr.target_type,
+        ipr.plan_id,
+        ipr.target_id,
+        ipr.standard_id,
+        is2.NAME AS standard_name,
+        ipr.item_id,
+        iit.alias AS item_name,
+        iit.NAME AS itemContent,
+        ir.item_name AS defaultResult,
+        GROUP_CONCAT( ir2.item_name SEPARATOR ',' ) AS resultNames
+        FROM
+        inspect_plan_relation ipr
+        LEFT JOIN inspect_standard is2 ON ( is2.id = ipr.standard_id )
+        LEFT JOIN inspect_item_template iit ON ( iit.id = ipr.item_id )
+        LEFT JOIN inspect_result ir ON ( ir.id = iit.result_id AND iit.result_item_value = ir.item_value )
+        LEFT JOIN inspect_result ir2 ON ( ir2.id = iit.result_id )
+        where ipr.is_raw_item = 1
+        and ipr.plan_id = #{plainId}
+        <if test="targetId != null">
+            and ipr.target_id = #{targetId}
+        </if>
+        GROUP BY
+        ipr.standard_id,
+        is2.NAME,
+        ipr.item_id,
+        ir.NAME,
+        iit.NAME
+    </select>
+    <select id="selectRelationListAdd"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.dto.PlanRelationDTO" databaseId="dm">
+        SELECT
+        ipr.target_category,
+        ipr.target_type,
+        ipr.plan_id,
+        ipr.target_id,
+        ipr.standard_id,
+        is2.NAME AS standard_name,
+        ipr.item_id,
+        iit.alias AS item_name,
+        iit.NAME AS itemContent,
+        ir.item_name AS defaultResult,
+        <choose>
+            <!-- MySQL -->
+            <when test="_databaseId == 'mysql'">
+                GROUP_CONCAT(ir2.item_name SEPARATOR ',') AS resultNames
+            </when>
+            <!-- PostgreSQL/瀚高 -->
+            <when test="_databaseId == 'postgresql' or _databaseId == 'highgo'">
+                STRING_AGG(ir2.item_name, ',') AS resultNames
+            </when>
+            <!-- 达梦 -->
+            <when test="_databaseId == 'dm'">
+                LISTAGG(ir2.item_name, ',') AS resultNames
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                GROUP_CONCAT(ir2.item_name SEPARATOR ',') AS resultNames
+            </otherwise>
+        </choose>
+        FROM
+        inspect_plan_relation ipr
+        LEFT JOIN inspect_standard is2 ON ( is2.id = ipr.standard_id )
+        LEFT JOIN inspect_item_template iit ON ( iit.id = ipr.item_id )
+        LEFT JOIN inspect_result ir ON ( ir.id = iit.result_id AND iit.result_item_value = ir.item_value )
+        LEFT JOIN inspect_result ir2 ON ( ir2.id = iit.result_id )
+        where ipr.is_raw_item = 1
+        and ipr.plan_id = #{plainId}
+        <if test="targetId != null">
+            and ipr.target_id = #{targetId}
+        </if>
+        GROUP BY
+        ipr.standard_id,
+        is2.NAME,
+        ipr.item_id,
+        ir.NAME,
+        iit.NAME
+    </select>
+    <select id="selectRelationTarget" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.PlanRelationPO">
+        select plan_id,target_category,target_id from inspect_plan_relation
+        where plan_id = #{plainId}
+        <if test="targetCategory != null and targetCategory != ''">
+            and target_category = #{targetCategory}
+        </if>
+        group by target_id
+        ORDER BY
+        FIELD(target_category, ${orderBy})
+    </select>
+    <select id="getObjStandardList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionStandardVO">
+        select b.id ,b.name,b.`describe`,b.code,b.enable from inspect_standard b
+        <where>
+            <if test="standardIdList != null and standardIdList.size() > 0">
+                b.id in
+                <foreach collection="standardIdList" item="standardId" open="(" separator="," close=")">
+                    #{standardId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getTemplateItem"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionItemVO">
+        SELECT
+        0 AS 'isRawItem',
+        id,
+        alias,
+        refer_type AS 'referType',
+        `name`,
+        content,
+        result_item_value AS 'resultItemValue',
+        image_result AS 'imageResult',
+        item_tag AS 'itemTag',
+        remark_result AS remarkResult,
+        result_id AS 'resultId'
+        FROM
+        inspect_item_template
+        <where>
+            <if test="itemIds != null and itemIds.size() > 0">
+                id in
+                <foreach collection="itemIds" item="itemId" open="(" separator="," close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getStandardItem"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionItemVO" databaseId="mysql">
+        SELECT
+        1 AS 'isRawItem',
+        id,
+        alias,
+        refer_type AS 'referType',
+        `name`,
+        content,
+        result_item_value AS 'resultItemValue',
+        image_result AS 'imageResult',
+        item_tag AS 'itemTag',
+        remark_result AS 'remarkResult',
+        result_id AS 'resultId'
+        FROM
+        inspect_standard_item
+        <where>
+            <if test="itemIds != null and itemIds.size() > 0">
+                id in
+                <foreach collection="itemIds" item="itemId" open="(" separator="," close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getStandardItem"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionItemVO" databaseId="pg">
+        SELECT
+        1 AS is_raw_item,
+        id,
+        alias,
+        refer_type AS refer_type,
+        name,
+        content,
+        result_item_value AS result_item_value,
+        image_result AS image_result,
+        item_tag AS item_tag,
+        remark_result AS remark_result,
+        result_id AS result_id
+        FROM
+        inspect_standard_item
+        <where>
+            <if test="itemIds != null and itemIds.size() > 0">
+                AND id IN
+                <foreach collection="itemIds" item="itemId" open="(" separator="," close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

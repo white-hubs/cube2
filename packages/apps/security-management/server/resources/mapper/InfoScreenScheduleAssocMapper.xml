@@ -1,0 +1,50 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dao.InfoScreenScheduleAssocMapper">
+
+    <insert id="saveAll"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.entity.InfoScreenScheduleAssocEntity">
+        INSERT INTO `info_screen_schedule_assoc` (`id`, `information_plan_id`, `security_device_id`, `tenant`, `deleted`,
+        `create_by`,`creator_id`,`creator_type`, `create_time`, `update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.informationPlanId}, #{item.securityDeviceId}, #{item.tenant}, #{item.deleted},
+            #{item.createBy},#{item.creatorId},#{item.creatorType}, #{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType}, #{item.updateTime})
+        </foreach>
+    </insert>
+    <update id="deleteByInformationPlanId" parameterType="java.lang.Long">
+        UPDATE `info_screen_schedule_assoc`
+        SET `deleted` = 1
+        WHERE `information_plan_id` = #{informationPlanId}
+    </update>
+    <update id="deleteInfoScreenScheduleAssoc" parameterType="java.lang.Long">
+        UPDATE `info_screen_schedule_assoc`
+        SET `deleted` = 1
+        WHERE `security_device_id` = #{securityDeviceId}
+    </update>
+    <select id="getByInformationPlanId"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dto.InfoScreenScheduleAssocDTO">
+        select issa.`id`,issa.`information_plan_id`,issa.`security_device_id`,sd.`device_id`,issa.`tenant`
+        from `info_screen_schedule_assoc` issa
+        left join `security_device` sd on issa.`security_device_id` = sd.`id`
+        <where>
+            and issa.`deleted` = 0
+            and issa.`information_plan_id` = #{informationPlanId}
+        </where>
+    </select>
+    <select id="countByInfoPlanIds"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dto.InformationDeviceCountDTO">
+        select
+        count(1) as `deviceTotal`,
+        issa.`information_plan_id` as `informationPlanId`
+        from `info_screen_schedule_assoc` issa
+        where `deleted` = 0
+        and issa.`information_plan_id` in (
+        <foreach collection="infoPlanIds" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+        group by issa.`information_plan_id`
+    </select>
+
+</mapper>

@@ -1,0 +1,14 @@
+load("//packages/deploy/template/server-one:generate_server_one.bzl", "SERVER_ONE_MAIN_CLASS", "generate_server_one")
+load("//tools/springboot:springboot.bzl", "springboot")
+load(":vars.bzl", "SERVERS")
+
+generate_server_one(
+    name = "zdhs-prod",
+    servers = SERVERS,
+)
+
+springboot(
+    name = "zdhs-prod-spring-exec",
+    boot_app_class = SERVER_ONE_MAIN_CLASS,
+    java_library = ":zdhs-prod",
+)

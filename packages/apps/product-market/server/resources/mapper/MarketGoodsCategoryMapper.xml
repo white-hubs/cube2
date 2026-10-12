@@ -1,0 +1,24 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.common.dao.MarketGoodsCategoryMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.mdata.client.dto.GoodsCategorySyncDTO">
+        insert into
+        market_goods_category( id,code,name,level,parent_id,sequence,enabled,
+        tenant,deleted,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.name},#{item.level},#{item.parentId},#{item.sequence},#{item.enabled},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        code = values(code),
+        name = values(name),
+        level = values(level),
+        parent_id = values(parent_id),
+        sequence = values(sequence),
+        enabled = values(enabled),
+        deleted = values(deleted),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

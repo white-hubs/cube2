@@ -1,0 +1,45 @@
+package com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.param;
+
+import com.guhecloud.platform.base.model.Paging;
+import com.guhecloud.platform.base.model.Period;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
+
+/**
+ * @describe 巡检各市场任务排序
+ */
+@EqualsAndHashCode(callSuper = true)
+@Data
+public class InspectionRecordErrorParam extends Paging {
+    private Period period;
+    /**
+     * 查询临时任务(taskId为空)
+     */
+    private Boolean tempBool;
+    /**
+     * 巡检结果
+     */
+    private String result;
+    /**
+     * 巡检对象名称
+     */
+    private String targetName;
+    /**
+     * 查询异常项
+     */
+    private Boolean errorTagBool;
+    /**
+     * 异常项集合
+     */
+    private List<String> errorTagList;
+    /**
+     * 逗号隔开的tags
+     */
+    private String errorTags;
+    /**
+     * 对象id
+     */
+    private Long targetId;
+}

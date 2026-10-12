@@ -1,0 +1,28 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform/dcm:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = [
+    "//packages:__subpackages__",
+    "//packages/platform:__subpackages__",
+])
+
+artifactId = "dcm-common"
+
+java_library(
+    name = "common",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+    ],
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:pair",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:string",
+        "//third-party/java:lombok",
+        "//third-party/java/jackson",
+        "//third-party/java/jackson:dataformat_yaml",
+        "//third-party/java/jakarta:validation_api",
+    ],
+)

@@ -1,0 +1,31 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.trafficlight.dao.TrafficLightMapper">
+
+
+
+    <select id="getTrafficLightPage" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.trafficlight.vo.TrafficLightVo">
+        SELECT
+        a.`id` `id`,
+        a.`record_id` `recordId`,
+        a.`red` `red`,
+        a.`green` `green`,
+        a.`yellow` `yellow`,
+        b.`code` `deviceCode`,
+        b.`area_name` `areaName`,
+        a.`data_time` `dataTime`
+        FROM
+        `traffic_light` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`third_party_id`
+        <where>
+            <if test="param.period != null">
+                and a.`data_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null">
+                and a.`data_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+
+
+</mapper>

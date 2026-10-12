@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.things.mapper.MdProductEventMetaMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.things.model.MdProductEventMeta">
+        <!--@mbg.generated-->
+        <!--@Table iot_md_product_event_meta-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="event_id" jdbcType="BIGINT" property="eventId"/>
+        <result column="prod_id" jdbcType="BIGINT" property="prodId"/>
+        <result column="device_id" jdbcType="BIGINT" property="deviceId"/>
+        <result column="prop_code" jdbcType="VARCHAR" property="propCode"/>
+        <result column="compare_type" jdbcType="VARCHAR" property="compareType"/>
+        <result column="compare_value" jdbcType="VARCHAR" property="compareValue"
+                typeHandler="com.guhecloud.cube.iot.mgt.comm.mybatis.ObjectArrayTypeHandler"/>
+        <result column="transparent_statement" jdbcType="VARCHAR" property="transparentStatement"/>
+        <result column="is_enabled" jdbcType="INTEGER" property="isEnabled"/>
+        <result column="delay_time" jdbcType="INTEGER" property="delayTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `event_id`, `prod_id`, `device_id`, `prop_code`, `compare_type`, `compare_value`, `transparent_statement`,
+        `is_enabled`, `delay_time`
+    </sql>
+</mapper>

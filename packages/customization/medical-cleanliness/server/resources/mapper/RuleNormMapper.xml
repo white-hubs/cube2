@@ -1,0 +1,11 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.dao.RuleNormMapper">
+
+    <select id="getRuleNormsByDeviceId" resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.entity.RuleNorm">
+        SELECT b.*
+        FROM `medical_rule` a
+        inner join rule_norm b on a.id = b.rule_id
+        where a.device_ids like  concat('%',#{deviceId},'%')
+        GROUP BY norm_code
+    </select>
+</mapper>

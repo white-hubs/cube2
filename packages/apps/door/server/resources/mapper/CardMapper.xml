@@ -1,0 +1,68 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.CardMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.Card" databaseId="mysql">
+        insert into
+        card(id,card_no,person_id,person_name,use_status,
+        start_date,end_date,loss_date,unloss_date,remark,
+        card_type,card_type_name,org_id,is_bind_finger,is_bind_face,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.cardNo},#{item.personId},#{item.personName},#{item.useStatus},
+            #{item.startDate},#{item.endDate},#{item.lossDate},#{item.unlossDate},#{item.remark},
+            #{item.cardType},#{item.cardTypeName},#{item.orgId},#{item.isBindFinger},#{item.isBindFace},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        person_id = values(person_id),
+        person_name = values(person_name),
+        use_status = values(use_status),
+        start_date = values(start_date),
+        end_date = values(end_date),
+        loss_date = values(loss_date),
+        unloss_date = values(unloss_date),
+        card_type = values(card_type),
+        card_type_name = values(card_type_name),
+        org_id = values(org_id),
+        remark = values(remark),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.Card" databaseId="pg">
+        insert into
+        card(id,card_no,person_id,person_name,use_status,
+        start_date,end_date,loss_date,unloss_date,remark,
+        card_type,card_type_name,org_id,is_bind_finger,is_bind_face,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.cardNo},#{item.personId},#{item.personName},#{item.useStatus},
+            #{item.startDate},#{item.endDate},#{item.lossDate},#{item.unlossDate},#{item.remark},
+            #{item.cardType},#{item.cardTypeName},#{item.orgId},#{item.isBindFinger},#{item.isBindFace},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on conflict on constraint cardno_index DO UPDATE set
+        person_id = EXCLUDED.person_id,
+        person_name = EXCLUDED.person_name,
+        use_status = EXCLUDED.use_status,
+        start_date = EXCLUDED.start_date,
+        end_date = EXCLUDED.end_date,
+        loss_date = EXCLUDED.loss_date,
+        unloss_date = EXCLUDED.unloss_date,
+        card_type = EXCLUDED.card_type,
+        card_type_name = EXCLUDED.card_type_name,
+        org_id = EXCLUDED.org_id,
+        remark = EXCLUDED.remark,
+        update_time = EXCLUDED.update_time
+    </insert>
+
+    <select id="getCardStatByStatus" resultType="com.guhecloud.cube.biz.door.server.vo.CardStatByStatusVO">
+        SELECT
+        COUNT(CASE WHEN use_status = 'NORMAL' THEN 1 END) AS normalNum,
+        COUNT(CASE WHEN use_status = 'LOSS' THEN 1 END) AS lossNum
+        FROM card;
+    </select>
+</mapper>

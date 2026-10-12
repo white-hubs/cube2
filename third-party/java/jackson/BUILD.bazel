@@ -1,0 +1,63 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "databind",
+    exports = [
+        "@maven//:com_fasterxml_jackson_core_jackson_databind",
+    ],
+)
+
+java_library(
+    name = "annotations",
+    exports = [
+        "@maven//:com_fasterxml_jackson_core_jackson_annotations",
+    ],
+)
+
+java_library(
+    name = "core",
+    exports = [
+        "@maven//:com_fasterxml_jackson_core_jackson_core",
+    ],
+)
+
+java_library(
+    name = "datatype",
+    exports = [
+        "@maven//:com_fasterxml_jackson_datatype_jackson_datatype_jdk8",
+        "@maven//:com_fasterxml_jackson_datatype_jackson_datatype_jsr310",
+    ],
+)
+
+java_library(
+    name = "module",
+    exports = [
+        "@maven//:com_fasterxml_jackson_module_jackson_module_afterburner",
+        "@maven//:com_fasterxml_jackson_module_jackson_module_parameter_names",
+    ],
+)
+
+alias(
+    name = "dataformat_yaml",
+    actual = "@maven//:com_fasterxml_jackson_dataformat_jackson_dataformat_yaml",
+)
+
+alias(
+    name = "fasterxml_classmate",
+    actual = "@maven//:com_fasterxml_classmate",
+)
+
+java_library(
+    name = "jackson",
+    exports = [
+        ":annotations",
+        ":core",
+        ":databind",
+        ":dataformat_yaml",
+        ":datatype",
+        ":fasterxml_classmate",
+        ":module",
+    ],
+)

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.AlarmRecordMapper">
+
+    <insert id="insertOrUpdateAlarmBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyAlarmRecord">
+        insert into
+        `safety_alarm_record`(id, code, alarm_level_id, alarm_level_code, alarm_level_name, alarm_level_sort,
+        alarm_type_id, alarm_type_code, alarm_type_name, alarm_target_key, alarm_target_code, alarm_target_name,
+        alarm_target_type_id, alarm_target_type_name, alarm_target_longitude, alarm_target_address, business_type,
+        business_key, alarm_time, area, area_name, alarm_threshold, alarm_event, alarm_event_name,
+        alarm_event_type_id,alarm_event_type_code,alarm_event_type_name,
+        alarm_status, alarm_status_name, alarm_confirmed_name, alarm_handler_by, alarm_handler_name,
+        alarm_handler_time,alarm_handler_result,
+        timeout_process_time,timeout_process_times,processing_time,estimate_handler_time,
+        alarm_handler_result_name, alarm_handler_result_remark, timeout_equipped, timeout_process_times_unit,
+        timeout_process_times_name, application_code, application_name,displayed,assist_confirm_result, market_name,market_tenant,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.alarmLevelId},#{item.alarmLevelCode},#{item.alarmLevelName},#{item.alarmLevelSort},
+            #{item.alarmTypeId},#{item.alarmTypeCode},#{item.alarmTypeName},#{item.alarmTargetKey},#{item.alarmTargetCode},#{item.alarmTargetName},
+            #{item.alarmTargetTypeId},#{item.alarmTargetTypeName},#{item.alarmTargetLongitude},#{item.alarmTargetAddress},#{item.businessType},
+            #{item.businessKey},#{item.alarmTime},#{item.area},#{item.areaName},#{item.alarmThreshold},#{item.alarmEvent},#{item.alarmEventName},
+            #{item.alarmEventTypeId},#{item.alarmEventTypeCode},#{item.alarmEventTypeName},
+            #{item.alarmStatus},#{item.alarmStatusName},#{item.alarmConfirmedName},#{item.alarmHandlerBy},#{item.alarmHandlerName},
+            #{item.alarmHandlerTime},#{item.alarmHandlerResult},
+            #{item.timeoutProcessTime},#{item.timeoutProcessTimes},#{item.processingTime},#{item.estimateHandlerTime},
+            #{item.alarmHandlerResultName},#{item.alarmHandlerResultRemark},#{item.timeoutEquipped},#{item.timeoutProcessTimesUnit},
+            #{item.timeoutProcessTimesName},#{item.applicationCode},#{item.applicationName},#{item.displayed},#{item.assistConfirmResult},#{item.marketName},#{item.marketTenant},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        alarm_level_id = values(alarm_level_id),
+        alarm_level_code = values(alarm_level_code),
+        alarm_level_name = values(alarm_level_name),
+        alarm_level_sort = values(alarm_level_sort),
+        alarm_type_id = values(alarm_type_id),
+        alarm_type_code = values(alarm_type_code),
+        alarm_type_name = values(alarm_type_name),
+        alarm_target_key = values(alarm_target_key),
+        alarm_target_code = values(alarm_target_code),
+        alarm_target_name = values(alarm_target_name),
+        alarm_target_type_id = values(alarm_target_type_id),
+        alarm_target_type_name = values(alarm_target_type_name),
+        alarm_target_longitude = values(alarm_target_longitude),
+        alarm_target_address = values(alarm_target_address),
+        business_type = values(business_type),
+        business_key = values(business_key),
+        alarm_time = values(alarm_time),
+        area = values(area),
+        area_name = values(area_name),
+        alarm_threshold = values(alarm_threshold),
+        alarm_event = values(alarm_event),
+        alarm_event_name = values(alarm_event_name),
+        alarm_event_type_id = values(alarm_event_type_id),
+        alarm_event_type_code = values(alarm_event_type_code),
+        alarm_event_type_name = values(alarm_event_type_name),
+        alarm_status = values(alarm_status),
+        alarm_status_name = values(alarm_status_name),
+        alarm_confirmed_name = values(alarm_confirmed_name),
+        alarm_handler_by = values(alarm_handler_by),
+        alarm_handler_time = values(alarm_handler_time),
+        alarm_handler_result = values(alarm_handler_result),
+        alarm_handler_name = values(alarm_handler_name),
+        alarm_handler_result_name = values(alarm_handler_result_name),
+        alarm_handler_result_remark = values(alarm_handler_result_remark),
+        timeout_equipped = values(timeout_equipped),
+        timeout_process_time = values(timeout_process_time),
+        timeout_process_times = values(timeout_process_times),
+        processing_time = values(processing_time),
+        estimate_handler_time = values(estimate_handler_time),
+        timeout_process_times_unit = values(timeout_process_times_unit),
+        timeout_process_times_name = values(timeout_process_times_name),
+        assist_confirm_result = values(assist_confirm_result),
+        market_name = values(market_name),
+        market_tenant = values(market_tenant),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+    <select id="getAllIds" resultType="java.lang.Long">
+        select id from safety_alarm_record
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

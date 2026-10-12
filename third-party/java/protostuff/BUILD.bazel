@@ -1,0 +1,18 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "core",
+    actual = "@maven//:io_protostuff_protostuff_core",
+)
+
+alias(
+    name = "api",
+    actual = "@maven//:io_protostuff_protostuff_api",
+)
+
+alias(
+    name = "runtime",
+    actual = "@maven//:io_protostuff_protostuff_runtime",
+)

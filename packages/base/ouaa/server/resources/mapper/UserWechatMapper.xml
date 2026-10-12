@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.UserWechatMapper">
+    <insert id="initializeWechatUserConfiguration">
+        <if test="userWechat != null">
+            insert into `user_wechat` (`id`, `user_id`, `mp_openid`, `union_id`)
+            values (#{userWechat.id}, #{userWechat.userId}, #{userWechat.mpOpenid}, #{userWechat.unionId});
+        </if>
+        <if test="userTenant != null">
+            insert into `user_tenant` (`id`, `tenant`, `user_id`)
+            values (#{userTenant.id}, #{userTenant.tenant}, #{userTenant.userId});
+        </if>
+        <if test="userRoles != null and userRoles.size() > 0">
+            insert into `user_role` (`id`, `user_id`, `role_id`)
+            values
+            <foreach collection="userRoles" item="userRole" separator=",">
+                (#{userRole.id}, #{userTenant.userId}, #{userRole.roleId})
+            </foreach>
+            ;
+        </if>
+    </insert>
+
+    <select id="selectUserWechatListByConfigId"
+            resultType="com.guhecloud.cube.biz.ouaa.server.third.wechat.vo.UserWechatVO">
+        SELECT
+        t1.`id`,
+        t1.`user_id`,
+        t1.`mp_openid` as open_id,
+        t1.`union_id`
+        FROM
+        `user_wechat` t1
+        INNER JOIN `third_user_ref` t2 on t1.`id` = t2.`ref_id` AND t2.`type` = 'WECHAT'
+        <where>
+            <if test="param.configId != null">
+                and t2.`config_id` = #{param.configId}
+            </if>
+            <if test="param.userIds != null and param.userIds.size > 0">
+                and t1.`user_id` in
+                <foreach collection="param.userIds" item="userId" open="(" separator="," close=")">
+                    #{userId}
+                </foreach>
+            </if>
+            <if test="param.tenant != null">
+                and t2.`tenant` = #{param.tenant}
+            </if>
+        </where>
+    </select>
+</mapper>

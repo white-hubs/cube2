@@ -1,0 +1,9 @@
+package(default_visibility = ["//packages/deploy/template/gateway:__subpackages__"])
+
+exports_files([
+    "entrypoint.sh",
+    "Dockerfile",
+    "bash-tools.sh",
+    "docker-build.sh",
+    "wait-for-it.sh",
+])

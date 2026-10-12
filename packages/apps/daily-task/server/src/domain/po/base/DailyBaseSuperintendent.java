@@ -1,0 +1,47 @@
+package com.guhecloud.cube.biz.daily.task.domain.po.base;
+
+import com.guhecloud.platform.database.entity.enhanced.BasicEnhancedTenantEntity;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+
+/**
+ * 计划/任务负责人基类
+ */
+@Data
+@SuperBuilder
+@EqualsAndHashCode(callSuper = true)
+public class DailyBaseSuperintendent extends BasicEnhancedTenantEntity<Long> {
+    private Long id;
+    /**
+     * 主关联id(计划/任务ID)
+     */
+    private Long masterId;
+    /**
+     * 负责人类型 DailySuperintendentTypeEnum
+     */
+    private String superintendentType;
+    /**
+     * 负责对象的id(例如superintendentType类型为USER时是人员id,为POST时是岗位id
+     */
+    private Long targetId;
+
+    public DailyBaseSuperintendent() {}
+
+    public DailyBaseSuperintendent(Long id, Long masterId, String superintendentType, Long targetId, String createBy,
+                                   LocalDateTime createTime, String updateBy, LocalDateTime updateTime, Integer tenant, Boolean deleted
+                                  ) {
+        this.id = id;
+        this.masterId = masterId;
+        this.superintendentType = superintendentType;
+        this.targetId = targetId;
+        super.setCreateBy(createBy);
+        super.setCreateTime(createTime);
+        super.setUpdateBy(updateBy);
+        super.setUpdateTime(updateTime);
+        super.setTenant(tenant);
+        super.setDeleted(deleted);
+    }
+}

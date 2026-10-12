@@ -1,0 +1,39 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "mybatis-repository",
+    srcs = [
+        "MybatisRepository.java",
+    ],
+    deps = [
+        "//packages/platform/repository/interfaces:business-repository",
+        "//packages/platform/repository/interfaces:paging",
+        "//third-party/java/mybatis-plus:extension",
+    ],
+)
+
+java_library(
+    name = "mybatis-stat-repository",
+    srcs = [
+        "MybatisStatisitcsRepository.java",
+    ],
+    deps = [
+        "//packages/platform/repository/interfaces:paging",
+        "//packages/platform/repository/interfaces:statisitcs-repository",
+        "//third-party/java/mybatis-plus:extension",
+    ],
+)
+
+java_library(
+    name = "mybatis-repository-example",
+    srcs = [
+        "MybatisRepositoryExampleImpl.java",
+    ],
+    visibility = ["//visibility:private"],
+    deps = [
+        ":mybatis-repository",
+        "//third-party/java/mybatis-plus:extension",
+    ],
+)

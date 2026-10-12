@@ -1,0 +1,94 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/message:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/base/message/client",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:base64",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:random",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/aliyun:aliyun_push",
+        "//third-party/java/aliyun:aliyun_sms",
+        "//third-party/java/aliyun:aliyun_vms",
+        "//third-party/java/github:jackson_fge_coreutils",
+        "//third-party/java/github:json_schema_validator",
+        "//third-party/java/google:guava",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:crypto",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:mail_api",
+        "//third-party/java/spring:spring_boot_starter_jdbc",
+        "//third-party/java/tencent:tencentcloud_sms",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.base.message2.server.Message2Server"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "message2-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_base_message2",
+    datasource_package = "com.guhecloud.cube.base.message2",
+    gw_prefix = "/message2/",
+    main_class = _MAIN_CLASS,
+    public_path_patterns = "/websocket/**,//message/websocket/**",
+    server = ":server",
+    server_id = "message2",
+    visibility = ["//packages:__subpackages__"],
+)

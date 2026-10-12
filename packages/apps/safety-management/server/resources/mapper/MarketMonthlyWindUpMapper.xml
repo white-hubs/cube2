@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.monthlyreport.dao.MarketMonthlyWindUpMapper">
+
+    <select id="selectMonthlyWindUpCount"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.monthlyreport.dto.vo.MonthlyMarketCountStatistics">
+        SELECT
+        t1.id,
+        COUNT(t2.id) as totalNum
+        FROM
+        monthly_report t1
+        INNER JOIN market_monthly_wind_up t2 on t1.id = t2.monthly_report_id
+        <where>
+            <if test="monthlyReportIds != null and monthlyReportIds.size > 0">
+                and t1.id in
+                <foreach collection="monthlyReportIds" item="reportId" open="(" separator="," close=")">
+                    #{reportId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t1.id
+    </select>
+</mapper>

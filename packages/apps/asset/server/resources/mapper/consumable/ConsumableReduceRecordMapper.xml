@@ -1,0 +1,96 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableReduceRecordMapper">
+
+    <select id="getReduceStockStat"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableReduceStockStatVO">
+        select rr.dept_id,
+        sum(num) as consumableNum,
+        sum(sd.amount) as amount
+        from consumable_reduce_record rr
+        left join consumable_stock_detail sd on rr.id = sd.stock_id and sd.stock_flag = 'REDUCE'
+        where rr.business_type = 'APPROVE'
+        and rr.status='PASS'
+        <if test="param.period != null">
+            and rr.reduce_date &gt;= #{param.period.begin} and rr.reduce_date &lt; #{param.period.end}
+        </if>
+        <if test="param.deptId != null">
+            and rr.dept_id = #{param.deptId}
+        </if>
+        <if test="param.storeId != null">
+            and rr.store_id = #{param.storeId}
+        </if>
+        GROUP BY rr.dept_id
+    </select>
+
+    <select id="getReduceDetail"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableStoreStockExtendVO">
+        select rr.dept_id,c.name,c.code,c.category_id,rr.store_id,c.brand,c.model,c.unit,rr.reduce_date,sd.num,sd.amount
+        from consumable_reduce_record rr
+        left join consumable_stock_detail sd on rr.id = sd.stock_id and sd.stock_flag = 'REDUCE'
+        left join consumable c on sd.consumable_id = c.id
+        where rr.business_type = 'APPROVE'
+        and rr.status='PASS'
+        <if test="param.period != null">
+            and rr.reduce_date &gt;= #{param.period.begin} and rr.reduce_date &lt; #{param.period.end}
+        </if>
+        <if test="param.deptId != null">
+            and rr.dept_id = #{param.deptId}
+        </if>
+        <if test="param.storeId != null">
+            and rr.store_id = #{param.storeId}
+        </if>
+    </select>
+    <select id="getExcel"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableReduceRecordExcelVO">
+        SELECT a.reduce_date,
+               a.dept_id AS deptName,
+               c.NAME,
+               c.model,
+               c.unit,
+               b.num,
+               a.claimant,
+               a.remark
+        FROM consumable_reduce_record a
+                 INNER JOIN consumable_stock_detail b ON a.id = b.stock_id
+                 INNER JOIN consumable c ON b.consumable_id = c.id
+        where a.id = #{id}
+    </select>
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableReduceRecordVO">
+        select a.id,
+        `store_id`,
+        `dept_id`,
+        `claimant`,
+        reduce_date,
+        handler,
+        remark,
+        business_type,
+        a.STATUS,
+        depository_numbers,
+        a.create_time,
+        process_instance_id
+        from consumable_reduce_record a
+        inner join consumable_stock_detail b on a.id=b.stock_id
+        inner join consumable c on b.consumable_id=c.id
+        <where>
+            <if test="param.storeId !=null">
+                a.store_id=#{param.storeId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status=#{param.status}
+            </if>
+            <if test="param.claimantDate !=null">
+                and a.reduce_date=#{param.claimantDate}
+            </if>
+            <if test="param.deptId !=null">
+                and a.dept_id=#{param.deptId}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and ( a.depository_numbers like concat("%",#{param.keyword},"%")
+                or c.name like concat("%",#{param.keyword},"%"))
+            </if>
+        </where>
+        group by a.id
+        order by reduce_date desc,a.create_time desc
+    </select>
+</mapper>

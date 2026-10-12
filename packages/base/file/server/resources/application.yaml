@@ -1,0 +1,49 @@
+server:
+  port: ${common-env.file.port:10101}
+spring:
+  config:
+    import:
+      - nacos:${NACOS_CLOUD_CONFIG:common-env.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JACKSON:common-jackson.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_REDIS:common-redis.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_CLIENT:common-security-client.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_RESOURCE_SERVER:common-security-resource-server.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_MYBATIS_PLUS:common-mybatis-plus.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_ROCKETMQ:common-rocketmq.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_FEGIN:common-platform-fegin.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_SECURITY:common-platform-security.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_HTTPCLIENT:common-platform-httpclient.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JOB:common-job.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_FILE:file.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        namespace: ${spring.cloud.nacos.config.namespace}
+      config:
+        server-addr: ${NACOS_ADDR:192.168.0.133:38848}
+        namespace: ${NACOS_NAMESPACE:25361486-9737-46a8-b488-4768cfd1fe77}
+      server-addr: ${spring.cloud.nacos.config.server-addr}
+    loadbalancer:
+      enabled: true
+  datasource:
+    driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
+    hikari:
+      pool-name: file
+      maximum-pool-size: 5
+      max-lifetime: 60000
+    url: jdbc:shardingsphere:nacos:${NACOS_CONFIG_SHARDING_JDBC:sharding-db.yaml}?serverAddr=${spring.cloud.nacos.config.server-addr}&namespace=${spring.cloud.nacos.config.namespace}&group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}
+  liquibase:
+    enabled: false
+    change-log: db.com.guhecloud.cube.base.file/changelog-master.xml
+liqui-base:
+  execute: ${common-env.liqui-base.execute:false}
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+logging:
+  level:
+    root: info

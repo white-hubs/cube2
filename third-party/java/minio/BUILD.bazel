@@ -1,0 +1,8 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "minio",
+    actual = "@maven//:io_minio_minio",
+)

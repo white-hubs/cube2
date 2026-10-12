@@ -1,0 +1,41 @@
+server:
+  port: ${common-env.linkage.port:10402}
+spring:
+  config:
+    import:
+      - nacos:${NACOS_CLOUD_CONFIG:common-env.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JACKSON:common-jackson.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_REDIS:common-redis.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_CLIENT:common-security-client.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_RESOURCE_SERVER:common-security-resource-server.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_MYBATIS_PLUS:common-mybatis-plus.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_ROCKETMQ:common-rocketmq.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_FEGIN:common-platform-fegin.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_SECURITY:common-platform-security.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_HTTPCLIENT:common-platform-httpclient.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_DATASOURCE:common-datasource.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JOB:common-job.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_IOT_RABBIT:common-iot-rabbit.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        namespace: ${spring.cloud.nacos.config.namespace}
+      config:
+        server-addr: ${NACOS_ADDR:192.168.0.133:38848}
+        namespace: ${NACOS_NAMESPACE:25361486-9737-46a8-b488-4768cfd1fe77}
+      server-addr: ${spring.cloud.nacos.config.server-addr}
+    loadbalancer:
+      enabled: true
+  datasource:
+    url: jdbc:mysql://${common-env.default-infer.ip}:${common-env.db.port}/cube-biz-linkage?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+  liquibase:
+    enabled: false
+    change-log: db.com.guhecloud.cube.biz.linkage/changelog-master.xml
+liqui-base:
+  execute: ${common-env.liqui-base.execute:false}
+mybatis-plus:
+  mapper-locations: classpath:mapper/**/*.xml
+logging:
+  level:
+    root: info

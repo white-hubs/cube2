@@ -1,0 +1,65 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.risk.source.dao.RiskSourceBimConfigMapper">
+    <select id="queryByPage"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceBimConfigVO">
+        SELECT
+        a.id,
+        b.id as riskSourceId,
+        b.serial_number,
+        b.`name`,
+        b.type_name,
+        b.area_id,
+        b.bim_code,
+        b.type_code
+        FROM
+        `risk_source_bim_config` a
+        INNER JOIN risk_source_ledger b ON a.business_id = b.id
+        <where>
+            <if test="param.sceneType !=null and param.sceneType !=''">
+                a.scene_type=#{param.sceneType}
+            </if>
+            <if test="param.typeCode !=null and param.typeCode !=''">
+                and b.type_code=#{param.typeCode}
+            </if>
+            <if test="param.areaId != null">
+                and b.area_id like CONCAT('%',#{param.areaId},'%')
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (b.`name` like CONCAT('%',#{param.keyword},'%')
+                or b.`serial_number` like CONCAT('%',#{param.keyword},'%'))
+            </if>
+        </where>
+        order by b.create_time desc
+    </select>
+    <select id="queryBySceneTypeAll"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceLedgerVO">
+        SELECT a.id, b.scene_type
+        FROM risk_source_ledger a
+        left join risk_source_bim_config b on a.id = b.business_id and b.scene_type = #{param.sceneType}
+        where scene_type is null
+        <if test="param.typeCode !=null and param.typeCode !=''">
+           and a.type_code=#{param.typeCode}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (a.`name` like CONCAT('%',#{param.keyword},'%')
+            or a.`serial_number` like CONCAT('%',#{param.keyword},'%'))
+        </if>
+    </select>
+    <select id="queryBySceneTypePage"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceLedgerVO">
+        SELECT a.*, b.scene_type
+        FROM risk_source_ledger a
+        left join risk_source_bim_config b on a.id = b.business_id and b.scene_type = #{param.sceneType}
+        where scene_type is null
+        <if test="param.areaId !=null">
+            and a.area_id like CONCAT('%',#{param.areaId},'%')
+        </if>
+        <if test="param.typeCode !=null and param.typeCode !=''">
+            and a.type_code=#{param.typeCode}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (a.`name` like CONCAT('%',#{param.keyword},'%')
+            or a.`serial_number` like CONCAT('%',#{param.keyword},'%'))
+        </if>
+    </select>
+</mapper>

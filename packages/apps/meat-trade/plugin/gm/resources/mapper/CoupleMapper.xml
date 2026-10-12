@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.gm.meattrade.plugin.couple.infrastructure.repository.mapper.CoupleMapper">
+
+    <insert id="insertOrUpdateCouples">
+        insert into `couple` (id,`code`,`status`,report_time,create_time,update_time)
+        values
+        <foreach collection="couples" item="item" separator=",">
+            (#{item.id}, #{item.code}, #{item.status},#{item.reportTime},#{item.createTime},#{item.updateTime})
+        </foreach>
+        on duplicate key
+        update `status` = values(status),
+        report_time = values(report_time),
+        update_time = values(update_time)
+    </insert>
+</mapper>

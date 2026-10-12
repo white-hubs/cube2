@@ -1,0 +1,67 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.callrecord.dao.CallRecordMapper">
+
+
+    <select id="getCallStatistics" resultType="java.lang.Integer">
+        SELECT COALESCE(COUNT(`id`),0)  FROM `call_record`
+        <where>
+            <if test="st !=null and et !=null">
+                `call_time` between #{st} and #{et}
+            </if>
+        </where>
+    </select>
+    <select id="getCallTrends"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.callrecord.vo.CallTrendsVo" databaseId="mysql">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        DATE_FORMAT(`call_time`,${dateFormat}) `timeFlag`
+        FROM
+        `call_record`
+        <where>
+            <if test="st != null">
+                and `call_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `call_time` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`call_time`, ${dateFormat})
+    </select>
+    <select id="getCallTrends"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.callrecord.vo.CallTrendsVo" databaseId="dm">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        DATE_FORMAT(`call_time`,${dateFormat}) `timeFlag`
+        FROM
+        `call_record`
+        <where>
+            <if test="st != null">
+                and `call_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `call_time` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        DATE_FORMAT(`call_time`, ${dateFormat})
+    </select>
+    <select id="getCallTrends"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.callrecord.vo.CallTrendsVo" databaseId="pg">
+        SELECT
+        COALESCE(count(`id`), 0 ) `num`,
+        to_char(`call_time`,${dateFormat}) `timeFlag`
+        FROM
+        `call_record`
+        <where>
+            <if test="st != null">
+                and `call_time` &gt;= #{st}
+            </if>
+            <if test="et != null">
+                and `call_time` &lt;= #{et}
+            </if>
+        </where>
+        GROUP BY
+        to_char(`call_time`, ${dateFormat})
+    </select>
+</mapper>

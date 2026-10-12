@@ -1,0 +1,70 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/apps/prepaid:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/utils:bean",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:secure",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/hutool:http",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.prepaid.PrepaidServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "prepaid-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-prepaid",
+    datasource_package = "com.guhecloud.cube.srv.prepaid",
+    gw_prefix = "/prepaid/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "prepaidManagement",
+    visibility = ["//packages:__subpackages__"],
+)

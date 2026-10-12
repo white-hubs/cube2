@@ -1,0 +1,18 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.collection.analysis.gm.repository.mapper.FoodSafeWeekStatisticsMapper">
+        <!-- 查询趋势 -->
+    <select id="selectTrend"
+            resultType="com.guhecloud.cube.biz.collection.analysis.gm.model.result.TrendResult">
+        select DATE_FORMAT(time_day,#{param.format}) as trendX,SUM(testcount) as trendY
+        from food_safe_week_statistics
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and time_day &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and time_day &lt;= #{param.period.end}
+            </if>
+        </where>
+        group by trendX order by trendX
+    </select>
+</mapper>

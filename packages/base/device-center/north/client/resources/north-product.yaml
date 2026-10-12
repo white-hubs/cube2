@@ -1,0 +1,87 @@
+openapi: 3.0.0
+info:
+  title: 产品定义
+  version: 1.0.0
+paths:
+  /product/category/tree:
+    get:
+      tags:
+        - product
+      summary: 获取产品分类
+      description: 获取产品分类
+      operationId: productCategoryTree
+      parameters:
+        - $ref: 'north.yaml#/components/parameters/itemQuery'
+      responses:
+        '200':
+          description: 获取产品分类成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'north.yaml#/components/schemas/item'
+
+  /product/page:
+    get:
+      tags:
+        - product
+      summary: 获取产品列表
+      description: 获取产品列表
+      operationId: productList
+      parameters:
+        - $ref: 'north.yaml#/components/parameters/productQuery'
+      responses:
+        '200':
+          description: 获取产品列表成功
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: 'north.yaml#/components/schemas/pageResult'
+                  - type: object
+                    properties:
+                      list:
+                        type: array
+                        items:
+                          $ref: 'north.yaml#/components/schemas/product'
+
+  /product/event/threshold:
+    put:
+      tags:
+        - product
+      summary: 事件阈值设定
+      description: 基于事件给出的规格描述，进行阈值的动态修改(使其在设备生效)
+      operationId: eventThreshold
+      requestBody:
+        description: JSON object to update the resource
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deviceId:
+                  type: string
+                  description: Device ID
+                setVal:
+                  type: string
+                  description: Set value
+                eventCode:
+                  type: string
+                  description: Event code
+      responses:
+        '200':
+          description: Control command sent successfully
+        '400':
+          description: Bad request
+
+  /product/tree:
+    get:
+      tags:
+        - product
+      summary: 以树形方式获取产品
+      description: 提供快速检索产品方式,以品牌-型号-产品方式进行归类。最后一级为产品信息
+      operationId: productTree
+      responses:
+        200:
+          $ref: 'north.yaml#/components/schemas/item'

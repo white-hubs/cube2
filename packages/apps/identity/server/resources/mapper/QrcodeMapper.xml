@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.identity.server.qrcode.dao.QrcodeMapper">
+    <select id="countOldQrcodeNum" resultType="int">
+        select count(*)
+        from old_qr_code
+        where bind_object_type = #{type}
+          and deleted = 0;
+    </select>
+
+    <select id="getOldQrcodeList" resultType="com.guhecloud.cube.srv.gen.identity.server.qrcode.po.OldQrcodePO">
+        select qrcode_name,qrcode_code,qrcode_hidden_code,refer_url,security_code,bind_object_id,bind_object_type,
+            bind_object_name,area_id,qrcode_style,qrcode_num
+        from old_qr_code where bind_object_type = #{type} and deleted = 0
+        limit #{begin},1000
+    </select>
+    <select id="selectTenantByQrCode" resultType="java.lang.Integer">
+        SELECT
+            tenant
+        FROM
+            qrcode
+        WHERE
+            CODE = #{code}
+          AND deleted = 0
+    </select>
+</mapper>

@@ -1,0 +1,30 @@
+- dictType: type1
+  isCascade: true
+  isSystem: false
+  parent: ""
+  dictEntries:
+    - label: "root1"
+      key: "root1"
+      value: "value_of_root1"
+    - label: "root2"
+      key: "root2"
+      value: "value_of_root2"
+    - label: "root3"
+      key: "root3"
+      value: "value_of_root3"
+- dictType: type1
+  isCascade: true
+  isSystem: false
+  parent: "root1"
+  dictEntries:
+    - label: "child1"
+      key: "child1"
+      value: "value_of_root1/child1"
+- dictType: type1
+  isCascade: true
+  isSystem: false
+  parent: "root2"
+  dictEntries:
+    - label: "child1"
+      key: "child1"
+      value: "value_of_root2/child1"

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.infrastructure.dao.HealthAlarmRuleMapper">
+
+
+    <select id="selectDeviceHealthAlarmRuleList"
+            resultType="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.interfaces.vo.DeviceInstanceHealthAlarmRulePreviewVO">
+
+        SELECT har.*,hao.device_instance_id FROM health_alarm_rule har LEFT JOIN health_alarm_object hao ON har.id = hao.alarm_rule_id
+
+        WHERE hao.device_instance_id in
+
+        <foreach collection="deviceInstanceIds" item="id" separator="," open="(" close=")">
+
+            #{id}
+        </foreach>
+    </select>
+</mapper>

@@ -1,0 +1,29 @@
+package com.guhecloud.cube.biz.work.center.server.enumeration;
+
+import lombok.Getter;
+
+/**
+ * @Author: zengyadong@guhecloud.com
+ * @Date: 2025/10/29 17:03
+ * @Description: 交班状态
+ */
+@Getter
+public enum HandoverStatusEnum {
+
+    WAIT_HANDOVER("待接班"),
+
+    HAND_OVERED("已交班"),
+
+    TAKE_OVERED("已接班"),
+
+    HAND_TAKE("交接班"),
+
+    CANCEL("已撤销"),
+    ;
+
+    private final String desc;
+
+    HandoverStatusEnum(String desc) {
+        this.desc = desc;
+    }
+}

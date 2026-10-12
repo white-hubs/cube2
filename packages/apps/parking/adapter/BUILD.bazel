@@ -1,0 +1,81 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/parking/adapter:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/utils:base64",
+        "//packages/platform/base/utils:bean",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:digest",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:object-id",
+        "//packages/platform/base/utils:secure",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/rocketmq",
+        "//packages/platform/server",
+        "//packages/platform/subsystem-requester-sdk",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:poi",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/dahua:icc_sdk",
+        "//third-party/java/eclipse:paho_mqttv3",
+        "//third-party/java/google:guava",
+        "//third-party/java/hikvision:ga_sdk",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/main/java/**/*.java"]),
+    resources = glob(["src/main/resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.biz.adapter.park.server.AdapterParkServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "cube-srv-gen-adapter-park"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    datasource_package = "com.guhecloud.cube.biz.adapter.park",
+    gw_prefix = "/park-adapter/",
+    main_class = _MAIN_CLASS,
+    no_datasource = True,
+    server = ":server",
+    server_id = "adapterPark",
+    visibility = ["//packages:__subpackages__"],
+)

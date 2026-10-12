@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "influxdb",
+    exports = [
+        "@maven//:com_influxdb_influxdb_client_core",
+        "@maven//:com_influxdb_influxdb_client_java",
+    ],
+)

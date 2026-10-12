@@ -1,0 +1,20 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "tencentcloud_sms",
+    exports = [
+        "@maven//:com_tencentcloudapi_tencentcloud_sdk_java_common",
+        "@maven//:com_tencentcloudapi_tencentcloud_sdk_java_sms",
+    ],
+)
+
+java_library(
+    name = "tencentcloud_trtc",
+    exports = [
+        "@maven//:com_github_tencentyun_tls_sig_api_v2",
+        "@maven//:com_tencentcloudapi_tencentcloud_sdk_java_common",
+        "@maven//:com_tencentcloudapi_tencentcloud_sdk_java_trtc",
+    ],
+)

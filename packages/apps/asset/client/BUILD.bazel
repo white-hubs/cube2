@@ -1,0 +1,47 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/asset:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/file/client",
+        "//packages/base/mdata/client",
+        "//packages/platform/base/model:actor-type",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/client",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/apache:poi",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_library(
+    name = "client",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        ":deps",
+    ],
+)
+
+artifactId = "cube-srv-gen-property-management-client"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":client"],
+)

@@ -1,0 +1,27 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "easypoi_base",
+    actual = "@maven//:cn_afterturn_easypoi_base",
+)
+
+alias(
+    name = "easypoi_web",
+    actual = "@maven//:cn_afterturn_easypoi_web",
+)
+
+alias(
+    name = "easypoi_annotation",
+    actual = "@maven//:cn_afterturn_easypoi_annotation",
+)
+
+java_library(
+    name = "easypoi",
+    exports = [
+        ":easypoi_annotation",
+        ":easypoi_base",
+        ":easypoi_web",
+    ],
+)

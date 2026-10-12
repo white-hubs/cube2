@@ -1,0 +1,13 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyProjectMapper">
+
+    <select id="getAllDeviceInProject" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.DeviceInEnergyProjectVO">
+        select ep.id projectId,ep.project_name,pi.bind_type,pi.device_id,pi.device_name,pi.code
+        from energy_project ep
+        left join energy_project_item pi on ep.id = pi.project_id
+        where pi.bind_type = 'ITEM'
+        <if test="projectId != null and projectId != ''">
+            and ep.id = #{projectId}
+        </if>
+    </select>
+</mapper>

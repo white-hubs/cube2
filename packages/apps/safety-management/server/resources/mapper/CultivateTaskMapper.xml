@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.CultivateTaskMapper">
+
+    <!-- 主题占比统计 -->
+    <select id="selectCultivateThemeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.SafetyEducationThemeRatioVO">
+        select
+        t.theme_id as id,
+        t.theme_name as `name`,
+        count(*) as total_num
+        from safety_cultivate_task t
+        left join market_config mc on mc.market_tenant = t.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and t.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and t.cultivate_start_time &gt;= #{query.period.begin} and t.cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+        group by t.theme_id,t.theme_name
+    </select>
+
+    <select id="selectCultivateCount"
+            resultType="java.lang.Integer">
+        select
+        count(DISTINCT t.id) as total_num
+        from safety_cultivate_task t
+        left join market_config mc on mc.market_tenant = t.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and t.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and t.market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null">
+                and t.cultivate_start_time &gt;= #{query.period.begin} and t.cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectMarketCultivateStatistics"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.education.SafetyEducationMarketTaskStatisticsVO">
+        SELECT
+        mc.market_tenant,
+        COALESCE ( sub.total_num, 0 ) AS total_num,
+        mc.market_name
+        FROM
+        market_config mc
+        LEFT JOIN (
+        SELECT
+        market_tenant,
+        COUNT( 1 ) AS total_num
+        FROM safety_cultivate_task
+        <where>
+            <if test="query.marketTenant != null">
+                and market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null">
+                and cultivate_start_time &gt;= #{query.period.begin} and cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+        GROUP BY market_tenant
+        ) sub ON mc.market_tenant = sub.market_tenant
+        WHERE
+        mc.`status` = TRUE AND mc.deleted = 0
+        ORDER BY
+        sub.total_num DESC
+    </select>
+
+    <select id="selectCultivateTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.CultivateTaskPageVO">
+        select
+        distinct
+        t.`id`,
+        t.`code`,
+        t.`name`,
+        t.`theme_id`,
+        t.`theme_name`,
+        t.`cultivate_start_time`,
+        t.`cultivate_end_time`,
+        t.`exam_task_id`,
+        t.`cultivate_user_number`,
+        t.`cultivate_mode`,
+        t.`cultivate_mode_name`,
+        t.`cultivate_target`,
+        t.`cultivate_target_name`,
+        t.`cultivate_address`,
+        t.`speaker`,
+        t.`charge_user_id`,
+        t.`charge_user_name`,
+        t.`cultivate_content`,
+        t.`cultivate_task_status`,
+        t.`cultivate_task_status_name`,
+        t.`market_tenant`,
+        mc.`market_name`
+        from safety_cultivate_task t
+        left join market_config mc on mc.market_tenant = t.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.keyword != null and query.keyword != ''">
+                and (
+                t.name like concat('%',#{query.keyword},'%')
+                or
+                t.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.cultivateType != null and query.cultivateType != ''">
+                and t.cultivate_target = #{query.cultivateType}
+            </if>
+            <if test="query.cultivateMode != null and query.cultivateMode != ''">
+                and t.cultivate_mode = #{query.cultivateMode}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                and t.cultivate_task_status = #{query.status}
+            </if>
+            <if test="query.marketTenant != null">
+                and t.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                and t.market_tenant in
+                <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                    #{marketTenantId}
+                </foreach>
+            </if>
+            <if test="query.period != null">
+                and t.cultivate_start_time &gt;= #{query.period.begin} and t.cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+        order by t.create_time desc
+    </select>
+</mapper>

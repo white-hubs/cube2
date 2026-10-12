@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "bazel-build-optimization": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "computedHash": "b0a7a3f3c7051c10dea6a228a8585fb54422dc0a9746615dd27d7061f080b26d"
+    }
+  }
+}

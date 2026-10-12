@@ -1,0 +1,12 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "client",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/client",
+    ],
+)

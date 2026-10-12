@@ -1,0 +1,11 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.emergency.server.dao.EmergencyUserMapper">
+
+    <select id="getEmergencyUserStat"
+            resultType="com.guhecloud.cube.biz.emergency.server.vo.CommonStatVO">
+        select SUBSTRING_INDEX(c.sequence, '-', 1) as id,count(u.id) as value
+        from emergency_user_category c
+        left join emergency_user u on u.category_code = c.id
+        group by id
+    </select>
+</mapper>

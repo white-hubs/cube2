@@ -1,0 +1,67 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.dao.MedicalRuleMapper">
+    <resultMap id="queryByAreaIds" type="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.RuleVO">
+        <result column="rule_id" property="id"></result>
+        <result column="device_ids" property="deviceIds"></result>
+        <result column="product_id" property="productId"></result>
+        <result column="name" property="name"></result>
+        <result column="area_options" property="areaOptions"></result>
+        <collection property="ruleNormList" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.NormDataVO">
+            <id column="id" property="id"></id>
+            <result column="norm_name" property="normName"></result>
+            <result column="norm_code" property="normCode"></result>
+            <result column="status" property="status"></result>
+            <result column="value" property="value"></result>
+            <result column="unit" property="unit"></result>
+            <result column="display" property="display"></result>
+            <result column="upper_limit" property="upperLimit"></result>
+            <result column="lower_limit" property="lowerLimit"></result>
+            <result column="sort" property="sort"></result>
+            <result column="show_area" property="showArea"></result>
+        </collection>
+    </resultMap>
+    <select id="queryByPage" resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.RulePageVO">
+        SELECT a.id, a.name, a.device_ids,a.product_id,
+        (SELECT COUNT(*)
+        FROM rule_norm AS b
+        WHERE b.rule_id = a.id and b.display=1) AS ruleNormNumber
+        FROM medical_rule a
+        <where>
+            <if test="param.keyword !=null and param.keyword !=''">
+                a.name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        GROUP BY a.id
+        order by a.create_time desc
+    </select>
+    <select id="queryByDeviceIds" resultMap="queryByAreaIds">
+        select a.id as rule_id,a.product_id,a.name,a.device_ids,a.product_id,a.area_options,b.*
+        from medical_rule a
+        inner join rule_norm b on a.id = b.rule_id
+        <where>
+            <if test="deviceId !=null and deviceId !=''">
+                a.device_ids like concat('%',#{deviceId},'%')
+            </if>
+        </where>
+    </select>
+    <select id="queryRuleIds" resultType="java.lang.Long">
+        select `id`
+        from medical_rule
+    </select>
+    <select id="getAllRule" resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.RuleNormVO">
+        SELECT a.device_ids,b.* FROM `medical_rule` a
+        inner join rule_norm b on a.id=b.rule_id
+        <where>
+            <if test="display !=null">
+                b.display=#{display}
+            </if>
+            <if test="deviceId !=null and deviceId !=''">
+                and a.device_ids like concat('%',#{deviceId},'%')
+            </if>
+            <if test="tenant !=null">
+                and a.tenant=#{tenant}
+            </if>
+        </where>
+    </select>
+</mapper>

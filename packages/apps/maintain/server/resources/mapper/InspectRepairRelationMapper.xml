@@ -1,0 +1,78 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.InspectRepairRelationMapper">
+
+    <insert id="insertByRecordIds">
+        INSERT INTO inspect_repair_relation (
+        id,
+        user_id,
+        username,
+        nickname,
+        organization_id,
+        organization_name,
+        position_id,
+        position_name
+        )
+        SELECT
+        id,
+        user_id,
+        username,
+        nickname,
+        organization_id,
+        organization_name,
+        position_id,
+        position_name
+        FROM inspect_record
+        WHERE id IN
+        <foreach collection="recordIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </insert>
+
+    <insert id="insertBatch"
+            parameterType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.InspectRepairRelationPO">
+        INSERT INTO inspect_repair_relation (
+        id,
+        organization_id,
+        organization_name,
+        position_id,
+        position_name,
+        user_id,
+        username,
+        nickname,
+        tenant,
+        create_by,
+        creator_id,
+        creator_type,
+        create_time,
+        update_by,
+        updater_id,
+        updater_type,
+        update_time,
+        deleted
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.organizationId},
+            #{item.organizationName},
+            #{item.positionId},
+            #{item.positionName},
+            #{item.userId},
+            #{item.username},
+            #{item.nickname},
+            #{item.tenant},
+            #{item.createBy},
+            #{item.creatorId},
+            #{item.creatorType},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updaterId},
+            #{item.updaterType},
+            #{item.updateTime},
+            #{item.deleted}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

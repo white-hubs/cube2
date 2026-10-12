@@ -1,0 +1,44 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+java_library(
+    name = "legacy_wallet_client",
+    visibility = [
+        "//packages/apps/meat-trade:__subpackages__",
+        "//packages/base/mdata:__subpackages__",
+    ],
+    exports = [
+        "@maven//:com_guhecloud_cube_biz_wallet_client",
+    ],
+)
+
+java_library(
+    name = "legacy_finance_client",
+    visibility = ["//packages/apps/meat-trade:__subpackages__"],
+    exports = [
+        "@maven//:com_guhecloud_cube_biz_finance_client",
+    ],
+)
+
+java_library(
+    name = "legacy_mall_client",
+    visibility = ["//packages/apps/meat-trade:__subpackages__"],
+    exports = [
+        "@maven//:com_guhecloud_cube_biz_mall_client",
+    ],
+)
+
+java_library(
+    name = "legacy_order_client",
+    visibility = ["//packages/apps/meat-trade:__subpackages__"],
+    exports = [
+        "@maven//:com_guhecloud_cube_biz_order_client",
+    ],
+)
+
+java_library(
+    name = "legacy_pay_client",
+    visibility = ["//packages/apps/meat-trade:__subpackages__"],
+    exports = [
+        "@maven//:com_guhecloud_cube_biz_pay_client",
+    ],
+)

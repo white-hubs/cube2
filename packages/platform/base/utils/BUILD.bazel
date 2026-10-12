@@ -1,0 +1,627 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "aes",
+    srcs = glob(["AESUtils.java"]),
+    deps = [
+        ":string",
+        "//third-party/java/bouncycastle:bcprov-jdk15on",
+        "//third-party/java/commons:codec",
+        "//third-party/java/google:guava",
+    ],
+)
+
+java_test(
+    name = "aes-tests",
+    srcs = glob(["AESUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.AESUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":aes",
+        "//third-party/java/commons:codec",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "object",
+    srcs = glob(["ObjectUtils.java"]),
+    deps = [
+        ":collection",
+        ":string",
+        "//third-party/java/glasnost:orika",
+        "//third-party/java/google:guava",
+        "//third-party/java/hutool:core",
+        "//third-party/java/protostuff:api",
+        "//third-party/java/protostuff:core",
+        "//third-party/java/protostuff:runtime",
+    ],
+)
+
+java_test(
+    name = "object-tests",
+    srcs = glob(["ObjectUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.ObjectUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":object",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "string",
+    srcs = glob(["StringUtils.java"]),
+    deps = [
+        "//packages/platform/base/utils:assert",
+        "//third-party/java/apache:lang3",
+        "//third-party/java/apache:text",
+    ],
+)
+
+java_test(
+    name = "string-tests",
+    srcs = glob(["StringUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.StringUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":string",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "masked-value",
+    srcs = glob(["MaskedValueUtils.java"]),
+    deps = [
+        ":desensitize",
+        ":string",
+    ],
+)
+
+java_test(
+    name = "masked-value-tests",
+    srcs = glob(["MaskedValueUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.MaskedValueUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":masked-value",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "spring-object",
+    srcs = glob(["SpringObjectUtils.java"]),
+    deps = [
+        ":collection",
+        ":object",
+        "//third-party/java/glasnost:orika",
+        "//third-party/java/google:guava",
+        "//third-party/java/spring:spring_beans",
+        "//third-party/java/spring:spring_core",
+    ],
+)
+
+java_library(
+    name = "tree",
+    srcs = glob(["TreeUtils.java"]),
+    deps = [
+        "//packages/platform/base/model:tree",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:object",
+    ],
+)
+
+java_library(
+    name = "list",
+    srcs = glob(["ListUtils.java"]),
+    deps = ["//third-party/java/apache:collections4"],
+)
+
+java_test(
+    name = "list-tests",
+    srcs = glob(["ListUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.ListUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":list",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "map",
+    srcs = glob(["MapUtils.java"]),
+    deps = ["//packages/platform/base/utils:list"],
+)
+
+java_test(
+    name = "map-tests",
+    srcs = glob(["MapUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.MapUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":map",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "set",
+    srcs = glob(["SetUtils.java"]),
+    deps = [":list"],
+)
+
+java_test(
+    name = "set-tests",
+    srcs = glob(["SetUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.SetUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":set",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "digest",
+    srcs = ["DigestUtils.java"],
+    deps = ["//third-party/java/commons:codec"],
+)
+
+java_test(
+    name = "digest-tests",
+    srcs = glob(["DigestUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.DigestUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":digest",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "number",
+    srcs = ["NumberUtils.java"],
+    deps = ["//third-party/java/apache:lang3"],
+)
+
+java_test(
+    name = "number-tests",
+    srcs = glob(["NumberUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.NumberUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":number",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "math",
+    srcs = glob(["MathUtils.java"]),
+)
+
+java_test(
+    name = "math-tests",
+    srcs = glob(["MathUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.MathUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":math",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "regex",
+    srcs = glob(["RegexUtils.java"]),
+    deps = ["//packages/platform/base/utils:string"],
+)
+
+java_test(
+    name = "regex-tests",
+    srcs = glob(["RegexUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.RegexUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":regex",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "pinyin",
+    srcs = glob(["PinYinUtils.java"]),
+    deps = [
+        "//third-party/java/belerweb:pinyin4j",
+    ],
+)
+
+java_test(
+    name = "pinyin-tests",
+    srcs = glob(["PinYinUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.PinYinUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":pinyin",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "host",
+    srcs = glob(["HostUtils.java"]),
+)
+
+java_library(
+    name = "barcode",
+    srcs = glob(["BarcodeUtils.java"]),
+    deps = [
+        "//packages/platform/base/utils:assert",
+        "//third-party/java/commons:codec",
+        "//third-party/java/google:guava",
+        "//third-party/java/zxing",
+    ],
+)
+
+java_test(
+    name = "barcode-tests",
+    srcs = glob(["BarcodeUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.BarcodeUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":barcode",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "biz-code",
+    srcs = glob(["BizCodeUtils.java"]),
+)
+
+java_test(
+    name = "biz-code-tests",
+    srcs = glob(["BizCodeUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.BizCodeUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":biz-code",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "assert",
+    srcs = glob(["AssertUtils.java"]),
+)
+
+java_test(
+    name = "assert-tests",
+    srcs = glob(["AssertUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.AssertUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":assert",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "desensitize",
+    srcs = glob(["DesensitizeUtils.java"]),
+    deps = [
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:regex",
+        "//packages/platform/base/utils:string",
+    ],
+)
+
+java_test(
+    name = "desensitize-tests",
+    srcs = glob(["DesensitizeUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.DesensitizeUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":desensitize",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "date",
+    srcs = glob(["DateUtils.java"]),
+    exports = [
+        "//packages/platform/base/constants:date",
+    ],
+    deps = [
+        ":assert",
+        ":string",
+        "//packages/platform/base/constants:date",
+        "//third-party/java/google:guava",
+        "//third-party/java/hutool:core",
+        "//third-party/java/spring:spring_context",
+    ],
+)
+
+java_test(
+    name = "date-tests",
+    srcs = glob(["DateUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.DateUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":date",
+        "//packages/platform/base/constants:date",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "collection",
+    srcs = glob(["CollectionUtils.java"]),
+    deps = [
+        "//third-party/java/apache:collections4",
+    ],
+)
+
+java_test(
+    name = "collection-tests",
+    srcs = glob(["CollectionUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.CollectionUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":collection",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "base64",
+    srcs = glob(["Base64Utils.java"]),
+)
+
+java_test(
+    name = "base64-tests",
+    srcs = glob(["Base64UtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.Base64UtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":base64",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "bean",
+    srcs = glob(["BeanUtils.java"]),
+    deps = ["//third-party/java/hutool:core"],
+)
+
+java_test(
+    name = "bean-tests",
+    srcs = glob(["BeanUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.BeanUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":bean",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "object-id",
+    srcs = [
+        "ObjectIdUtils.java",
+    ],
+    deps = [
+        "//third-party/java/hutool:core",
+    ],
+)
+
+java_test(
+    name = "object-id-tests",
+    srcs = glob(["ObjectIdUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.ObjectIdUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":object-id",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "secure",
+    srcs = glob(["SecureUtils.java"]),
+    deps = [
+        "//third-party/java/hutool:crypto",
+    ],
+)
+
+java_test(
+    name = "secure-tests",
+    srcs = glob(["SecureUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.SecureUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":secure",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "convert",
+    srcs = glob(["ConvertUtils.java"]),
+    deps = [
+        "//third-party/java/hutool:core",
+    ],
+)
+
+java_test(
+    name = "convert-tests",
+    srcs = glob(["ConvertUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.ConvertUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":convert",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "reflect",
+    srcs = glob(["ReflectUtils.java"]),
+    deps = [
+        "//third-party/java/hutool:core",
+    ],
+)
+
+java_test(
+    name = "reflect-tests",
+    srcs = glob(["ReflectUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.ReflectUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":reflect",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "id",
+    srcs = [
+        "IdUtils.java",
+        # TODO-migrate: copy from hutool, fix this dependency
+        "Snowflake.java",
+    ],
+    deps = [
+        "//third-party/java/hutool:core",
+    ],
+)
+
+java_test(
+    name = "id-tests",
+    srcs = glob(["IdUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.IdUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":id",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "json",
+    srcs = glob(["JsonUtils.java"]),
+    exports = [
+        "//third-party/java/jackson:annotations",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+    ],
+    deps = [
+        "//packages/platform/base/constants:date",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:string",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_test(
+    name = "json-tests",
+    srcs = glob(["JsonUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.JsonUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":json",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "spring-file",
+    srcs = glob(["SpringFileUtils.java"]),
+    deps = [
+        "//packages/platform/base/standard:http",
+        "//packages/platform/base/utils:string",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/spring:spring_core",
+        "//third-party/java/spring:spring_test",
+        "//third-party/java/spring:spring_web",
+    ],
+)
+
+java_test(
+    name = "spring-file-test",
+    srcs = glob(["SpringFileUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.SpringFileUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":spring-file",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "random",
+    srcs = glob(["RandomUtils.java"]),
+    deps = [
+        "//third-party/java/apache:text",
+        "//third-party/java/hutool:core",
+    ],
+)
+
+java_test(
+    name = "random-test",
+    srcs = glob(["RandomUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.RandomUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":random",
+        "//third-party/java/junit",
+    ],
+)
+
+java_library(
+    name = "exception",
+    srcs = ["ExceptionUtils.java"],
+)
+
+java_library(
+    name = "ant-path-matcher",
+    srcs = glob(["AntPathMatcher.java"]),
+    deps = [
+        ":assert",
+        ":string",
+    ],
+)
+
+# TODO(chx): 补充 poi 单测
+java_library(
+    name = "poi",
+    srcs = glob(["poi/**/*.java"]),
+    deps = [
+        ":string",
+        "//third-party/java/apache:poi",
+        "//third-party/java/jakarta:servlet_api",
+    ],
+)
+
+java_library(
+    name = "compress",
+    srcs = glob(["CompressUtils.java"]),
+)
+
+java_test(
+    name = "compress-test",
+    srcs = glob(["CompressUtilsTests.java"]),
+    test_class = "com.guhecloud.platform.base.util.CompressUtilsTests",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":compress",
+        "//third-party/java/junit",
+    ],
+)

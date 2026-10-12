@@ -1,0 +1,70 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-cloud"
+
+java_library(
+    name = "cloud",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/standard:http",
+        "//packages/platform/base/utils:aes",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/client:client-config",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/web",
+        "//third-party/java:lombok",
+        "//third-party/java/alibaba:easyexcel",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/apache:hc5-client",
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/commons:commons_io",
+        "//third-party/java/github:mouzt_bizlog_sdk",
+        "//third-party/java/hutool:poi",
+        "//third-party/java/jackson",
+        "//third-party/java/jakarta:servlet_api",
+        "//third-party/java/nacos:nacos_core",
+        "//third-party/java/nacos:nacos_spring",
+        "//third-party/java/nacos:nacos_spring_boot",
+        "//third-party/java/nacos:nacos_spring_cloud",
+        "//third-party/java/openfeign",
+        "//third-party/java/ribbon:loadbalancer",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_cloud",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/spring:spring_security",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":cloud",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

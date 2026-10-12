@@ -1,0 +1,140 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.PatrolRouteMapper">
+
+    <select id="queryById" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolLocationVO">
+        select b.id, b.patrol_location_name, b.area_id
+        from patrol_route a
+        inner join patrol_location b on a.patrol_location_id = b.id
+        where a.uuid = #{uuid}
+        ORDER BY a.`rule_order`
+    </select>
+
+    <sql id="queryRoutePageBase">
+        select a.uuid as `id`,
+        a.patrol_route_name,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        count(1) as `patrolLocationNumber`
+        from patrol_route a
+        <where>
+            a.status = 'NO_REMOVE'
+            <if test="param.keyword !=null and param.keyword !=''">
+                and a.patrol_route_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        GROUP BY a.uuid
+        ORDER BY a.create_time desc
+    </sql>
+    <select id="queryRoutePage" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="mysql">
+        <include refid="queryRoutePageBase" />
+    </select>
+    <select id="queryRoutePage" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="dm">
+        <include refid="queryRoutePageBase" />
+    </select>
+    <select id="queryRoutePage" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="pg">
+        select a.uuid as `id`,
+        min(a.patrol_route_name) as patrol_route_name,
+        min(a.create_by) as create_by,
+        min(a.creator_id) as creator_id,
+        min(a.creator_type) as creator_type,
+        min(a.create_time) as create_time,
+        count(1) as `patrolLocationNumber`
+        from patrol_route a
+        <where>
+            a.status = 'NO_REMOVE'
+            <if test="param.keyword !=null and param.keyword !=''">
+                and a.patrol_route_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        GROUP BY a.uuid
+        ORDER BY create_time desc
+    </select>
+    <sql id="queryRouteAllBase">
+        select a.uuid as `id`,
+        a.patrol_route_name,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time
+        from patrol_route a
+        where a.status = 'NO_REMOVE'
+        GROUP BY a.uuid
+        ORDER BY a.create_time desc
+    </sql>
+    <select id="queryRouteAll" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="mysql">
+        <include refid="queryRouteAllBase"></include>
+    </select>
+    <select id="queryRouteAll" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="dm">
+        <include refid="queryRouteAllBase"></include>
+    </select>
+    <select id="queryRouteAll" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO"
+            databaseId="pg">
+        select a.uuid as `id`,
+        min(a.patrol_route_name) as patrol_route_name,
+        min(a.create_by) as create_by,
+        min(a.creator_id) as creator_id,
+        min(a.creator_type) as creator_type,
+        min(a.create_time) as create_time
+        from patrol_route a
+        where a.status = 'NO_REMOVE'
+        GROUP BY a.uuid
+        ORDER BY create_time desc
+    </select>
+    <select id="queryLocationAllByRoute"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolLocationVO">
+        SELECT b.id,
+        b.patrol_location_name,
+        b.area_id
+        FROM patrol_route a
+        INNER JOIN patrol_location b ON a.patrol_location_id = b.id
+        where a.uuid = #{uuid}
+        and b.status = 'NO_REMOVE'
+    </select>
+    <select id="queryRouteList"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO">
+        select a.uuid as `id`,
+        a.patrol_route_name,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        count(1) as `patrolLocationNumber`
+        from patrol_route a
+        <where>
+            a.status = 'NO_REMOVE'
+            <if test="param.keyword !=null and param.keyword !=''">
+                and a.patrol_route_name like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        GROUP BY a.uuid
+        ORDER BY a.create_time desc
+    </select>
+
+    <select id="queryByUuids" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.PatrolRouteVO">
+        select a.uuid as `id`,
+        a.patrol_route_name,
+        a.create_by,
+        a.creator_id,
+        a.creator_type,
+        a.create_time,
+        count(1) as `patrolLocationNumber`
+        from patrol_route a
+        <where>
+            <if test="uuids != null and uuids.size() > 0">
+                a.uuid in
+                <foreach collection="uuids" item="uuid" open="(" close=")" separator=",">
+                    #{uuid}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY a.uuid
+        ORDER BY a.create_time desc
+    </select>
+</mapper>

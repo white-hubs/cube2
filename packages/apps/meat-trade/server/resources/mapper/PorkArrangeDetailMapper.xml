@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.PorkArrangeDetailMapper">
+
+    <!--    <insert id="insertOrUpdateBatch">-->
+    <!--        insert into-->
+    <!--        `pork_arrange_detail`(id,merchant_id,pork_report_code,label,foot_mark_code,weight,price,place,pork_arrange_time,passed,tenant,create_by,create_time)-->
+    <!--        values-->
+    <!--        <foreach collection="list" item="item" separator=",">-->
+    <!--            (#{item.id},#{item.merchantId},#{item.porkReportCode},#{item.label},#{item.footMarkCode},#{item.weight},-->
+    <!--            #{item.price},#{item.place},#{item.porkArrangeTime},#{item.passed},#{item.tenant},#{item.createBy},#{item.createTime})-->
+    <!--        </foreach>-->
+    <!--        on duplicate key update-->
+    <!--        pork_report_code = pork_report_code,-->
+    <!--        label = label,-->
+    <!--        foot_mark_code = foot_mark_code,-->
+    <!--        place = place,-->
+    <!--        weight = weight,-->
+    <!--        pork_arrange_time = pork_arrange_time-->
+    <!--    </insert>-->
+
+    <insert id="insertOrUpdateBatch">
+        insert into
+        `meattrade_pork_arrange_detail`(id,code,supplier_id,pork_report_id,pork_report_code,standard_weight,weight_compliant,goods_category_id,goods_category_name,fresh_label,label,foot_mark_code,weight,price,place,terminal_number,pork_arrange_time,passed,pic_paths,transfer_number,transfer_files,transfer_status,tenant,create_by,create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.supplierId},#{item.porkReportId},#{item.porkReportCode},#{item.standardWeight},#{item.weightCompliant},#{item.goodsCategoryId},#{item.goodsCategoryName},#{item.freshLabel},#{item.label},#{item.footMarkCode},#{item.weight},
+            #{item.price},#{item.place},#{item.terminalNumber},#{item.porkArrangeTime},#{item.passed},#{item.picPaths},#{item.transferNumber},#{item.transferFiles},#{item.transferStatus},#{item.tenant},#{item.createBy},#{item.createTime})
+        </foreach>
+        on duplicate key update
+        pork_report_code = values(pork_report_code),
+        code = values(code),
+        label = values(label),
+        foot_mark_code = values(foot_mark_code),
+        weight_compliant = values(weight_compliant),
+        place = values(place),
+        weight = values(weight),
+        pic_paths = values(pic_paths),
+        transfer_number = values(transfer_number),
+        transfer_files = values(transfer_files),
+        transfer_status = values(transfer_status),
+        pork_arrange_time = values(pork_arrange_time)
+    </insert>
+
+    <select id="selectNonTransferFiles"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.entity.PorkArrangeDetail">
+        SELECT
+        t1.*
+        FROM
+        `meattrade_pork_arrange_detail` t1
+        <where>
+            t1.pic_paths is NOT NULL
+            AND (t1.transfer_status is NULL or t1.transfer_status = false)
+            AND (t1.transfer_number
+            &lt; #{transferNumber} or t1.transfer_number is null)
+        </where>
+        limit #{querySize}
+    </select>
+
+    <update id="updateTransferFile">
+        UPDATE
+	    `meattrade_pork_arrange_detail`
+	    set
+	    transfer_status = #{transferStatus},
+	    transfer_number = #{addNumber} + 1
+	    where
+	    id = #{id} AND (transfer_number &lt; #{transferNumber} or transfer_number is NULL)
+    </update>
+
+    <select id="selectPlacePorkArrangeStatistics" resultType="com.guhecloud.cube.biz.meattrade.server.pork.vo.PorkDeviceStatisticsVO">
+        select
+        pa.place as `id`,
+        count(pa.id) as `number`
+        from
+        meattrade_pork_arrange_detail pa
+        <where>
+            pa.tenant = #{param.tenant} and pa.place is not null and pa.place != ''
+            <if test="param.placeIds != null and param.placeIds.size() > 0">
+                and pa.place in
+                <foreach collection="param.placeIds" item="placeId" open="(" separator="," close=")">
+                    #{placeId}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                AND pa.pork_arrange_time BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+        group by pa.place
+    </select>
+</mapper>

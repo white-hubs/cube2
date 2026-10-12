@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizDeviceRefMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.base.device.center.core.model.BizDeviceRef">
+        <!--@mbg.generated-->
+        <!--@Table center_biz_device_ref-->
+        <id column="device_id" jdbcType="BIGINT" property="deviceId" />
+        <id column="ref_device_id" jdbcType="BIGINT" property="refDeviceId" />
+        <result column="tenant" jdbcType="INTEGER" property="tenant" />
+        <result column="deleted" jdbcType="BIGINT" property="deleted" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `device_id`, `ref_device_id`, `tenant`, `deleted`, `create_by`, `create_time`, `update_by`, `update_time`
+    </sql>
+
+    <insert id="insert" parameterType="com.guhecloud.cube.base.device.center.core.model.BizDeviceRef">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_device_ref` (`device_id`, `ref_device_id`)
+        VALUES (#{deviceId,jdbcType=BIGINT}, #{refDeviceId,jdbcType=BIGINT})
+    </insert>
+
+    <select id="findRefDeviceIds" resultType="java.lang.String">
+        <!--@mbg.generated-->
+        SELECT `ref_device_id` FROM `center_biz_device_ref` WHERE `device_id` = #{deviceId,jdbcType=BIGINT}
+    </select>
+
+    <update id="removeRefDevice">
+        <!--@mbg.generated-->
+        UPDATE `center_biz_device_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime}
+        WHERE `device_id` = #{deviceId,jdbcType=BIGINT}
+    </update>
+
+    <insert id="saveRef">
+        <!--@mbg.generated-->
+        INSERT INTO `center_biz_device_ref` (`device_id`, `ref_device_id`, `create_by`, `update_by`)
+        VALUES (#{deviceId,jdbcType=BIGINT}, #{refDeviceId,jdbcType=BIGINT}, #{username},
+        #{username})
+    </insert>
+
+    <update id="logicDeleteByDeviceIds">
+        UPDATE `center_biz_device_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime},
+        `update_by` = #{userId,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        WHERE `device_id` IN
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <update id="updateBySelective">
+        UPDATE `center_biz_device_ref`
+        <set>
+            <if test="deviceRef.updateBy != null">
+                `update_by` = #{deviceRef.updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="deviceRef.updaterId != null">
+                `updater_id` = #{deviceRef.updaterId,jdbcType=VARCHAR},
+            </if>
+            <if test="deviceRef.updaterType != null">
+                `updater_type` = #{deviceRef.updaterType,jdbcType=VARCHAR},
+            </if>
+            <if test="deviceRef.updateTime != null">
+                `update_time` = #{deviceRef.updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="deviceRef.deleted">
+                `deleted` = 1,
+            </if>
+            <if test="!deviceRef.deleted">
+                `deleted` = 0,
+            </if>
+        </set>
+        WHERE `device_id` = #{deviceRef.deviceId,jdbcType=BIGINT}
+    </update>
+</mapper>

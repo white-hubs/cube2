@@ -1,0 +1,21 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: OUAA   # 提供方标识
+  appDescription: 提供OUAA 相关配置
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: AppGroup,versions: [1.0]}  # 应用分组
+  - {type: App,versions: [1.0]}       # 应用
+  - {type: Product,versions: [1.0]}   # 产品
+  - {type: ProdApp,versions: [1.0]}   # 产品-应用关系
+  - {type: Terminal,versions: [1.0]}  # 访问端
+  - {type: TerminalApp,versions: [1.0]} # 访问端-应用关系
+  - {type: Card,versions: [1.0]}      # 应用卡片
+  - {type: Menu,versions: [1.0]}      # 应用菜单
+  - {type: Function,versions: [1.0]}  # 功能权限
+  - {type: Position, versions: [1.0]}   # 职位
+  - {type: Role, versions: [1.0]}       # 角色
+  - {type: RoleTerminal, versions: [1.0]} # 角色访问端
+  - {type: RoleApp, versions: [1.0]}      # 角色应用
+  - {type: RoleMenu, versions: [1.0]}     # 角色菜单(合并了RoleMenuFunction, RoleMenuDataPermission)
+requests: [] # 需要的能力

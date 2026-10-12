@@ -1,0 +1,49 @@
+package com.guhecloud.cube.base.iot.product.model.v3.guard.impl;
+
+import com.guhecloud.cube.base.iot.product.model.v3.enums.EntityTypeEnum;
+import com.guhecloud.cube.base.iot.product.model.v3.guard.DeletionGuard;
+import com.guhecloud.cube.base.iot.product.model.v3.guard.EntityHasReferenceException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+/**
+ * 方法删除关联检查守卫
+ *
+ * 检查项:
+ * 1. 是否被场景联动引用
+ * 2. 是否被定时任务引用
+ *
+ * 注意: 当前简化实现,待集成相关模块后补充具体检查逻辑
+ */
+@Slf4j
+@Component
+@RequiredArgsConstructor
+public class MethodDeletionGuard implements DeletionGuard {
+
+    @Override
+    public void checkDeletable(Long entityId, String entityType) {
+        log.info("开始检查方法删除关联, methodId={}", entityId);
+
+        // TODO: [等待外部模块] 检查是否被场景联动引用
+        //   依赖: 场景联动模块 Feign 接口
+        //   追踪: 待场景联动模块接口就绪后实施
+        //   预期接口: SceneLinkageClient.findScenesByMethodId(Long methodId)
+        //   说明: 需要调用场景联动模块检查该方法是否被场景引用,如果有则禁止删除
+        // 实现示例: checkSceneLinkageReferences(entityId);
+
+        // TODO: [等待外部模块] 检查是否被定时任务引用
+        //   依赖: 任务调度模块 Feign 接口
+        //   追踪: 待任务调度模块接口就绪后实施
+        //   预期接口: ScheduledTaskClient.findTasksByMethodId(Long methodId)
+        //   说明: 需要调用任务调度模块检查该方法是否被定时任务引用,如果有则禁止删除
+        // 实现示例: checkScheduledTaskReferences(entityId);
+
+        log.info("方法删除关联检查通过, methodId={}", entityId);
+    }
+
+    @Override
+    public String getSupportedEntityType() {
+        return EntityTypeEnum.METHOD.getCode();
+    }
+}

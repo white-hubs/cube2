@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizDeviceExpandMapper">
+    <update id="updateBySelective">
+        update `center_biz_device_expand`
+        <set>
+            <if test="bizDeviceExpand.securitySalt != null">
+                `security_salt` = #{bizDeviceExpand.securitySalt,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.securityPwd != null">
+                `security_pwd` = #{bizDeviceExpand.securityPwd,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.usefulLife != null">
+                `useful_life` = #{bizDeviceExpand.usefulLife,jdbcType=INTEGER},
+            </if>
+            <if test="bizDeviceExpand.dailyWorkTime != null">
+                `daily_work_time` = #{bizDeviceExpand.dailyWorkTime,jdbcType=INTEGER},
+            </if>
+            <if test="bizDeviceExpand.lntAndLat != null">
+                `lnt_and_lat` = #{bizDeviceExpand.lntAndLat,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.unitPrice != null">
+                `unit_price` = #{bizDeviceExpand.unitPrice,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.purchaseDate != null">
+                `purchase_date` = #{bizDeviceExpand.purchaseDate,jdbcType=DATE},
+            </if>
+            <if test="bizDeviceExpand.picture != null">
+                `picture` = #{bizDeviceExpand.picture,jdbcType=BIGINT},
+            </if>
+            <if test="bizDeviceExpand.productionDate != null">
+                `production_date` = #{bizDeviceExpand.productionDate,jdbcType=DATE},
+            </if>
+            <if test="bizDeviceExpand.updateBy != null">
+                `update_by` = #{bizDeviceExpand.updateBy,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.updaterId != null">
+                `updater_id` = #{bizDeviceExpand.updaterId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.updaterType != null">
+                `updater_type` = #{bizDeviceExpand.updaterType,jdbcType=VARCHAR},
+            </if>
+            <if test="bizDeviceExpand.updateTime != null">
+                `update_time` = #{bizDeviceExpand.updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="bizDeviceExpand.spatialCoordinates != null">
+                `spatial_coordinates` = #{bizDeviceExpand.spatialCoordinates,jdbcType=INTEGER},
+            </if>
+            <if test="bizDeviceExpand.deleted != null">
+                `deleted` = #{bizDeviceExpand.deleted,jdbcType=INTEGER},
+            </if>
+        </set>
+        where `id` = #{bizDeviceExpand.id,jdbcType=BIGINT}
+    </update>
+
+    <select id="selectDeviceExpand"
+            parameterType="java.lang.Long"
+            resultType="com.guhecloud.cube.base.device.center.metadata.std.vo.DeviceExpandVO">
+        select
+        `id`,
+        `security_salt`,
+        `security_pwd`,
+        `useful_life`,
+        `daily_work_time`,
+        `lnt_and_lat`,
+        `unit_price`,
+        `purchase_date`,
+        `picture`,
+        `expand_form`,
+        `install_unit`,
+        `install_phone`,
+        `install_date`,
+        `production_date`,
+        `spatial_coordinates`
+        from `center_biz_device_expand`
+        <where>
+            <if test="deviceIds != null and deviceIds.size() > 0">
+                and `id` in
+                <foreach collection="deviceIds" separator="," item="id" open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByIdNoTenant" resultType="com.guhecloud.cube.base.device.center.core.model.BizDeviceExpand">
+        select `id`,
+        `security_salt`,
+        `security_pwd`,
+        `useful_life`,
+        `daily_work_time`,
+        `lnt_and_lat`,
+        `unit_price`,
+        `purchase_date`,
+        `picture`,
+        `expand_form`,
+        `install_unit`,
+        `install_phone`,
+        `install_date`,
+        `spatial_coordinates`
+        from `center_biz_device_expand`
+        where `id` = #{deviceId,jdbcType=BIGINT}
+    </select>
+
+    <update id="logicDeleteBatchIds">
+        update `center_biz_device_expand`
+        set `deleted` = 1,
+        `update_time`= #{updateTime},
+        `update_by` = #{userId,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        where `id` in
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <resultMap id="deviceExpandArchivesInfo"
+               type="com.guhecloud.cube.base.device.center.metadata.dto.DeviceExpandInfoDTO">
+        <id column="id" property="id" />
+        <result column="lnt_and_lat" property="lntAndLat" />
+        <result column="location_des" property="locationDes" />
+        <result column="spatial_coordinates" property="spatialCoordinates" />
+        <association property="purchaseInfo"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceExpandInfoDTO$PurchaseInfo">
+            <result column="unit_price" property="unitPrice" />
+            <result column="purchase_date" property="purchaseDate" />
+        </association>
+        <association property="factoryInfo"
+                     javaType="com.guhecloud.cube.base.device.center.metadata.dto.DeviceExpandInfoDTO$FactoryInfo">
+            <result column="production_date" property="productionDate" />
+            <result column="useful_life" property="usefulLife" />
+        </association>
+    </resultMap>
+
+    <sql id="getExpandBaseInfo">
+        select `id`,
+        `lnt_and_lat`,
+        `spatial_coordinates`,
+        `location_des`,
+        `unit_price`,
+        `purchase_date`,
+        `production_date`,
+        `useful_life`,
+        `spatial_coordinates`
+        from `center_biz_device_expand` dev
+    </sql>
+
+    <select id="getExpandListByDeviceId"
+            resultMap="deviceExpandArchivesInfo">
+        <include refid="getExpandBaseInfo" />
+        <where>
+            dev.`id` in
+            <foreach collection="deviceIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getExpandByDeviceId" resultMap="deviceExpandArchivesInfo">
+        <include refid="getExpandBaseInfo" />
+        <where>
+            dev.`id` = #{deviceId,jdbcType=BIGINT}
+        </where>
+    </select>
+</mapper>

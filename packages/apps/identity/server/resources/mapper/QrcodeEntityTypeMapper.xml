@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.identity.server.qrcode.dao.QrcodeEntityTypeMapper">
+
+    <select id="typeList"
+            resultType="com.guhecloud.cube.srv.gen.identity.server.qrcode.interfaces.vo.QrcodeEntityTypeVO">
+        select t.`id`, t.`type_name`, t.`entity_type`, s.`style_id` from `qrcode_entity_type` t
+        left join `qrcode_entity_style` s on t.`id` = s.`entity_type`
+        <where>
+            <if test="keyword != null and keyword != ''">
+                t.`type_name` like concat ('%',#{keyword},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

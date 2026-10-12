@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.DeviceManageMapper">
+
+    <select id="countStatusByApplication"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.device.DeviceCountStatusVO">
+        SELECT
+        dm.status,
+        COUNT(1) count
+        FROM
+        device_manage dm
+        left join market_config mc on mc.market_tenant = dm.market_tenant
+        <if test="appCodes !=null and appCodes.size > 0">
+            inner join safety_app_device sad on sad.id = dm.id
+        </if>
+        <where>
+            mc.status = true
+            <if test="baseQuery != null">
+                <if test="baseQuery.marketTenantIDs != null and baseQuery.marketTenantIDs.size() > 0">
+                    AND dm.market_tenant IN
+                    <foreach item="id" collection="baseQuery.marketTenantIDs" open="(" separator="," close=")">
+                        #{id}
+                    </foreach>
+                </if>
+                <if test="baseQuery.createdPeriod != null">
+                    AND dm.create_time BETWEEN #{baseQuery.createdPeriod.begin} AND #{baseQuery.createdPeriod.end}
+                </if>
+            </if>
+            <if test="appCodes != null and appCodes.size > 0">
+                AND sad.application_code IN
+                <foreach item="code" collection="appCodes" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY dm.status
+    </select>
+
+    <select id="getApplicationDevices" resultType="com.guhecloud.cube.srv.gen.safety.management.po.DeviceManagePO">
+        select
+        dm.*
+        from device_manage dm
+        left join market_config mc on mc.market_tenant = dm.market_tenant
+        <if test="appCodes !=null and appCodes.size > 0">
+            inner join safety_app_device sad on sad.id = dm.id
+        </if>
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                and dm.create_time &gt;= #{query.period.begin} and dm.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.marketTenant !=null">
+                and dm.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="appCodes != null and appCodes.size > 0">
+                AND sad.application_code IN
+                <foreach item="code" collection="appCodes" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getApplicationDevicePage" resultType="com.guhecloud.cube.srv.gen.safety.management.po.DeviceManagePO">
+        select
+        dm.*
+        from device_manage dm
+        left join market_config mc on mc.market_tenant = dm.market_tenant
+        <if test="appCodes !=null and appCodes.size > 0">
+            inner join safety_app_device sad on sad.id = dm.id
+        </if>
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                and dm.create_time &gt;= #{query.period.begin} and dm.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.marketTenant !=null">
+                and dm.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="appCodes != null and appCodes.size > 0">
+                AND sad.application_code IN
+                <foreach item="code" collection="appCodes" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="query.type != null and query.type != ''">
+                and dm.iot_device_prod_category_name = #{query.type}
+            </if>
+            <if test="query.state !=null and query.state != ''">
+                and dm.status = #{query.state}
+            </if>
+        </where>
+    </select>
+
+    <select id="getApplicationDeviceTypes" resultType="java.lang.String">
+        select
+        dm.iot_device_prod_category_name
+        from device_manage dm
+        left join market_config mc on mc.market_tenant = dm.market_tenant
+        <where>
+            mc.status = true
+        </where>
+        group by dm.iot_device_prod_category_name
+    </select>
+
+    <select id="getDeviceCategoryCount"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.device.DeviceCategoryCountVO">
+        select
+        dm.iot_device_prod_category_name as `name`,
+        count(DISTINCT dm.id) as `count`
+        from device_manage dm
+        left join market_config mc on mc.market_tenant = dm.market_tenant
+        <if test="appCodes !=null and appCodes.size > 0">
+            inner join safety_app_device sad on sad.id = dm.id
+        </if>
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                and dm.create_time &gt;= #{query.period.begin} and dm.create_time &lt; #{query.period.end}
+            </if>
+            <if test="query.marketTenant !=null">
+                and dm.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="appCodes != null and appCodes.size > 0">
+                AND sad.application_code IN
+                <foreach item="code" collection="appCodes" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+        </where>
+        group by dm.iot_device_prod_category_name
+    </select>
+</mapper>

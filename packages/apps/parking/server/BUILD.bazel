@@ -1,0 +1,91 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/parking:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/apps/parking/client",
+        "//packages/base/device-center/client",
+        "//packages/base/device-center/north/client",
+        "//packages/base/device-center/north/consumer",
+        "//packages/base/file/client",
+        "//packages/base/mdata/client",
+        "//packages/base/process-engine/client",
+        "//packages/base/message/sdk",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:math",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/database",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/platform/subsystem-requester-sdk",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/jackson",
+        "//packages/platform/base/utils:list",
+        "//packages/base/dictionary/client",
+
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/main/java/**/*.java"]),
+    resources = glob(["src/main/resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.biz.subsystem.parking.server.SubsystemParkingServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "subsystem-parking-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-gen-subsystem-parking",
+    datasource_package = "com.guhecloud.cube.biz.subsystem.parking",
+    gw_prefix = "/park-management/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "subsystemParking",
+    visibility = ["//packages:__subpackages__"],
+)

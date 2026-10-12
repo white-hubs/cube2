@@ -1,0 +1,7 @@
+-- liquibase formatted sql
+
+-- changeset zengyadong:alter-1
+-- preconditions onFail:CONTINUE
+-- precondition-sql-check expectedResult:0 SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = DATABASE() AND table_name = 'vehicle_info' AND column_name='customer_id') AS column_exists;
+ALTER TABLE `vehicle_info` ADD COLUMN `customer_id` bigint(20)  NULL DEFAULT NULL COMMENT '车主Id';
+

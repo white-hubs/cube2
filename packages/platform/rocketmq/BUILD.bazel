@@ -1,0 +1,66 @@
+load("@rules_java//java:defs.bzl", "java_library", "java_test")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-rocketmq"
+
+java_library(
+    name = "rocketmq",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    exports = [
+        "//third-party/java/apache:rocketmq",
+    ],
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/security",
+        "//third-party/java:lombok",
+        "//third-party/java/apache:rocketmq",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_security",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_test(
+    name = "rocketmq-transaction-synchronization-tests",
+    srcs = glob(["tests/**/*.java"], allow_empty = True),
+    test_class = "com.guhecloud.platform.rocketmq.context.RocketMQTransactionSynchronizationUtilsTest",
+    deps = [
+        ":rocketmq",
+        "//third-party/java/junit",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":rocketmq",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

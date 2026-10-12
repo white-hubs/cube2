@@ -1,0 +1,99 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyVisualizationMapper">
+    <select id="getPropertyProportionByStatus"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        select status as name, count(1) as value
+        from property_detailed
+        where authority='DEPOSITORY'
+          and status in ('MAKE_USE_OF', 'LEAVE_UNUSED', 'WEED_OUT','REPAIR_REPORT')
+        group by `status`
+    </select>
+    <select id="getPropertyProportionByDep"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        select receive_dep_id as name, count(1) as value
+        from property_detailed
+        where `status` = 'MAKE_USE_OF'
+        group by receive_dep_id
+    </select>
+    <select id="getPropertyNumber" resultType="java.lang.Integer">
+        select count(1)
+        from property_detailed a
+        where a.status in ('MAKE_USE_OF','LEAVE_UNUSED','WEED_OUT','REPAIR_REPORT')
+        and a.authority='DEPOSITORY'
+        <if test="businessType =='total'">
+            and a.start_time between #{date.startTime} and #{date.endTime}
+        </if>
+        <if test="businessType =='repairReport'">
+            and a.status ='REPAIR_REPORT'
+        </if>
+        <if test="businessType =='usage'">
+            <choose>
+                <when test="usageDate !=null">
+                    and a.usage_date &lt;= #{usageDate}
+                </when>
+                <otherwise>
+                    and a.usage_date between #{date.startTime} and #{date.endTime}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="businessType =='maintenance'">
+            <choose>
+                <when test="usageDate !=null">
+                    and a.maintenance_date &lt;= #{usageDate}
+                </when>
+                <otherwise>
+                    and a.maintenance_date between #{date.startTime} and #{date.endTime}
+                </otherwise>
+            </choose>
+        </if>
+    </select>
+    <select id="getWeedOutNumber" resultType="java.lang.Integer">
+        select count(1)
+        from property_weed_out a
+                 inner join property_weed_out_relation b on a.id = b.weed_out_id
+        where a.manage_time between #{date.startTime} and #{date.endTime}
+          and a.status = 'PASS'
+    </select>
+    <select id="getPropertyType" resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        select type_id as id,type_name as name, count(1) value
+        from property_detailed
+        where authority = 'DEPOSITORY'
+        and status in ('MAKE_USE_OF', 'LEAVE_UNUSED', 'WEED_OUT')
+        and type_name is NOT null
+        <if test="typeName != null">
+            and type_name in
+            <foreach collection="typeName" item="item" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY type_name
+        order by `value` desc
+    </select>
+    <select id="getPropertyByDepHistogramValue"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.StatisticalChartDataVO">
+        select receive_dep_name as name, count(1) as valus
+        from property_detailed
+        where authority = 'DEPOSITORY'
+          and status in ('MAKE_USE_OF', 'LEAVE_UNUSED', 'WEED_OUT')
+          and receive_dep_name is NOT null
+        GROUP BY receive_dep_name
+    </select>
+    <select id="getPropertyByDepPie"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        select receive_dep_name as name, count(1) as value
+        from property_detailed
+        where authority='DEPOSITORY'
+          and status in ('MAKE_USE_OF', 'LEAVE_UNUSED', 'WEED_OUT')
+          and receive_dep_name is NOT null
+        GROUP BY receive_dep_name
+    </select>
+    <select id="getPropertyBySourcePie"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.PieChartValueVO">
+        select area_id as name, count(1) as value
+        from property_detailed
+        where authority = 'DEPOSITORY'
+          and status in ('MAKE_USE_OF', 'LEAVE_UNUSED', 'WEED_OUT')
+          and area_id is NOT null
+        GROUP BY area_id
+    </select>
+</mapper>

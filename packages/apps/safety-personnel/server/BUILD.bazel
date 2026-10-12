@@ -1,0 +1,86 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("//packages/apps/safety-personnel:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/apps/conference/client",
+        "//packages/apps/personnel/client",
+        "//packages/base/file/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/base/work-center/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:desensitize",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:tree",
+        "//packages/platform/database",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:poi",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:poi",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.safety.personnel.server.SafetyPersonnelServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "safety-personnel-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_srv_gen_safety_personnel",
+    datasource_package = "com.guhecloud.cube.srv.gen.safety.personnel",
+    gw_prefix = "/safety-personnel/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "safetyPersonnel",
+    visibility = ["//packages:__subpackages__"],
+)

@@ -1,0 +1,111 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.dao.MeetingApplyMapper">
+    <insert id="insertOrUpdateMeetingApply"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.entity.MeetingApplyEntity">
+        INSERT INTO `meeting_apply` (`id`, `apply_code`, `apply_time`, `apply_person_id`, `apply_person_name`, `meeting_type`,
+        `meeting_type_name`, `meeting_reason`, `meeting_start_time`,`meeting_end_time`, `approval_result`, `approval_result_reason`,
+        `third_record_id`, `deleted`, `tenant`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.applyCode}, #{item.applyTime}, #{item.applyPersonId}, #{item.applyPersonName},
+            #{item.meetingType}, #{item.meetingTypeName}, #{item.meetingReason},
+            #{item.meetingStartTime},#{item.meetingEndTime}, #{item.approvalResult}, #{item.approvalResultReason},
+            #{item.thirdRecordId}, #{item.deleted}, #{item.tenant}, #{item.createBy},#{item.creatorId},#{item.creatorType},
+            #{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType}, #{item.updateTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `apply_code` = VALUES(`apply_code`),
+        `apply_time` = VALUES(`apply_time`),
+        `apply_person_id` = VALUES(`apply_person_id`),
+        `apply_person_name` = VALUES(`apply_person_name`),
+        `meeting_type` = VALUES(`meeting_type`),
+        `meeting_type_name` = VALUES(`meeting_type_name`),
+        `meeting_reason` = VALUES(`meeting_reason`),
+        `meeting_start_time` = VALUES(`meeting_start_time`),
+        `meeting_end_time` = VALUES(`meeting_end_time`),
+        `approval_result` = VALUES(`approval_result`),
+        `approval_result_reason` = VALUES(`approval_result_reason`),
+        `deleted` = VALUES(`deleted`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.vo.MeetingApplyPageVO">
+        SELECT
+        ma.`id`,
+        ma.`apply_code`,
+        ma.`apply_time`,
+        ma.`apply_person_id`,
+        ma.`apply_person_name`,
+        ma.`meeting_type`,
+        ma.`meeting_type_name`,
+        ma.`meeting_reason`,
+        ma.`meeting_start_time`,
+        ma.`meeting_end_time`,
+        ma.`approval_result`,
+        ma.`approval_result_reason`,
+        ma.`third_record_id`,
+        ma.`deleted`,
+        ma.`tenant`,
+        ma.`create_by`,
+        ma.`create_time`,
+        ma.`update_by`,
+        ma.`update_time`
+        FROM
+        `meeting_apply` ma
+        left join `meeting_apply_person` mapp on ma.`id` = mapp.`business_key`
+        <where>
+            ma.`deleted` = 0
+            <if test="param.meetingPeriod !=null and param.meetingPeriod !=''">
+                AND ma.`meeting_start_time` &gt;= #{param.meetingPeriod.begin} AND ma.`meeting_end_time` &lt;=
+                #{param.meetingPeriod.end}
+            </if>
+            <if test="param.applyPersonName !=null and param.applyPersonName !=''">
+                and ma.`apply_person_name` like concat('%', #{param.applyPersonName}, '%')
+            </if>
+            <if test="param.visitedPerson !=null and param.visitedPerson !=''">
+                and mapp.`meeting_person_name` like concat('%', #{param.visitedPerson}, '%') and mapp.`meeting_person_type`
+                = 2
+            </if>
+        </where>
+        group by ma.`id`
+        ORDER BY `create_time` DESC
+    </select>
+    <select id="getList" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.vo.MeetingApplyVO"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.param.MeetingApplyListParam">
+        SELECT
+        ma.`id`,
+        ma.`apply_code`,
+        ma.`apply_time`,
+        ma.`apply_person_id`,
+        ma.`apply_person_name`,
+        ma.`meeting_type`,
+        ma.`meeting_type_name`,
+        ma.`meeting_reason`,
+        ma.`meeting_start_time`,
+        ma.`meeting_end_time`,
+        ma.`approval_result`,
+        ma.`approval_result_reason`,
+        ma.`third_record_id`,
+        ma.`deleted`,
+        ma.`tenant`,
+        ma.`create_by`,
+        ma.`create_time`,
+        ma.`update_by`,
+        ma.`update_time`
+        FROM
+        `meeting_apply` ma
+        <where>
+            ma.`deleted` = 0
+            <if test="param.period != null">
+                AND ma.`meeting_start_time` &gt;= #{param.period.begin} AND ma.`meeting_start_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        group by ma.`id`
+        ORDER BY `create_time` DESC
+    </select>
+</mapper>

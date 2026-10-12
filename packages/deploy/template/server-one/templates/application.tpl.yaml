@@ -1,0 +1,154 @@
+server:
+  port: ${common-env.server-one.port:10086}
+  shutdown: immediate
+spring:
+  profiles:
+    active: default
+  config:
+    import:
+      - nacos:${NACOS_CLOUD_CONFIG:common-env.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JACKSON:common-jackson.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_REDIS:common-redis.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_CLIENT:common-security-client.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      # 理论上只有 ouaa 在用
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_AUTH_SERVER:common-security-authorization-server.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_SECURITY_RESOURCE_SERVER:common-security-resource-server.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_MYBATIS_PLUS:common-mybatis-plus.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_ROCKETMQ:common-rocketmq.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_FEGIN:common-platform-fegin.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_SECURITY:common-platform-security.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_PLATFORM_HTTPCLIENT:common-platform-httpclient.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_IOT_RABBIT:common-iot-rabbit.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_CLICKHOUSE:common-clickhouse.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_INFLUXDB:common-influxdb.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_JOB:common-job.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_CONFIG_LICENSE:common-license.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+      - nacos:${NACOS_CLOUD_FILE:file.yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=true
+  servlet:
+    multipart:
+      max-file-size: 1GB
+      max-request-size: 1GB
+  transaction:
+    default-timeout: 600
+  cloud:
+    nacos:
+      discovery:
+        enabled: true
+        namespace: ${spring.cloud.nacos.config.namespace}
+      config:
+        server-addr: ${NACOS_ADDR:192.168.0.133:38848}
+        namespace: ${NACOS_NAMESPACE:25361486-9737-46a8-b488-4768cfd1fe77}
+      server-addr: ${spring.cloud.nacos.config.server-addr}
+    loadbalancer:
+      enabled: true
+  datasource:
+    # @formatter:off
+    driver-class-name: {DB_DRIVER_CLASS_NAME}
+    # @formatter:on
+    dynamic:
+      hikari:
+        pool-name: servone
+        max-pool-size: 20   # 默认10
+        leakDetectionThreshold: 10000  # 10s
+        idle-timeout: 120000
+        max-lifetime: 240000
+        min-idle: 2
+      # @formatter:off
+      primary: {PRIMARY_DATABASE}
+      # @formatter:on
+      datasource:
+# @formatter:off
+{DEP_DATA_SOURCE_YAML_CONFIG}
+  liquibase:
+    enabled: false
+    change-log: db.com.guhecloud.cube.biz.ouaa/changelog-master.xml
+  activiti:
+    deployment-mode: never-fail
+    check-process-definitions: false
+    async-executor-activate: false
+    database-schema-update: true
+    db-history-used: true
+    history-level: audit
+# @formatter:on
+feign:
+  client:
+    config:
+      default:
+        #不设置connectTimeout会导致readTimeout设置不生效
+        connectTimeout: ${common-env.feign.connectTimeout:3000}
+        readTimeout: ${common-env.feign.readTimeout:10000}
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+liqui-base:
+  execute: ${common-env.liqui-base.execute:false}
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+logging:
+  level:
+    root: info
+
+third-part:
+  auth-server:
+    uri: ${common-env.ouaa.access-token-uri}
+
+energy:
+  weatherUrl: ${common-env.energy.energy.weatherUrl}
+  province: ${common-env.energy.energy.province}
+  queryLimit: ${common-env.energy.energy.queryLimit}
+
+qrCode:
+  preUrl: ${common-env.identity.pre-url}
+
+gh-third:
+  request:
+    url:
+      base-url: ${common-env.prepaid.gh-third.request.url.base-url}
+  login:
+    username: ${common-env.prepaid.gh-third.login.username}
+    password: ${common-env.prepaid.gh-third.login.password}
+  tenant: ${common-env.prepaid.gh-third.tenant}
+
+projct:
+  flag: ${common-env.security-mgt.project.flag}
+
+rtdb:
+  api:
+    url: ${common-env.scada.rtdb.url}
+    header:
+      authorization: ${common-env.scada.rtdb.header.authorization}
+
+files:
+  store:
+    dir: ${common-env.scada.file.storeDir}
+
+figure:
+  visitUrlPath: ${common-env.scada.figure.visitUrlPath}
+
+# 前端不实现多租户，后端可配置多租户
+tenantId: ${common-env.scada.tenant}
+
+#光明滑轨推送配置
+guangming:
+  meattrade:
+    arrange:
+      rocketmq-config:
+        ipAddress: ${common-env.meat-trade.arrange.rocketmq-config.ip-address}
+        port: ${common-env.meat-trade.arrange.rocketmq-config.port}
+        appKey: ${common-env.meat-trade.arrange.rocketmq-config.app-key}
+        producerGroup: ${common-env.meat-trade.arrange.rocketmq-config.producer-group}
+        tallyPushProducer:
+          topic: ${common-env.meat-trade.arrange.rocketmq-config.tally-push-producer.topic}
+        coupleTradeCompletedConsumer:
+          topic: ${common-env.meat-trade.arrange.rocketmq-config.couple-trade-completed-consumer.topic}
+          group: ${common-env.meat-trade.arrange.rocketmq-config.couple-trade-completed-consumer.group}
+          tag: ${common-env.meat-trade.arrange.rocketmq-config.couple-trade-completed-consumer.tag}
+        failRetryTimes: ${common-env.meat-trade.arrange.rocketmq-config.fail-retry-times}

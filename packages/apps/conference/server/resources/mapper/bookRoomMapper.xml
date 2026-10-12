@@ -1,0 +1,84 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.conferencemanage.server.dao.BookRoomMapper">
+
+    <select id="getConferenceDevice" resultType="java.lang.String">
+        <choose>
+            <when test="_databaseId == 'dm'">
+                SELECT WM_CONCAT(`name`)
+            </when>
+            <otherwise>
+                SELECT GROUP_CONCAT(`name`)
+            </otherwise>
+        </choose>
+        FROM
+        `conference_device`
+        where
+        conference_id = #{conferenceId}
+    </select>
+    <select id="getBookIntervalRecords"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.entity.BookIntervalRecord">
+        SELECT
+        b.`time_interval` `timeInterval`,
+        b.`conference_id` `conferenceId`,
+        b.`book_id` `bookId`,
+        a.`status`
+        FROM
+        `book_room` a
+        LEFT JOIN `book_interval_record` b on a.`id` = b.`book_id`
+        WHERE
+        a.`status` != 'CANCEL_RESERVATION'
+        <if test="date !=null and date!=''">
+            <choose>
+                <when test="_databaseId == 'pg'">
+                    and b.`appointment_date` = to_timestamp(#{date},'yyyy-MM-dd hh24:mi:ss')
+                </when>
+                <otherwise>
+                    and b.`appointment_date` = #{date}
+                </otherwise>
+            </choose>
+        </if>
+        <if test="ids!=null and ids.size()>0">
+            and b.`conference_id` in
+            <foreach collection="ids" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <select id="getBookRoomVo" resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookRoomVo">
+        SELECT a.`id`               `id`,
+               a.`subscribe_person` `subscribePerson`,
+               a.`time_interval`    `timeInterval`,
+               a.`book_num`         `bookNum`,
+               a.`participant_type`,
+               a.`participant_ids`,
+               a.`content`,
+               a.`STATUS`,
+               a.`conference_theme` `conferenceTheme`,
+               a.`goods_Names`,
+               a.`cancel_reason`,
+               b.`id`               `conferenceId`,
+               b.`name`             `conferenceName`,
+               b.`area_name`        `areaName`,
+               ct.`name`            `conferenceType`
+        FROM `book_room` a
+                 LEFT JOIN `conference` b ON a.`conference_id` = b.`id`
+                 LEFT JOIN `conference_type` ct on a.`conference_type` = ct.`id`
+        where a.`id` = #{bookId}
+    </select>
+    <select id="getAppMyAppointment"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookRoomAppVo">
+        SELECT DISTINCT a.`id`               `id`,
+                        a.`time_interval`    `timeInterval`,
+                        a.`status`           `status`,
+                        c.`name`             `conferenceName`,
+                        c.`id`               `conferenceId`,
+                        c.`area_name`        `areaName`,
+                        b.`appointment_date` `appointmentDate`
+
+        FROM `book_room` a
+                 LEFT JOIN `book_interval_record` b ON a.`id` = b.`book_id`
+                 LEFT JOIN `conference` c ON a.`conference_id` = c.`id`
+        where a.`subscribe_person` = #{userId}
+        order by a.`create_time` DESC
+    </select>
+</mapper>

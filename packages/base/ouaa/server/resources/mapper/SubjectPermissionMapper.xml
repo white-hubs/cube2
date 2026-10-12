@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.permission.common.dao.SubjectPermissionMapper">
+
+    <resultMap id="permissionResultMap" type="com.guhecloud.platform.security.permission.model.Permission">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="extent_config" property="extentConfig"/>
+        <result column="type" property="type"/>
+        <collection property="interfaceCodes" javaType="java.util.Set" ofType="java.lang.String">
+            <result column="interface_code"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectPermissionsBySubjectIds"
+            resultMap="permissionResultMap">
+        SELECT
+        sper.`id`,
+        per.`code`,
+        per.`type`,
+        sper.`permission_extent_config` as `extent_config`,
+        pi.`interface_code`
+        FROM
+        `subject_permission` sper
+        INNER JOIN `permission` per on sper.`permission_code` = per.`code`
+        LEFT JOIN `permission_interface` pi on per.`code` = pi.`permission_code`
+        <where>
+            sper.`subject_type` = #{subjectType}
+            <if test="subjectIds != null and subjectIds.size > 0">
+                and sper.`subject_id` in
+                <foreach collection="subjectIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAllPermissionsBySubjectIds" resultType="com.guhecloud.cube.biz.ouaa.server.permission.common.vo.SubjectPermissionVO">
+        SELECT
+        per.`code`,
+        per.`type`,
+        per.`name`,
+        sper.`permission_extent_config` as extent_config
+        FROM
+        `subject_permission` sper
+        INNER JOIN `permission` per on sper.`permission_code` = per.`code`
+        <where>
+            sper.`subject_type` = #{subjectType}
+            <if test="subjectIds != null and subjectIds.size > 0">
+                and sper.`subject_id` in
+                <foreach collection="subjectIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

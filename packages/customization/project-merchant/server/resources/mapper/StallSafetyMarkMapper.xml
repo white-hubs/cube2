@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.deliver.project.merchant.mapper.store.StallSafetyMarkMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.deliver.project.merchant.entity.store.StallSafetyMark">
+        <id column="id" property="id"/>
+        <result column="store_id" property="storeId"/>
+        <result column="year" property="year"/>
+        <result column="score" property="score"/>
+        <result column="insp_total" property="inspTotal"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id
+        , store_id, year, score, insp_total, create_time
+    </sql>
+
+    <update id="updateScore">
+        update stall_safety_mark
+        set score=score + #{mark}
+        where id = #{id}
+    </update>
+
+    <update id="updateScoreAndInspTotal">
+        update stall_safety_mark
+        set score     = score - #{mark},
+            insp_total=insp_total + #{size}
+        where id = #{id}
+
+    </update>
+
+    <select id="getStallScoreAndEvaluation" parameterType="com.guhecloud.cube.deliver.project.merchant.dto.store.StallScoreQueryDTO"
+            resultType="com.guhecloud.cube.deliver.project.merchant.dto.store.StallScoreDTO">
+
+        SELECT
+        DISTINCT s.id,
+        s.project_id,
+        s.`code`,
+        s.area_id1,
+        s.area_id2,
+        s.area_id3,
+        s.company_id,
+        s.`name`,
+        c.`name` AS company_name,
+        c.introduction,
+        c.`owner`,
+        c.mobile,
+        m.`year`,
+        m.score,
+        m.insp_total,
+        e.total,
+        e.z_score_avg,
+        e.s_score_avg,
+        e.t_score_avg,
+        e.w_score_avg,
+        e.honesty_score
+        FROM
+        space s
+        LEFT JOIN company c ON s.company_id = c.id
+        LEFT JOIN (SELECT * FROM stall_safety_mark
+        <if test="queryDTO.year != null">
+            WHERE `year` = #{queryDTO.year}
+        </if>
+        ) m
+        ON s.id = m.stall_id
+        LEFT JOIN stall_evaluation e ON s.id = e.stall_id
+        WHERE
+        s.company_id IS NOT NULL
+        AND
+        s.company_id <![CDATA[ <> ]]> ''
+        AND
+        s.deleted = 0
+          <if test="queryDTO.bimId !=null and queryDTO.bimId !=''">
+            AND s.bim_id =#{queryDTO.bimId}
+          </if>
+        <if test="queryDTO.stallId != '' and queryDTO.stallId != null">
+            AND
+            s.id = #{queryDTO.stallId}
+        </if>
+        <if test="queryDTO.projectId != '' and queryDTO.projectId != null">
+            AND
+            s.project_id = #{queryDTO.projectId}
+        </if>
+        <if test="queryDTO.search != '' and queryDTO.search != null">
+            AND (
+            s.`name` LIKE concat('%',#{queryDTO.search},'%')
+            OR
+            c.`name` LIKE concat('%',#{queryDTO.search},'%')
+            OR
+            c.`owner` LIKE concat('%',#{queryDTO.search},'%')
+            OR
+            c.`mobile` = #{queryDTO.search}
+            )
+        </if>
+        <if test="queryDTO.minScore != null and queryDTO.maxScore != null">
+            AND IF(m.score IS NULL, 100, m.score) BETWEEN #{queryDTO.minScore} AND #{queryDTO.maxScore}
+        </if>
+        ORDER BY m.insp_total DESC, e.total DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.statistics.dao.MedicalDeviceStatisticsMapper">
+    <select id="getMedicalDevicePage"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.statistics.vo.MedicalDeviceVO">
+        SELECT
+        a.*,
+        sum( b.total_num ) AS alarmNumber
+        FROM
+        medical_device_statistics a
+        left JOIN medical_alarm_statistics b ON a.device_prod_category_code = b.device_prod_category_code
+        AND a.acquisition_date = b.acquisition_date and a.tenant=b.tenant
+        <where>
+            <if test="param.tenant !=null">
+                a.tenant = #{param.tenant}
+            </if>
+            <if test="param.deviceProdCategoryCode !=null and param.deviceProdCategoryCode !=''">
+                and a.device_prod_category_code =#{param.deviceProdCategoryCode}
+            </if>
+            <if test="param.period !=null and param.period.begin !=null">
+                and a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by tenant,device_prod_category_code
+    </select>
+</mapper>

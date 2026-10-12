@@ -1,0 +1,186 @@
+{
+  "setTemperature": {
+    "input_params": {
+      "params": [
+        {
+          "name": "目标温度",
+          "param_code": "target_temp",
+          "data_type": "float",
+          "description": "设置的目标温度值（℃）",
+          "required": true,
+          "precision": 2,
+          "unit_symbol": "℃",
+          "data_config": {
+            "type": "range",
+            "min": 10,
+            "max": 40,
+            "step": 0.5
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码",
+          "required": true
+        }
+      ]
+    }
+  },
+  "switchMode": {
+    "input_params": {
+      "params": [
+        {
+          "name": "运行模式",
+          "param_code": "mode",
+          "data_type": "string",
+          "description": "设备运行模式",
+          "required": true,
+          "data_config": {
+            "type": "enum",
+            "enumValues": [{"value":"0","label":"报警"},{"value":"1","label":"非报警"}]
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码",
+          "required": true
+        }
+      ]
+    }
+  },
+  "setSpeed": {
+    "input_params": {
+      "params": [
+        {
+          "name": "速度等级",
+          "param_code": "speed_level",
+          "data_type": "int",
+          "description": "设备运行速度等级",
+          "required": true,
+          "data_config": {
+            "type": "range",
+            "min": 1,
+            "max": 10,
+            "step": 1
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码"
+        }
+      ]
+    }
+  },
+  "powerControl": {
+    "input_params": {
+      "params": [
+        {
+          "name": "开关状态",
+          "param_code": "power_state",
+          "data_type": "boolean",
+          "description": "设备电源开关状态，true为开，false为关",
+          "required": true,
+          "data_config": {
+            "type": "enum",
+            "enumValues": [{"value":"1","label":"开"},{"value":"0","label":"关"}]
+          }
+        },
+        {
+          "name": "屏显",
+          "param_code": "device_id",
+          "data_type": "string",
+          "description": "设备唯一标识符",
+          "required": true,
+          "data_config": {
+            "type": "strLen",
+            "len": 10
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码"
+        }
+      ]
+    }
+  },
+  "setDeviceId": {
+    "input_params": {
+      "params": [
+        {
+          "name": "设备ID",
+          "param_code": "device_id",
+          "data_type": "string",
+          "description": "设备唯一标识符",
+          "required": true,
+          "data_config": {
+            "type": "pattern",
+            "pattern": "^[A-Z0-9]{8,16}$"
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码"
+        }
+      ]
+    }
+  },
+  "adjustBrightness": {
+    "input_params": {
+      "params": [
+        {
+          "name": "亮度值",
+          "param_code": "brightness",
+          "data_type": "int",
+          "description": "设备亮度百分比",
+          "required": true,
+          "unit_symbol": "%",
+          "data_config": {
+            "type": "range",
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        }
+      ]
+    },
+    "output_params": {
+      "params": [
+        {
+          "name": "结果码",
+          "param_code": "result_code",
+          "data_type": "int",
+          "description": "执行结果码"
+        }
+      ]
+    }
+  }
+}

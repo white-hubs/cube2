@@ -1,0 +1,233 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: TODO   # 提供方标识
+  appDescription: 提供待办服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: TodoTag, versions: [1.0]}
+  - {type: TodoTagReferBusinessType, versions: [1.0]}
+  - {type: TodoBusinessUrl, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: TODO  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: TodoTag  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        vargs:
+          - "code": "ALARM_TASK"
+            "name": "报警任务"
+          - "code": "APPROVE_TASK"
+            "name": "审批任务"
+          - "code": "INSPECT_TASK"
+            "name": "巡检任务"
+          - "code": "MAINTENACE_TASK"
+            "name": "维保作业"
+          - "code": "CULTIVATE_TASK"
+            "name": "培训任务"
+          - "code": "EXAM_TASK"
+            "name": "考试任务"
+          - "code": "ELECTRONIC_PATROL"
+            "name": "电子巡更"
+          - "code": "PROPERTY_MANAGEMENT"
+            "name": "资产管理"
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: ALARM_TASK
+        vargs: ["SECURITY_MONITORING","ENERGY_MANAGE","EQUIPMENT_SUPERVISION","ELECTRICMANAGE","ROTATINGMANAGE",
+                "AIRCONDITIONER","FIRECONTROL","WATERSUPPLYDRAINAGE","AIRSUPPLYANDEXHAUST"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: APPROVE_TASK
+        vargs: ["LEAVE","CHANGE_CLASSES","OVERTIME","LEAVE_THE_POST","REPAIR_CLOCK","HIDDENDANGER","FAULT","OUTSOURCE_REPAIR",
+                "retrofit_ticket","RETROFIT","PERSONNEL_RECRUIT","PERSONNEL_INDUCTION","PERSONNEL_PROBATION_ASSESS",
+                "PERSONNEL_REGULAR_WORKER","PERSONNEL_TRAIN","PERSONNEL_LEAVE_OFFICE","PERSONNEL_LEAVE_OFFICE_PROCEDURES",
+                "PERSONNEL_ROTATION_POST","OFFICIAL_REGULATION","OFFICIAL_SEAL","OFFICIAL_TOPIC","OFFICIAL_DOCUMENT_CIRCULATION",
+                "OFFICIAL_DOCUMENT_RECEIVED","OFFICIAL_KEY_WORK","OFFICIAL_URGENT_WORK","OFFICIAL_FOCUS_WORK","OFFICIAL_FOCUS_WORK_REPLY",
+                "OFFICIAL_FOCUS_WORK_UPDATE","WORK_REPORT","CONSUMABLE_ADD","CONSUMABLE_REDUCE","PROPERTY_ALLOT_PERSONAL",
+                "PROPERTY_ALLOT_UNIT","PROPERTY_DEPOSITORY","PROPERTY_WEED_OUT"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: INSPECT_TASK
+        vargs: ["INSPECTION"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: MAINTENACE_TASK
+        vargs: ["MAINTENACE"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: CULTIVATE_TASK
+        vargs: ["CULTIVATE_TASK"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: EXAM_TASK
+        vargs: ["EXAM_TASK"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: ELECTRONIC_PATROL
+        vargs: ["ELECTRONIC_PATROL"]
+      - configType: TodoTagReferBusinessType  #标签关联业务类型
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        kwargs:
+          todoTag: PROPERTY_MANAGEMENT
+        vargs: ["PROPERTY_TASK","CONSUMABLE_TASK"]
+      - configType: TodoBusinessUrl  #业务类型跳转地址
+        isMandatory: True
+        isSystem: True
+        isFailOnMissingProvider: True
+        vargs:
+          - businessType: ROTATINGMANAGE
+            businessTypeName: 动环报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: ELECTRONIC_PATROL
+            businessTypeName: 电子巡更
+            terminal: bimops-manage-web
+            url: /portal/electronic-patrol/task/detiles
+          - businessType: RETROFIT
+            businessTypeName: 更新改造
+            terminal: bimops-manage-web
+            url: /portal/renovation/renovationDetails
+          - businessType: AIRSUPPLYANDEXHAUST
+            businessTypeName: 送排风报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: WATERSUPPLYDRAINAGE
+            businessTypeName: 给排水报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: FIRECONTROL
+            businessTypeName: 消防报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: AIRCONDITIONER
+            businessTypeName: 空调报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: ELECTRICMANAGE
+            businessTypeName: 电气报警
+            terminal: bimops-manage-web
+            url: /portal/genericEquipmentMonitor/alarmDetail
+          - businessType: EQUIPMENT_SUPERVISION
+            businessTypeName: 健康报警
+            terminal: bimops-manage-web
+            url: /portal/equipmentSupervision/healthyAlarmDetails
+          - businessType: ENERGY_MANAGE
+            businessTypeName: 能耗报警
+            terminal: bimops-manage-web
+            url: /portal/energyManagement/energyAlarmDetail
+          - businessType: SECURITY_MONITORING
+            businessTypeName: 安防监控报警
+            terminal: bimops-manage-web
+            url: /portal/securityMonitoring/alarmDetail
+          - businessType: INSPECTION
+            businessTypeName: 日常巡检
+            terminal: bimops-manage-web
+            url: /portal/inspection/inspectionTaskDetails
+          - businessType: OUTSOURCE_REPAIR
+            businessTypeName: 委外维修
+            terminal: bimops-manage-web
+            url: /portal/outsourcing/repairListDetails
+          - businessType: MAINTENACE
+            businessTypeName: 维保作业
+            terminal: bimops-manage-web
+            url: /portal/maintenance/maintenanceTaskDetails
+          - businessType: FAULT
+            businessTypeName: 故障报修
+            terminal: bimops-manage-web
+            url: /portal/fault/faultDetails
+          - businessType: retrofit_ticket
+            businessTypeName: 更新改造
+            terminal: bimops-manage-web
+            url: /portal/renovation/renovationDetails
+          - businessType: HIDDENDANGER
+            businessTypeName: 隐患排查
+            terminal: bimops-manage-web
+            url: /portal/problems/problemsDetails
+          - businessType: INSPECTION
+            businessTypeName: 日常巡检
+            terminal: bimops-manage-app
+            url: /patrolInspectTaskDetails
+          - businessType: OUTSOURCE_REPAIR
+            businessTypeName: 委外维修
+            terminal: bimops-manage-app
+            url: /outsourceRepairDetails
+          - businessType: MAINTENACE
+            businessTypeName: 维保作业
+            terminal: bimops-manage-app
+            url: /maintenanceTaskDetails
+          - businessType: FAULT
+            businessTypeName: 故障报修
+            terminal: bimops-manage-app
+            url: /faultReportDetails
+          - businessType: retrofit_ticket
+            businessTypeName: 更新改造
+            terminal: bimops-manage-app
+            url: /renovationDetails
+          - businessType: HIDDENDANGER
+            businessTypeName: 隐患排查
+            terminal: bimops-manage-app
+            url: /hiddenDangerDetails
+          - businessType: AIRSUPPLYANDEXHAUST
+            businessTypeName: 送排风报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: WATERSUPPLYDRAINAGE
+            businessTypeName: 给排水报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: FIRECONTROL
+            businessTypeName: 消防报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: AIRCONDITIONER
+            businessTypeName: 空调报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: ROTATINGMANAGE
+            businessTypeName: 动环报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: ELECTRICMANAGE
+            businessTypeName: 电气报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails
+          - businessType: EQUIPMENT_SUPERVISION
+            businessTypeName: 健康报警
+            terminal: bimops-manage-app
+            url: /deviceAlarmDetails
+          - businessType: ENERGY_MANAGE
+            businessTypeName: 能耗报警
+            terminal: bimops-manage-app
+            url: /energyAlarmDetails
+          - businessType: SECURITY_MONITORING
+            businessTypeName: 安防监控报警
+            terminal: bimops-manage-app
+            url: /baseAlarmDetails

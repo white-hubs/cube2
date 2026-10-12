@@ -1,0 +1,36 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.AreaProjectMapper">
+
+    <select id="getAreaCount" resultType="java.lang.Long">
+        SELECT
+            c.id
+        FROM
+            (
+                SELECT
+                    a.id id,
+                    COALESCE( COUNT( b.device_id ), 0 ) num
+                FROM
+                    area_project a
+                        LEFT JOIN energy_project_item b ON a.id = b.project_id
+                <where>
+                    <if test="instrumentType !=null and instrumentType!=''">
+                        a.instrument_type = #{instrumentType}
+                    </if>
+                </where>
+                GROUP BY
+                    a.id
+            ) c
+        WHERE
+            c.num >0
+    </select>
+
+    <select id="getAllDeviceInAreaProject" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.DeviceInEnergyProjectVO">
+        select ep.id projectId,ep.area_name as projectName,pi.bind_type,pi.device_id,pi.device_name,pi.code
+        from area_project ep
+        left join energy_project_item pi on ep.id = pi.project_id
+        where pi.bind_type = 'AREA'
+        <if test="projectId != null and projectId != ''">
+            and ep.id = #{projectId}
+        </if>
+    </select>
+</mapper>

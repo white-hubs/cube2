@@ -1,0 +1,56 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-job"
+
+java_library(
+    name = "job",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+        "//third-party/java/xuxueli:xxl_job_core",
+    ],
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:object-id",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/event",
+        "//third-party/java:lombok",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+        "//third-party/java/jackson:dataformat_yaml",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/nacos:nacos_core",
+        "//third-party/java/nacos:spring_alibaba_nacos_config",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:springframework",
+        "//third-party/java/xuxueli:xxl_job_core",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":job",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

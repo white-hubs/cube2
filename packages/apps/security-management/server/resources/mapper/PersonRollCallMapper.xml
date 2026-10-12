@@ -1,0 +1,201 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.dao.PersonRollCallMapper">
+
+    <insert id="insertOrUpdatePersonRollCall" parameterType="java.util.List">
+        INSERT INTO person_roll_call (
+        `id`,
+        `record_code`,
+        `person_name`,
+        `index_code`,
+        `face_photo`,
+        `capture_photo`,
+        `device_code`,
+        `device_name`,
+        `task_type`,
+        `similarity`,
+        `status`,
+        `remark`,
+        `rollcall_time`,
+        `area_index_code`,
+        `department_index_code`,
+        `department_name`,
+        `area_name`,
+        `third_record_id`,
+        `deleted`,
+        `tenant`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.recordCode},
+            #{item.personName},
+            #{item.indexCode},
+            #{item.facePhoto},
+            #{item.capturePhoto},
+            #{item.deviceCode},
+            #{item.deviceName},
+            #{item.taskType},
+            #{item.similarity},
+            #{item.status},
+            #{item.remark},
+            #{item.rollcallTime},
+            #{item.areaIndexCode},
+            #{item.departmentIndexCode},
+            #{item.departmentName},
+            #{item.areaName},
+            #{item.thirdRecordId},
+            #{item.deleted},
+            #{item.tenant},
+            #{item.createBy},
+            #{item.creatorId},
+            #{item.creatorType},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updaterId},
+            #{item.updaterType},
+            #{item.updateTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `record_code` = VALUES(`record_code`),
+        `person_name` = VALUES(`person_name`),
+        `index_code` = VALUES(`index_code`),
+        `face_photo` = VALUES(`face_photo`),
+        `capture_photo` = VALUES(`capture_photo`),
+        `device_code` = VALUES(`device_code`),
+        `device_name` = VALUES(`device_name`),
+        `task_type` = VALUES(`task_type`),
+        `similarity` = VALUES(`similarity`),
+        `status` = VALUES(`status`),
+        `remark` = VALUES(`remark`),
+        `rollcall_time` = VALUES(`rollcall_time`),
+        `area_index_code` = VALUES(`area_index_code`),
+        `department_index_code` = VALUES(`department_index_code`),
+        `department_name` = VALUES(`department_name`),
+        `area_name` = VALUES(`area_name`),
+        `third_record_id` = VALUES(`third_record_id`),
+        `deleted` = VALUES(`deleted`),
+        `tenant` = VALUES(`tenant`),
+        `create_by` = VALUES(`create_by`),
+        `create_time` = VALUES(`create_time`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.vo.PersonRollCallPageVO">
+        SELECT
+        prc.`id`,
+        prc.`record_code`,
+        prc.`person_name`,
+        prc.`index_code`,
+        prc.`face_photo`,
+        prc.`capture_photo`,
+        prc.`device_code`,
+        prc.`task_type`,
+        prc.`similarity`,
+        prc.`status`,
+        prc.`remark`,
+        prc.`rollcall_time`,
+        prc.`area_index_code`,
+        prc.`department_index_code`,
+        prc.`department_name`,
+        prc.`device_name`,
+        prc.`area_name`,
+        prc.`third_record_id`,
+        prc.`deleted`,
+        prc.`tenant`,
+        prc.`create_by`,
+        prc.`create_time`,
+        prc.`update_by`,
+        prc.`update_time`
+        FROM
+        `person_roll_call` prc
+        <where>
+            prc.`deleted` = 0
+            <if test="param.recordCode != null and param.recordCode != ''">
+                AND prc.`record_code` = #{param.recordCode}
+            </if>
+            <if test="param.personName != null and param.personName != ''">
+                AND prc.`person_name` LIKE CONCAT('%', #{param.personName}, '%')
+            </if>
+            <if test="param.indexCode != null and param.indexCode != ''">
+                AND prc.`index_code` = #{param.indexCode}
+            </if>
+            <if test="param.status != null">
+                AND prc.`status` = #{param.status}
+            </if>
+            <if test="param.deviceName != null and param.deviceName != ''">
+                AND prc.`device_name` LIKE CONCAT('%', #{param.deviceName}, '%')
+            </if>
+            <if test="param.areaName != null and param.areaName != ''">
+                AND prc.`area_name` LIKE CONCAT('%', #{param.areaName}, '%')
+            </if>
+        </where>
+        ORDER BY prc.`create_time` DESC
+    </select>
+    <select id="getList"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.vo.PersonRollCallPageVO"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.personrollcall.param.PersonRollCallListParam">
+        SELECT
+        prc.`id`,
+        prc.`record_code`,
+        prc.`person_name`,
+        prc.`index_code`,
+        prc.`face_photo`,
+        prc.`capture_photo`,
+        prc.`device_code`,
+        prc.`task_type`,
+        prc.`similarity`,
+        prc.`status`,
+        prc.`remark`,
+        prc.`rollcall_time`,
+        prc.`area_index_code`,
+        prc.`department_index_code`,
+        prc.`department_name`,
+        prc.`device_name`,
+        prc.`area_name`,
+        prc.`third_record_id`,
+        prc.`deleted`,
+        prc.`tenant`,
+        prc.`create_by`,
+        prc.`create_time`,
+        prc.`update_by`,
+        prc.`update_time`
+        FROM
+        `person_roll_call` prc
+        <where>
+            prc.`deleted` = 0
+            <if test="param.recordCode != null and param.recordCode != ''">
+                AND prc.`record_code` = #{param.recordCode}
+            </if>
+            <if test="param.personName != null and param.personName != ''">
+                AND prc.`person_name` LIKE CONCAT('%', #{param.personName}, '%')
+            </if>
+            <if test="param.indexCode != null and param.indexCode != ''">
+                AND prc.`index_code` = #{param.indexCode}
+            </if>
+            <if test="param.status != null">
+                AND prc.`status` = #{param.status}
+            </if>
+            <if test="param.deviceName != null and param.deviceName != ''">
+                AND prc.`device_name` LIKE CONCAT('%', #{param.deviceName}, '%')
+            </if>
+            <if test="param.areaName != null and param.areaName != ''">
+                AND prc.`area_name` LIKE CONCAT('%', #{param.areaName}, '%')
+            </if>
+        </where>
+        ORDER BY prc.`create_time` DESC
+    </select>
+</mapper>

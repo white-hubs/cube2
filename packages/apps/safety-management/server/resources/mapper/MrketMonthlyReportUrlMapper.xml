@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.monthlyreport.dao.MarketMonthlyReportUrlMapper">
+
+    <select id="selectPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.monthlyreport.dto.vo.MarketMonthlyReportUrlVO">
+        SELECT
+        t2.id,
+        t1.market_name,
+        t2.market_tenant,
+        t2.market_id,
+        t2.report_url,
+        t2.enabled
+        FROM
+        market_config t1
+        INNER JOIN market_monthly_report_url t2 on t1.id = t2.market_id
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and t1.market_name like concat('%',#{query.keyword},'%')
+            </if>
+            <if test="query.enabled != null">
+                and t2.enabled = #{query.enabled}
+            </if>
+        </where>
+        order by t2.create_time desc
+    </select>
+</mapper>

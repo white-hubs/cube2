@@ -1,0 +1,21 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.pricing.dao.GoodsSafetyCheckMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.srv.gen.product.market.server.pricing.entity.GoodsSafetyCheck">
+        insert into
+        goods_safety_check(id,stall_code,goods_category_name,sample_code,goods_from,
+        check_date,check_item,check_result,checker_name,
+        tenant,deleted,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.stallCode},#{item.goodsCategoryName},#{item.sampleCode},#{item.goodsFrom},
+            #{item.checkDate},#{item.checkItem},#{item.checkResult},#{item.checkerName},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        check_result = values(check_result),
+        checker_name = values(checker_name),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

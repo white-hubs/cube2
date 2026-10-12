@@ -1,0 +1,18 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.pricing.dao.GoodsPriceWarnRecordMapper">
+
+    <!-- 价格预警记录状态统计 -->
+    <select id="goodsPriceWarnStatusStatByTime" resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.CommonStatVO">
+      select r.status as code,IF(r.status = 0,'待处理','已处理') as name,count(*) as value
+      from goods_price_warn_record r
+      where r.deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and r.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and r.create_time &lt; #{param.period.end}
+        </if>
+      group by r.status
+    </select>
+
+</mapper>

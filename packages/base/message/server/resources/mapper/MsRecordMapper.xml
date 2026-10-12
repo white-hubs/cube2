@@ -1,0 +1,465 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.message2.server.base.dao.MsgRecordMapper">
+    <sql id="BASIC_MSG_RECORD_SELECT">
+        SELECT
+        `mr`.`id`,
+        `mr`.`msg_scene_code`,
+        `mr`.`msg_scene_name`,
+        `mr`.`msg_content`,
+        `mr`.`msg_tmp_id`,
+        `mr`.`msg_tmp_version`,
+        `mr`.`msg_params`,
+        `mr`.`msg_type`,
+        `mr`.`application_code`,
+        `mr`.`application_name`,
+        `mr`.`business_type`,
+        `mr`.`business_id`,
+        `mr`.`business_principal`,
+        `mr`.`channel_code`,
+        `mr`.`manufacturer_code`,
+        `mr`.`send_time`,
+        `mr`.`effective_days`,
+        `mr`.`expiration_time`,
+        `mr`.`url`,
+        `mr`.`tenant`,
+        `mr`.`deleted`,
+        `mr`.`create_by`,
+        `mr`.`creator_id`,
+        `mr`.`creator_type`,
+        `mr`.`create_time`,
+        `mr`.`update_by`,
+        `mr`.`updater_id`,
+        `mr`.`updater_type`,
+        `mr`.`update_time`
+        FROM
+        `msg_record` `mr`
+    </sql>
+
+    <select id="page" resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordPageVO">
+        SELECT
+        `mr`.`id`,
+        `mr`.`msg_scene_code`,
+        `mr`.`msg_scene_name`,
+        `mr`.`msg_content`,
+        `mr`.`msg_tmp_id`,
+        `mr`.`msg_params`,
+        `mr`.`msg_type`,
+        `mr`.`application_code`,
+        `mr`.`application_name`,
+        `mr`.`business_type`,
+        `mr`.`business_id`,
+        `mr`.`business_principal`,
+        `mr`.`channel_code`,
+        `mr`.`manufacturer_code`,
+        `mr`.`send_time`,
+        `mr`.`effective_days`,
+        `mr`.`expiration_time`,
+        `mr`.`url`,
+        `mrt`.`has_read`,
+        `mr`.`tenant`,
+        `mr`.`deleted`,
+        `mr`.`create_by`,
+        `mr`.`creator_id`,
+        `mr`.`creator_type`,
+        `mr`.`create_time`,
+        `mr`.`update_by`,
+        `mr`.`updater_id`,
+        `mr`.`updater_type`,
+        `mr`.`update_time`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` on `mr`.`id` = `mrt`.`msg_record_id`
+        INNER JOIN (
+        SELECT DISTINCT msg_record_id
+        FROM msg_record_terminal
+        WHERE terminal = #{terminal}
+        ) mrt_sub ON mr.id = mrt_sub.msg_record_id
+        <where>
+            mrt.`user_id` = #{userId}
+            <if test="param.sendStatus != null">
+                and `mrt`.`send_status` = #{param.sendStatus}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and `mr`.`msg_content` = #{param.keyword}
+            </if>
+            <if test="param.channelType != null">
+                and `mr`.`channel_code` = #{param.channelType}
+                and `mrt`.`channel_code` = #{param.channelType}
+            </if>
+            <if test="param.businessType !=null">
+                and `mr`.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.msgType != null">
+                and `mr`.`msg_type` = #{param.msgType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and `mr`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.hasRead != null">
+                and (`mrt`.`has_read` = #{param.hasRead} or `mrt`.`has_read` is null)
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and `mr`.`send_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `mr`.`send_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.msgCustomGroup != null and param.msgCustomGroup.customGroups.size() > 0">
+                and
+                <foreach collection="param.msgCustomGroup.customGroups" item="group" open="(" close=")" separator="or">
+                    (
+                    1=1
+                    <if test="group.appCode != null and group.appCode != ''">
+                        and `mr`.`application_code` = #{group.appCode}
+                    </if>
+                    <if test="group.msgType != null and group.msgType != ''">
+                        and `mr`.`msg_type` = #{group.msgType}
+                    </if>
+                    <if test="group.sceneCode != null and group.sceneCode != ''">
+                        and `mr`.`msg_scene_code` = #{group.sceneCode}
+                    </if>
+                    )
+                </foreach>
+            </if>
+            <if test="param.filterMsgCustomGroups != null and param.filterMsgCustomGroups.size() > 0">
+                and
+                <foreach collection="param.filterMsgCustomGroups" item="customGroup" open="(" close=")" separator="and">
+                    <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                        <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="and">
+                            (
+                            1=1
+                            <if test="group.appCode != null and group.appCode != ''">
+                                and `mr`.`application_code` != #{group.appCode}
+                            </if>
+                            <if test="group.msgType != null and group.msgType != ''">
+                                and `mr`.`msg_type` != #{group.msgType} or mr.msg_type is NULL
+                            </if>
+                            <if test="group.sceneCode != null and group.sceneCode != ''">
+                                and `mr`.`msg_scene_code` != #{group.sceneCode}
+                            </if>
+                            )
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        order by
+        `mrt`.`has_read` ASC,
+        `mrt`.`create_time` DESC
+    </select>
+    <select id="pageByTenant" resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordPageVO">
+        SELECT
+        distinct
+        `mr`.`id`,
+        `mr`.`msg_scene_code`,
+        `mr`.`msg_scene_name`,
+        `mr`.`msg_content`,
+        `mr`.`msg_tmp_id`,
+        `mr`.`msg_params`,
+        `mr`.`msg_type`,
+        `mr`.`application_code`,
+        `mr`.`application_name`,
+        `mr`.`business_type`,
+        `mr`.`business_id`,
+        `mr`.`business_principal`,
+        `mr`.`channel_code`,
+        `mr`.`manufacturer_code`,
+        `mr`.`send_time`,
+        `mr`.`effective_days`,
+        `mr`.`expiration_time`,
+        `mr`.`url`,
+        `mrt`.`has_read`,
+        `mr`.`tenant`,
+        `mr`.`deleted`,
+        `mr`.`create_by`,
+        `mr`.`creator_id`,
+        `mr`.`creator_type`,
+        `mr`.`create_time`,
+        `mr`.`update_by`,
+        `mr`.`updater_id`,
+        `mr`.`updater_type`,
+        `mr`.`update_time`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` on `mr`.`id` = `mrt`.`msg_record_id`
+        INNER JOIN `msg_record_terminal` `mrtm` on `mr`.`id` = `mrtm`.`msg_record_id`
+        <where>
+            <if test="param.tenant !=null and param.tenant !=''">
+                `mr`.`tenant` = #{param.tenant}
+            </if>
+            <if test="terminal !=null and terminal !=''">
+                and `mrtm`.`terminal` = #{terminal}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and `mr`.`msg_content` = #{param.keyword}
+            </if>
+            <if test="param.channelType != null">
+                and `mr`.`channel_code` = #{param.channelType}
+                and `mrt`.`channel_code` = #{param.channelType}
+            </if>
+            <if test="param.businessType !=null">
+                and `mr`.`business_type` = #{param.businessType}
+            </if>
+            <if test="param.msgType != null">
+                and `mr`.`msg_type` = #{param.msgType}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != ''">
+                and `mr`.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.hasRead != null">
+                and (`mrt`.`has_read` = #{param.hasRead} or `mrt`.`has_read` is null)
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and `mr`.`send_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `mr`.`send_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.msgCustomGroup != null and param.msgCustomGroup.customGroups.size() > 0">
+                and
+                <foreach collection="param.msgCustomGroup.customGroups" item="group" open="(" close=")" separator="or">
+                    (
+                    1=1
+                    <if test="group.appCode != null and group.appCode != ''">
+                        and `mr`.`application_code` = #{group.appCode}
+                    </if>
+                    <if test="group.msgType != null and group.msgType != ''">
+                        and `mr`.`msg_type` = #{group.msgType}
+                    </if>
+                    <if test="group.sceneCode != null and group.sceneCode != ''">
+                        and `mr`.`msg_scene_code` = #{group.sceneCode}
+                    </if>
+                    )
+                </foreach>
+            </if>
+            <if test="param.filterMsgCustomGroups != null and param.filterMsgCustomGroups.size() > 0">
+                and
+                <foreach collection="param.filterMsgCustomGroups" item="customGroup" open="(" close=")" separator="and">
+                    <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                        <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="and">
+                            (
+                            1=1
+                            <if test="group.appCode != null and group.appCode != ''">
+                                and `mr`.`application_code` != #{group.appCode}
+                            </if>
+                            <if test="group.msgType != null and group.msgType != ''">
+                                and `mr`.`msg_type` != #{group.msgType} or mr.msg_type is NULL
+                            </if>
+                            <if test="group.sceneCode != null and group.sceneCode != ''">
+                                and `mr`.`msg_scene_code` != #{group.sceneCode}
+                            </if>
+                            )
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        order by
+        `mrt`.`has_read` ASC,
+        `mr`.`send_time` DESC
+    </select>
+    <select id="selectMsgTypeUnreadTotal"
+            resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordTypeTotalVO">
+        SELECT
+        `mr`.`msg_type`,
+        COUNT(`mr`.`id`) as `total`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` on `mrt`.`msg_record_id` = `mr`.`id`
+        INNER JOIN `msg_record_terminal` `mrtm` on `mr`.`id` = `mrtm`.`msg_record_id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and mrt.`has_read` = false
+            and `mr`.`channel_type` = #{channelType}
+            and `mrtm`.`terminal` = #{terminal}
+        </where>
+        GROUP BY `mr`.`msg_type`
+    </select>
+
+    <select id="selectMsgApplicationUnreadTotal"
+            resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordApplicationTotalVO">
+        SELECT
+        `t3`.`application_code`,
+        `t3`.`application_name`,
+        `t3`.`total`,
+        `t3`.`last_time`
+        FROM
+        (
+        SELECT
+        `mr`.`application_code`,
+        `mr`.`application_name`,
+        COALESCE ( sum( IF ( `mrt`.`has_read` = FALSE OR `mrt`.`has_read` IS NULL, 1, 0 )), 0 ) AS `total`,
+        MAX( `mr`.`create_time` ) AS `last_time`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` ON `mrt`.`msg_record_id` = `mr`.`id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and `mr`.`channel_code` = #{channelType}
+            and `mrt`.`channel_code` = #{channelType}
+            <if test="customGroups != null and customGroups.size() > 0">
+                and
+                <foreach collection="customGroups" item="customGroup" open="(" close=")" separator="and">
+                    <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                        <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="and">
+                            (
+                            1=1
+                            <if test="group.appCode != null and group.appCode != ''">
+                                and `mr`.`application_code` != #{group.appCode}
+                            </if>
+                            <if test="group.msgType != null and group.msgType != ''">
+                                and `mr`.`msg_type` != #{group.msgType} or mr.msg_type is NULL
+                            </if>
+                            <if test="group.sceneCode != null and group.sceneCode != ''">
+                                and `mr`.`msg_scene_code` != #{group.sceneCode}
+                            </if>
+                            )
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        `mr`.`application_code`,`mr`.`application_name`
+        ) `t3`
+        ORDER BY
+        `t3`.`last_time` DESC;
+    </select>
+
+    <select id="selectMsgApplication"
+            resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordApplicationTotalVO">
+        SELECT
+        `t3`.`application_code`,
+        `t3`.`application_name`
+        FROM
+        (
+        SELECT
+        `mr`.`application_code`,
+        `mr`.`application_name`,
+        MAX( `mr`.`create_time` ) AS `last_time`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` ON `mrt`.`msg_record_id` = `mr`.`id`
+        INNER JOIN `msg_record_terminal` `mrtm` on `mr`.`id` = `mrtm`.`msg_record_id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and `mr`.`channel_code` = #{channelType}
+            and `mrtm`.`terminal` = #{terminal}
+        </where>
+        GROUP BY
+        `mr`.`application_code`,`mr`.`application_name`
+        ) `t3`
+        ORDER BY
+        `t3`.`last_time` DESC
+    </select>
+
+    <select id="selectUnReadMsgRecordCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COALESCE ( sum( IF ( `mrt`.`has_read` = false OR `mrt`.`has_read` IS NULL, 1, 0 )), 0 ) AS `unReadMsgCount`
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` ON `mrt`.`msg_record_id` = `mr`.`id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and `mr`.`channel_code` = #{channelType}
+            and `mrt`.`channel_code` = #{channelType}
+            <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                and
+                <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="or">
+                    (
+                    1=1
+                    <if test="group.appCode != null and group.appCode != ''">
+                        and `mr`.`application_code` = #{group.appCode}
+                    </if>
+                    <if test="group.msgType != null and group.msgType != ''">
+                        and `mr`.`msg_type` = #{group.msgType}
+                    </if>
+                    <if test="group.sceneCode != null and group.sceneCode != ''">
+                        and `mr`.`msg_scene_code` = #{group.sceneCode}
+                    </if>
+                    )
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectLastMsgRecords" resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordPageVO">
+        SELECT
+        `mr`.*
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` ON `mrt`.`msg_record_id` = `mr`.`id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and `mr`.`channel_code` = #{channelType}
+            and `mrt`.`channel_code` = #{channelType}
+            <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                and
+                <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="or">
+                    (
+                    1=1
+                    <if test="group.appCode != null and group.appCode != ''">
+                        and `mr`.`application_code` = #{group.appCode}
+                    </if>
+                    <if test="group.msgType != null and group.msgType != ''">
+                        and `mr`.`msg_type` = #{group.msgType}
+                    </if>
+                    <if test="group.sceneCode != null and group.sceneCode != ''">
+                        and `mr`.`msg_scene_code` = #{group.sceneCode}
+                    </if>
+                    )
+                </foreach>
+            </if>
+        </where>
+        ORDER BY `mr`.`create_time` desc
+        LIMIT 0,1
+    </select>
+
+    <select id="selectAppLastMsgRecords" resultType="com.guhecloud.cube.base.message2.server.base.vo.MsgRecordPageVO">
+        SELECT
+        `mr`.*
+        FROM
+        `msg_record` `mr`
+        INNER JOIN `msg_record_target` `mrt` ON `mrt`.`msg_record_id` = `mr`.`id`
+        <where>
+            `mrt`.`user_id` = #{userId}
+            and `mr`.`channel_code` = #{channelType}
+            and `mrt`.`channel_code` = #{channelType}
+            and `mr`.`application_code` = #{applicationCode}
+            <if test="customGroups != null and customGroups.size() > 0">
+                and
+                <foreach collection="customGroups" item="customGroup" open="(" close=")" separator="and">
+                    <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                        <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="and">
+                            (
+                            1=1
+                            <if test="group.appCode != null and group.appCode != ''">
+                                and `mr`.`application_code` != #{group.appCode}
+                            </if>
+                            <if test="group.msgType != null and group.msgType != ''">
+                                and (`mr`.`msg_type` != #{group.msgType} or `mr`.`msg_type` is null or `mr`.msg_type = '')
+                            </if>
+                            <if test="group.sceneCode != null and group.sceneCode != ''">
+                                and `mr`.`msg_scene_code` != #{group.sceneCode}
+                            </if>
+                            )
+                        </foreach>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+        ORDER BY `mr`.`create_time` desc
+        LIMIT 0,1
+    </select>
+
+    <update id="deletedByBusinessIds">
+        UPDATE `msg_record`
+        SET `deleted` = #{deleteTimestamp}
+        WHERE
+        `business_id` IN
+        <foreach collection="businessIds" item="businessId" open="(" separator="," close=")">
+            #{businessId}
+        </foreach>
+    </update>
+</mapper>

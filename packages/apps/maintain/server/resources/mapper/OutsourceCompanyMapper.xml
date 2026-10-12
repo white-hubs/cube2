@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.repair.dao.OutsourceCompanyMapper">
+
+
+    <resultMap id="outsourceCompanyList" type="com.guhecloud.cube.srv.gen.maintain.server.repair.interfaces.vo.OutsourceCompanyVO">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="responsiblePerson" column="responsible_person"/>
+        <result property="responsiblePersonPhone" column="responsible_person_phone"/>
+        <collection property="outsourceModel" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.maintain.server.repair.interfaces.vo.ModelViewVO">
+            <id property="id" column="modelId"/>
+            <result property="name" column="modelName"/>
+        </collection>
+        <collection property="outsourceScope" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.maintain.server.repair.interfaces.vo.ModelViewVO">
+            <id property="id" column="scopeId"/>
+            <result property="deviceGenreId" column="device_genre_id"/>
+        </collection>
+    </resultMap>
+
+    <select id="list" resultMap="outsourceCompanyList">
+
+        SELECT oc.id,oc.`name`,oc.responsible_person,oc.responsible_person_phone,
+               ocm.outsource_model_id modelId,om.`name` modelName,
+               ocs.device_genre_id
+        FROM outsource_company oc
+         LEFT JOIN outsource_company_model ocm on ocm.outsource_company_id = oc.id
+         LEFT JOIN outsource_company_scope ocs on ocs.outsource_company_id = oc.id
+         LEFT JOIN outsource_model om on om.id =  ocm.outsource_model_id
+        <where>
+            <if test="productCategoryCode != null">
+                ocs.device_genre_id like concat('%',#{productCategoryCode},'%')
+            </if>
+        </where>
+        order by oc.create_time desc
+
+    </select>
+</mapper>

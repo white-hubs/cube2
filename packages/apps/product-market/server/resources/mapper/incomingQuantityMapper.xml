@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.common.dao.IncomingQuantityMapper">
+
+    <!-- 来货量统计 -->
+    <select id="incomingQuantityStatByTime" resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.CommonStatVO">
+        select q.goods_category_id as code,
+        sum(q.incoming_quantity) as value
+        from incoming_quantity q
+        where q.deleted = 0
+        <if test="param.goodsCategoryIds != null and param.goodsCategoryIds.size() > 0">
+            and q.goods_category_id in
+            <foreach collection="param.goodsCategoryIds" item="goodsCategoryId" open="(" close=")" separator=",">
+                #{goodsCategoryId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and q.date_no &gt;= DATE_FORMAT(#{param.period.begin},'%Y%m%d')
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and q.date_no &lt; DATE_FORMAT(#{param.period.end},'%Y%m%d')
+        </if>
+        group by q.goods_category_id
+    </select>
+
+</mapper>

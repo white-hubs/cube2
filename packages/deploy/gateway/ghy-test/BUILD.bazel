@@ -1,0 +1,20 @@
+load("//packages/deploy/template/gateway:generate_gateway.bzl", "GATEWAY_MAIN_CLASS", "generate_gateway")
+load("//tools/springboot:springboot.bzl", "springboot")
+load(":vars.bzl", "GATEWAY_OTHER_SERVERS", "SERVERS")
+
+generate_gateway(
+    name = "ghy-test",
+    servers = SERVERS + GATEWAY_OTHER_SERVERS,
+)
+
+springboot(
+    name = "ghy-test-spring-exec",
+    boot_app_class = GATEWAY_MAIN_CLASS,
+    java_library = ":ghy-test",
+)
+
+java_binary(
+    name = "ghy-test-bin",
+    main_class = GATEWAY_MAIN_CLASS,
+    runtime_deps = [":ghy-test"],
+)

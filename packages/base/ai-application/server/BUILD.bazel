@@ -1,0 +1,10 @@
+# 仅占位：向 gateway 注册路由，无独立可运行服务产物。
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+
+server_info(
+    name = "server-info",
+    gw_prefix = "/aiApplication/",
+    public_path_patterns = "/ai/**",
+    server_id = "aiApplication",
+    visibility = ["//packages:__subpackages__"],
+)

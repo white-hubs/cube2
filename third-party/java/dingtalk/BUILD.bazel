@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "dingtalk-service-sdk",
+    exports = [
+        "@maven//:com_aliyun_alibaba_dingtalk_service_sdk",
+    ],
+)

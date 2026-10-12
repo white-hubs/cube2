@@ -1,0 +1,76 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.fault.dao.FaultOrderMapper">
+
+
+<select id="getRepairsDetail"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TroubleListDetailVO">
+    SELECT d.submit_time as submitTime, d.name, d.obj_name as equipment, d.source as source,
+    d.submit_staff as submitStaff,d.state as state,d.result as result
+    from fault_order d
+    LEFT JOIN inspect_record_to_business b on b.business_id = d.process_ins_id and b.business_category = 'FAULT'
+    left join inspect_record r on r.id = b.record_id
+    <where>
+        <if test="param.objId != null">
+            and r.target_id = #{param.objId}
+        </if>
+        <if test="param.taskId != null">
+            and r.task_id = #{param.taskId}
+        </if>
+        <if test="param.period !=null ">
+            and r.create_time BETWEEN #{param.period.begin} and #{param.period.end}
+        </if>
+    </where>
+</select>
+
+<select id="getPageRepairsDetail"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.TroubleListDetailVO">
+    SELECT d.submit_time as submitTime, d.name, d.obj_name as equipment, d.source as source,
+    d.submit_staff as submitStaff,d.state as state,d.result as result
+    from fault_order d
+    LEFT JOIN inspect_record_to_business b on b.business_id = d.process_ins_id and b.business_category = 'FAULT'
+    left join inspect_record r on r.id = b.record_id
+    <where>
+        <if test="param.objId != null">
+            and r.target_id = #{param.objId}
+        </if>
+        <if test="param.taskId != null">
+            and r.task_id = #{param.taskId}
+        </if>
+        <if test="param.period !=null ">
+            and r.create_time BETWEEN #{param.period.begin} and #{param.period.end}
+        </if>
+    </where>
+</select>
+
+<select id="getFaultyEquipmentTop"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.fault.interfaces.vo.FaultyEquipmentTopVO">
+    SELECT a.obj_name as `name`,
+           count(1)   as `value`
+    FROM fault_order a
+    where a.obj_name is not null and a.obj_name != '' and a.submit_time BETWEEN #{period.begin} AND #{period.end}
+    GROUP BY a.obj_name
+</select>
+
+<select id="deviceFaultNumStatistics"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.common.dto.DeviceOperationStatisticsDTO">
+    select
+    obj_id as deviceId,
+    count(id) as num,
+    COALESCE(SUM(if(`state` = 'PASS',1,0)),0) as `handler_num`,
+    COALESCE(SUM(if(`state` != 'PASS',1,0)),0) as `un_handler_num`
+    from fault_order
+    <where>
+        obj_type = 'DEVICE'
+        <if test="param.deviceIds != null and param.deviceIds.size() > 0">
+            and obj_id in
+            <foreach collection="param.deviceIds" item="id" open="(" close=")" separator=",">
+                #{id}
+            </foreach>
+        </if>
+        <if test="param.period != null">
+            and create_time between #{param.period.begin} and #{param.period.end}
+        </if>
+    </where>
+    group by obj_id
+    </select>
+</mapper>

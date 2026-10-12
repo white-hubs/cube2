@@ -1,0 +1,21 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("//packages/deploy/template/gateway:generate_gateway.bzl", "GATEWAY_MAIN_CLASS", "generate_gateway")
+load("//tools/springboot:springboot.bzl", "springboot")
+load(":vars.bzl", "SERVERS")
+
+generate_gateway(
+    name = "ghy-prod",
+    servers = SERVERS,
+)
+
+springboot(
+    name = "ghy-prod-spring-exec",
+    boot_app_class = GATEWAY_MAIN_CLASS,
+    java_library = ":ghy-prod",
+)
+
+java_binary(
+    name = "ghy-prod-bin",
+    main_class = GATEWAY_MAIN_CLASS,
+    runtime_deps = [":ghy-prod"],
+)

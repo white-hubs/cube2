@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.HiddenDangerMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyHiddenDanger">
+        insert into
+        safety_hidden_danger(id,name,hidden_danger_category,
+        hidden_danger_status,level_name,remark,
+        market_tenant,market_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.hiddenDangerCategory},
+            #{item.hiddenDangerStatus},#{item.levelName},#{item.remark},
+            #{item.marketTenant},#{item.marketName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        hidden_danger_category = values(hidden_danger_category),
+        hidden_danger_status = values(hidden_danger_status),
+        level_name = values(level_name),
+        remark = values(remark),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

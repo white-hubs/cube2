@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.wallet.dao.WithdrawMapper">
+    <sql id="BASIC_WITHDRAW_SELECT">
+        select ww.id, ww.short_id, ww.user_id, ww.supplier_id, ww.bank_card_json, ww.amount, ww.owner, ww.auditor,
+        ww.completer, ww.remark, ww.status, ww.audit_time, ww.cancel_time, ww.complete_time, ww.tenant, ww.deleted,
+        ww.create_by, ww.create_time, ww.update_by, ww.update_time
+        from `withdraw` ww
+    </sql>
+
+    <insert id="initializeWithdraw">
+        insert into `meattrade_withdraw` (id, short_id, user_id,user_name,user_phone, supplier_id,supplier_name,supplier_phone, bank_card_json, amount, owner, auditor, completer,
+        remark, status, audit_time, cancel_time, complete_time, tenant, deleted, create_by, create_time, update_by,
+        update_time)
+        values (#{id}, #{shortId}, #{userId},#{userName},#{userPhone}, #{supplierId},#{supplierName},#{supplierPhone}, #{bankCardJson}, #{amount}, #{owner}, #{auditor}, #{completer},
+        #{remark}, #{status}, #{auditTime}, #{cancelTime}, #{completeTime}, #{tenant}, #{deleted}, #{createBy},
+        #{createTime}, #{updateBy}, #{updateTime})
+        on duplicate key update id = #{id}
+    </insert>
+
+    <update id="pass">
+        update `meattrade_withdraw` ww set ww.status = 'PASSED', ww.auditor = #{operator}, ww.audit_time = #{datetime}
+        where ww.id = #{id} and ww.status = 'AUDITING'
+    </update>
+
+    <update id="reject">
+        update `meattrade_withdraw` ww set ww.status = 'REJECTED', ww.auditor = #{operator}, ww.remark = #{remark},
+        ww.audit_time = #{datetime}
+        where ww.id = #{id} and ww.status = 'AUDITING'
+    </update>
+
+    <update id="cancel">
+        update `meattrade_withdraw` ww set ww.status = 'CANCELED', ww.remark = #{remark}, ww.cancel_time = #{datetime}
+        where ww.id = #{id} and ww.status = 'AUDITING' and ww.tenant = #{tenant}
+    </update>
+
+    <update id="complete">
+        update `meattrade_withdraw` ww set ww.status = 'COMPLETED', ww.completer = #{operator}, ww.complete_time = #{datetime}
+        where ww.id = #{id} and ww.status = 'PASSED' and ww.tenant = #{tenant}
+    </update>
+
+    <select id="getMerchantWithdraw" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.dto.SupplierWithdrawDTO">
+        select ww.id, ww.short_id, ww.user_id, ww.supplier_id, ww.bank_card_json, ww.amount, ww.owner, ww.auditor,
+        ww.completer, ww.remark, ww.status, ww.audit_time, ww.cancel_time, ww.complete_time, ww.tenant, ww.deleted,
+        ww.create_by, ww.create_time, ww.update_by, ww.update_time
+        from `meattrade_withdraw` ww
+        where ww.id = #{id}
+    </select>
+
+    <select id="listSupplierWithdraws" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.dto.SupplierWithdrawDTO">
+        select ww.id, ww.short_id, ww.user_id, ww.supplier_id, ww.bank_card_json, ww.amount, ww.owner, ww.auditor,
+        ww.completer, ww.remark, ww.status, ww.audit_time, ww.cancel_time, ww.complete_time, ww.tenant, ww.deleted,
+        ww.create_by, ww.create_time, ww.update_by, ww.update_time
+        from `meattrade_withdraw` ww
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                ww.create_time >= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                <![CDATA[and ww.create_time <= #{param.period.end}]]>
+            </if>
+            <if test="param.keyword != null and !param.keyword.isEmpty()">
+                <if test="supplierIds != null and supplierIds.size() > 0">
+                    ww.supplier_id in
+                    <foreach collection="supplierIds" item="supplierId" index="index" open="(" close=")" separator=",">
+                        #{supplierId}
+                    </foreach>
+                </if>
+                <if test="id != null">
+                    or (
+                    ww.id = #{id} or ww.short_id = #{id}
+                    )
+                </if>
+            </if>
+            <if test="param.status != null">
+                and ww.status = #{param.status.name}
+            </if>
+            and ww.tenant = #{param.tenant}
+        </where>
+        order by ww.create_time desc
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.SysDictItemTempTableMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.base.model.SysDictTempTable">
+        <!--@mbg.generated-->
+        <!--@Table iot_sys_dict_item_temp_table-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="item_level" jdbcType="VARCHAR" property="itemLevel"/>
+        <result column="item_label" jdbcType="VARCHAR" property="itemLabel"/>
+        <result column="item_level_concat" jdbcType="VARCHAR" property="itemLevelConcat"/>
+        <result column="item_label_concat" jdbcType="VARCHAR" property="itemLabelConcat"/>
+        <result column="item_id_concat" jdbcType="VARCHAR" property="itemIdConcat"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `item_level`, `item_label`, `item_level_concat`, `item_label_concat`, `item_id_concat`
+    </sql>
+</mapper>

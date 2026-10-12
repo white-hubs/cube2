@@ -1,0 +1,37 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.Intelligentlighting.dao.VisualizationGroupMapper">
+
+    <select id="getGroupControl"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.GetGroupControlVO">
+        SELECT `result` as `name`, count(1) as `openTotal`
+        FROM (SELECT `device_id`, `result`
+              FROM `group_control_log`
+              where `result` = '成功'
+              order by `create_time` desc) t
+        GROUP BY `device_id`
+    </select>
+
+    <select id="getGroupControl2"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.GetGroupControlVO">
+      select count(*) as `total`,
+      sum(IF(cg.`action` = '开',1,0)) as `openTotal`,
+      sum(IF(cg.`action` = '关',1,0)) as `closeTotal`
+      from `group_control_log` cg
+    </select>
+
+    <select id="getActualTimeControl" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `time_control_info` a
+                 inner join `time_control_details` b on a.`id` = b.`time_control_id`
+        where `enabled` = true
+          and a.`time_cycle` like concat('%', #{timeCycle}, '%')
+          and (a.`plan_start_time` = NULL or `plan_end_time` &gt; #{date})
+    </select>
+    <select id="getActualTimePlanControl" resultType="java.lang.Integer">
+        SELECT count(1)
+        FROM `time_control_info`
+        where `time_cycle` like concat('%', #{timeCycle}, '%')
+          and `enabled` = true
+          and (`plan_start_time` = NULL or `plan_end_time` &gt; #{date})
+    </select>
+</mapper>

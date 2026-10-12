@@ -1,0 +1,61 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--批量更新计划字段-->
+<mapper namespace="com.guhecloud.cube.biz.daily.task.plan.dao.DailyPlanMapper">
+    <update id="batchUpdateMultiFields">
+        UPDATE daily_plan
+        SET
+        <!-- 上次(本次)执行时间 -->
+        last_time = CASE
+        <foreach collection="updates" item="item">
+            WHEN id = #{item.id} THEN #{item.lastTime}
+        </foreach>
+        ELSE last_time
+        END,
+        <!-- 下次执行时间 -->
+        next_time = CASE
+        <foreach collection="updates" item="item">
+            WHEN id = #{item.id} THEN #{item.nextTime}
+        </foreach>
+        ELSE next_time
+        END,
+        <!-- 执行次数 -->
+        execution_count = CASE
+        <foreach collection="updates" item="item">
+            WHEN id = #{item.id} THEN #{item.executionCount}
+        </foreach>
+        ELSE execution_count
+        END,
+        <!-- 修改时间 -->
+        update_time = CASE
+        <foreach collection="updates" item="item">
+            WHEN id = #{item.id} THEN #{item.updateTime}
+        </foreach>
+        ELSE update_time
+        END
+        WHERE id IN
+        <foreach collection="updates" item="item" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+    </update>
+
+    <select id="countTargetPlanNum" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT t1.id)
+        FROM
+        daily_plan t1
+        INNER JOIN daily_plan_target_relation t2 on t1.id = t2.plan_id
+        <where>
+            <if test="targetId != null">
+                AND t2.target_id = #{targetId}
+            </if>
+            <if test="dailyType != null and dailyType != ''">
+                AND t1.daily_type = #{dailyType}
+            </if>
+            <if test="period != null and period.begin != null">
+                and t1.create_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.create_time &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

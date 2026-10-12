@@ -1,0 +1,291 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.WaterDataDayMapper">
+
+    <select id="reportDetailDay" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailDayVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`statistical_flag` `statisticalFlag`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`duration` `duration`,
+        a.`flow` `flow`,
+        a.`unit_price` `unitPrice`,
+        a.`total` `total`
+        FROM
+        `water_data_day` a
+        where
+              1=1
+            <if test="param.duration !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  a.`data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+
+            <if test="param.duration !=null and param.duration.startDuration !=null and param.duration.endDuration !=null">
+                and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+            </if>
+
+            <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+                and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+            </if>
+
+
+    </select>
+
+    <select id="reportDetailDayElectricCharge" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailDayVo">
+        select a.`deviceCode`,a.`departmentName`,a.`code`,a.`duration`,a.`flow`,a.`gearPositionArea`,a.`gearPositionCode`,a.`shiftMaster`,a.`total`,a.`unitPrice`,a.`unitTraffic`
+        from (
+        SELECT
+        `device_code` `deviceCode`,
+        `code` `code`,
+        `shift_master` `shiftMaster`,
+        `gear_position_code` `gearPositionCode`,
+        `department` `departmentName`,
+        `gear_position_area` `gearPositionArea`,
+        `unit_traffic` `unitTraffic`,
+        SUM(`duration`)  `duration`,
+        SUM(`flow`) `flow`,
+        `unit_price` `unitPrice`,
+        SUM(`total`)  `total`
+        FROM
+        `water_data_day`
+        <where>
+            <if test="param.duration !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  `data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+                and  `department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+                and  `shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+                and  `code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+                and  `device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  `gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+        </where>
+        GROUP BY `device_code`) a
+        <where>
+            <if test="param.duration !=null and param.duration.startDuration !=null and param.duration.endDuration !=null">
+                and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+            </if>
+
+            <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+                and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+            </if>
+        </where>
+    </select>
+
+    <select id="reportDetailDayExcel" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailDayVo">
+        SELECT
+        a.`device_code` `deviceCode`,
+        a.`statistical_flag` `statisticalFlag`,
+        a.`code` `code`,
+        a.`shift_master` `shiftMaster`,
+        a.`gear_position_code` `gearPositionCode`,
+        a.`department` `departmentName`,
+        a.`gear_position_area` `gearPositionArea`,
+        a.`unit_traffic` `unitTraffic`,
+        a.`duration` `duration`,
+        a.`flow` `flow`,
+        a.`unit_price` `unitPrice`,
+        a.`total` `total`
+        FROM
+        `water_data_day` a
+        where
+              1=1
+            <if test="param.startTime !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  a.`data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+             and  a.`department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+             and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+             and  a.`code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+             and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+            <if test="param.duration !=null and param.duration.startDuration !=null and param.duration.endDuration !=null">
+                and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+            </if>
+
+            <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+                and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+            </if>
+
+
+    </select>
+    <select id="reportDetailDayExcelElectricCharge" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.ReportDetailDayVo">
+        select a.`deviceCode`,a.`departmentName`,a.`code`,a.`duration`,a.`flow`,a.`gearPositionArea`,a.`gearPositionCode`,a.`shiftMaster`,a.`total`,a.`unitPrice`,a.`unitTraffic`
+        from (SELECT
+        `device_code` `deviceCode`,
+        `code` `code`,
+        `shift_master` `shiftMaster`,
+        `gear_position_code` `gearPositionCode`,
+        `department` `departmentName`,
+        `gear_position_area` `gearPositionArea`,
+        `unit_traffic` `unitTraffic`,
+        SUM(`duration`)  `duration`,
+        SUM(`flow`) `flow`,
+        `unit_price` `unitPrice`,
+        SUM(`total`)  `total`
+        FROM
+        `water_data_day`
+        <where>
+            <if test="param.duration !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+                and  `data_time` between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.departmentId !=null and param.departmentId !=''">
+                and  `department_id` like concat('%',#{param.departmentId},'%')
+            </if>
+            <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+                and  `shift_master` like concat('%',#{param.shiftMaster},'%')
+            </if>
+            <if test="param.code !=null and param.code !=''">
+                and  `code` like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.deviceCode !=null and param.deviceCode !=''">
+                and  `device_code` like concat('%',#{param.deviceCode},'%')
+            </if>
+
+            <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+                and  `gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+            </if>
+            <if test="param.deviceCodes !=null and param.deviceCodes.size() >0">
+                and  `device_code` in
+                <foreach collection="param.deviceCodes" item="item" separator="," close=")" open="(">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY `device_code`) a
+        <where>
+            <if test="param.duration !=null and param.duration.startDuration !=null and param.duration.endDuration !=null">
+                and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+            </if>
+
+            <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+                and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="reportDetailDayTotal"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataTotalVo">
+        SELECT
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`duration` ),0)	 `duration`,
+        COALESCE(sum( a.`flow` ),0)	 `flow`
+
+        FROM
+        `water_data_day` a
+        where
+        1=1
+        <if test="param.startTime !=null and param.startTime !='' and param.endTime !=null and param.endTime !=''">
+            and  a.`data_time` between #{param.startTime} and #{param.endTime}
+        </if>
+        <if test="param.departmentId !=null and param.departmentId !=''">
+            and  a.`department_id` like concat('%',#{param.departmentId},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  a.`shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  a.`code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  a.`device_code` like concat('%',#{param.deviceCode},'%')
+        </if>
+
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  a.`gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+
+        <if test="param.duration !=null and param.duration.startDuration !=null and param.duration.endDuration !=null">
+            and  a.`duration` between #{param.duration.startDuration} and #{param.duration.endDuration}
+        </if>
+
+        <if test="param.flowParam !=null and param.flowParam.startFlow !=null and param.flowParam.endFlow !=null">
+            and  a.`flow` between #{param.flowParam.startFlow} and #{param.flowParam.endFlow}
+        </if>
+    </select>
+
+    <select id="getReportDetailDay"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WaterDataDetailVo">
+        SELECT
+        a.`data_time`  `dataTime`,
+        COALESCE(sum( a.`total` ),0)  `total`,
+        COALESCE(sum( a.`duration` ),0)	`duration`,
+        COALESCE(sum( a.`flow` ),0)	 `flow`
+        FROM
+        `water_data_day` a
+        where
+        1=1
+        <if test="startTime !=null and startTime !='' and endTime !=null and endTime !=''">
+            and  a.`data_time` between #{startTime} and #{endTime}
+        </if>
+
+        <if test="deviceCode !=null and deviceCode !=''">
+            and  a.`device_code` = #{deviceCode}
+        </if>
+
+    </select>
+    <select id="selectTotalDataByDateTime"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.WaterDataDetailVo">
+
+        SELECT
+        `temp`.*
+        FROM
+        (
+        SELECT
+        t1.`device_code`,
+        CONCAT( YEAR ( t1.`data_time` ), '-', LPAD( MONTH ( t1.`data_time` ), 2, '0' ) ) AS `data_time`,
+        COALESCE(SUM( t1.`flow`), 0) AS `flow`,
+        COALESCE(SUM( t1.`duration`), 0) AS `duration`,
+        COALESCE(SUM( t1.`total`), 0) AS `total`
+        FROM
+        `water_data_day` AS t1
+        GROUP BY
+        YEAR ( t1.`data_time` ),
+        MONTH ( t1.`data_time` )
+        ) `temp`
+        <where>
+            `temp`.`data_time` IN
+            <foreach collection="dateTimes" item="dateTime" open="(" close=")"
+                     separator=",">
+                #{dateTime}
+            </foreach>
+        </where>
+    </select>
+</mapper>

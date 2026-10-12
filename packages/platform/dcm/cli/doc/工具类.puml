@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/class-diagram
+interface IDcmKeyExtractor
+interface IDcmRciConverter
+interface IDcmConvertor extends IDcmRciConverter {}
+
+interface IDcmHelper extends IDcmConvertor, IDcmKeyExtractor{
+}
+
+interface ITreeDcmHelper extends IDcmHelper
+
+abstract class AbstractBaseDcmHelper implements IDcmHelper  {
+}
+
+abstract class AbstractSimpleDcmHelper extends AbstractBaseDcmHelper {
+}
+
+abstract class AbstractGroupDcmHelper extends AbstractSimpleDcmHelper {
+}
+
+class AppGroupDcmHelper extends AbstractSimpleDcmHelper {
+}
+
+class AppDcmHelper extends AbstractGroupDcmHelper {}
+
+class ProdAppDcmHelper extends AbstractSimpleDcmHelper {}
+
+class MenuDcmHelper extends AbstractGroupDcmHelper implements ITreeDcmHelper
+
+
+@enduml

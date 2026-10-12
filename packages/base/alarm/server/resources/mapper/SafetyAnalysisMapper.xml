@@ -1,0 +1,121 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.alarm.server.analysis.mapper.SafetyAnalysisMapper">
+
+    <sql id="baserWhere">
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and ar.`alarm_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and ar.`alarm_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.applicationCode != null and param.applicationCode != '' ">
+                and ar.`application_code` = #{param.applicationCode}
+            </if>
+            <if test="param.filterStatus != null and param.filterStatus != ''">
+                and ar.`alarm_status` != #{param.filterStatus}
+            </if>
+        </where>
+    </sql>
+    <select id="selectAlarmNumGroupByApplicationCode"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.AlarmLevelRatioCardVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`application_code` AS `type_code`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+        GROUP BY
+        ar.`application_code`
+    </select>
+    <select id="selectAlarmRecordTotal"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.SafetyAnalysisAlarmVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        COALESCE ( SUM( IF ( `alarm_status` = 'ALARM_HANDLER', 1, 0 )), 0 ) AS `handler_num`,
+        COALESCE ( SUM( IF ( `alarm_status` != 'ALARM_HANDLER', 1, 0 )), 0 ) AS `no_handler_num`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+    </select>
+    <select id="selectAlarmNumGroupByLevelCode"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.AlarmLevelRatioCardVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`alarm_level_code` AS `type_code`,
+        ar.`alarm_level_name` AS `type_name`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+        GROUP BY
+        ar.`alarm_level_code`,
+        ar.`alarm_level_name`
+        ORDER BY
+        ar.`alarm_level_sort`
+    </select>
+
+    <select id="selectAlarmNumGroupByEventCode"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.AlarmLevelRatioCardVO">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        ar.`alarm_event_type_code` AS `type_code`,
+        ar.`alarm_event_type_name` AS `type_name`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+        GROUP BY
+        ar.`alarm_event_type_code`,
+        ar.`alarm_event_type_name`
+    </select>
+    <select id="selectAlarmRespondHandlerTimeOutNum"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.AlarmHandlerRankCardVO1">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS alarm_num,
+        COALESCE (sum(if(`alarm_status` != 'ALARM_UN_CONFIRMED',1,0)),0) as `responded_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE (SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+    </select>
+    <select id="selectAlarmUserRatioRank"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.AlarmHandlerRankCardVO1">
+        SELECT
+        COUNT( DISTINCT ar.`id` ) AS `alarm_num`,
+        arhu.`user_id`,
+        arhu.`user_name`,
+        COALESCE (sum(if(`alarm_status` != 'ALARM_UN_CONFIRMED',1,0)),0) as `responded_num`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE (SUM( IF ( `alarm_status` != 'ALARM_HANDLER' AND `timeout_process_time` &lt;= NOW() or `alarm_status` =
+        'ALARM_HANDLER' AND `timeout_process_time` &lt;= `alarm_handler_time`, 1, 0 )), 0 ) AS `timeout_num`
+        FROM
+        `alarm_record` ar
+        INNER JOIN `alarm_record_handler_user` arhu ON arhu.`alarm_record_id` = ar.`id`
+        <include refid="baserWhere" />
+        GROUP BY
+        arhu.`user_id`,
+        arhu.`user_name`
+    </select>
+
+    <select id="selectAlarmEventCorrectRatio"
+            resultType="com.guhecloud.cube.base.alarm.server.analysis.vo.SafetyAnalysisAlarmVO2">
+        SELECT
+        ar.`alarm_event_type_name` AS `type_code`,
+        COALESCE (SUM(if(`alarm_status` = 'ALARM_HANDLER',1,0)),0) as `handler_num`,
+        COALESCE (SUM(if(`alarm_handler_result` = 'ALARM_ACTUAL',1,0)),0) as `alarm_actual_num`
+        FROM
+        `alarm_record` ar
+        <include refid="baserWhere" />
+        GROUP BY
+        ar.`alarm_event_type_name`
+    </select>
+    <select id="selectAlarmRecordCountNum"
+            resultType="java.lang.Long">
+        SELECT
+        COUNT(1) as `total_num`
+        FROM
+        `alarm_record ar`
+        <include refid="baserWhere" />
+    </select>
+</mapper>

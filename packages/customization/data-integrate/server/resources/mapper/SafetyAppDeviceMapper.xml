@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.SafetyAppDeviceMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.PropertyFiling">
+        insert into
+        safety_app_device(id,application_code)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.applicationCode})
+        </foreach>
+        on duplicate key update
+        id = values(id),
+        application_code = values(application_code)
+    </insert>
+
+</mapper>

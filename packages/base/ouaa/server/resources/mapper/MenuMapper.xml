@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.MenuMapper">
+    <sql id="BASIC_MENU_SELECT">
+        select mu.`id`, mu.`terminal_id`, mu.`category_id`, mu.`code`, mu.`name`, mu.`icon`, mu.`path`, mu.`sort`, mu.`level`, mu.`remark`,
+        mu.`enabled`, mu.`parent_id`, mu.`sequence`, mu.`deleted`, mu.`create_by`, mu.`create_time`, mu.`update_by`, mu.`update_time`
+        from `menu` mu
+    </sql>
+
+    <select id="getRoleMenus" resultType="com.guhecloud.cube.biz.ouaa.server.vo.ApplicationVO">
+        SELECT DISTINCT
+            f.`id` `id`,
+            f.`name` `name`,
+            f.icon `icon`,
+            f.`application_group_id` `applicationGroupId`,
+            f.`code` `code`,
+            g.`name` `applicationGroupName`
+        FROM
+            `menu` a
+                LEFT JOIN `ouaa_role_menu` b ON a.`id` = b.`menu_id`
+                LEFT JOIN `user_role` c ON b.`role_id` = c.`role_id`
+                LEFT JOIN `product_application` e ON e.`application_id` = b.`application_id`
+                LEFT JOIN `tenant_product` d ON d.`product_id` = e.`product_id`
+                LEFT JOIN `application` f ON f.`id` = e.`application_id`
+                LEFT JOIN `application_group` g ON g.`id` = f.`application_group_id`
+        WHERE
+            a.`path` = #{path}
+            and c.`user_id` = #{userId}
+            and d.`tenant` = #{tenant}
+    </select>
+</mapper>

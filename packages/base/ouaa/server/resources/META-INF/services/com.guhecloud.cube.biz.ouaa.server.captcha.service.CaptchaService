@@ -1,0 +1,4 @@
+com.guhecloud.cube.biz.ouaa.server.captcha.service.impl.BlockPuzzleCaptchaServiceImpl
+com.guhecloud.cube.biz.ouaa.server.captcha.service.impl.ClickWordCaptchaServiceImpl
+com.guhecloud.cube.biz.ouaa.server.captcha.service.impl.DefaultCaptchaServiceImpl
+#captcha.service.impl.RotatePuzzleCaptchaServiceImpl

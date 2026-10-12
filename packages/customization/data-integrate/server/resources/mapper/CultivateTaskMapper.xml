@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.CultivateTaskMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyCultivateTask">
+        insert into
+        safety_cultivate_task(id,code,name,theme_id,theme_name,cultivate_start_time,cultivate_end_time,
+        exam_task_id,cultivate_user_number,cultivate_mode,cultivate_mode_name,
+        cultivate_target,cultivate_target_name,cultivate_address,speaker,
+        charge_user_id,charge_user_name,cultivate_content,cultivate_task_status,cultivate_task_status_name,
+        market_name,market_tenant,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.name},#{item.themeId},#{item.themeName},
+            #{item.cultivateStartTime},#{item.cultivateEndTime},
+            #{item.examTaskId},#{item.cultivateUserNumber},#{item.cultivateMode},#{item.cultivateModeName},
+            #{item.cultivateTarget},#{item.cultivateTargetName},#{item.cultivateAddress},#{item.speaker},
+            #{item.chargeUserId},#{item.chargeUserName},#{item.cultivateContent},#{item.cultivateTaskStatus},#{item.cultivateTaskStatusName},
+            #{item.marketName},#{item.marketTenant},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        theme_id = values(theme_id),
+        theme_name = values(theme_name),
+        cultivate_start_time = values(cultivate_start_time),
+        cultivate_end_time = values(cultivate_end_time),
+        exam_task_id = values(exam_task_id),
+        cultivate_user_number = values(cultivate_user_number),
+        cultivate_mode = values(cultivate_mode),
+        cultivate_mode_name = values(cultivate_mode_name),
+        cultivate_target = values(cultivate_target),
+        cultivate_target_name = values(cultivate_target_name),
+        cultivate_address = values(cultivate_address),
+        speaker = values(speaker),
+        charge_user_id = values(charge_user_id),
+        charge_user_name = values(charge_user_name),
+        cultivate_content = values(cultivate_content),
+        cultivate_task_status = values(cultivate_task_status),
+        cultivate_task_status_name = values(cultivate_task_status_name),
+        deleted = values(deleted),
+        market_name = values(market_name),
+        market_tenant = values(market_tenant),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

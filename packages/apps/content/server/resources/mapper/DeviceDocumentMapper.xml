@@ -1,0 +1,41 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.content.management.server.knowledgedocument.dao.DeviceDocumentMapper">
+
+    <sql id="deviceDocumentDocBaseSql">
+        SELECT
+        doc.*
+        FROM
+        `device_document` doc
+        INNER JOIN `device_document_ref_product` docp on doc.`id` = docp.`device_document_id`
+    </sql>
+    <select id="getDeviceDocumentPage"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.knowledgedocument.po.DeviceDocument">
+        <include refid="deviceDocumentDocBaseSql"/>
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and doc.`name` like concat('%',#{query.keyword},'%')
+            </if>
+            <if test="query.deviceProdId != null ">
+                and docp.`device_prod_id` = #{query.deviceProdId}
+            </if>
+            <if test="query.deviceProdCategoryCodeConcat != null and query.deviceProdCategoryCodeConcat != ''">
+                and doc.`device_prod_category_code_concat` like concat(#{query.deviceProdCategoryCodeConcat},'%')
+            </if>
+        </where>
+        order by doc.`create_time` desc
+    </select>
+
+    <select id="deviceDocumentList"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.knowledgedocument.po.DeviceDocument">
+        <include refid="deviceDocumentDocBaseSql"/>
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and doc.`name` like concat('%',#{query.keyword},'%')
+            </if>
+            <if test="query.deviceProdId != null ">
+                and docp.`device_prod_id` = #{query.deviceProdId}
+            </if>
+        </where>
+        order by doc.`create_time` desc
+    </select>
+</mapper>

@@ -1,0 +1,165 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.conferencemanage.server.dao.ConferenceMapper">
+
+
+    <resultMap id="conferenceMap" type="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.MobileAppointmentVo">
+        <result column="conferenceId" property="conferenceId"/>
+        <result column="areaName" property="areaName"/>
+        <result column="capacity" property="capacity"/>
+        <result column="name" property="name"/>
+        <result column="appointmentDate" property="appointmentDate"/>
+        <collection property="appointmentDetails"
+                    javaType="list"
+                    ofType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentDetailsVo"
+                    select="findListById"
+                    column="{conferenceId=conferenceId}">
+        </collection>
+
+    </resultMap>
+
+    <select id="getAppointmentVo"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentVo">
+
+        SELECT a.`id`       `conferenceId`,
+               a.`name`     `conferenceName`,
+               a.`capacity` `capacity`
+        FROM conference a
+        where a.`status` = 0
+        <if test="param.keyword != null and param.keyword != ''">
+            and a.`name` like concat('%', #{param.keyword}, '%')
+        </if>
+        and (a.book_person is null or a.book_person like concat('%', #{param.userId}, '%')
+        <if test="param.organizationIdList != null and param.organizationIdList.size() > 0">
+            or
+            <foreach collection="param.organizationIdList" item="id" open="(" close=")" separator=" or ">
+                 a.book_person like concat('%',  #{id}, '%')
+            </foreach>
+        </if>
+        <if test="param.roleIdList != null and param.roleIdList.size() > 0">
+            or
+            <foreach collection="param.roleIdList" item="id" open="(" close=")" separator=" or ">
+                a.book_person like concat('%',  #{id}, '%')
+            </foreach>
+        </if>
+        )
+        order by a.`create_time` desc
+
+    </select>
+
+    <select id="getAppConference" resultMap="conferenceMap">
+        SELECT distinct
+        a.`id` `conferenceId`,
+        a.`area_name` `areaName`,
+        a.`capacity`  `capacity`,
+        a.`name`      `name`
+        FROM `conference` a
+        where a.`status` = 0
+        and (a.book_person is null or a.book_person like concat('%', #{param.userId}, '%')
+        <if test="param.organizationIdList != null and param.organizationIdList.size() > 0">
+            or
+            <foreach collection="param.organizationIdList" item="id" open="(" close=")" separator=" or ">
+                a.book_person like concat('%',  #{id}, '%')
+            </foreach>
+        </if>
+        <if test="param.roleIdList != null and param.roleIdList.size() > 0">
+            or
+            <foreach collection="param.roleIdList" item="id" open="(" close=")" separator=" or ">
+                a.book_person like concat('%',  #{id}, '%')
+            </foreach>
+        </if>
+        )
+    </select>
+
+    <select id="findListById" resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentDetailsVo">
+        SELECT `conference_id` `conferenceId`,
+               `time_interval` `timeInterval`,
+               `book_status`   `bookStatus`
+        FROM `book_time_interval`
+        where `conference_id` = #{conferenceId}
+    </select>
+
+    <select id="getConferencePage"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.MobileAppointmentVo">
+        SELECT
+        cf.`id` `conferenceId`,
+        cf.`area_name` `areaName`,
+        cf.`capacity` `capacity`,
+        cf.`name` `name`,
+        d.`new_salary` `conferenceBookStatus`
+        FROM
+        `conference` cf
+        LEFT JOIN (
+        SELECT
+        a.`conference_id`,
+        ( CASE WHEN a.num = b.num THEN 'NOAPPOINTMENT' ELSE 'AVALIABLE' END ) `new_salary`
+        FROM
+        ( SELECT `conference_id`, COUNT( `time_interval` ) `num` FROM `book_time_interval` GROUP BY `conference_id`
+        ) a
+        LEFT JOIN ( SELECT bir.`conference_id`, COUNT( bir.`time_interval` ) `num` FROM `book_interval_record` bir LEFT
+        JOIN `book_room` br ON bir.`book_id` = br.`id`
+        where
+        bir.`appointment_date` = #{param.date}
+        and br.`status` = 'RESERVED'
+        <if test="param.passTimes !=null and param.passTimes.size()>0">
+            and bir.`time_interval` not in
+            <foreach collection="param.passTimes" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY bir.`conference_id` ) b ON a.`conference_id` = b.`conference_id`
+        ) d ON cf.`id` = d.`conference_id`
+        order by `conferenceBookStatus` ASC
+    </select>
+
+    <select id="getConferenceDetail"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.MobileAppointmentVo">
+        SELECT
+        cf.`id` `conferenceId`,
+        cf.`area_name` `areaName`,
+        cf.`capacity` `capacity`,
+        cf.`name` `name`,
+        cd.`deviceName` `deviceName`
+        FROM
+        `conference` cf
+        LEFT JOIN (SELECT
+        <choose>
+            <when test="_databaseId == 'dm'">
+                WM_CONCAT(`name`) `deviceName`,
+            </when>
+            <otherwise>
+                GROUP_CONCAT(`name`) `deviceName`,
+            </otherwise>
+        </choose>
+        `conference_id`
+        FROM
+        `conference_device`
+        where
+        `conference_id` = #{id}) cd on cf.`id` = cd.`conference_id`
+
+        where cf.id = #{id}
+    </select>
+
+    <select id="getConferenceDevice"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.ConferenceDevicesVo">
+        SELECT
+        `conference_id` as `conferenceId`,
+        <choose>
+            <when test="_databaseId == 'dm'">
+                WM_CONCAT(`name`) `deviceName`,
+            </when>
+            <otherwise>
+                GROUP_CONCAT( `name` ) as `name`
+            </otherwise>
+        </choose>
+        FROM
+        `conference_device`
+        where
+        `conference_id` in
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY
+        `conference_id`
+    </select>
+
+</mapper>

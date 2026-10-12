@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "client",
+    exports = [
+        # 风险源目前实现在资产中
+        "//packages/apps/asset/client",
+    ],
+)

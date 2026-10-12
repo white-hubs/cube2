@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.loose.works.dao.ProjectReformMapper">
+
+
+    <select id="selectAll" resultType="com.guhecloud.cube.srv.gen.loose.works.po.ProjectReformPO">
+        SELECT
+        t1.*
+        FROM
+        project_reform t1
+        where
+            t1.tenant = #{tenant}
+            <if test="period != null and period.begin != null">
+                and t1.update_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.update_time &lt;= #{period.end}
+            </if>
+    </select>
+    <select id="selectAvgProcessTime"
+            resultType="com.guhecloud.cube.srv.gen.loose.works.dto.vo.ProjectReformProcessTimeVO">
+        SELECT TRUNCATE
+        ( temp.`processing_time` / temp.`total_count`, 0 ) AS `avg_process_seconds`
+        FROM
+        (
+        SELECT
+        COUNT( t1.id ) total_count,
+        COALESCE ( SUM( TIMESTAMPDIFF( SECOND, t1.create_time, t1.pass_time )), 0 ) AS `processing_time`
+        FROM
+        project_reform t1
+        WHERE
+        t1.approve_result = 'PASS'
+        <if test="period != null and period.begin != null">
+            and t1.update_time &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and t1.update_time &lt;= #{period.end}
+        </if>
+        ) temp
+    </select>
+</mapper>

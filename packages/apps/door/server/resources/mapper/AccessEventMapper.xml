@@ -1,0 +1,66 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.AccessEventMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.AccessEvent" databaseId="mysql">
+        insert into
+        access_event(id,event_type,event_type_name,event_name,event_time,
+        person_id,person_name,card_no,device_name,device_code,
+        org_id,org_name,alias,access_type,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.eventType},#{item.eventTypeName},#{item.eventName},#{item.eventTime},
+            #{item.personId},#{item.personName},#{item.cardNo},#{item.deviceName},#{item.deviceCode},
+            #{item.orgId},#{item.orgName},#{item.alias},#{item.accessType},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        event_type = values(event_type),
+        event_type_name = values(event_type_name),
+        event_name = values(event_name),
+        event_time = values(event_time),
+        card_no = values(card_no),
+        person_id = values(person_id),
+        person_name = values(person_name),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.AccessEvent" databaseId="pg">
+        insert into
+        access_event(id,event_type,event_type_name,event_name,event_time,
+        person_id,person_name,card_no,device_name,device_code,
+        org_id,org_name,alias,access_type,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.eventType},#{item.eventTypeName},#{item.eventName},#{item.eventTime},
+            #{item.personId},#{item.personName},#{item.cardNo},#{item.deviceName},#{item.deviceCode},
+            #{item.orgId},#{item.orgName},#{item.alias},#{item.accessType},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on conflict on constraint device_time_index DO UPDATE set
+        event_type = EXCLUDED.event_type,
+        event_type_name = EXCLUDED.event_type_name,
+        event_name = EXCLUDED.event_name,
+        event_time = EXCLUDED.event_time,
+        card_no = EXCLUDED.card_no,
+        person_id = EXCLUDED.person_id,
+        person_name = EXCLUDED.person_name,
+        update_time = EXCLUDED.update_time
+    </insert>
+
+    <select id="getEventStatByName" resultType="com.guhecloud.cube.biz.door.server.vo.CommonStatVO">
+        select event_name as name,count(id) as value from access_event
+        where deleted = 0 and access_type = #{param.accessType}
+        <if test="param.period != null and param.period.begin != null">
+            and event_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and event_time &lt; #{param.period.end}
+        </if>
+        group by event_name
+        order by value desc
+    </select>
+</mapper>

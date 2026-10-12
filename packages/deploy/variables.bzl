@@ -1,0 +1,2 @@
+VERSION_DEV = "develop-SNAPSHOT"
+VERSION_TEST = "test-SNAPSHOT"

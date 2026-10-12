@@ -1,0 +1,43 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.sn.meattrade.plugin.common.mapper.PorkArrangePushDataMapper">
+
+    <select id="selectTallIds"
+            resultType="java.lang.String">
+        SELECT
+        tally_id
+        FROM
+        `pork_arrange_push_data`
+        <where>
+            <if test="param.status != null">
+                and `status` = #{param.status}
+            </if>
+            <if test="param.period != null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        GROUP BY
+        tally_id
+    </select>
+
+    <select id="selectFailPushTallIds" resultType="java.lang.String">
+        SELECT
+        tally_id
+        FROM
+        `pork_arrange_push_data`
+        where `status` = 'PUSH_FAIL' and tally_id in
+        <foreach collection="tallIds" item="tallId" open="(" separator="," close=")">
+            #{tallId}
+        </foreach>
+    </select>
+
+    <select id="selectStayPushTallIds" resultType="java.lang.String">
+        SELECT
+        tally_id
+        FROM
+        `pork_arrange_push_data`
+        where `status` in ('UN_PUSH','PUSH_PROCESS') and tally_id in
+        <foreach collection="tallIds" item="tallId" open="(" separator="," close=")">
+            #{tallId}
+        </foreach>
+    </select>
+</mapper>

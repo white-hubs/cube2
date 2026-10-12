@@ -1,0 +1,26 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.message2.server.sat.dao.SatMsgSceneReceiveMapper">
+
+    <insert id="insertBatch">
+        insert into
+        `sat_msg_scene_receive`(
+        `id`,`msg_scene_code`,`msg_scene_name`,`application_code`,`application_name`,`receive_mode`,
+        `create_by`,`creator_id`,`creator_type`,`create_time`,`update_by`,`updater_id`,`updater_type`,`update_time`)
+        values
+        <foreach collection="satMsgSceneReceives" item="item" separator=",">
+            (#{item.id},#{item.msgSceneCode},#{item.msgSceneName},#{item.applicationCode},#{item.applicationName},#{item.receiveMode},
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+    </insert>
+
+    <select id="selectSatMsgSceneApplications"
+            resultType="com.guhecloud.cube.base.message2.server.sat.vo.SatMsgApplicationVO">
+        SELECT
+        `application_code`,
+        `application_name`
+        FROM
+        `sat_msg_scene_receive`
+        GROUP BY `application_code`,`application_name`
+    </select>
+</mapper>

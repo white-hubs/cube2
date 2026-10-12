@@ -1,0 +1,15 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "mybatis",
+    actual = "@maven//:org_mybatis_mybatis",
+)
+
+java_library(
+    name = "mybatis_spring",
+    exports = [
+        "@maven//:org_mybatis_mybatis_spring",
+    ],
+)

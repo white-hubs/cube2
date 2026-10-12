@@ -1,0 +1,66 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.Intelligentlighting.dao.TimeControlLogMapper">
+
+   <select id="getTimeControlLogs" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.Intelligentlighting.vo.TimeControlLogVo">
+       SELECT
+           `id` `id`,
+           `object_type` `objectType`,
+           `device_object` `deviceObject`,
+           `open_gate` `openGate`,
+           `brightness` `brightness`,
+           `result` `result`,
+           `control_time` `controlTime`,
+           `time_control_id` `timeControlId`,
+           `object_name` `objectName`
+       FROM
+           `time_control_log`
+        <where>
+            <if test="startTime!=null and endTime!=null ">
+                and `control_time` between #{startTime} and #{endTime}
+            </if>
+        </where>
+        order by `create_time` DESC
+
+   </select>
+
+    <select id="getTimeControlPlan" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.Intelligentlighting.vo.TimeControlLogVo">
+        SELECT
+        c.`id`,
+        c.`objectType`,
+        c.`controlTime`,
+        c.`openGate`,
+        c.`objectName`,
+        c.`timeControlId`,
+        c.`deviceObject`,
+        c.`brightness`,
+        d.`result`
+        FROM
+        (
+        SELECT
+        a.`id` `id`,
+        a.`object_type` `objectType`,
+        a.`device_object` `deviceObject`,
+        a.`control_time` `controlTime`,
+        a.`open_gate` `openGate`,
+        a.`brightness` `brightness`,
+        a.`device_name` `objectName`,
+        a.`time_control_id` `timeControlId`,
+        b.`plan_start_time`,
+        CONCAT( a.`device_object`, a.`time_control_id`,a.`control_time` ) AS `controlKey`
+        FROM
+        `time_control_details` a
+        LEFT JOIN `time_control_info` b ON a.`time_control_id` = b.`id`
+        WHERE
+            b.`enabled` = TRUE
+          and b.`time_cycle` like concat('%',#{timeCycle},'%')
+          AND ( (b.`plan_end_time` <![CDATA[>=]]> #{endTime} and b.`plan_start_time` <![CDATA[<]]> #{endTime}) OR b.`plan_start_time` IS NULL )
+        ) c
+        LEFT JOIN ( SELECT `result`, CONCAT( `device_object`, `time_control_id`,max(`history_time`) ) `logKey`
+        FROM `time_control_log`
+        where
+                        `control_time`  BETWEEN #{startTime} and #{endTime}
+                GROUP BY `device_object`,`time_control_id`,result
+            ) d ON c.`controlKey` = d.`logKey`
+        order by c.`controlTime` ASC
+    </select>
+</mapper>

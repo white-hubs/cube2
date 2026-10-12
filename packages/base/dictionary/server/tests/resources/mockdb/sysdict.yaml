@@ -1,0 +1,14 @@
+- id: 1
+  name: Item1
+  code: Item1
+  remarks: "HelpMe"
+  version: 1.0
+  variable: "abc"
+  itemCode:  TypeA
+- id: 2
+  name: Item2
+  code: Item2
+  remarks: "Remarks of Item2"
+  version: 1.0
+  variable: "abc"
+  itemCode:  TypeB

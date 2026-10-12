@@ -1,0 +1,84 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/content:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/device-center/client",
+        "//packages/base/dictionary/client",
+        "//packages/base/file/client",
+        "//packages/base/mdata/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/model:tree",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:spring-file",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:tree",
+        "//packages/platform/database",
+        "//packages/platform/liquibase",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:http",
+        "//third-party/java/jackson:annotations",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.content.management.server.ContentManagementServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "cube-srv-gen-content-management-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-srv-gen-content-management",
+    datasource_package = "com.guhecloud.cube.srv.gen.content.management",
+    gw_prefix = "/management/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "contentManagement",
+    visibility = ["//packages:__subpackages__"],
+)

@@ -1,0 +1,13 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+# client or server 通用项目依赖
+java_library(
+    name = "generic-deps",
+    exports = [
+        "//third-party/java:lombok",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/slf4j",
+    ],
+)

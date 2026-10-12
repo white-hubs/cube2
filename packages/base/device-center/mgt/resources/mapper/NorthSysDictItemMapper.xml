@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.north.mapper.NorthSysDictItemMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.north.model.SysDictItem">
+        <!--@mbg.generated-->
+        <!--@Table iot_sys_dict_item-->
+        <!--    <result column="logic_id" jdbcType="VARCHAR" property="logicId" />-->
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="dict_id" jdbcType="BIGINT" property="dictId" />
+        <result column="item_parent_id" jdbcType="BIGINT" property="itemParentId" />
+        <result column="item_sort" jdbcType="INTEGER" property="itemSort" />
+        <result column="item_level" jdbcType="VARCHAR" property="itemLevel" />
+        <result column="item_label" jdbcType="VARCHAR" property="itemLabel" />
+        <result column="item_value" jdbcType="VARCHAR" property="itemValue" />
+        <result column="status" jdbcType="INTEGER" property="status" />
+        <result column="remark" jdbcType="VARCHAR" property="remark" />
+        <result column="admin_id" jdbcType="INTEGER" property="adminId" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `dict_id`, `item_parent_id`, `item_sort`, `item_level`, `item_label`, `item_value`,
+        `status`, `remark`, `admin_id`
+    </sql>
+
+    <select id="queryThinsByDictId" resultType="com.guhecloud.cube.iot.mgt.base.vo.DictItemThinVo">
+        select id, dict_id, item_parent_id, item_sort, item_level, item_label, item_value
+        from iot_sys_dict_item where dict_id =#{dictId}
+    </select>
+
+    <select id="queryThinsByDictIdAndItemId" resultType="com.guhecloud.cube.iot.mgt.base.vo.DictItemThinVo">
+        select id, dict_id, item_parent_id, item_sort, item_level, item_label, item_value
+        from iot_sys_dict_item where dict_id = #{dictId} and id = #{itemId}
+    </select>
+
+</mapper>

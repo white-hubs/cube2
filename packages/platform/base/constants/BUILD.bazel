@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "date",
+    srcs = [
+        "DateFormat.java",
+        "TimeZone.java",
+    ],
+)

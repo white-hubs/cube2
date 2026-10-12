@@ -1,0 +1,46 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "jsqlparser",
+    exports = [
+        "@maven//:com_github_jsqlparser_jsqlparser",
+    ],
+)
+
+java_library(
+    name = "easy_captcha",
+    exports = [
+        "@maven//:com_github_whvcse_easy_captcha",
+    ],
+)
+
+java_library(
+    name = "mouzt_bizlog_sdk",
+    exports = [
+        "@maven//:io_github_mouzt_bizlog_sdk",
+    ],
+)
+
+java_library(
+    name = "fastdfs_client",
+    exports = [
+        "@maven//:com_github_tobato_fastdfs_client",
+    ],
+)
+
+java_library(
+    name = "json_schema_validator",
+    exports = [
+        "@maven//:com_github_fge_json_schema_core",
+        "@maven//:com_github_fge_json_schema_validator",
+    ],
+)
+
+java_library(
+    name = "jackson_fge_coreutils",
+    exports = [
+        "@maven//:com_github_fge_jackson_coreutils",
+    ],
+)

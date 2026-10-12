@@ -1,0 +1,27 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.dao.MedicalAlarmStatisticsMapper">
+    <select id="getMedicalAlarmPage"
+            resultType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.statistics.vo.MedicalAlarmVO">
+        select tenant_name,
+        device_prod_category_name,
+        create_time,
+        sum(total_num) as total_num,
+        sum(un_confirmed_num) as un_confirmed_num,
+        sum(progress_confirmed_num) as progress_confirmed_num,
+        sum(suspend_num) as suspend_num,
+        sum(handler_num) as handler_num
+        from medical_alarm_statistics
+        <where>
+            <if test="param.tenant !=null">
+                tenant = #{param.tenant}
+            </if>
+            <if test="param.deviceProdCategoryCode !=null and param.deviceProdCategoryCode !=''">
+                and device_prod_category_code =#{param.deviceProdCategoryCode}
+            </if>
+            <if test="param.period !=null and param.period.begin !=null">
+                and create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+        </where>
+        group by tenant,device_prod_category_code
+    </select>
+</mapper>

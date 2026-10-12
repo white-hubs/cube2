@@ -1,0 +1,10 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyCheckTaskRelationMapper">
+   <select id="getPlanDetails" resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedPageVO">
+       SELECT b.*
+       FROM `property_check_task_relation` a
+                inner join property_check_task b on a.task_id = b.id
+       where a.property_id = #{id}
+         and create_time
+   </select>
+</mapper>

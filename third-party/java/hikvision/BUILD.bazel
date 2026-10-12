@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "ga_sdk",
+    exports = [
+        "@maven//:com_hikvision_ga_artemis_http_client",
+    ],
+)

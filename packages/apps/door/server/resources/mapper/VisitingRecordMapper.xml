@@ -1,0 +1,68 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.VisitingRecordMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.VisitingRecord" databaseId="mysql">
+        insert into
+        visiting_record(id,receptionist_name,visitor_name,phone_no,plate_no,
+        visit_start_time,visit_end_time,visit_purpose,card_no,
+        visitor_status,visitor_status_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.receptionistName},#{item.visitorName},#{item.phoneNo},#{item.plateNo},
+            #{item.visitStartTime},#{item.visitEndTime},#{item.visitPurpose},#{item.cardNo},
+            #{item.visitorStatus},#{item.visitorStatusName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        receptionist_name = values(receptionist_name),
+        visitor_name = values(visitor_name),
+        visitor_status = values(visitor_status),
+        visitor_status_name = values(visitor_status_name),
+        visit_purpose = values(visit_purpose),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.biz.door.server.entity.VisitingRecord" databaseId="pg">
+        insert into
+        visiting_record(id,receptionist_name,visitor_name,phone_no,plate_no,
+        visit_start_time,visit_end_time,visit_purpose,card_no,
+        visitor_status,visitor_status_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.receptionistName},#{item.visitorName},#{item.phoneNo},#{item.plateNo},
+            #{item.visitStartTime},#{item.visitEndTime},#{item.visitPurpose},#{item.cardNo},
+            #{item.visitorStatus},#{item.visitorStatusName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on conflict on constraint visitor_time_index DO UPDATE set
+        receptionist_name = EXCLUDED.receptionist_name,
+        visitor_name = EXCLUDED.visitor_name,
+        visitor_status = EXCLUDED.visitor_status,
+        visitor_status_name = EXCLUDED.visitor_status_name,
+        visit_purpose = EXCLUDED.visit_purpose,
+        update_time = EXCLUDED.update_time
+    </insert>
+
+    <select id="getVisitingRecordStatByTime" resultType="com.guhecloud.cube.biz.door.server.vo.CommonStatVO" databaseId="mysql">
+        <choose>
+            <when test="_databaseId == 'pg'">
+                select TO_CHAR(r.visit_start_time,#{param.groupFormat}) as name,count(*) as value from visiting_record r
+            </when>
+            <otherwise>
+                select DATE_FORMAT(r.visit_start_time,#{param.groupFormat}) as name,count(*) as value from visiting_record r
+            </otherwise>
+        </choose>
+        where r.deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and r.visit_start_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and r.visit_start_time &lt; #{param.period.end}
+        </if>
+        group by name
+    </select>
+</mapper>

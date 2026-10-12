@@ -1,0 +1,50 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/device-center:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform:generic-deps",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/rabbitmq:amqp_client",
+        "//third-party/java/spring:spring_amqp",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_boot_starter",
+        "//third-party/java/spring:spring_context",
+        "//third-party/java/spring:spring_core",
+        "//third-party/java/spring:spring_rabbit",
+    ],
+)
+
+java_library(
+    name = "consumer",
+    # 生产库不包含任何测试源码
+    srcs = glob(
+        ["src/**/*.java"],
+        exclude = [
+            "src/test/**/*.java",
+            "src/filter/test/**/*.java",
+        ],
+    ),
+    deps = [":deps"],
+)
+
+java_test(
+    name = "filter-tests",
+    srcs = ["src/filter/test/FilterableHandlerTest.java"],
+    test_class = "com.guhecloud.cube.iot.north.bridge.consumer.filter.test.FilterableHandlerTest",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":consumer",
+        "//third-party/java/junit",
+    ],
+)
+

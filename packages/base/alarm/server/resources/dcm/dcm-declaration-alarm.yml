@@ -1,0 +1,72 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: ALARM   # 提供方标识
+  appDescription: 提供报警服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: AlarmReason, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: ALARM  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: AlarmReason  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        isSystem: False
+        tenants: all
+        isFailOnMissingProvider: True
+        vargs:
+          - "code": "environmental_factor"
+            "reason": "环境因素"
+            "initialized": True
+            "remark": ""
+          - "code": "natural_weather"
+            "reason": "自然天气"
+            "initialized": True
+            "remark": ""
+          - "code": "caused_by_human"
+            "reason": "人为造成"
+            "initialized": True
+            "remark": ""
+          - "code": "aging_of_electrical_circuits"
+            "reason": "电气线路老化"
+            "initialized": True
+            "remark": ""
+          - "code": "excessive_electrical_power"
+            "reason": "电气功率过大"
+            "initialized": True
+            "remark": ""
+          - "code": "improper_use_of_open_flames"
+            "reason": "明火使用不当"
+            "initialized": True
+            "remark": ""
+          - "code": "gas_leakage"
+            "reason": "燃气泄漏"
+            "initialized": True
+            "remark": ""
+          - "code": "spontaneous_combustion_of_items"
+            "reason": "物品自燃"
+            "initialized": True
+            "remark": ""
+          - "code": "fire_equipment_malfunction"
+            "reason": "消防设备故障"
+            "initialized": True
+            "remark": ""
+          - "code": "illegal_charging_of_electric_vehicles"
+            "reason": "电动车违规充电"
+            "initialized": True
+            "remark": ""
+          - "code": "construction_operations_are_not_standardized"
+            "reason": "施工作业不规范"
+            "initialized": True
+            "remark": ""
+          - "code": "customer_purchases_temporary_parking"
+            "reason": "客户采买临时停车"
+            "initialized": True
+            "remark": ""
+          - "code": "internal_merchants_engaged_in_illegal_operations"
+            "reason": "内部商户违规作业"
+            "initialized": True
+            "remark": ""
+

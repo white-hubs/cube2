@@ -1,0 +1,21 @@
+load("@rules_java//java:defs.bzl", "java_binary")
+load("//packages/deploy/template/server-one:generate_server_one.bzl", "SERVER_ONE_MAIN_CLASS", "generate_server_one")
+load("//tools/springboot:springboot.bzl", "springboot")
+load(":vars.bzl", "SERVERS")
+
+generate_server_one(
+    name = "ghy-test",
+    servers = SERVERS,
+)
+
+springboot(
+    name = "ghy-test-spring-exec",
+    boot_app_class = SERVER_ONE_MAIN_CLASS,
+    java_library = ":ghy-test",
+)
+
+java_binary(
+    name = "ghy-test-bin",
+    main_class = SERVER_ONE_MAIN_CLASS,
+    runtime_deps = [":ghy-test"],
+)

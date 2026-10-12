@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.SafetyInspectRecordItemMapper">
+
+    <select id="selectInspectRecordCount"
+            resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT t1.id) as total
+        FROM
+        safety_inspect_record t1
+        INNER JOIN safety_inspect_record_item t2 on t1.id = t2.record_id
+        <where>
+            t2.error_value_flag = 1
+            and ( t1.business_type != 'SMALL_ENGINEERING' OR t1.business_type IS NULL )
+            <if test="query.tagList != null and query.tagList.size > 0">
+                and t2.item_tag in
+                <foreach collection="query.tagList" item="code" open="(" separator="," close=")">
+                    #{code}
+                </foreach>
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and t1.time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and t1.time &lt;= #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and t1.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,16 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("//packages/apps/linkage:variables.bzl", "PACKAGE_GROUP", "VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "metadata",
+    srcs = glob([
+        "**/*.java",
+    ]),
+    deps = [
+        "//packages/base/message/sdk",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/lombok:lombok_processor",
+    ],
+)

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.RoleTerminalMapper">
+
+    <select id="listByTenant" resultType="com.guhecloud.cube.biz.ouaa.server.entity.RoleTerminal">
+        select rt.`id`, rt.`role_id`, rt.`terminal_id`
+        from
+            `role` r join `role_terminal` rt on r.`id` = rt.`role_id`
+        <where>
+            r.`tenant` = #{tenantId}
+        </where>
+
+    </select>
+</mapper>

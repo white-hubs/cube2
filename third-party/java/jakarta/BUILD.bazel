@@ -1,0 +1,45 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "validation_api",
+    exports = [
+        "@maven//:jakarta_validation_jakarta_validation_api",
+    ],
+)
+
+java_library(
+    name = "annotation_api",
+    exports = [
+        "@maven//:jakarta_annotation_jakarta_annotation_api",
+    ],
+)
+
+java_library(
+    name = "servlet_api",
+    exports = [
+        "@maven//:jakarta_servlet_jakarta_servlet_api",
+    ],
+)
+
+java_library(
+    name = "mail_api",
+    exports = [
+        "@maven//:jakarta_mail_jakarta_mail_api",
+    ],
+)
+
+java_library(
+    name = "inject_api",
+    exports = [
+        "@maven//:jakarta_inject_jakarta_inject_api",
+    ],
+)
+
+java_library(
+    name = "activation_api",
+    exports = [
+        "@maven//:jakarta_activation_jakarta_activation_api",
+    ],
+)

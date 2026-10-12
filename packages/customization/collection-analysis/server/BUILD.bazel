@@ -1,0 +1,82 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/collection-analysis:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/utils:bean",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:number",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/database",
+        "//packages/platform/event",
+        "//packages/platform/liquibase",
+        "//packages/platform/job",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:poi",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/hutool:http",
+        "//third-party/java/hutool:poi",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.biz.collection.analysis.CollectionAnalysisPluginServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "collection-analysis-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_biz_collection",
+    datasource_package = "com.guhecloud.cube.biz.collection.analysis",
+    gw_prefix = "/collection-analysis/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "collectionAnalysis",
+    visibility = ["//packages:__subpackages__"],
+)

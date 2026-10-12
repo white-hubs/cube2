@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.SafetyExamTaskPaperMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyExamTaskPaper">
+        insert into
+        safety_exam_task_paper(id,exam_task_id,exam_paper_id,exam_paper_name)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.examTaskId},#{item.examPaperId},#{item.examPaperName})
+        </foreach>
+        on duplicate key update
+        id = values(id),
+        exam_task_id = values(exam_task_id),
+        exam_paper_id = values(exam_paper_id),
+        exam_paper_name = values(exam_paper_name)
+    </insert>
+
+</mapper>

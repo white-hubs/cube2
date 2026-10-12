@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.PorkReportMapper">
+
+    <select id="selectSupplierReportAudit"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.vo.PorkReportStatAuditVO">
+        SELECT
+        COUNT( 1 ) AS total,
+        COALESCE ( SUM( IF ( `status` = 'FAILED', 1, 0 )), 0 ) AS porkReportAuditFailedNum,
+        COALESCE ( SUM( IF ( `status` = 'PASSED', 1, 0 )), 0 ) AS porkReportAuditPassedNum
+        FROM
+        meattrade_pork_report
+        <where>
+            supplier_id = #{supplierId} and tenant = #{tenant}
+        </where>
+    </select>
+
+    <select id="selectSupplyStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.vo.PorkSupplyStatisticsVO">
+        SELECT
+        COALESCE(SUM(t2.weight),0) as weight,
+        COUNT(t2.id) as slices
+        FROM
+        meattrade_pork_report t1
+        LEFT JOIN meattrade_pork_arrange_detail t2 on t1.id = t2.pork_report_id
+        <where>
+            t1.tenant = #{param.tenant} AND t2.tenant = #{param.tenant} AND t1.`status` IN ('PASSED','FAILED')
+            <if test="param.period != null and param.period.begin != null">
+                and t1.create_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.create_time &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectSupplySupplierCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT t1.supplier_id) as supplier_count
+        FROM
+        meattrade_pork_report t1
+        <where>
+            t1.tenant = #{param.tenant} AND t1.`status` IN ('PASSED','FAILED')
+            <if test="param.period != null and param.period.begin != null">
+                and t1.create_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.create_time &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

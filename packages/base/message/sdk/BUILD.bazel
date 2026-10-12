@@ -1,0 +1,46 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/message/sdk:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/base/message/client",
+        "//packages/base/ouaa/client",
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//third-party/java/spring:springframework",
+        "//packages/base/message/metadata"
+    ],
+)
+
+java_library(
+    name = "sdk",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+        "//packages/base/message/client",
+        "//packages/base/message/metadata",
+    ],
+    deps = [":deps"],
+)
+
+artifactId = "cube-base-message-sdk"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":sdk"],
+)

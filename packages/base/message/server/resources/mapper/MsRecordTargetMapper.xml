@@ -1,0 +1,140 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.message2.server.base.dao.MsgRecordTargetMapper">
+    <sql id="BASIC_MSG_RECORD_TARGET_SELECT">
+        SELECT
+        `mrt`.`id`,
+        `mrt`.`channel_code`,
+        `mrt`.`msg_record_id`,
+        `mrt`.`user_id`,
+        `mrt`.`user_name`,
+        `mrt`.`user_phone`,
+        `mrt`.`user_email`,
+        `mrt`.`send_status`,
+        `mrt`.`send_status_desc`,
+        `mrt`.`read`,
+        `mrt`.`send_time`,
+        `mrt`.`send_times`,
+        `mrt`.`tenant`,
+        `mrt`.`deleted`,
+        `mrt`.`create_by`,
+        `mrt`.`creator_id`,
+        `mrt`.`creator_type`,
+        `mrt`.`create_time`,
+        `mrt`.`update_by`,
+        `mrt`.`updater_id`,
+        `mrt`.`updater_type`,
+        `mrt`.`update_time`
+        FROM
+        `msg_record_target` `mrt`
+    </sql>
+
+    <select id="failList" resultType="com.guhecloud.cube.base.message2.server.base.entity.MsgRecordTarget">
+        <include refid="BASIC_MSG_RECORD_TARGET_SELECT" />
+        <where>
+            `mrt`.`send_status` = false
+            and `mrt`.`send_times` &lt; 5
+        </where>
+    </select>
+
+    <update id="readAll">
+        update
+        `msg_record_target`
+        set `has_read` = true
+        where `channel_code` = #{channelType} and `user_id` = #{userId}
+        <if test="param != null and param.msgCustomGroup != null and param.msgCustomGroup.customGroups.size() > 0">
+            and `msg_record_id` in (
+            select `id` from `msg_record`
+            where
+            <foreach collection="param.msgCustomGroup.customGroups" item="group" open="(" close=")" separator="or">
+                (
+                1=1
+                <if test="group.appCode != null and group.appCode != ''">
+                    and `application_code` = #{group.appCode}
+                </if>
+                <if test="group.msgType != null and group.msgType != ''">
+                    and `msg_type` = #{group.msgType}
+                </if>
+                <if test="group.sceneCode != null and group.sceneCode != ''">
+                    and `msg_scene_code` = #{group.sceneCode}
+                </if>
+                )
+            </foreach>
+            )
+        </if>
+        <if test="param != null and param.filterMsgCustomGroups != null and param.filterMsgCustomGroups.size() > 0">
+            and `msg_record_id` in (
+            select `id` from `msg_record`
+            where
+            <foreach collection="param.filterMsgCustomGroups" item="customGroup" open="(" close=")" separator="and">
+                <if test="customGroup.customGroups != null and customGroup.customGroups.size() > 0">
+                    <foreach collection="customGroup.customGroups" item="group" open="(" close=")" separator="and">
+                        (
+                        1=1
+                        <if test="group.appCode != null and group.appCode != ''">
+                            and `application_code` != #{group.appCode}
+                        </if>
+                        <if test="group.msgType != null and group.msgType != ''">
+                            and `msg_type` != #{group.msgType}
+                        </if>
+                        <if test="group.sceneCode != null and group.sceneCode != ''">
+                            and `msg_scene_code` != #{group.sceneCode}
+                        </if>
+                        )
+                    </foreach>
+                </if>
+            </foreach>
+            )
+        </if>
+
+    </update>
+
+    <update id="readAllMsgType">
+        update
+        `msg_record_target` `mrt`
+        inner join `msg_record` `mr` on `mr`.`id` = `mrt`.`msg_record_id`
+        set `has_read` = true
+        where `mrt`.`channel_code` = #{channelType}
+        and `mrt`.`user_id` = #{userId}
+        and `mrt`.`send_status` = true
+        and `mr`.`msg_type` = #{msgType}
+    </update>
+
+    <update id="readAllApplicationMsg">
+        update
+        `msg_record_target` `mrt`
+        inner join `msg_record` `mr` on `mr`.`id` = `mrt`.`msg_record_id`
+        set `has_read` = true
+        where `mrt`.`channel_code` = #{channelType}
+        and `mrt`.`user_id` = #{userId}
+        and `mrt`.`send_status` = true
+        and mr.`application_code` = #{applicationCode}
+    </update>
+
+    <update id="readBatch">
+        update
+        `msg_record_target`
+        set `has_read` = true
+        where `user_id` = #{userId} and `send_status` = true
+        and `msg_record_id` in
+        <foreach collection="msgRecordIds" item="msgRecordId" open="(" close=")" separator=",">
+            #{msgRecordId}
+        </foreach>
+    </update>
+
+    <update id="deletedByBusinessIds">
+        update
+        `msg_record_target`
+        set `deleted` = #{deleteTimestamp}
+        where `msg_record_id` in
+        (
+        select
+        `id`
+        from
+        `msg_record`
+        where `business_id` in
+        <foreach collection="businessIds" item="businessId" open="(" separator="," close=")">
+            #{businessId}
+        </foreach>
+        )
+    </update>
+</mapper>

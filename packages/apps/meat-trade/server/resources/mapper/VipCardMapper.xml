@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.wallet.dao.VipCardMapper">
+    <sql id="BASIC_VIP_CARD_SELECT">
+        select vcd.id,
+               vcd.supplier_id,
+               vcd.code,
+               vcd.tenant,
+               vcd.deleted,
+               vcd.create_by,
+               vcd.create_time,
+               vcd.update_by,
+               vcd.update_time
+        from `meattrade_vip_card` vcd
+    </sql>
+
+    <select id="getUserCards" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.entity.VipCard">
+        <include refid="BASIC_VIP_CARD_SELECT"/>
+        where
+        vcd.supplier_id in
+        <foreach collection="supplierIds" item="supplierId" index="index" open="(" close=")" separator=",">
+            #{supplierId}
+        </foreach>
+        order by vcd.create_time desc
+    </select>
+
+    <select id="listCards" resultType="com.guhecloud.cube.biz.meattrade.server.wallet.dto.SupplierVipCardDTO">
+        select vcd.id, vcd.supplier_id, vcd.code, vcd.tenant, vcd.deleted, vcd.create_by, vcd.create_time,
+        vcd.update_by, vcd.update_time
+        from `meattrade_vip_card` vcd
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                vcd.create_time >= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                <![CDATA[and vcd.create_time <= #{param.period.end}]]>
+            </if>
+            <if test="param.keyword != null and !param.keyword.isEmpty()">
+                and (vcd.code like concat('%', #{param.keyword}, '%') or
+                vcd.supplier_id in
+                <foreach collection="supplierIds" item="supplierId" index="index" open="(" close=")" separator=",">
+                    #{supplierId}
+                </foreach>
+                )
+            </if>
+            and vcd.tenant = #{param.tenant}
+        </where>
+        order by vcd.create_time desc
+    </select>
+</mapper>

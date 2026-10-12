@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.UserRoleMapper">
+    <select id="listUserRoles" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserRoleDTO">
+        select re.`id`, re.`product_id`, re.`name`, re.`icon`, re.`sort`, re.`remark`, re.`builtin`, re.`enabled`, re.`tenant`,
+        re.`deleted`, re.`create_by`, re.`create_time`, re.`update_by`, re.`update_time`, ure.`user_id`
+        from `role` re
+        inner join `user_role` ure on ure.`role_id` = re.`id`
+        where ure.`user_id` in
+        <foreach collection="collection" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and re.`enabled` = true
+        order by re.`sort` asc, re.`id` desc
+    </select>
+
+    <select id="listUserIdsByRoleIds" resultType="java.lang.Long">
+        select ure.`user_id`
+        from `role` re
+        inner join `user_role` ure on ure.`role_id` = re.`id`
+        where ure.`role_id` in
+        <foreach collection="roleIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+</mapper>

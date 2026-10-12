@@ -1,0 +1,9 @@
+package com.guhecloud.cube.iot.mgt.north.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.guhecloud.cube.iot.mgt.north.model.LinkConfig;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface LinkConfigMapper extends BaseMapper<LinkConfig> {
+}

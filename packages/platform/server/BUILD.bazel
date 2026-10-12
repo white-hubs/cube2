@@ -1,0 +1,63 @@
+load("@rules_jvm_external//:defs.bzl", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "platform-server"
+
+java_library(
+    name = "server",
+    exports = [
+        "//packages/platform:generic-deps",
+        "//packages/platform/base",
+        "//packages/platform/base/model:error-response",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/cloud",
+        "//packages/platform/web",
+        "//third-party/java/nacos:nacos_core",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java/spring:spring_boot_autoconfigure",
+        "//third-party/java/spring:spring_boot_loader",
+        "//third-party/java/spring:spring_cloud",
+        "//third-party/java/spring:spring_context",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/spring:spring_retry",
+        "//third-party/java/spring:spring_security",
+        "//third-party/java/spring:springframework",
+    ],
+)
+
+java_export(
+    name = "export",
+    srcs = [],
+    maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        artifactId,
+        PLATFORM_VERSION,
+    ]),
+    pom_template = "pom.tpml",
+    runtime_deps = [
+        "//packages/platform/base:export",
+        "//packages/platform/web:export",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    bom_pom_template = "pom.tpml",
+    dependencies_maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        "platform-client",
+        PLATFORM_VERSION,
+    ]),
+    dependencies_pom_template = "pom.tpml",
+    java_exports = [
+        "//packages/platform/base:export",
+        "//packages/platform/web:export",
+    ],
+    maven_coordinates = ":".join([
+        PACKAGE_GROUP,
+        "platform-client",
+        PLATFORM_VERSION,
+    ]),
+)

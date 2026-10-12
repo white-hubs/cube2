@@ -1,0 +1,21 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.MultipleVideoCollectMapper">
+
+<select id="getPage" resultType="com.guhecloud.cube.biz.vmonitor.server.entity.MultipleVideoCollect">
+    SELECT c.`id`,
+    c.`name`,
+    c.`user_id`,
+    c.`ROW`,
+    c.`col`,
+    c.`create_time`
+    FROM `security_device_auth` a
+    INNER JOIN `multiple_video_collect_camera` b ON a.`security_device_id` = b.`device_id`
+    INNER JOIN `multiple_video_collect` c ON b.`multiple_video_collect_id` = c.`id`
+    where a.`user_id`=#{userId} AND c.`user_id` = #{userId}
+    <if test="param.keyword != null and param.keyword !=''">
+        and c.`name` like concat('%',#{param.keyword},'%')
+    </if>
+    group by c.`id`
+    order by c.`create_time` desc
+</select>
+</mapper>

@@ -1,0 +1,74 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/third-connection:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:secure",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/server",
+        "//third-party/java/hutool:http",
+        "//third-party/java/jackson:core",
+        "//packages/platform/job",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/event",
+        "//third-party/java/mysql:mysql_connector_java",
+        "//third-party/java/sqlserver:mssql_jdbc",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.third.connection.server.ThirdConnectionServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "cube-srv-gen-third-connection-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    datasource_package = "com.guhecloud.cube.srv.gen.third.connection",
+    gw_prefix = "/third-connection/",
+    main_class = _MAIN_CLASS,
+    no_datasource = True,
+    server = ":server",
+    server_id = "thirdConnection",
+    visibility = ["//packages:__subpackages__"],
+)

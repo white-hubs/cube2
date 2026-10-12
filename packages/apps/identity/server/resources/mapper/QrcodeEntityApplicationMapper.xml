@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.identity.server.qrcode.dao.QrcodeEntityApplicationMapper">
+
+<select id="entityApplicationList"
+            resultType="com.guhecloud.cube.srv.gen.identity.server.qrcode.interfaces.vo.QrcodeEntityApplicationVO">
+    select a.`id`, a.`entity_id`, a.`application_id`, q.`application_name`, q.`application_code`, a.`selected`
+    from `qrcode_entity_application` a
+    left join `qrcode_application` q on a.`application_id` = q.`id`
+    <where>
+        a.`entity_id` = #{entityTypeId}
+        <if test="codes != null and codes.size > 0">
+            and q.`application_code` in
+            <foreach collection="codes" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </if>
+    </where>
+</select>
+
+<select id="getEntityTypeApplication"
+            resultType="com.guhecloud.cube.srv.gen.identity.server.qrcode.po.QrcodeApplicationPO">
+    select q.* from `qrcode_entity_type` t
+    LEFT JOIN `qrcode_entity_application` a on t.`id` = a.`entity_id`
+    left JOIN `qrcode_application` q on a.`application_id` = q.`id`
+    <where>
+        t.`entity_type` = #{entityType} and `selected` = true
+    </where>
+</select>
+</mapper>

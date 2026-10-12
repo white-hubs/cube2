@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchDeviceStatusMapper">
+
+    <insert id="insertOrUpdateDeviceStatusBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchDeviceStatus">
+        insert into
+        `dispatch_device_status`(id,code,lng,lat,direction,speed,upload_time,online_status,video_status
+        ,tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.lng},#{item.lat},#{item.direction},#{item.speed},#{item.uploadTime},#{item.onlineStatus},#{item.videoStatus},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        lng = values(lng),
+        lat = values(lat),
+        direction = values(direction),
+        speed = values(speed),
+        upload_time = values(upload_time),
+        online_status = values(online_status),
+        video_status = values(video_status),
+        update_time = values(update_time)
+    </insert>
+
+    <update id="updateDeviceStatusBatch">
+        update dispatch_device_status
+        set online_status = #{status}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")"
+                 separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

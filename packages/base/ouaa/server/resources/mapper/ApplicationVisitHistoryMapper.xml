@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.ApplicationVisitHistoryMapper">
+
+    <select id="selectUserApplicationVisitHistory"
+            resultType="com.guhecloud.cube.biz.ouaa.server.entity.Application">
+        SELECT
+        t3.`id`,
+        t3.`code`,
+        t3.`name`,
+        t3.`icon`,
+        t3.`remark`,
+        t3.`enabled`,
+        t3.`application_group_id`,
+        t3.`create_time`,
+        t3.`update_time`
+        FROM
+        (
+        SELECT
+        t1.`application_code`,
+        MAX(t1.`visit_time`) as `visit_time`
+        FROM
+        `application_visit_history` t1
+        <where>
+            t1.`user_id` = #{userId}
+            AND t1.`terminal` = #{terminal}
+        </where>
+        GROUP BY t1.`application_code`
+        ) t2
+        INNER JOIN `application` t3 ON t2.`application_code` = t3.`code`
+        <where>
+            <if test="applicationIds != null and applicationIds.size > 0">
+                AND t3.`id` IN
+                <foreach collection="applicationIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY t2.`visit_time` DESC
+    </select>
+
+    <select id="selectUserApplicationVisitHistories"
+            resultType="com.guhecloud.cube.biz.ouaa.server.entity.ApplicationVisitHistory">
+        SELECT
+        t2.`application_code`,
+        t2.`visit_time`
+        FROM
+        (
+        SELECT
+        t1.`application_code`,
+        MAX(t1.`visit_time`) as `visit_time`
+        FROM
+        `application_visit_history` t1
+        <where>
+            t1.`user_id` = #{userId}
+            AND t1.`terminal` = #{terminal}
+        </where>
+        GROUP BY t1.`application_code`
+        ) t2
+        INNER JOIN `application` t3 ON t2.`application_code` = t3.`code`
+        <where>
+            <if test="applicationIds != null and applicationIds.size > 0">
+                AND t3.`id` IN
+                <foreach collection="applicationIds" item="id" open="(" close=")"
+                         separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY t2.`visit_time` DESC
+    </select>
+</mapper>

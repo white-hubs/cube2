@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.stall.server.dao.GenStallMapper">
+
+    <update id="updateBatchLeased">
+        update stall
+        set leased = #{leased},
+        set leaseType = #{leaseType}
+        where id in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+    
+
+
+    <select id="listByAreas" resultType="com.guhecloud.cube.srv.gen.stall.server.entity.GenStall">
+        select id,code,name,type,area,location,built_up_area,practical_area,dept_id,
+        dept_name,lease_type,leased,bim_bind,remark,enabled
+        from stall
+        <where>
+            <foreach collection="areas" item="item" separator="or" open="(" close=")">
+                area like concat(#{item},"%")
+            </foreach>
+        </where>
+    </select>
+</mapper>

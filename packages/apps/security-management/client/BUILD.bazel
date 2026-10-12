@@ -1,0 +1,44 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/security-management:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "client",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/client",
+    ],
+)
+
+artifactId = "cube-srv-gen-securitymanagement-client"
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, VERSION),
+    runtime_deps = [
+        ":client",
+    ],
+)
+
+java_export(
+    name = "export-dev",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, VERSION_DEV),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":client",
+    ],
+)
+
+java_export(
+    name = "export-test",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, VERSION_TEST),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":client",
+    ],
+)

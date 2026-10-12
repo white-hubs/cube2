@@ -1,0 +1,280 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.CameraPatrolLineMapper">
+
+    <update id="updateLastPatrol">
+        update `camera_patrol_line`
+        set
+        `patrol_num` = `patrol_num` + 1,
+        `patrol_last_time` = #{partolTime}
+        where `id` = #{id}
+    </update>
+
+    <select id="selectAuthCameraPatrolLinePage"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.entity.CameraPatrolLine">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        cpl.`patrol_proposal_time`,
+        cpl.`patrol_last_time`,
+        cpl.`enabled`,
+        cpl.`tenant`,
+        cpl.`deleted`,
+        cpl.`create_by`,
+        cpl.`creator_id`,
+        cpl.`creator_type`,
+        cpl.`create_time`,
+        cpl.`update_by`,
+        cpl.`updater_id`,
+        cpl.`updater_type`,
+        cpl.`update_time`
+        FROM
+        `camera_patrol_line` cpl
+        INNER JOIN `camera_patrol_person` cpp on cpl.`id` = cpp.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.enabled != null">
+                and cpl.`enabled` = #{param.enabled}
+            </if>
+            <if test="param.authIds != null and param.authIds.size() > 0">
+                and
+                <foreach collection="param.authIds" item="authId" open="(" close=")" separator="or">
+                    FIND_IN_SET(#{authId},cpp.`auth_ids`)
+                </foreach>
+            </if>
+        </where>
+        group by cpl.id
+    </select>
+
+    <select id="selectPatrolLineStatisticsPage"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="mysql">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        GROUP_CONCAT(DISTINCT cpr.user_name) as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectPatrolLineStatisticsPage"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="pg">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        GROUP_CONCAT(DISTINCT cpr.user_name) as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectPatrolLineStatisticsPage"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="dm">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        listagg(DISTINCT cpr.user_name,',') as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectPatrolLineStatisticsList"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="mysql">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        GROUP_CONCAT(DISTINCT cpr.`user_name`) as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectPatrolLineStatisticsList"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="pg">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        GROUP_CONCAT(DISTINCT cpr.`user_name`) as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectPatrolLineStatisticsList"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolLineStatisticsPageVO" databaseId="dm">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        cpl.`camera_num`,
+        cpl.`patrol_num`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as abnormal_num,
+        listagg(DISTINCT cpr.`user_name`,',') as patrol_user_names
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and cpl.`name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and cpr.`patrol_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and cpr.`patrol_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="getCameraPatrolLineAbnormalStatistics"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolCurrencyStatisticsVO">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as total_num
+        FROM
+        `camera_patrol_line` cpl
+        LEFT JOIN `camera_patrol_record` cpr on cpl.id = cpr.camera_patrol_line_id
+        <if test="param.period != null and param.period.begin != null">
+            and cpr.`patrol_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and cpr.`patrol_time` &lt;= #{param.period.end}
+        </if>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="getCameraPatrolLineAbnormalInnerStatistics"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.vo.CameraPatrolCurrencyStatisticsVO">
+        SELECT
+        cpl.`id`,
+        cpl.`name`,
+        COALESCE(sum(cpr.`abnormal_num`),0) as total_num
+        FROM
+        `camera_patrol_line` cpl
+        INNER JOIN `camera_patrol_record` cpr on cpl.`id` = cpr.`camera_patrol_line_id` and `abnormal_num` > 0
+        <if test="param.period != null and param.period.begin != null">
+            and cpr.`patrol_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and cpr.`patrol_time` &lt;= #{param.period.end}
+        </if>
+        GROUP BY cpl.`id`
+    </select>
+
+    <select id="selectCameraPatrolLineCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(1) as total_num
+        FROM
+        `camera_patrol_line`
+        <where>
+            <if test="param.enabled != null">
+                and `enabled` = #{param.enabled}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and `create_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `create_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectCameraPatrolLineDevices" resultType="java.lang.Integer">
+        SELECT
+        COUNT(DISTINCT t2.`device_id`) as total_num
+        FROM
+        `camera_patrol_line` t1
+        INNER JOIN `camera_patrol_device` t2 on t1.`id` = t2.`camera_patrol_line_id`
+        <where>
+            <if test="param.enabled != null">
+                and t1.`enabled` = #{param.enabled}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`create_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`create_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

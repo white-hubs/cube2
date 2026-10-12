@@ -1,0 +1,8 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "geotools_main",
+    actual = "@maven//:io_oss84_geotools_gt_main",
+)

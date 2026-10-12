@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.task.infrastructure.mapper.TaskRunningLogMapper">
+
+    <insert id="batchInsert" parameterType="com.guhecloud.cube.base.flow.flowable.task.infrastructure.po.TaskRunningPO">
+        INSERT INTO `task_running_log`(
+        `task_key`,
+        `process_instance_id`,
+        `operation_info`,
+        `id`,
+        `deleted`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`,
+        `currented`
+        )
+        values
+        <foreach collection="list" separator="," item="log">
+            (
+            #{log.taskKey},
+            #{log.processInstanceId},
+            #{log.operationInfo},
+            #{log.id},
+            #{log.deleted},
+            #{log.createBy},
+            #{log.creatorId},
+            #{log.creatorType},
+            #{log.createTime},
+            #{log.updateBy},
+            #{log.updaterId},
+            #{log.updaterType},
+            #{log.updateTime},
+            #{log.currented}
+            )
+        </foreach>
+    </insert>
+</mapper>

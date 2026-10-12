@@ -1,0 +1,40 @@
+package com.guhecloud.cube.srv.gen.attendance.management.server.attend.common.enums;
+
+import lombok.Getter;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author bq
+ * @date 2022/11/14
+ * @description 考勤组类型
+ */
+@Getter
+public enum AttArrangeTypeEnum {
+
+    ARRANGE("排班制"),
+
+    DUTY("值班制");
+
+    private final String value;
+
+    AttArrangeTypeEnum(String value) {
+        this.value = value;
+    }
+
+    public static List<Map<String, String>> getList() {
+        List<Map<String, String>> list = new ArrayList<>();
+        AttArrangeTypeEnum[] values = AttArrangeTypeEnum.values();
+        for (AttArrangeTypeEnum typeEnum : values) {
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("name", typeEnum.getValue());
+            map.put("value", typeEnum.name());
+            list.add(map);
+        }
+        return list;
+    }
+
+}

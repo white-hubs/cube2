@@ -1,0 +1,24 @@
+spring:
+  profiles:
+    active: prod
+  main:
+    banner-mode: off
+    log-startup-info: false
+
+ouaa:
+  auth:
+    url: http://localhost:4009/oauth/token
+    clientId: client_2
+    clientSecret: cli@pwd#ghy!789
+    tenant: 0
+    terminal: terminal
+    refreshInterval: 600
+
+logging:
+  level:
+    root: ERROR
+    com.guhecloud.platform.dcm: INFO
+    com.guhecloud.platform.dcm.auth: OFF
+
+
+dcm.default-providers: broadcast,dict,emergency,fault,flow,hidden_danger,qrcode,iot,ouaa,todo

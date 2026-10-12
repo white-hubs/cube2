@@ -1,0 +1,21 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "zxing_core",
+    actual = "@maven//:com_google_zxing_core",
+)
+
+alias(
+    name = "zxing_javase",
+    actual = "@maven//:com_google_zxing_javase",
+)
+
+java_library(
+    name = "zxing",
+    exports = [
+        ":zxing_core",
+        ":zxing_javase",
+    ],
+)

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.loose.works.dao.ProjectFeedbackMapper">
+
+    <select id="abnormalProjectNum" resultType="java.lang.Long">
+        select count(distinct s.id) from project_schedule s
+        left join project_feedback f on s.id = f.schedule_id
+        where
+        (f.acceptance_result = 'DISQUALIFICATION')
+        <if test="period != null and period.begin != null">
+            and s.create_time &gt;= #{period.begin,jdbcType=TIMESTAMP}
+        </if>
+        <if test="period != null and period.end != null">
+            and s.create_time &lt;= #{period.end}
+        </if>
+
+    </select>
+    <select id="selectAbnormalProject"
+            resultType="com.guhecloud.cube.srv.gen.loose.works.dto.vo.AbnormalProjectReportVO">
+        SELECT DISTINCT
+        s.id,
+        s.project_name,
+        s.party_b,
+        s.supervise_user_name,
+        s.supervise_dep
+        FROM
+        project_schedule s
+        LEFT JOIN project_feedback f ON s.id = f.schedule_id
+        WHERE
+        (f.acceptance_result = 'DISQUALIFICATION')
+        <if test="period != null and period.begin != null">
+            and s.create_time &gt;= #{period.begin,jdbcType=TIMESTAMP}
+        </if>
+        <if test="period != null and period.end != null">
+            and s.create_time &lt;= #{period.end,jdbcType=TIMESTAMP}
+        </if>
+    </select>
+</mapper>

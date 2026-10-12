@@ -1,0 +1,73 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.GearPositionMapper">
+
+    <select id="getDevicePosition" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DevicePositionVo">
+        SELECT
+            a.`device_id` `deviceId`,
+            a.`device_name` `deviceName`,
+            a.`code` `deviceCode`,
+            b.`gear_position_code` `gearPositionCode`,
+            b.`gear_position_id` `gearPositionId`,
+            b.`gear_position_name` `gearPositionName`,
+            b.`gear_position_area` `gearPositionArea`,
+            b.`unit_traffic` `unitTraffic`,
+            b.`unit_price` `unitPrice`,
+            b.`emplace_temperature` `emplaceTemperature`
+        FROM
+            `security_device` a
+                LEFT JOIN `device_position` b ON a.`device_id` = b.`cold_water_device`
+        where
+            a.`application_code` = 'COOLINGWATER'
+            <if test="keyword !=null and keyword !=''">
+              and  (b.`gear_position_name` like concat('%',#{keyword},'%') or a.`code` like concat('%',#{keyword},'%'))
+            </if>
+    </select>
+
+
+    <select id="getStatisticsData" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(${dataColumn}),0) FROM ${tableName}
+        where
+        <if test="startTime !=null and endTime !=null">
+            `data_time` between #{startTime} and #{endTime}
+        </if>
+        <if test="deviceCode !=null and deviceCode !=''">
+          and  `device_code` like concat('%',#{deviceCode},'%')
+        </if>
+        <if test="param.department !=null and param.department !=''">
+            and  `department_id` like concat('%',#{param.department},'%')
+        </if>
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  `gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  `code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and  `shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+    </select>
+    <select id="getStatisticsDataTrend"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.DataKeyValueVo">
+        SELECT COALESCE(SUM(${dataColumn}),0) as `value`,`data_time` as `keyName` FROM ${tableName}
+        where
+        <if test="startTime !=null and endTime !=null ">
+            `data_time` between #{startTime} and #{endTime}
+        </if>
+        <if test="param.deviceCode !=null and param.deviceCode !=''">
+            and  `device_code` like concat('%',#{param.deviceCode},'%')
+        </if>
+        <if test="param.department !=null and param.department !=''">
+            and  `department_id` like concat('%',#{param.department},'%')
+        </if>
+        <if test="param.gearPositionCode !=null and param.gearPositionCode !=''">
+            and  `gear_position_code` like concat('%',#{param.gearPositionCode},'%')
+        </if>
+        <if test="param.code !=null and param.code !=''">
+            and  `code` like concat('%',#{param.code},'%')
+        </if>
+        <if test="param.shiftMaster !=null and param.shiftMaster !=''">
+            and `shift_master` like concat('%',#{param.shiftMaster},'%')
+        </if>
+        group by `data_time`
+    </select>
+</mapper>

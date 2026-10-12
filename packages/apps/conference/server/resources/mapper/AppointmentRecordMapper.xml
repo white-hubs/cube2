@@ -1,0 +1,153 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.conferencemanage.server.dao.AppointmentRecordMapper">
+    <resultMap id="selectTimeIntervalLog"
+               type="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentIntervalLogVo">
+        <result column="conferenceName" property="conferenceName"></result>
+        <collection property="conferenceNameLists" javaType="java.util.List"
+                    ofType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.ConferenceNameList">
+            <result column="timeInterval" property="timeInterval"></result>
+            <result column="intervalLogCount" property="intervalLogCount"></result>
+        </collection>
+    </resultMap>
+    <select id="selectConferenceUsage"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentUsageVo">
+
+        SELECT
+        t1.`name` `name`,
+        COALESCE(`num`,0) `num`
+        FROM
+        ( SELECT distinct `name` FROM conference WHERE `STATUS` = 0 ) t1
+        LEFT JOIN (
+        SELECT
+        count( `conference_name` ) AS `num`,
+        `conference_name`
+        FROM
+        `appointment_record`
+        WHERE
+        `operate` = 'APPOINTMENT'
+        <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+            <choose>
+                <when test="_databaseId == 'pg'">
+                    and create_time between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and
+                    to_timestamp(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+                </when>
+                <otherwise>
+                    and create_time between #{startTime} and #{endTime}
+                </otherwise>
+            </choose>
+        </if>
+        GROUP BY `conference_name`
+        ) t2 ON t2.`conference_name` = t1.`name`
+
+    </select>
+
+    <select id="selectConferenceCount"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentUsageVo">
+        SELECT
+        count( 1 ) `num`
+        FROM
+        `appointment_record` a
+        LEFT JOIN `conference` b ON a.`conference_name` = b.`name`
+        <where>
+            a.`operate` = 'APPOINTMENT' and b.`status`=0
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                <choose>
+                    <when test="_databaseId == 'pg'">
+                        and a.`create_time` between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and
+                        to_timestamp(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+                    </when>
+                    <otherwise>
+                        and a.`create_time` between #{startTime} and #{endTime}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectTimeIntervalLog"
+            resultMap="selectTimeIntervalLog">
+        SELECT
+        t1.`conferenceName`,
+        t1.`timeInterval`,
+        COALESCE( t2.`intervalLogCount`, 0 ) `intervalLogCount`
+        FROM
+        (
+        SELECT
+        b.`name` `conferenceName`,
+        b.`id`,
+        a.`time_interval` `timeInterval`,
+        count( a.`time_interval` ) `intervalLogCount`
+        FROM
+        `book_time_interval` a
+        LEFT JOIN `conference` b ON b.`id` = a.`conference_id`
+        GROUP BY
+        a.`time_interval`,
+        a.`conference_id`
+        ) t1
+        LEFT JOIN (
+        SELECT
+        a.`time_interval`,
+        a.`conference_id` `conferenceId`,
+        count( a.`time_interval` ) `intervalLogCount`
+        FROM
+        `book_interval_record` a
+        LEFT JOIN `conference` b ON b.`id` = a.`conference_id`
+        LEFT JOIN `book_room` c ON c.`id` = a.`book_id`
+        <where>
+            b.status=0
+            AND c.`status` <![CDATA[<>]]> 'CANCEL_RESERVATION'
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                <choose>
+                    <when test="_databaseId == 'pg'">
+                        and a.`appointment_date` between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and
+                        to_timestamp(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+                    </when>
+                    <otherwise>
+                        and a.`appointment_date` between #{startTime} and #{endTime}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+        GROUP BY
+        a.`time_interval`,
+        a.`conference_id`
+        ) t2 ON t1.`timeInterval` = t2.`time_interval` and t1.`id`=t2.`conferenceId`
+    </select>
+    <select id="selectApppointRecordInfo"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.AppointmentRecordVo">
+        select `id`,
+        `user_name`,
+        `user_id`,
+        `conference_name`,
+        `operate`,
+        `department_name`,
+        `time_interval`,
+        conference_device,
+        appointment_date,
+        `goods_Names`,
+        `cancel_reason`,
+        `process_ins_id` as process_instance_id,
+        `create_time`
+        from
+        `appointment_record`
+        <where>
+            <if test="param.date!=null &amp; param.date!='' ">
+                <choose>
+                    <when test="_databaseId == 'pg'">
+                        TO_CHAR(`create_time`, 'yyyy-mm-dd hh24:mi:ss') like concat('%',#{param.date},'%')
+                    </when>
+                    <otherwise>
+                        `create_time` like concat('%',#{param.date},'%')
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="param.status!=null &amp; param.status!=''">
+                and `operate`=#{param.status}
+            </if>
+            <if test="param.keyword!=null &amp; param.keyword!=''">
+                and `conference_name` like concat('%',#{param.keyword},'%')
+            </if>
+        </where>
+        order by `create_time` desc
+    </select>
+</mapper>

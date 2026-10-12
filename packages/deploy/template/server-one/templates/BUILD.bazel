@@ -1,0 +1,5 @@
+exports_files([
+    "application.tpl.yaml",
+    "OneDynamicDataSourceConfig.tpl.java",
+    "ServoneServer.tpl.java",
+])

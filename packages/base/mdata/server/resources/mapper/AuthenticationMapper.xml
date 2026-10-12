@@ -1,0 +1,39 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.merchant.dao.AuthenticationMapper">
+
+    <select id="page" resultType="com.guhecloud.cube.biz.mdata.server.merchant.dto.AuthenticationDTO">
+        select
+        a.id,a.merchant_id,a.type,a.name,a.identity_card,a.subject_type,a.subject_name,a.license_no,a.status as
+        audit_status,
+        a.reason,a.review_time,a.submit_time
+        from authentication a
+        left join merchant m
+        on a.merchant_id = m.id
+        left join seller_authentication sa
+        on sa.merchant_id = m.id
+        <where>
+            <if test="param.type != null">
+                and a.type = #{param.type.name}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and m.name like concat("%",#{param.keyword},"%")
+            </if>
+            <if test="param.bizType != null and param.bizType.name == 'BIZ_TYPE_SELLER'">
+                and m.seller = 1
+            </if>
+            <if test="param.bizType != null and param.bizType.name == 'BIZ_TYPE_BUYER'">
+                and m.buyer = 1
+            </if>
+            <if test="param.auditStatus != null">
+                and a.status = #{param.auditStatus.name}
+            </if>
+            <if test="param.sellerStatus != null">
+                and sa.status = #{param.sellerStatus.name}
+            </if>
+            and a.status in ("AUTH_UNAUTHORIZED","AUTH_PASSED","AUTH_FAILED","AUTH_AUDIT")
+        </where>
+        group by id
+        order by a.submit_time desc,a.status asc,sa.status asc
+    </select>
+
+</mapper>

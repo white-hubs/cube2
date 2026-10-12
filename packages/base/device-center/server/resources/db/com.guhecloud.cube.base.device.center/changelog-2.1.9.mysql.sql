@@ -1,0 +1,1 @@
+alter table `center_biz_tag` add column `enable_status` tinyint(1) unsigned not null default 1 comment '启用状态';

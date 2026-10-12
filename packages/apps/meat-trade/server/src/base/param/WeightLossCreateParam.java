@@ -1,0 +1,43 @@
+package com.guhecloud.cube.biz.meattrade.server.base.param;
+
+import lombok.Data;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+/**
+ * 重量损耗新增
+ */
+@Data
+public class WeightLossCreateParam {
+
+    /**
+     * 起点时间
+     */
+    @NotNull(message = "开始时间不能为空")
+    private Double startTime;
+
+    /**
+     * 终点时间
+     */
+    @NotNull(message = "结束时间不能为空")
+    private Double endTime;
+
+    /**
+     * 损耗重量
+     */
+    @NotNull(message = "损耗重量不能为空")
+    private Double loss;
+
+    /**
+     * 是否启用
+     */
+    private Boolean enabled;
+
+    /**
+     * 备注
+     */
+    @Size(max = 200, message = "备注不能大于200")
+    private String remark;
+
+}

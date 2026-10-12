@@ -1,0 +1,18 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.customized.youxianqu.park.management.server.estate.mapper.EstateContractMapper">
+
+    <select id="selectTrend"
+            resultType="com.guhecloud.cube.customized.youxianqu.park.management.server.common.vo.result.TrendResult">
+        select DATE_FORMAT(SIGNDATE,#{format}) as trendX,count(id) as trendY
+        from V_ZHYQ_YQWY_CONTRACT
+        <where>
+            <if test="period != null and period.begin != null">
+                and SIGNDATE &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and SIGNDATE &lt;= #{period.end}
+            </if>
+        </where>
+        group by trendX
+    </select>
+</mapper>

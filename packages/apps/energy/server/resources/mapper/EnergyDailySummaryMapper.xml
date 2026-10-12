@@ -1,0 +1,16 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyDailySummaryMapper">
+    <select id="getDailySummaryForTrend" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select DATE_FORMAT(stat_date,'%Y-%m-%d') as time,sum(dd_value) as `value`,
+        sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from energy_daily_summary
+        where deleted = 0
+        <if test="period != null and period.begin != null">
+            and stat_date &gt;= #{period.begin}
+        </if>
+        <if test="period != null and period.end != null">
+            and stat_date &lt;= #{period.end}
+        </if>
+        group by time
+    </select>
+</mapper>

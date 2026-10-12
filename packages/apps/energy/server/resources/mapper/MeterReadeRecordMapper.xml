@@ -1,0 +1,85 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.MeterReadeRecordMapper">
+
+    <update id="delEnergyProjectItem">
+        <foreach collection="list" separator=";" item="item">
+            UPDATE energy_project_item
+            SET deleted = #{delTime}
+            WHERE
+            device_id = #{item}
+        </foreach>
+    </update>
+
+    <update id="delEnergyAlarmRule">
+        <foreach collection="list" separator=";" item="item">
+            UPDATE energy_alarm_rule
+            SET deleted = #{delTime}
+            WHERE
+            device_id = #{item}
+        </foreach>
+    </update>
+
+    <update id="delMeterDevice">
+        <foreach collection="list" separator=";" item="item">
+            UPDATE meter_device
+            SET deleted = #{delTime}
+            WHERE
+            device_id = #{item}
+        </foreach>
+    </update>
+
+    <select id="getMeterReadeRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.MeterReadeRecordVo">
+        SELECT
+            a.id id,
+            a.reade_value readeValue,
+            a.now_reade_value nowReadeValue,
+            a.now_reade_time nowReadeTime,
+            a.last_reade_value lastReadeValue,
+            a.reade_last_value readeLastValue,
+            a.last_reade_time lastReadeTime,
+            a.device_id deviceId,
+            b.`code` code,
+            b.device_name deviceName,
+            b.device_area deviceArea
+        FROM
+            meter_reade_record a
+                LEFT JOIN meter_device b ON a.device_id = b.device_id
+        <where>
+            a.last_reade_time is not null
+            <if test="param.keyword !=null and param.keyword !=''">
+               and b.device_name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.instrumentType !=null and param.instrumentType !=''">
+               and b.instrument_type = #{param.instrumentType}
+            </if>
+            <if test="param.deviceAreaId !=null and param.deviceAreaId !=''">
+               and b.device_area_id like concat('%',#{param.deviceAreaId},'%')
+            </if>
+            <if test=" deviceIds.size()>0">
+               and a.device_id in
+                    <foreach collection="deviceIds" item="item" open="(" close=")" separator=",">
+                      #{item}
+                    </foreach>
+            </if>
+            <if test="param.begin !=null and param.end !=null">
+               and a.now_reade_time between #{param.begin} and #{param.end}
+            </if>
+
+        </where>
+        order by a.now_reade_time DESC
+
+
+    </select>
+
+    <select id="getReadeRecordList" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.DataVo">
+        select
+        reade_value  readeValue
+        ,now_reade_time period
+        from
+        meter_reade_record
+        where
+        device_id=#{deviceId} and now_reade_time between #{begin} and #{end}
+        order by now_reade_time ASC
+    </select>
+</mapper>

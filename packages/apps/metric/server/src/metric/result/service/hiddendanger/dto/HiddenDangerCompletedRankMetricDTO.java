@@ -1,0 +1,46 @@
+package com.guhecloud.cube.biz.metric.server.metric.result.service.hiddendanger.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+/**
+ * @Author: zengyadong@guhecloud.com
+ * @Date: 2025/6/20 16:46
+ * @Description:
+ */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class HiddenDangerCompletedRankMetricDTO {
+
+    /**
+     * 报修数
+     */
+    private Integer repairCount;
+
+    /**
+     * 处理数
+     */
+    private Integer handleCount;
+
+    /**
+     * 处理率
+     */
+    private Double handleRate;
+
+    /**
+     * 处理率最高的隐患类型
+     */
+    private List<HandlerTypeRankMetricDTO> topHandlerTypeMetric;
+
+    /**
+     * 处理率最低的隐患类型
+     */
+    private List<HandlerTypeRankMetricDTO> lowHandlerTypeMetric;
+
+}

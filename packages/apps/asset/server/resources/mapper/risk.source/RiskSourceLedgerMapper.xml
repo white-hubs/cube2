@@ -1,0 +1,168 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.risk.source.dao.RiskSourceLedgerMapper">
+    <select id="getAllGroupTypeCode"
+            resultType="com.guhecloud.cube.property.management.client.common.vo.RiskSourceTypeVO">
+        select type_name,type_code,count(1) as totalNum from risk_source_ledger
+        where type_code in
+        <foreach collection="types" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY type_code
+        order by totalNum desc
+    </select>
+    <select id="selectRiskSourceDeviceNumByCode"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.RiskSourceDeviceVO">
+        SELECT
+        COUNT( rsl.id ) AS DEVICE_NUM,
+        COALESCE ( SUM( IF ( rsl.STATUS = 'EXPIRE', 1, 0 )), 0 ) AS expire_num,
+        rsl.type_code AS DEVICE_CODE
+        FROM
+        risk_source_ledger rsl
+        WHERE
+        1=1
+        <if test="param.deviceNameList !=null and param.deviceNameList.size() > 0">
+            and rsl.type_code IN
+            <foreach collection="param.deviceNameList" item="deviceName" open="(" separator="," close=")">
+                #{deviceName}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin !=null and param.period.end != null">
+            AND rsl.create_time between #{param.period.begin} and #{param.period.end}
+        </if>
+        GROUP BY
+        rsl.type_code
+    </select>
+    <select id="selectAllByPage"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceLedgerVO">
+        select a.*,
+        b.id as extendInfoId,
+        b.ledger_id,
+        b.receive_user_type,
+        b.purchasing_date,
+        b.efficiency,
+        b.plate_number,
+        b.insurance,
+        b.brand,
+        b.electron_mobile_type,
+        b.electron_mobile_colour
+        from risk_source_ledger a
+        left join risk_source_ledger_extend_info b on a.id = b.ledger_id
+        <where>
+            <if test="param.ids !=null and param.ids.size() > 0">
+                and a.id in
+                <foreach collection="param.ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.period !=null and param.period.begin !=null and param.period.end !=null">
+                a.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.stallId !=null">
+                and a.stall_id = #{param.stallId}
+            </if>
+            <if test="param.areaId !=null">
+                and a.area_id like concat('%', #{param.areaId},'%')
+            </if>
+            <if test="param.typeCode !=null and param.typeCode !=''">
+                and a.type_code = #{param.typeCode}
+            </if>
+            <if test="param.sitePointId !=null">
+                and a.site_point_id=#{param.sitePointId}
+            </if>
+            <if test="param.receiveDepId !=null">
+                and a.receive_dep_id = #{param.receiveDepId}
+            </if>
+            <if test="param.maintenanceDepId !=null">
+                and a.maintenance_dep_id = #{param.maintenanceDepId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status = #{param.status}
+            </if>
+            <if test="param.usageDate !=null">
+                and a.usage_date = #{param.usageDate}
+            </if>
+            <if test="param.purchasingDate !=null">
+                and b.purchasing_date = #{param.purchasingDate}
+            </if>
+            <if test="param.receiveUserType !=null and param.receiveUserType !=''">
+                and b.receive_user_type = #{param.receiveUserType}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and ( a.name like concat('%',#{param.keyword},'%')
+                or a.serial_number like concat('%',#{param.keyword},'%')
+                or a.receive_user_name like concat('%',#{param.keyword},'%')
+                or b.plate_number like concat('%',#{param.keyword},'%')
+                )
+            </if>
+            <if test="param.electronMobileType != null and param.electronMobileType != ''">
+                and b.electron_mobile_type = #{param.electronMobileType}
+            </if>
+            <if test="param.brand != null and param.brand != ''">
+                and b.brand = #{param.brand}
+            </if>
+            <if test="param.typeCodes != null and param.typeCodes.size > 0">
+                and a.type_code in
+                <foreach collection="param.typeCodes" item="type" open="(" separator="," close=")">
+                    #{type}
+                </foreach>
+            </if>
+        </where>
+        order by a.create_time desc
+    </select>
+    <select id="selectRiskSourceLedgerWithLocation"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceLedgerVO">
+        <foreach collection="typeNumMap.entrySet()" item="item" index="key" open="" separator="union" close="">
+            (select a.*,
+            b.id as extendInfoId,
+            b.ledger_id,
+            b.receive_user_type,
+            b.purchasing_date,
+            b.efficiency,
+            b.plate_number,
+            b.insurance
+            from risk_source_ledger a
+            left join risk_source_ledger_extend_info b on a.id = b.ledger_id
+            where
+            a.lat_and_lon IS NOT NULL
+            AND a.lat_and_lon != ''
+            and a.type_code = #{key}
+            limit #{item.value})
+        </foreach>
+    </select>
+
+    <select id="getAll"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.risk.source.entity.RiskSourceLedger">
+        select
+        *
+        from
+        risk_source_ledger
+        <where>
+            <if test="period != null">
+                and update_time BETWEEN #{period.begin}
+                AND #{period.end}
+            </if>
+            and type_code in
+            <foreach collection="codes" item="code" open="(" separator="," close=")">
+                #{code}
+            </foreach>
+        </where>
+        order by update_time asc
+    </select>
+    <select id="selectRiskSourceTypeNumLimitLocation"
+            resultType="com.guhecloud.cube.property.management.client.risk.source.vo.RiskSourceTypeNumVO">
+        SELECT
+        COUNT( 1 ) AS typeNum,
+        a.type_code
+        FROM
+        risk_source_ledger a
+        WHERE
+        a.lat_and_lon IS NOT NULL
+        AND a.lat_and_lon != ''
+        and a.type_code IN
+        <foreach collection="typeCodeList" item="typeCode" open="(" separator="," close=")">
+            #{typeCode}
+        </foreach>
+        GROUP BY
+        a.type_code
+    </select>
+</mapper>

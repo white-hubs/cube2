@@ -1,0 +1,4943 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "IOT北向接口",
+    "description": "新版本物联网平台",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+      "description": "<p/> 系统默认提供订阅机制(使用方主动发起),支持但不限于HTTP、WebSocket、MQ等形式,并以组件化方式提供无侵入式二次开发"
+    },
+    {
+      "name": "物联网2.0/iot-platform/north-api/linkage",
+      "description": "联动相关功能支持"
+    },
+    {
+      "name": "物联网2.0/iot-platform/north-api/product",
+      "description": "设备模型定义相关（设备元数据信息）"
+    },
+    {
+      "name": "物联网2.0/iot-platform/north-api/device",
+      "description": "设备相关接口"
+    }
+  ],
+  "paths": {
+    "/command-response-callback": {
+      "post": {
+        "summary": "命令执行结果变更回调 ",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandResponse"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82256997-run"
+      }
+    },
+    "/device-status-events": {
+      "post": {
+        "summary": "设备状态通知回调 ",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "设备在线/离线, 启停, 健康状态变更类事件 ",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceStatusUpdateEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82256998-run"
+      }
+    },
+    "/event-additional-notify-callback": {
+      "post": {
+        "summary": "事件附件推送通知",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "如果附件是图片，统一Key为`additional_with_pic_file_des`",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deviceId": {
+                    "type": "integer"
+                  },
+                  "eventInstanceId": {
+                    "type": "integer"
+                  },
+                  "eventCode": {
+                    "type": "string"
+                  },
+                  "additional": {
+                    "type": "string",
+                    "description": "Json格式,图片信息Key: additional_with_pic_file_des",
+                    "title": "业务数据透传"
+                  },
+                  "eventTime": {
+                    "type": "integer"
+                  }
+                },
+                "required": [
+                  "deviceId",
+                  "eventInstanceId",
+                  "eventCode",
+                  "additional",
+                  "eventTime"
+                ],
+                "x-apifox-orders": [
+                  "deviceId",
+                  "eventInstanceId",
+                  "eventCode",
+                  "additional",
+                  "eventTime"
+                ],
+                "x-apifox-ignore-properties": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82256999-run"
+      }
+    },
+    "/event-notify-callback": {
+      "post": {
+        "summary": "事件告警与通知回调 ",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/RuleTriggerLog"
+                  },
+                  {
+                    "$ref": "#/components/schemas/EventTriggerLog"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82257000-run"
+      }
+    },
+    "/live-stream-events": {
+      "post": {
+        "summary": "实时数据流通知回调 ",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/北向订阅推送(http、websocket、Mq)"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LivePropertyUpdateEvent"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82257001-run"
+      }
+    },
+
+    "/north/linkage/rule": {
+      "post": {
+        "summary": "联动-新增",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/linkage",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/linkage"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RuleCreateRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-refs": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-81479586-run"
+      }
+    },
+    "/north/linkage/rule/{ruleNum}": {
+      "delete": {
+        "summary": "联动-删除",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/linkage",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/linkage"
+        ],
+        "parameters": [
+          {
+            "name": "ruleNum",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-ignore-properties": [],
+                  "x-apifox-orders": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82287811-run"
+      }
+    },
+    "/north/linkage/rule/{ruleNum}/event-log/{instanceId}": {
+      "get": {
+        "summary": "联动-日志-执行日志详细信息",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/linkage",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/linkage"
+        ],
+        "parameters": [
+          {
+            "name": "ruleNum",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "instanceId",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RuleExecutionDetail"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82305714-run"
+      }
+    },
+    "/north/linkage/rule/{ruleNum}/event-log": {
+      "get": {
+        "summary": "联动-日志-仅触发记录",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/linkage",
+        "x-apifox-status": "developing",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/linkage"
+        ],
+        "parameters": [
+          {
+            "name": "ruleNum",
+            "in": "path",
+            "description": "",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageNo",
+            "in": "query",
+            "description": "（可选）分页页码   (1-based, 默认1）",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "（可选）分页大小 （默认10)",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTs",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endTs",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RuleTriggerLog"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "请求异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "授权信息无效",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "无操作授权",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "服务器处理异常",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResult"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-82305715-run"
+      }
+    },
+    "/north/product/category/tree": {
+      "get": {
+        "summary": "获取产品分类",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/product",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "获取产品分类",
+        "operationId": "productCategoryTree",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/product"
+        ],
+        "parameters": [
+          {
+            "name": "itemLabel",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "itemLevel",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "获取产品分类成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {},
+                    "x-apifox-ignore-properties": [],
+                    "x-apifox-orders": []
+                  }
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": [
+                        {
+                          "itemLabel": "空调",
+                          "itemCode": "A001",
+                          "childrenList": [
+                            {
+                              "itemLabel": "非智能空调",
+                              "itemCode": "A001002",
+                              "childrenList": []
+                            },
+                            {
+                              "itemLabel": "智能空调",
+                              "itemCode": "A001001",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "好用的空调",
+                                  "itemCode": "A001001001",
+                                  "childrenList": []
+                                },
+                                {
+                                  "itemLabel": "test",
+                                  "itemCode": "C001001002",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "chen-test-brand",
+                          "itemCode": "C002",
+                          "childrenList": []
+                        },
+                        {
+                          "itemLabel": "chen-test-category",
+                          "itemCode": "A005",
+                          "childrenList": []
+                        },
+                        {
+                          "itemLabel": "网关",
+                          "itemCode": "A003",
+                          "childrenList": [
+                            {
+                              "itemLabel": "采集网关",
+                              "itemCode": "A003001",
+                              "childrenList": []
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "Stress testing",
+                          "itemCode": "C005",
+                          "childrenList": []
+                        },
+                        {
+                          "itemLabel": "Stress testing",
+                          "itemCode": "A010",
+                          "childrenList": []
+                        },
+                        {
+                          "itemLabel": "流程讲解",
+                          "itemCode": "A011",
+                          "childrenList": []
+                        }
+                      ],
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692876508685
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105487690-run"
+      }
+    },
+    "/north/product/page": {
+      "get": {
+        "summary": "获取产品列表",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/product",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "获取产品列表",
+        "operationId": "productList",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/product"
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productName",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productCategoryLabel",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "productCategoryCodes",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "productBrandCode",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prodNumberCode",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withEventSpec",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "false",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withPropertySpec",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "false",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withCommandSpec",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "false",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "获取产品列表成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "x-apifox-ignore-properties": [],
+                      "x-apifox-orders": []
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "list": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {},
+                            "x-apifox-ignore-properties": [],
+                            "x-apifox-orders": []
+                          }
+                        }
+                      },
+                      "x-apifox-orders": [
+                        "list"
+                      ],
+                      "x-apifox-ignore-properties": []
+                    }
+                  ]
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "total": 11,
+                        "pages": 2,
+                        "records": [
+                          {
+                            "prodId": "1678647707072233472",
+                            "prodNumber": "",
+                            "prodName": "海尔001空调",
+                            "prodCategoryCode": "A001002",
+                            "prodCategoryName": "非智能空调",
+                            "prodBrandCode": "A001",
+                            "prodBrandName": "海尔",
+                            "prodNumberCode": "A001",
+                            "prodNumberName": "Hiar-air-001",
+                            "remark": "",
+                            "productPropVoList": [],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1678647734209380352",
+                            "prodNumber": "",
+                            "prodName": "哈基米",
+                            "prodCategoryCode": "A001001001",
+                            "prodCategoryName": "好用的空调",
+                            "prodBrandCode": "A001",
+                            "prodBrandName": "海尔",
+                            "prodNumberCode": "A001",
+                            "prodNumberName": "Hiar-air-001",
+                            "remark": "1123",
+                            "productPropVoList": [
+                              {
+                                "propCode": "123111",
+                                "propName": "测试属性1232",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 1,
+                                "dataConstraint": [
+                                  1,
+                                  110
+                                ],
+                                "dataConstraintStr": "[1,110]",
+                                "isTelemetry": null,
+                                "remark": "111"
+                              }
+                            ],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1678653577357197312",
+                            "prodNumber": "",
+                            "prodName": "chen-test-categ-name",
+                            "prodCategoryCode": "C002",
+                            "prodCategoryName": "chen-test-brand",
+                            "prodBrandCode": "A014",
+                            "prodBrandName": "chen-test-brand",
+                            "prodNumberCode": "A006",
+                            "prodNumberName": "chen-test-model",
+                            "remark": "1",
+                            "productPropVoList": [
+                              {
+                                "propCode": "chentestmodel2",
+                                "propName": "chentao",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 1,
+                                "dataConstraint": [
+                                  0,
+                                  30
+                                ],
+                                "dataConstraintStr": "[0,30]",
+                                "isTelemetry": null,
+                                "remark": "1"
+                              }
+                            ],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1678663419337670656",
+                            "prodNumber": "",
+                            "prodName": "chen-test-categ-name",
+                            "prodCategoryCode": "A005",
+                            "prodCategoryName": "chen-test-category",
+                            "prodBrandCode": "A014",
+                            "prodBrandName": "chen-test-brand",
+                            "prodNumberCode": "A006",
+                            "prodNumberName": "chen-test-model",
+                            "remark": "chen-test",
+                            "productPropVoList": [
+                              {
+                                "propCode": "attribute",
+                                "propName": "chen-di",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 1,
+                                "dataConstraint": [
+                                  0,
+                                  30
+                                ],
+                                "dataConstraintStr": "[0,30]",
+                                "isTelemetry": null,
+                                "remark": "1"
+                              }
+                            ],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1678680452150362112",
+                            "prodNumber": "",
+                            "prodName": "air-test",
+                            "prodCategoryCode": "A001001001",
+                            "prodCategoryName": "好用的空调",
+                            "prodBrandCode": "A001",
+                            "prodBrandName": "海尔",
+                            "prodNumberCode": "A001",
+                            "prodNumberName": "Hiar-air-001",
+                            "remark": "",
+                            "productPropVoList": [
+                              {
+                                "propCode": "token",
+                                "propName": "token",
+                                "dataType": "string",
+                                "precision": 4,
+                                "unitName": "",
+                                "dataWrite": 0,
+                                "dataConstraint": [],
+                                "dataConstraintStr": "[]",
+                                "isTelemetry": null,
+                                "remark": ""
+                              },
+                              {
+                                "propCode": "abd",
+                                "propName": "air-attribute",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 1,
+                                "dataConstraint": [
+                                  25,
+                                  30
+                                ],
+                                "dataConstraintStr": "[25,30]",
+                                "isTelemetry": null,
+                                "remark": ""
+                              }
+                            ],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1678707715537403904",
+                            "prodNumber": "",
+                            "prodName": "钡铼采集网关",
+                            "prodCategoryCode": "A003001",
+                            "prodCategoryName": "采集网关",
+                            "prodBrandCode": "A011",
+                            "prodBrandName": "钡铼",
+                            "prodNumberCode": "A003",
+                            "prodNumberName": "钡铼110Pro",
+                            "remark": "",
+                            "productPropVoList": [],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1679307476481114112",
+                            "prodNumber": "",
+                            "prodName": "嘿，Siri",
+                            "prodCategoryCode": "A001001001",
+                            "prodCategoryName": "好用的空调",
+                            "prodBrandCode": "A004",
+                            "prodBrandName": "TCL",
+                            "prodNumberCode": "A002",
+                            "prodNumberName": "TCL-TV-001",
+                            "remark": "",
+                            "productPropVoList": [],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1680775913178955776",
+                            "prodNumber": "",
+                            "prodName": "Stress testing",
+                            "prodCategoryCode": "A010",
+                            "prodCategoryName": "Stress testing",
+                            "prodBrandCode": "A020",
+                            "prodBrandName": "Stress testing",
+                            "prodNumberCode": "A011",
+                            "prodNumberName": "Stress testing",
+                            "remark": "Stress testing",
+                            "productPropVoList": [
+                              {
+                                "propCode": "pressure-001",
+                                "propName": "pressure-test",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 0,
+                                "dataConstraint": [
+                                  0,
+                                  100000
+                                ],
+                                "dataConstraintStr": "[0,100000]",
+                                "isTelemetry": null,
+                                "remark": "1"
+                              }
+                            ],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1681550045613162496",
+                            "prodNumber": "",
+                            "prodName": "压力测试-设备",
+                            "prodCategoryCode": "A010",
+                            "prodCategoryName": "Stress testing",
+                            "prodBrandCode": "A020",
+                            "prodBrandName": "Stress testing",
+                            "prodNumberCode": "A011",
+                            "prodNumberName": "Stress testing",
+                            "remark": "1",
+                            "productPropVoList": [],
+                            "productEventVoList": []
+                          },
+                          {
+                            "prodId": "1684042746728316928",
+                            "prodNumber": "",
+                            "prodName": "流程讲解-子设备",
+                            "prodCategoryCode": "A011",
+                            "prodCategoryName": "流程讲解",
+                            "prodBrandCode": "A024",
+                            "prodBrandName": "流程讲解",
+                            "prodNumberCode": "A012",
+                            "prodNumberName": "流程讲解",
+                            "remark": "1",
+                            "productPropVoList": [
+                              {
+                                "propCode": "bs-01",
+                                "propName": "流程讲解",
+                                "dataType": "int",
+                                "precision": 4,
+                                "unitName": "摄氏度",
+                                "dataWrite": 1,
+                                "dataConstraint": [
+                                  1,
+                                  30
+                                ],
+                                "dataConstraintStr": "[1,30]",
+                                "isTelemetry": null,
+                                "remark": "1"
+                              }
+                            ],
+                            "productEventVoList": []
+                          }
+                        ]
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692877925527
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105487691-run"
+      }
+    },
+    "/product/event/threshold": {
+      "put": {
+        "summary": "事件阈值设定",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/product",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "基于事件给出的规格描述，进行阈值的动态修改(使其在设备生效)",
+        "operationId": "eventThreshold",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/product"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "deviceId": {
+                    "type": "string",
+                    "description": "Device ID"
+                  },
+                  "setVal": {
+                    "type": "string",
+                    "description": "Set value"
+                  },
+                  "eventCode": {
+                    "type": "string",
+                    "description": "Event code"
+                  }
+                },
+                "x-apifox-orders": [
+                  "deviceId",
+                  "setVal",
+                  "eventCode"
+                ],
+                "x-apifox-ignore-properties": []
+              },
+              "example": ""
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Control command sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105487692-run"
+      }
+    },
+    "/north/product/brand-number-prod": {
+      "get": {
+        "summary": "以树形方式获取产品",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/product",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "提供快速检索产品方式,以品牌-型号-产品方式进行归类。最后一级为产品信息",
+        "operationId": "productTree",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/product"
+        ],
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "itemLabel": {
+                            "type": "string"
+                          },
+                          "itemCode": {
+                            "type": "string"
+                          },
+                          "childrenList": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "itemLabel": {
+                                  "type": "string"
+                                },
+                                "itemCode": {
+                                  "type": "string"
+                                },
+                                "childrenList": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "itemLabel": {
+                                        "type": "string"
+                                      },
+                                      "itemCode": {
+                                        "type": "string"
+                                      },
+                                      "childrenList": {
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string"
+                                        }
+                                      }
+                                    },
+                                    "required": [
+                                      "itemLabel",
+                                      "itemCode",
+                                      "childrenList"
+                                    ],
+                                    "x-apifox-orders": [
+                                      "itemLabel",
+                                      "itemCode",
+                                      "childrenList"
+                                    ],
+                                    "x-apifox-ignore-properties": []
+                                  }
+                                }
+                              },
+                              "required": [
+                                "itemLabel",
+                                "itemCode",
+                                "childrenList"
+                              ],
+                              "x-apifox-orders": [
+                                "itemLabel",
+                                "itemCode",
+                                "childrenList"
+                              ],
+                              "x-apifox-ignore-properties": []
+                            }
+                          }
+                        },
+                        "required": [
+                          "itemLabel",
+                          "itemCode",
+                          "childrenList"
+                        ],
+                        "x-apifox-orders": [
+                          "itemLabel",
+                          "itemCode",
+                          "childrenList"
+                        ],
+                        "x-apifox-ignore-properties": []
+                      }
+                    },
+                    "code": {
+                      "type": "integer"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "timestamp": {
+                      "type": "integer"
+                    }
+                  },
+                  "required": [
+                    "data",
+                    "code",
+                    "message",
+                    "timestamp"
+                  ],
+                  "x-apifox-orders": [
+                    "data",
+                    "code",
+                    "message",
+                    "timestamp"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": [
+                        {
+                          "itemLabel": "chen-test-brand",
+                          "itemCode": "A014",
+                          "childrenList": [
+                            {
+                              "itemLabel": "chen-test-brand",
+                              "itemCode": "A006",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "chen-test-categ-name",
+                                  "itemCode": "1678653577357197312",
+                                  "childrenList": []
+                                }
+                              ]
+                            },
+                            {
+                              "itemLabel": "chen-test-brand",
+                              "itemCode": "A006",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "chen-test-categ-name",
+                                  "itemCode": "1678663419337670656",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "海尔",
+                          "itemCode": "A001",
+                          "childrenList": [
+                            {
+                              "itemLabel": "海尔",
+                              "itemCode": "A001",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "海尔001空调",
+                                  "itemCode": "1678647707072233472",
+                                  "childrenList": []
+                                },
+                                {
+                                  "itemLabel": "哈基米",
+                                  "itemCode": "1678647734209380352",
+                                  "childrenList": []
+                                },
+                                {
+                                  "itemLabel": "air-test",
+                                  "itemCode": "1678680452150362112",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "chen-test-brand",
+                          "itemCode": "A014",
+                          "childrenList": [
+                            {
+                              "itemLabel": "chen-test-brand",
+                              "itemCode": "A006",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "chen-test-categ-name",
+                                  "itemCode": "1678653577357197312",
+                                  "childrenList": []
+                                }
+                              ]
+                            },
+                            {
+                              "itemLabel": "chen-test-brand",
+                              "itemCode": "A006",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "chen-test-categ-name",
+                                  "itemCode": "1678663419337670656",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "钡铼",
+                          "itemCode": "A011",
+                          "childrenList": [
+                            {
+                              "itemLabel": "钡铼",
+                              "itemCode": "A003",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "钡铼采集网关",
+                                  "itemCode": "1678707715537403904",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "TCL",
+                          "itemCode": "A004",
+                          "childrenList": [
+                            {
+                              "itemLabel": "TCL",
+                              "itemCode": "A002",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "嘿，Siri",
+                                  "itemCode": "1679307476481114112",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "Stress testing",
+                          "itemCode": "A020",
+                          "childrenList": [
+                            {
+                              "itemLabel": "Stress testing",
+                              "itemCode": "A011",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "Stress testing",
+                                  "itemCode": "1680775913178955776",
+                                  "childrenList": []
+                                },
+                                {
+                                  "itemLabel": "压力测试-设备",
+                                  "itemCode": "1681550045613162496",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "brand-name",
+                          "itemCode": "A015",
+                          "childrenList": [
+                            {
+                              "itemLabel": "brand-name",
+                              "itemCode": "A007",
+                              "childrenList": []
+                            }
+                          ]
+                        },
+                        {
+                          "itemLabel": "流程讲解",
+                          "itemCode": "A024",
+                          "childrenList": [
+                            {
+                              "itemLabel": "流程讲解",
+                              "itemCode": "A012",
+                              "childrenList": [
+                                {
+                                  "itemLabel": "流程讲解-子设备",
+                                  "itemCode": "1684042746728316928",
+                                  "childrenList": []
+                                },
+                                {
+                                  "itemLabel": "流程讲解",
+                                  "itemCode": "1684042779242561536",
+                                  "childrenList": []
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ],
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692933593008
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105487693-run"
+      }
+    },
+    "/north/device/page": {
+      "get": {
+        "summary": "设备-信息-获取",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "批量或点个获取设备信息",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "deviceCode",
+            "in": "query",
+            "description": "deviceCode like be",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "prodCategoryCode",
+            "in": "query",
+            "description": "产品品类code(前期使用id实现,后期可能会用code实现)",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "prodBrandCode",
+            "in": "query",
+            "description": "产品品牌code(前期使用id实现,后期可能会用code实现)",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "prodNumberCode",
+            "in": "query",
+            "description": "产品型号(前期使用id实现,后期可能会用code实现)",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "获取产品分类成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {}
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "total": 12005,
+                        "pages": 1201,
+                        "records": [
+                          {
+                            "deviceId": "1681550416356081664",
+                            "deviceParentId": "",
+                            "deviceNumber": "device-01",
+                            "deviceName": "压力测试-设备",
+                            "productId": "1681550045613162496",
+                            "productName": "压力测试-设备",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681597516544507904",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "testf",
+                            "deviceName": "testf",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603793299472384",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-02",
+                            "deviceName": "压力测试-02",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603793567907840",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-03",
+                            "deviceName": "压力测试-03",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603793773428736",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-04",
+                            "deviceName": "压力测试-04",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603793949589504",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-05",
+                            "deviceName": "压力测试-05",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603794134138880",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-06",
+                            "deviceName": "压力测试-06",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603794280939520",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-07",
+                            "deviceName": "压力测试-07",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603794469683200",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-08",
+                            "deviceName": "压力测试-08",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          },
+                          {
+                            "deviceId": "1681603794645843968",
+                            "deviceParentId": "1681550416356081664",
+                            "deviceNumber": "device-09",
+                            "deviceName": "压力测试-09",
+                            "productId": "1680775913178955776",
+                            "productName": "Stress testing",
+                            "tags": ""
+                          }
+                        ]
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692933713476
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488029-run"
+      }
+    },
+    "/north/device/detail": {
+      "get": {
+        "summary": "设备-实例-详情",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "查询设备详情，包含实时属性等",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "withSnapShot",
+            "in": "query",
+            "description": "是否包含属性快照(即实时属性)",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withEventSpec",
+            "in": "query",
+            "description": "是否包含事件规格描述",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withCommandSpec",
+            "in": "query",
+            "description": "是否包含命令规格描述",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "withPropertySpec",
+            "in": "query",
+            "description": "是否包含事件规格描述",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备详情",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deviceId": {
+                      "type": "integer",
+                      "description": "设备id"
+                    },
+                    "deviceParentId": {
+                      "type": "integer",
+                      "description": "父设备id"
+                    },
+                    "deviceNumber": {
+                      "type": "string",
+                      "description": "物联网设备编码,注意此编码不等同于孪生设备编码，但可作为默认的孪生设备编码"
+                    },
+                    "productId": {
+                      "type": "integer"
+                    },
+                    "productName": {
+                      "type": "string",
+                      "description": "产品名称"
+                    },
+                    "deviceName": {
+                      "type": "string",
+                      "description": "设备名称"
+                    },
+                    "tags": {
+                      "type": "string",
+                      "description": "未来支持的设备标签"
+                    },
+                    "productPropVoList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "propCode": {
+                            "type": "string",
+                            "description": "属性编码"
+                          },
+                          "name": {
+                            "type": "string",
+                            "description": "属性名称"
+                          },
+                          "dataType": {
+                            "type": "string",
+                            "enum": [
+                              "int",
+                              "long",
+                              "float",
+                              "double",
+                              "boolean",
+                              "string",
+                              "enum"
+                            ],
+                            "description": "数据类型"
+                          },
+                          "precision": {
+                            "type": "integer",
+                            "format": "int32",
+                            "description": "精度,浮点数由此选项(貌似放入约束中好一点)"
+                          },
+                          "unitName": {
+                            "type": "string",
+                            "description": "单位名称"
+                          },
+                          "dataWrite": {
+                            "type": "integer",
+                            "format": "int32",
+                            "enum": [
+                              0,
+                              1
+                            ],
+                            "description": "数据写入,0读 1读写",
+                            "x-apifox": {
+                              "enumDescriptions": {
+                                "0": "只读",
+                                "1": "读写"
+                              }
+                            }
+                          },
+                          "dataConstraint": {
+                            "type": "object",
+                            "description": "数据约束定义",
+                            "anyOf": [
+                              {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              {
+                                "type": "object",
+                                "properties": {}
+                              },
+                              {
+                                "type": "object",
+                                "properties": {}
+                              }
+                            ],
+                            "x-apifox-orders": []
+                          },
+                          "isTelemetry": {
+                            "type": "boolean",
+                            "description": "遥测属性标识,预留坑位吧"
+                          },
+                          "remark": {
+                            "type": "string",
+                            "description": "备注"
+                          }
+                        },
+                        "x-apifox-orders": [
+                          "01H8NKKTCKCDPZZMFG734PTYX8"
+                        ],
+                        "x-apifox-refs": {
+                          "01H8NKKTCKCDPZZMFG734PTYX8": {
+                            "type": "object",
+                            "properties": {}
+                          }
+                        },
+                        "x-apifox-ignore-properties": [
+                          "propCode",
+                          "name",
+                          "dataType",
+                          "precision",
+                          "unitName",
+                          "dataWrite",
+                          "dataConstraint",
+                          "isTelemetry",
+                          "remark"
+                        ]
+                      }
+                    },
+                    "productEventVoList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "eventName": {
+                            "type": "string",
+                            "description": "事件名称"
+                          },
+                          "eventCode": {
+                            "type": "string",
+                            "description": "事件编码"
+                          },
+                          "eventConfig": {
+                            "type": "object",
+                            "description": "事件配置",
+                            "properties": {
+                              "triggerType": {
+                                "type": "string",
+                                "enum": [
+                                  "SIMPLE",
+                                  "SETTING",
+                                  "EMPTY"
+                                ],
+                                "description": "触发类型",
+                                "x-apifox": {
+                                  "enumDescriptions": {
+                                    "SIMPLE": "单个设备的属性判断形成事件",
+                                    "SETTING": "设备原生事件(可以进行阈值设定)",
+                                    "EMPTY": "设备原生事件"
+                                  }
+                                }
+                              },
+                              "eventRelatedProp": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "description": "事件相关属性,可以是产品属性之外的定义"
+                                }
+                              },
+                              "rules": {
+                                "type": "object",
+                                "description": "规则",
+                                "anyOf": [
+                                  {
+                                    "type": "object",
+                                    "properties": {}
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {}
+                                  },
+                                  {
+                                    "type": "object",
+                                    "properties": {}
+                                  }
+                                ],
+                                "x-apifox-orders": []
+                              }
+                            },
+                            "x-apifox-orders": [
+                              "triggerType",
+                              "eventRelatedProp",
+                              "rules"
+                            ],
+                            "x-apifox-ignore-properties": []
+                          },
+                          "categoryCode": {
+                            "type": "string",
+                            "format": "int64",
+                            "description": "事件分类(前期使用id实现,后期可能会用code实现)"
+                          },
+                          "categoryName": {
+                            "type": "string",
+                            "description": "事件分类名称"
+                          },
+                          "remark": {
+                            "type": "string",
+                            "description": "备注"
+                          }
+                        },
+                        "x-apifox-orders": [
+                          "01H8NKMZ212Z6ZZTB4T4ZHBCH3"
+                        ],
+                        "x-apifox-refs": {
+                          "01H8NKMZ212Z6ZZTB4T4ZHBCH3": {
+                            "$ref": "#/components/schemas/productEvent"
+                          }
+                        },
+                        "x-apifox-ignore-properties": [
+                          "eventName",
+                          "eventCode",
+                          "eventConfig",
+                          "categoryCode",
+                          "categoryName",
+                          "remark"
+                        ]
+                      }
+                    },
+                    "productCommandVoList": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {},
+                        "x-apifox-orders": [
+                          "01H8NKNSMR0C8TNCAGTJ1996DZ"
+                        ],
+                        "x-apifox-refs": {
+                          "01H8NKNSMR0C8TNCAGTJ1996DZ": {
+                            "$ref": "#/components/schemas/productCommand"
+                          }
+                        },
+                        "x-apifox-ignore-properties": []
+                      }
+                    },
+                    "snapshots": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "description": "属性code"
+                          },
+                          "val": {
+                            "type": "string",
+                            "description": "属性值"
+                          },
+                          "ts": {
+                            "type": "integer",
+                            "description": "时间戳"
+                          }
+                        },
+                        "x-apifox-orders": [
+                          "01H8NKPFX7NSX4YQGKAYESPCDG"
+                        ],
+                        "x-apifox-refs": {
+                          "01H8NKPFX7NSX4YQGKAYESPCDG": {
+                            "$ref": "#/components/schemas/keyValWithTs"
+                          }
+                        },
+                        "x-apifox-ignore-properties": [
+                          "key",
+                          "val",
+                          "ts"
+                        ]
+                      }
+                    }
+                  },
+                  "x-apifox-orders": [
+                    "01H8NDCNGGB3VSAC0RWME9XKD5"
+                  ],
+                  "x-apifox-refs": {
+                    "01H8NDCNGGB3VSAC0RWME9XKD5": {
+                      "$ref": "#/components/schemas/deviceFullInfo"
+                    }
+                  },
+                  "required": [
+                    "deviceNumber",
+                    "productName",
+                    "productPropVoList",
+                    "productEventVoList",
+                    "productCommandVoList",
+                    "snapshots"
+                  ],
+                  "x-apifox-ignore-properties": [
+                    "deviceId",
+                    "deviceParentId",
+                    "deviceNumber",
+                    "productId",
+                    "productName",
+                    "deviceName",
+                    "tags",
+                    "productPropVoList",
+                    "productEventVoList",
+                    "productCommandVoList",
+                    "snapshots"
+                  ]
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "deviceId": "1684161800185085952",
+                        "deviceParentId": "1684161287087489024",
+                        "deviceNumber": "02",
+                        "productId": "1684042746728316928",
+                        "productName": "流程讲解-子设备",
+                        "deviceName": "网关子设备",
+                        "tags": "",
+                        "productPropVoList": [
+                          {
+                            "propCode": "bs-01",
+                            "propName": "流程讲解",
+                            "dataType": "int",
+                            "precision": 4,
+                            "unitName": "摄氏度",
+                            "dataWrite": 1,
+                            "dataConstraint": [
+                              1,
+                              30
+                            ],
+                            "isTelemetry": null,
+                            "remark": "1"
+                          }
+                        ],
+                        "productEventVoList": [],
+                        "snapshots": [
+                          {
+                            "key": "bs-01",
+                            "value": "20",
+                            "ts": 1690462876156
+                          }
+                        ],
+                        "productCommandVoList": []
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692934308991
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488030-run"
+      }
+    },
+    "/north/device/prop": {
+      "get": {
+        "summary": "设备-属性-实时数据",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "查询设备实时属性",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "设备ID",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propertyCodes",
+            "in": "query",
+            "description": "需要查询的设备属性",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "notBeforeTs",
+            "in": "query",
+            "description": "时间过滤UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备属性数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "description": "属性code"
+                      },
+                      "val": {
+                        "type": "string",
+                        "description": "属性值"
+                      },
+                      "ts": {
+                        "type": "integer",
+                        "description": "时间戳"
+                      }
+                    },
+                    "x-apifox-orders": [
+                      "01H8NKV9V0PNDJ9H5DER9Q8T24"
+                    ],
+                    "x-apifox-refs": {
+                      "01H8NKV9V0PNDJ9H5DER9Q8T24": {
+                        "$ref": "#/components/schemas/keyValWithTs"
+                      }
+                    },
+                    "x-apifox-ignore-properties": [
+                      "key",
+                      "val",
+                      "ts"
+                    ]
+                  }
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": [
+                        {
+                          "key": "bs-01",
+                          "value": "20",
+                          "ts": 1690462876156
+                        }
+                      ],
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692934626455
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488031-run"
+      }
+    },
+    "/north/device/prop/multi-prop": {
+      "get": {
+        "summary": "多设备-属性-实时数据",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "查询多个设备实时属性",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "devIdAndPropCodes",
+            "in": "query",
+            "description": "需要查询的设备和属性,deviceId1.temp,deviceId2.air",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "notBeforeTs",
+            "in": "query",
+            "description": "时间过滤UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备属性数据",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "deviceId": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "description": "属性code"
+                          },
+                          "val": {
+                            "type": "string",
+                            "description": "属性值"
+                          },
+                          "ts": {
+                            "type": "integer",
+                            "description": "时间戳"
+                          }
+                        },
+                        "x-apifox-orders": [
+                          "01H8NCE871M043E1T8VKSFFDH3"
+                        ],
+                        "x-apifox-refs": {
+                          "01H8NCE871M043E1T8VKSFFDH3": {
+                            "$ref": "#/components/schemas/keyValWithTs"
+                          }
+                        },
+                        "x-apifox-ignore-properties": [
+                          "key",
+                          "val",
+                          "ts"
+                        ]
+                      }
+                    }
+                  },
+                  "x-apifox-orders": [
+                    "deviceId"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "1681918539756240896": [
+                          {
+                            "key": "pressure-001",
+                            "value": "6",
+                            "ts": 1690284353920
+                          }
+                        ],
+                        "1684161800185085952": [
+                          {
+                            "key": "bs-01",
+                            "value": "20",
+                            "ts": 1690462876156
+                          }
+                        ]
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692934752575
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488032-run"
+      }
+    },
+    "/north/device/prop/history-sample-prop": {
+      "get": {
+        "summary": "设备-历史-属性采样",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "properties",
+            "in": "query",
+            "description": "",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "startTs",
+            "in": "query",
+            "description": "毫秒",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTs",
+            "in": "query",
+            "description": "毫秒",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "description": "采样时间,单位分钟",
+            "required": true,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "maxRecords",
+            "in": "query",
+            "description": "最大记录,默认1000",
+            "required": true,
+            "example": "1000",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "aggType",
+            "in": "query",
+            "description": "聚合类型",
+            "required": false,
+            "example": "any",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序",
+            "required": true,
+            "example": "desc",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备属性采样值",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/historySampleRes"
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488033-run"
+      }
+    },
+    "/north/device/prop/history": {
+      "get": {
+        "summary": "设备-历史-属性",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "设备历史属性",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propCodes",
+            "in": "query",
+            "description": "按照逗号(,)分割",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "maxRecords",
+            "in": "query",
+            "description": "最大返回行数",
+            "required": false,
+            "example": "1000",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "属性历史值",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {},
+                    "x-apifox-ignore-properties": [],
+                    "x-apifox-orders": []
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488034-run"
+      }
+    },
+    "/north/device/prop/history/page": {
+      "get": {
+        "summary": "设备-历史-属性分页",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "设备历史属性分页",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "propCodes",
+            "in": "query",
+            "description": "按照逗号(,)分割",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "startTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "maxRecords",
+            "in": "query",
+            "description": "最大返回行数",
+            "required": false,
+            "example": "1000",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": "1",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "example": "10",
+            "schema": {
+              "type": "integer"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备历史属性分页",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "type": "object",
+                      "properties": {},
+                      "x-apifox-ignore-properties": [],
+                      "x-apifox-orders": []
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "list": {
+                          "type": "object",
+                          "properties": {},
+                          "x-apifox-ignore-properties": [],
+                          "x-apifox-orders": []
+                        }
+                      },
+                      "x-apifox-orders": [
+                        "list"
+                      ],
+                      "x-apifox-ignore-properties": []
+                    }
+                  ]
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "total": 1162414,
+                        "pages": 116242,
+                        "records": [
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          }
+                        ]
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692953969561
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488035-run"
+      }
+    },
+    "/north/device/command/issue": {
+      "post": {
+        "summary": "设备-命令-下发",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "commandSeq": {
+                    "type": "string",
+                    "title": "命令下发句柄",
+                    "description": "雪花ID"
+                  },
+                  "deviceId": {
+                    "type": "string"
+                  },
+                  "propCode": {
+                    "type": "string"
+                  },
+                  "propValue": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "commandSeq",
+                  "deviceId",
+                  "propCode",
+                  "propValue"
+                ],
+                "x-apifox-orders": [
+                  "commandSeq",
+                  "deviceId",
+                  "propCode",
+                  "propValue"
+                ],
+                "x-apifox-ignore-properties": []
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-ignore-properties": [],
+                  "x-apifox-orders": []
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488036-run"
+      }
+    },
+    "/north/device/command/issue-status": {
+      "get": {
+        "summary": "设备-命令-执行状态",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "instanceId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-ignore-properties": [],
+                  "x-apifox-orders": []
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-105488038-run"
+      }
+    },
+    "/north/device/event/history/page": {
+      "get": {
+        "summary": "设备-历史-事件分页",
+        "x-apifox-folder": "物联网2.0/iot-platform/north-api/device",
+        "x-apifox-status": "released",
+        "deprecated": false,
+        "description": "设备历史属性分页",
+        "tags": [
+          "物联网2.0/iot-platform/north-api/device"
+        ],
+        "parameters": [
+          {
+            "name": "deviceId",
+            "in": "query",
+            "description": "",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "eventCodes",
+            "in": "query",
+            "description": "按照逗号(,)分割",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "startTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "endTs",
+            "in": "query",
+            "description": "UTC+8 Millis",
+            "required": false,
+            "example": "",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "排序",
+            "required": false,
+            "example": "DESC",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "页码",
+            "required": false,
+            "example": "1",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "每页条数",
+            "required": false,
+            "example": "10",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "bizType",
+            "in": "query",
+            "description": "事件查询类型(notify touch), touch为默认值",
+            "required": false,
+            "example": "touch",
+            "schema": {
+              "type": "string"
+            }
+          },
+
+        ],
+        "responses": {
+          "200": {
+            "description": "设备历史属性分页",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "x-apifox-orders": [],
+                  "x-apifox-ignore-properties": []
+                },
+                "examples": {
+                  "1": {
+                    "summary": "成功示例",
+                    "value": {
+                      "data": {
+                        "total": 1162414,
+                        "pages": 116242,
+                        "records": [
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          },
+                          {
+                            "key": "pressure-001",
+                            "value": 29,
+                            "ts": 1690161999000
+                          }
+                        ]
+                      },
+                      "code": 200,
+                      "message": "OK",
+                      "timestamp": 1692953969561
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-run-in-apifox": "https://www.apifox.cn/web/project/435727/apis/api-106327022-run"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "historySampleRes": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "deviceName": {
+            "type": "string"
+          },
+          "propertyTsBoList": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "propertyCode": {
+                  "type": "string",
+                  "description": "属性code"
+                },
+                "propertyName": {
+                  "type": "string",
+                  "description": "属性名称"
+                },
+                "dataType": {
+                  "type": "string",
+                  "enum": [
+                    "int",
+                    "long",
+                    "float",
+                    "double",
+                    "boolean",
+                    "string",
+                    "enum"
+                  ],
+                  "description": "数据类型"
+                },
+                "propertyUnit": {
+                  "type": "string"
+                },
+                "dataConstraint": {
+                  "description": "数据约束定义",
+                  "$ref": "#/components/schemas/dataConstraint"
+                },
+                "valueTsBoList": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "key": {
+                        "type": "string",
+                        "description": "属性code"
+                      },
+                      "val": {
+                        "type": "string",
+                        "description": "属性值"
+                      },
+                      "ts": {
+                        "type": "integer",
+                        "description": "时间戳"
+                      }
+                    },
+                    "x-apifox-orders": [
+                      "01H8NCHW20827GGNX7B76KX8Z9"
+                    ],
+                    "x-apifox-refs": {
+                      "01H8NCHW20827GGNX7B76KX8Z9": {
+                        "$ref": "#/components/schemas/keyValWithTs"
+                      }
+                    },
+                    "x-apifox-ignore-properties": [
+                      "key",
+                      "val",
+                      "ts"
+                    ]
+                  }
+                }
+              },
+              "x-apifox-orders": [
+                "propertyCode",
+                "propertyName",
+                "dataType",
+                "propertyUnit",
+                "dataConstraint",
+                "valueTsBoList"
+              ],
+              "x-apifox-ignore-properties": []
+            },
+            "required": [
+              "deviceId",
+              "deviceName",
+              "propertyTsBoList"
+            ]
+          }
+        },
+        "x-apifox-orders": [
+          "deviceId",
+          "deviceName",
+          "propertyTsBoList"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "keyValWithTs": {
+        "type": "object",
+        "description": "属性键值对",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "属性code"
+          },
+          "val": {
+            "type": "string",
+            "description": "属性值"
+          },
+          "ts": {
+            "type": "integer",
+            "description": "时间戳"
+          }
+        },
+        "x-apifox-orders": [
+          "key",
+          "val",
+          "ts"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "dataConstraint": {
+        "anyOf": [
+          {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "integer",
+                  "description": "值"
+                },
+                "label": {
+                  "type": "string",
+                  "description": "标签"
+                }
+              },
+              "x-apifox-orders": [
+                "01H8NCWN1MBA7B7N2537WD23FA"
+              ],
+              "x-apifox-refs": {
+                "01H8NCWN1MBA7B7N2537WD23FA": {
+                  "$ref": "#/components/schemas/enumDataConstraint"
+                }
+              },
+              "x-apifox-ignore-properties": [
+                "value",
+                "label"
+              ]
+            },
+            "description": "[{\"value\":\"1\",\"label\":\"开\"},{\"value\":\"0\",\"label\":\"关\"}]"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            },
+            "description": "[0, 9999] 数值取值范围"
+          },
+          {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "目前为空"
+          }
+        ],
+        "description": "数据约束定义",
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "enumDataConstraint": {
+        "type": "object",
+        "description": "布尔、枚举类型配置",
+        "properties": {
+          "value": {
+            "type": "integer",
+            "description": "值"
+          },
+          "label": {
+            "type": "string",
+            "description": "标签"
+          }
+        },
+        "x-apifox-orders": [
+          "value",
+          "label"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "RuleCreateRequest": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "ruleName": {
+            "type": "string"
+          },
+          "ruleNum": {
+            "type": "string"
+          },
+          "ruleConfig": {
+            "description": "JSON 编码的规则定义",
+            "$ref": "#/components/schemas/RuleConfig%20%EF%BC%88%E5%BE%85%E7%BB%86%E5%8C%96%EF%BC%89"
+          },
+          "extraConfig": {
+            "type": "object",
+            "properties": {
+              "category": {
+                "type": "string",
+                "description": "层级化的分类，分隔符隔开"
+              },
+              "triggerHint": {
+                "type": "string",
+                "description": "关于触发方式 的hint"
+              }
+            },
+            "description": "自由扩展字段",
+            "required": [
+              "category",
+              "triggerHint"
+            ],
+            "x-apifox-orders": [
+              "category",
+              "triggerHint"
+            ],
+            "x-apifox-ignore-properties": []
+          },
+          "operator": {
+            "type": "string",
+            "description": "操作员"
+          },
+          "enabled": {
+            "type": "string",
+            "description": "默认是否启用"
+          }
+        },
+        "required": [
+          "projectId",
+          "ruleName",
+          "ruleNum",
+          "ruleConfig",
+          "extraConfig",
+          "operator",
+          "enabled"
+        ],
+        "x-apifox-orders": [
+          "projectId",
+          "ruleName",
+          "ruleNum",
+          "ruleConfig",
+          "extraConfig",
+          "operator",
+          "enabled"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/north-api/rule-linkage"
+      },
+      "RuleConfig （待细化）": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/PropertySetAction",
+                  "description": "单属性设置命令(目前支持)"
+                },
+                {
+                  "$ref": "#/components/schemas/GroupPropertySetAction",
+                  "description": "组设备属性设置"
+                }
+              ]
+            }
+          },
+          "rule": {
+            "$ref": "#/components/schemas/ComboRule",
+            "description": "请确保Rule中有deviceId和属性Code"
+          }
+        },
+        "required": [
+          "action",
+          "rule"
+        ],
+        "x-apifox-orders": [
+          "action",
+          "rule"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/north-api/rule-linkage"
+      },
+      "ComboRule": {
+        "type": "object",
+        "properties": {
+          "op": {
+            "type": "string",
+            "description": "组合操作符（and/or)"
+          },
+          "delayTime": {
+            "type": "integer",
+            "description": "符合条件之后延时再次检查（避免瞬时动作，尚未支持）"
+          },
+          "rules": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/_RuleItem"
+            }
+          },
+          "deviceId": {
+            "type": "string",
+            "description": "如果有deviceId, 则其下的所有子项止或者没有 deviceId， 或者deviceId保持一致"
+          }
+        },
+        "required": [
+          "op",
+          "rules",
+          "delayTime"
+        ],
+        "x-apifox-orders": [
+          "op",
+          "delayTime",
+          "rules",
+          "deviceId"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/north-api/rule-linkage"
+      },
+      "_RuleItem": {
+        "anyOf": [
+          {
+            "$ref": "#/components/schemas/SimpleRule",
+            "x-apifox-overrides": {}
+          },
+          {
+            "$ref": "#/components/schemas/ComboRule",
+            "description": "请确保Rule中有deviceId和属性Code"
+          },
+          {
+            "$ref": "#/components/schemas/CustomizedRule%EF%BC%88%E6%89%A9%E5%B1%95%E7%82%B9%EF%BC%8C%E6%9A%82%E4%B8%8D%E6%94%AF%E6%8C%81%EF%BC%89"
+          },
+          {
+            "$ref": "#/components/schemas/SettingRule",
+            "x-apifox-overrides": {},
+            "description": "此规则只能单独使用"
+          }
+        ],
+        "x-apifox-folder": "iot/things/rule"
+      },
+      "SettingRule": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "setValues": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeyValue"
+            }
+          }
+        },
+        "x-apifox-orders": [
+          "deviceId",
+          "setValues"
+        ],
+        "required": [
+          "setValues"
+        ],
+        "x-apifox-refs": {},
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/things/rule"
+      },
+      "KeyValue": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "x-apifox-orders": [
+          "key",
+          "value"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "公共模型"
+      },
+      "CustomizedRule（扩展点，暂不支持）": {
+        "type": "object",
+        "properties": {
+          "sourceSpec": {
+            "type": "object",
+            "properties": {},
+            "description": "源数据来源描述",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          },
+          "sourceOpSpec": {
+            "type": "object",
+            "properties": {},
+            "description": "从数据源获取数据的操作描述",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          },
+          "inputSpec": {
+            "type": "object",
+            "properties": {},
+            "description": "对于通过sourceSpec + sourceOpSpec获取的数据处理规则描述",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          },
+          "delayTime": {
+            "type": "integer",
+            "description": "触发时延，暂不支持"
+          }
+        },
+        "required": [
+          "inputSpec",
+          "sourceSpec",
+          "sourceOpSpec"
+        ],
+        "x-apifox-orders": [
+          "sourceSpec",
+          "sourceOpSpec",
+          "inputSpec",
+          "delayTime"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/north-api/rule-linkage"
+      },
+      "SimpleRule": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "propCode": {
+            "type": "string"
+          },
+          "op": {
+            "type": "string",
+            "description": "操作符[EQ,NE,IN,GT,GE,LE,LT,BETWEEN,NOT_IN]"
+          },
+          "oprand": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "依operator不同而不同"
+          },
+          "delayTime": {
+            "type": "integer",
+            "description": "延时检查单位秒"
+          }
+        },
+        "required": [
+          "propCode",
+          "op",
+          "oprand",
+          "delayTime"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "propCode",
+          "op",
+          "oprand",
+          "delayTime"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/things/rule"
+      },
+      "GroupPropertySetAction": {
+        "type": "object",
+        "properties": {
+          "projectId": {
+            "type": "string"
+          },
+          "deviceFilter": {
+            "$ref": "#/components/schemas/DeviceFilter"
+          },
+          "propCode": {
+            "type": "string"
+          },
+          "propValue": {
+            "type": "string"
+          },
+          "retryStrategy": {
+            "type": "object",
+            "properties": {},
+            "description": "重试策略",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          }
+        },
+        "required": [
+          "projectId",
+          "deviceFilter",
+          "propCode",
+          "propValue"
+        ],
+        "x-apifox-orders": [
+          "projectId",
+          "deviceFilter",
+          "propCode",
+          "propValue",
+          "retryStrategy"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "规则与联动"
+      },
+      "DeviceFilter": {
+        "type": "object",
+        "properties": {
+          "prodId": {
+            "type": "string",
+            "description": "产品Id"
+          },
+          "prodCode": {
+            "type": "string",
+            "description": "产品编码"
+          },
+          "prodCategory": {
+            "type": "string",
+            "description": "产品类目"
+          },
+          "deviceIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "设备Id"
+            }
+          }
+        },
+        "x-apifox-orders": [
+          "prodId",
+          "prodCode",
+          "prodCategory",
+          "deviceIds"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "设备管理 "
+      },
+      "PropertySetAction": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "propCode": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "deviceId",
+          "propCode",
+          "value"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "propCode",
+          "value"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot/north-api/rule-linkage"
+      },
+      "deviceFullInfo": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "description": "设备id"
+          },
+          "deviceParentId": {
+            "type": "integer",
+            "description": "父设备id"
+          },
+          "deviceNumber": {
+            "type": "string",
+            "description": "物联网设备编码,注意此编码不等同于孪生设备编码，但可作为默认的孪生设备编码"
+          },
+          "productId": {
+            "type": "integer"
+          },
+          "productName": {
+            "type": "string",
+            "description": "产品名称"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "设备名称"
+          },
+          "tags": {
+            "type": "string",
+            "description": "未来支持的设备标签"
+          },
+          "productPropVoList": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "propCode": {
+                  "type": "string",
+                  "description": "属性编码"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "属性名称"
+                },
+                "dataType": {
+                  "type": "string",
+                  "enum": [
+                    "int",
+                    "long",
+                    "float",
+                    "double",
+                    "boolean",
+                    "string",
+                    "enum"
+                  ],
+                  "description": "数据类型"
+                },
+                "precision": {
+                  "type": "integer",
+                  "format": "int32",
+                  "description": "精度,浮点数由此选项(貌似放入约束中好一点)"
+                },
+                "unitName": {
+                  "type": "string",
+                  "description": "单位名称"
+                },
+                "dataWrite": {
+                  "type": "integer",
+                  "format": "int32",
+                  "enum": [
+                    0,
+                    1
+                  ],
+                  "description": "数据写入,0读 1读写",
+                  "x-apifox": {
+                    "enumDescriptions": {
+                      "0": "只读",
+                      "1": "读写"
+                    }
+                  }
+                },
+                "dataConstraint": {
+                  "type": "object",
+                  "description": "数据约束定义",
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    {
+                      "type": "object",
+                      "properties": {}
+                    }
+                  ],
+                  "x-apifox-orders": []
+                },
+                "isTelemetry": {
+                  "type": "boolean",
+                  "description": "遥测属性标识,预留坑位吧"
+                },
+                "remark": {
+                  "type": "string",
+                  "description": "备注"
+                }
+              },
+              "x-apifox-orders": [
+                "01H8NKKTCKCDPZZMFG734PTYX8"
+              ],
+              "x-apifox-refs": {
+                "01H8NKKTCKCDPZZMFG734PTYX8": {
+                  "type": "object",
+                  "properties": {}
+                }
+              },
+              "x-apifox-ignore-properties": [
+                "propCode",
+                "name",
+                "dataType",
+                "precision",
+                "unitName",
+                "dataWrite",
+                "dataConstraint",
+                "isTelemetry",
+                "remark"
+              ]
+            }
+          },
+          "productEventVoList": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "eventName": {
+                  "type": "string",
+                  "description": "事件名称"
+                },
+                "eventCode": {
+                  "type": "string",
+                  "description": "事件编码"
+                },
+                "eventConfig": {
+                  "type": "object",
+                  "description": "事件配置",
+                  "properties": {
+                    "triggerType": {
+                      "type": "string",
+                      "enum": [
+                        "SIMPLE",
+                        "SETTING",
+                        "EMPTY"
+                      ],
+                      "description": "触发类型",
+                      "x-apifox": {
+                        "enumDescriptions": {
+                          "SIMPLE": "单个设备的属性判断形成事件",
+                          "SETTING": "设备原生事件(可以进行阈值设定)",
+                          "EMPTY": "设备原生事件"
+                        }
+                      }
+                    },
+                    "eventRelatedProp": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "事件相关属性,可以是产品属性之外的定义"
+                      }
+                    },
+                    "rules": {
+                      "type": "object",
+                      "description": "规则",
+                      "anyOf": [
+                        {
+                          "type": "object",
+                          "properties": {}
+                        },
+                        {
+                          "type": "object",
+                          "properties": {}
+                        },
+                        {
+                          "type": "object",
+                          "properties": {}
+                        }
+                      ],
+                      "x-apifox-orders": []
+                    }
+                  },
+                  "x-apifox-orders": [
+                    "triggerType",
+                    "eventRelatedProp",
+                    "rules"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "categoryCode": {
+                  "type": "string",
+                  "format": "int64",
+                  "description": "事件分类(前期使用id实现,后期可能会用code实现)"
+                },
+                "categoryName": {
+                  "type": "string",
+                  "description": "事件分类名称"
+                },
+                "remark": {
+                  "type": "string",
+                  "description": "备注"
+                }
+              },
+              "x-apifox-orders": [
+                "01H8NKMZ212Z6ZZTB4T4ZHBCH3"
+              ],
+              "x-apifox-refs": {
+                "01H8NKMZ212Z6ZZTB4T4ZHBCH3": {
+                  "$ref": "#/components/schemas/productEvent"
+                }
+              },
+              "x-apifox-ignore-properties": [
+                "eventName",
+                "eventCode",
+                "eventConfig",
+                "categoryCode",
+                "categoryName",
+                "remark"
+              ]
+            }
+          },
+          "productCommandVoList": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {},
+              "x-apifox-orders": [
+                "01H8NKNSMR0C8TNCAGTJ1996DZ"
+              ],
+              "x-apifox-refs": {
+                "01H8NKNSMR0C8TNCAGTJ1996DZ": {
+                  "$ref": "#/components/schemas/productCommand"
+                }
+              },
+              "x-apifox-ignore-properties": []
+            }
+          },
+          "snapshots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "属性code"
+                },
+                "val": {
+                  "type": "string",
+                  "description": "属性值"
+                },
+                "ts": {
+                  "type": "integer",
+                  "description": "时间戳"
+                }
+              },
+              "x-apifox-orders": [
+                "01H8NKPFX7NSX4YQGKAYESPCDG"
+              ],
+              "x-apifox-refs": {
+                "01H8NKPFX7NSX4YQGKAYESPCDG": {
+                  "$ref": "#/components/schemas/keyValWithTs"
+                }
+              },
+              "x-apifox-ignore-properties": [
+                "key",
+                "val",
+                "ts"
+              ]
+            }
+          }
+        },
+        "description": "设备详情",
+        "x-apifox-orders": [
+          "01H8NDFTSC8K571QMW764MGWYW",
+          "productPropVoList",
+          "productEventVoList",
+          "productCommandVoList",
+          "snapshots"
+        ],
+        "x-apifox-refs": {
+          "01H8NDFTSC8K571QMW764MGWYW": {
+            "type": "object",
+            "properties": {}
+          }
+        },
+        "required": [
+          "productPropVoList",
+          "productEventVoList",
+          "productCommandVoList",
+          "snapshots",
+          "deviceNumber",
+          "productName"
+        ],
+        "x-apifox-ignore-properties": [
+          "deviceId",
+          "deviceParentId",
+          "deviceNumber",
+          "productId",
+          "productName",
+          "deviceName",
+          "tags"
+        ],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "productCommand": {
+        "type": "object",
+        "description": "todo",
+        "x-apifox-orders": [],
+        "properties": {},
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "productEvent": {
+        "type": "object",
+        "description": "产品事件",
+        "properties": {
+          "eventName": {
+            "type": "string",
+            "description": "事件名称"
+          },
+          "eventCode": {
+            "type": "string",
+            "description": "事件编码"
+          },
+          "eventConfig": {
+            "type": "object",
+            "description": "事件配置",
+            "properties": {
+              "triggerType": {
+                "type": "string",
+                "enum": [
+                  "SIMPLE",
+                  "SETTING",
+                  "EMPTY"
+                ],
+                "description": "触发类型",
+                "x-apifox": {
+                  "enumDescriptions": {
+                    "SIMPLE": "单个设备的属性判断形成事件",
+                    "SETTING": "设备原生事件(可以进行阈值设定)",
+                    "EMPTY": "设备原生事件"
+                  }
+                }
+              },
+              "eventRelatedProp": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "description": "事件相关属性,可以是产品属性之外的定义"
+                }
+              },
+              "rules": {
+                "type": "object",
+                "description": "规则",
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  {
+                    "type": "object",
+                    "properties": {}
+                  }
+                ],
+                "x-apifox-orders": []
+              }
+            },
+            "x-apifox-orders": [
+              "triggerType",
+              "eventRelatedProp",
+              "rules"
+            ],
+            "x-apifox-ignore-properties": []
+          },
+          "categoryCode": {
+            "type": "string",
+            "format": "int64",
+            "description": "事件分类(前期使用id实现,后期可能会用code实现)"
+          },
+          "categoryName": {
+            "type": "string",
+            "description": "事件分类名称"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "x-apifox-orders": [
+          "eventName",
+          "eventCode",
+          "eventConfig",
+          "categoryCode",
+          "categoryName",
+          "remark"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "productProp": {
+        "type": "object",
+        "description": "产品属性",
+        "properties": {
+          "propCode": {
+            "type": "string",
+            "description": "属性编码"
+          },
+          "name": {
+            "type": "string",
+            "description": "属性名称"
+          },
+          "dataType": {
+            "type": "string",
+            "enum": [
+              "int",
+              "long",
+              "float",
+              "double",
+              "boolean",
+              "string",
+              "enum"
+            ],
+            "description": "数据类型"
+          },
+          "precision": {
+            "type": "integer",
+            "format": "int32",
+            "description": "精度,浮点数由此选项(貌似放入约束中好一点)"
+          },
+          "unitName": {
+            "type": "string",
+            "description": "单位名称"
+          },
+          "dataWrite": {
+            "type": "integer",
+            "format": "int32",
+            "enum": [
+              0,
+              1
+            ],
+            "description": "数据写入,0读 1读写",
+            "x-apifox": {
+              "enumDescriptions": {
+                "0": "只读",
+                "1": "读写"
+              }
+            }
+          },
+          "dataConstraint": {
+            "type": "object",
+            "description": "数据约束定义",
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "object",
+                "properties": {}
+              },
+              {
+                "type": "object",
+                "properties": {}
+              }
+            ],
+            "x-apifox-orders": []
+          },
+          "isTelemetry": {
+            "type": "boolean",
+            "description": "遥测属性标识,预留坑位吧"
+          },
+          "remark": {
+            "type": "string",
+            "description": "备注"
+          }
+        },
+        "x-apifox-orders": [
+          "propCode",
+          "name",
+          "dataType",
+          "precision",
+          "unitName",
+          "dataWrite",
+          "dataConstraint",
+          "isTelemetry",
+          "remark"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "deviceThinInfo": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "integer",
+            "description": "设备id"
+          },
+          "deviceParentId": {
+            "type": "integer",
+            "description": "父设备id"
+          },
+          "deviceNumber": {
+            "type": "string",
+            "description": "物联网设备编码,注意此编码不等同于孪生设备编码，但可作为默认的孪生设备编码"
+          },
+          "productId": {
+            "type": "integer"
+          },
+          "productName": {
+            "type": "string",
+            "description": "产品名称"
+          },
+          "deviceName": {
+            "type": "string",
+            "description": "设备名称"
+          },
+          "tags": {
+            "type": "string",
+            "description": "未来支持的设备标签"
+          }
+        },
+        "required": [
+          "deviceNumber",
+          "productName"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "deviceParentId",
+          "deviceNumber",
+          "productId",
+          "productName",
+          "deviceName",
+          "tags"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "iot-2.0/Schemas"
+      },
+      "ErrorResult": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "title": "结果码"
+          },
+          "msg": {
+            "type": "string",
+            "title": "辅助信息"
+          },
+          "data": {
+            "type": "object",
+            "properties": {},
+            "title": "结果数据",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          },
+          "": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "msg",
+          "data",
+          ""
+        ],
+        "description": "API 请求结果统一结构",
+        "x-apifox-orders": [
+          "code",
+          "msg",
+          "data",
+          ""
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "公共模型"
+      },
+      "RuleExecutionDetail": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string"
+          },
+          "ruleNum": {
+            "type": "string"
+          },
+          "instanceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string"
+          },
+          "notifyStatus": {
+            "type": "string"
+          },
+          "notifyStatusTs": {
+            "type": "string"
+          },
+          "actionStatus": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "devId": {
+                  "type": "string"
+                },
+                "propCode": {
+                  "type": "string"
+                },
+                "popValue": {
+                  "type": "string"
+                },
+                "execStatus": {
+                  "$ref": "#/components/schemas/%E5%BC%82%E6%AD%A5%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81%E6%9E%9A%E4%B8%BE"
+                },
+                "execTs": {
+                  "type": "number"
+                },
+                "completeTs": {
+                  "type": "number"
+                }
+              },
+              "required": [
+                "devId",
+                "propCode",
+                "popValue",
+                "execTs",
+                "completeTs",
+                "execStatus"
+              ],
+              "x-apifox-orders": [
+                "devId",
+                "propCode",
+                "popValue",
+                "execStatus",
+                "execTs",
+                "completeTs"
+              ],
+              "x-apifox-ignore-properties": []
+            }
+          },
+          "ruleTriggerSnapshot": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "deviceId": {
+                  "type": "string"
+                },
+                "propCode": {
+                  "type": "string"
+                },
+                "propValue": {
+                  "type": "string"
+                },
+                "propValueTs": {
+                  "type": "string",
+                  "description": "取得的属性的时间戳 "
+                },
+                "condition": {
+                  "type": "string",
+                  "description": "调试状态下有， 包含当前实际执行的比较规则"
+                },
+                "": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "deviceId",
+                "propCode",
+                "propValue"
+              ],
+              "x-apifox-orders": [
+                "deviceId",
+                "propCode",
+                "propValue",
+                "propValueTs",
+                "condition",
+                ""
+              ],
+              "x-apifox-ignore-properties": []
+            }
+          }
+        },
+        "required": [
+          "ruleId",
+          "ruleNum",
+          "instanceId",
+          "ruleTriggerSnapshot",
+          "timestamp",
+          "notifyStatus"
+        ],
+        "x-apifox-orders": [
+          "ruleId",
+          "ruleNum",
+          "instanceId",
+          "timestamp",
+          "notifyStatus",
+          "notifyStatusTs",
+          "actionStatus",
+          "ruleTriggerSnapshot"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "消息与事件/告警与事件"
+      },
+      "异步命令执行状态枚举": {
+        "type": "string",
+        "default": "INIT",
+        "enum": [
+          "INIT",
+          "PROCESSING",
+          "ACCEPT",
+          "SUCCESS",
+          "FAIL",
+          "EXPIRED"
+        ],
+        "x-apifox": {
+          "enumDescriptions": {
+            "INIT": "初始状态，尚未进行操作",
+            "PROCESSING": "在进行本地处理（这是一种中间状态，避免重复处理）",
+            "ACCEPT": "命令已被接收（远程处理是异步的情况下，远端通知命令已被接收）",
+            "SUCCESS": "命令已处理成功",
+            "FAIL": "命令已处理失败",
+            "EXPIRED": "PROCESSING状态下未及时收到远端确认，或等待远程确认命令执行结果超时"
+          }
+        },
+        "x-apifox-folder": "公共模型"
+      },
+      "LivePropertyUpdateEvent": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "updates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeyValueWithTs"
+            }
+          }
+        },
+        "required": [
+          "deviceId",
+          "updates"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "updates"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "实时变更流与订阅"
+      },
+      "KeyValueWithTs": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          },
+          "ts": {
+            "type": "integer",
+            "description": "Time Stamp"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "x-apifox-orders": [
+          "key",
+          "value",
+          "ts"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "公共模型"
+      },
+      "EventTriggerLog": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "eventCode": {
+            "type": "string"
+          },
+          "instanceId": {
+            "type": "string",
+            "description": "实例Id "
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "发生时间"
+          },
+          "extraData": {
+            "type": "object",
+            "properties": {},
+            "description": "附加事件信息, 当事件承载业务内容时携带，物联平台仅做透传",
+            "x-apifox-orders": [],
+            "x-apifox-ignore-properties": []
+          },
+          "snapshot": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommonTriggerPart",
+              "x-apifox-overrides": {}
+            },
+            "description": "关联事件的快照数据"
+          },
+          "matchSnapshot": {
+            "$ref": "#/components/schemas/CommonTriggerPart",
+            "x-apifox-overrides": {}
+          },
+          "conditionStr": {
+            "type": "string",
+            "description": "调试用，执行规则描述"
+          },
+          "notifyStatus": {
+            "type": "string",
+            "description": "通知状态（枚举）"
+          },
+          "notifyStatusTs": {
+            "type": "string",
+            "description": "通知时间"
+          },
+          "urgencyLvl": {
+            "type": "string",
+            "description": "紧急程度"
+          },
+          "delayEventTime": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "deviceId",
+          "eventCode",
+          "notifyStatus",
+          "instanceId",
+          "timestamp",
+          "notifyStatusTs",
+          "urgencyLvl",
+          "projectId",
+          "delayEventTime",
+          "matchSnapshot"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "projectId",
+          "eventCode",
+          "instanceId",
+          "timestamp",
+          "extraData",
+          "snapshot",
+          "matchSnapshot",
+          "conditionStr",
+          "notifyStatus",
+          "notifyStatusTs",
+          "urgencyLvl",
+          "delayEventTime"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "消息与事件/告警与事件"
+      },
+      "CommonTriggerPart": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "propCode": {
+            "type": "string"
+          },
+          "propValue": {
+            "type": "string"
+          },
+          "propValueTs": {
+            "type": "string",
+            "description": "取得的属性的时间戳 "
+          },
+          "condition": {
+            "type": "string",
+            "description": "调试状态下有， 包含当前实际执行的比较规则"
+          }
+        },
+        "required": [
+          "propCode",
+          "propValue"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "propCode",
+          "propValue",
+          "propValueTs",
+          "condition"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "消息与事件/告警与事件"
+      },
+      "RuleTriggerLog": {
+        "type": "object",
+        "properties": {
+          "ruleId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "ruleNum": {
+            "type": "string"
+          },
+          "instanceId": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "description": "触发的时间"
+          },
+          "notifyStatus": {
+            "type": "string",
+            "description": "最新的通知状态"
+          },
+          "notifyStatusTs": {
+            "type": "string",
+            "description": "最新的通知状态时间"
+          },
+          "ruleTriggerSnapshot": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CommonTriggerPart",
+              "x-apifox-overrides": {}
+            }
+          },
+          "delayEventTime": {
+            "type": "string",
+            "description": "延时触发的时间(timestamp <= delayEventTime)"
+          }
+        },
+        "required": [
+          "ruleId",
+          "ruleNum",
+          "instanceId",
+          "ruleTriggerSnapshot",
+          "timestamp",
+          "notifyStatus",
+          "notifyStatusTs",
+          "projectId",
+          "delayEventTime"
+        ],
+        "x-apifox-orders": [
+          "ruleId",
+          "projectId",
+          "ruleNum",
+          "instanceId",
+          "timestamp",
+          "notifyStatus",
+          "notifyStatusTs",
+          "ruleTriggerSnapshot",
+          "delayEventTime"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "消息与事件/告警与事件"
+      },
+      "DeviceStatusUpdateEvent": {
+        "type": "object",
+        "properties": {
+          "deviceId": {
+            "type": "string"
+          },
+          "updates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KeyValueWithTs"
+            }
+          }
+        },
+        "required": [
+          "deviceId",
+          "updates"
+        ],
+        "x-apifox-orders": [
+          "deviceId",
+          "updates"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "实时变更流与订阅"
+      },
+      "CommandResponse": {
+        "type": "object",
+        "properties": {
+          "commandSeq": {
+            "type": "string"
+          },
+          "commandHandle": {
+            "type": "string",
+            "description": "预留扩展，用于轮询结果"
+          },
+          "statusCode": {
+            "$ref": "#/components/schemas/%E5%BC%82%E6%AD%A5%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C%E7%8A%B6%E6%80%81%E6%9E%9A%E4%B8%BE"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "commandSeq",
+          "statusCode",
+          "message",
+          "commandHandle"
+        ],
+        "x-apifox-orders": [
+          "commandSeq",
+          "commandHandle",
+          "statusCode",
+          "message"
+        ],
+        "x-apifox-ignore-properties": [],
+        "x-apifox-folder": "命令控制与回调 "
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://192.168.2.71:3200/ouaa",
+      "description": "fl_local"
+    }
+  ]
+}

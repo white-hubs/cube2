@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.business.info.sync.server.mapper.ProvisionalUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.srv.gen.business.info.sync.server.entity.ProvisionalUser">
+            <id property="uid" column="uid" jdbcType="BIGINT"/>
+            <result property="name" column="name" jdbcType="VARCHAR"/>
+            <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
+            <result property="gender" column="gender" jdbcType="VARCHAR"/>
+            <result property="paperType" column="paper_type" jdbcType="BIGINT"/>
+            <result property="paperNumber" column="paper_number" jdbcType="VARCHAR"/>
+            <result property="deleted" column="deleted" jdbcType="BIGINT"/>
+            <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+            <result property="updateTime" column="update_time" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        uid,name,mobile,
+        gender,paper_type,paper_number,
+        deleted,create_time,update_time
+    </sql>
+</mapper>

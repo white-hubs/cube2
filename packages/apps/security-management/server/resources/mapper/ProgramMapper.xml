@@ -1,0 +1,44 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dao.ProgramMapper">
+
+    <insert id="insertOrUpdateProgram"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.entity.ProgramEntity">
+        INSERT INTO `program` (`id`, `third_program_id`, `program_name`, `category_name`, `tenant`, `deleted`,
+        `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.thirdProgramId}, #{item.programName},#{item.categoryName}, #{item.tenant}, #{item.deleted},
+            #{item.createBy},#{item.creatorId},#{item.creatorType}, #{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType}, #{item.updateTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `third_program_id` = VALUES(`third_program_id`),
+        `program_name` = VALUES(`program_name`),
+        `category_name` = VALUES(`category_name`),
+        `tenant` = VALUES(`tenant`),
+        `deleted` = VALUES(`deleted`),
+        `create_by` = VALUES(`create_by`),
+        `create_time` = VALUES(`create_time`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+    <select id="getProgramPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.vo.ProgramPageVo">
+        SELECT
+        a.`id`, a.`third_program_id`, a.`program_name`, a.`category_name`, a.`tenant`, a.`deleted`,a.`create_by`, a.`create_time`,
+        a.`update_by`, a.`update_time`
+        FROM
+        `program` a
+        where a.`deleted` = 0
+        <if test="param.programName !=null and param.programName !=''">
+            and a.`program_name` like concat('%', #{param.programName}, '%')
+        </if>
+        <if test="param.categoryName !=null and param.categoryName !=''">
+            and a.`category_name` like concat('%', #{param.categoryName}, '%')
+        </if>
+        order by a.`create_time` DESC
+    </select>
+</mapper>

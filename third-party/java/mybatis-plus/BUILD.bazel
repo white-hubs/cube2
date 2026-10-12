@@ -1,0 +1,62 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "mybatis_plus",
+    actual = "@maven//:com_baomidou_mybatis_plus",
+)
+
+alias(
+    name = "annotation",
+    actual = "@maven//:com_baomidou_mybatis_plus_annotation",
+)
+
+alias(
+    name = "core",
+    actual = "@maven//:com_baomidou_mybatis_plus_core",
+)
+
+alias(
+    name = "extension",
+    actual = "@maven//:com_baomidou_mybatis_plus_extension",
+)
+
+alias(
+    name = "boot_starter",
+    actual = "@maven//:com_baomidou_mybatis_plus_boot_starter",
+)
+
+alias(
+    name = "dynamic_datasource_spring_boot_starter",
+    actual = "@maven//:com_baomidou_dynamic_datasource_spring_boot3_starter",
+)
+
+alias(
+    name = "dynamic_datasource_spring",
+    actual = "@maven//:com_baomidou_dynamic_datasource_spring",
+)
+
+alias(
+    name = "dynamic_datasource_spring_boot_common",
+    actual = "@maven//:com_baomidou_dynamic_datasource_spring_boot_common",
+)
+
+alias(
+    name = "dynamic_datasource_creator",
+    actual = "@maven//:com_baomidou_dynamic_datasource_creator",
+)
+
+java_library(
+    name = "spring",
+    exports = [
+        "@maven//:com_baomidou_mybatis_plus_spring",
+    ],
+)
+
+java_library(
+    name = "jsqlparser",
+    exports = [
+        "@maven//:com_baomidou_mybatis_plus_jsqlparser",
+    ],
+)

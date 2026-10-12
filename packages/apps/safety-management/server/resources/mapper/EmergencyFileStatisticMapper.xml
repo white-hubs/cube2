@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.EmergencyFileStatisticMapper">
+
+    <select id="getEmergencyFileStatistic"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.EmergencyFileClassify">
+        select count(sef.id) as 'classifyNum',
+        sef.emergency_event_type_name as 'classifyName',
+        sef.emergency_event_type_code as 'classifyCode'
+        from safety_emergency_file sef
+        left join market_config mc on mc.market_tenant = sef.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenant != null">
+                and sef.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and sef.create_time &gt;= #{query.period.begin} and sef.create_time &lt; #{query.period.end}
+            </if>
+        </where>
+        GROUP BY sef.emergency_event_type_code order by classifyNum desc;
+
+    </select>
+
+    <select id="getEmergencyFileClassify"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.EmergencyFileClassifyVO">
+    select
+    sef.emergency_event_type_name as 'classifyName',
+    sef.emergency_event_type_code as 'classifyCode'
+    from safety_emergency_file sef
+    left join market_config mc on mc.market_tenant = sef.market_tenant
+    where mc.status = true
+    GROUP BY sef.emergency_event_type_code;
+</select>
+
+    <select id="getSafetyEmergencyFilePage"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.po.SafetyEmergencyFilePO">
+        select
+        sef.*
+        from
+        safety_emergency_file sef
+        left join market_config mc on mc.market_tenant = sef.market_tenant
+        where mc.status = true
+        <if test="query.levelCode != null and query.levelCode != ''">
+            and sef.level_code = #{query.levelCode}
+        </if>
+        <if test="query.status != null and query.status != ''">
+            and sef.expiration_status = #{query.status}
+        </if>
+        <if test="query.period != null">
+            and sef.create_time &gt;= #{query.period.begin} and sef.create_time &lt; #{query.period.end}
+        </if>
+        <if test="query.marketTenant != null">
+            and sef.market_tenant = #{query.marketTenant}
+        </if>
+        <if test="query.classifyCode != null and query.classifyCode != ''">
+            and sef.emergency_event_type_code = #{query.classifyCode}
+        </if>
+        <if test="query.keyword != null and query.keyword != ''">
+            and sef.name like concat('%',#{query.keyword},'%');
+        </if>
+    </select>
+
+    <select id="countNum" resultType="java.lang.Integer">
+        select
+        count(sef.id) as total_num
+        from
+        safety_emergency_file sef
+        left join market_config mc on mc.market_tenant = sef.market_tenant
+        where mc.status = true
+        <if test="query.period != null">
+            and sef.create_time &gt;= #{query.period.begin} and sef.create_time &lt; #{query.period.end}
+        </if>
+        <if test="query.marketTenant != null">
+            and sef.market_tenant = #{query.marketTenant}
+        </if>
+    </select>
+
+    <select id="count" resultType="java.lang.Integer">
+        select
+        count(sef.id) as total_num
+        from
+        safety_emergency_file sef
+        left join market_config mc on mc.market_tenant = sef.market_tenant
+        where mc.status = true
+        <if test="query.marketTenantIDs != null and query.marketTenantIDs.size > 0">
+            and sef.market_tenant in
+            <foreach collection="query.marketTenantIDs" item="marketTenantId" open="(" separator="," close=")">
+                #{marketTenantId}
+            </foreach>
+        </if>
+        <if test="query.createdPeriod != null">
+            and sef.create_time &gt;= #{query.createdPeriod.begin} and sef.create_time &lt; #{query.createdPeriod.end}
+        </if>
+    </select>
+</mapper>

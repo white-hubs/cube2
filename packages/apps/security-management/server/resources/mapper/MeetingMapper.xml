@@ -1,0 +1,124 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.dao.MeetingMapper">
+    <insert id="insertOrUpdateMeeting" parameterType="java.util.List">
+        INSERT INTO `meeting` (
+        `id`,
+        `meeting_code`,
+        `meeting_type`,
+        `meeting_type_name`,
+        `meeting_reason`,
+        `meeting_start_time`,
+        `meeting_end_time`,
+        `meeting_process_audio`,
+        `third_record_id`,
+        `deleted`,
+        `tenant`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.id},
+            #{item.meetingCode},
+            #{item.meetingType},
+            #{item.meetingTypeName},
+            #{item.meetingReason},
+            #{item.meetingStartTime},
+            #{item.meetingEndTime},
+            #{item.meetingProcessAudio},
+            #{item.thirdRecordId},
+            #{item.deleted},
+            #{item.tenant},
+            #{item.createBy},
+            #{item.creatorId},
+            #{item.creatorType},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updaterId},
+            #{item.updaterType},
+            #{item.updateTime}
+            )
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `meeting_code` = VALUES(`meeting_code`),
+        `meeting_type` = VALUES(`meeting_type`),
+        `meeting_type_name` = VALUES(`meeting_type_name`),
+        `meeting_reason` = VALUES(`meeting_reason`),
+        `meeting_start_time` = VALUES(`meeting_start_time`),
+        `meeting_end_time` = VALUES(`meeting_end_time`),
+        `meeting_process_audio` = VALUES(`meeting_process_audio`),
+        `deleted` = VALUES(`deleted`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+
+    <select id="getPage" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.vo.MeetingPageVO">
+        SELECT
+        m.`id`,
+        m.`meeting_code`,
+        m.`meeting_type`,
+        m.`meeting_type_name`,
+        m.`meeting_reason`,
+        m.`meeting_start_time`,
+        m.`meeting_end_time`,
+        m.`meeting_process_audio`,
+        m.`third_record_id`,
+        m.`deleted`,
+        m.`tenant`,
+        m.`create_by`,
+        m.`create_time`,
+        m.`update_by`,
+        m.`update_time`
+        FROM
+        `meeting` m
+        LEFT JOIN `meeting_apply_person` mapp ON m.`id` = mapp.`business_key`
+        <where>
+            m.`deleted` = 0
+            <if test="param.meetingPeriod != null">
+                AND m.`meeting_start_time` &gt;= #{param.meetingPeriod.begin} AND m.`meeting_end_time` &lt;= #{param.meetingPeriod.end}
+            </if>
+            <if test="param.visitedPerson != null and param.visitedPerson != ''">
+                AND mapp.`meeting_person_name` LIKE CONCAT('%', #{param.visitedPerson}, '%') AND mapp.`meeting_person_type` = 2
+            </if>
+        </where>
+        group by m.`id`
+        ORDER BY m.`create_time` DESC
+    </select>
+    <select id="getList" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.vo.MeetingVO"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.meeting.param.MeetingListParam">
+        SELECT
+        m.`id`,
+        m.`meeting_code`,
+        m.`meeting_type`,
+        m.`meeting_type_name`,
+        m.`meeting_reason`,
+        m.`meeting_start_time`,
+        m.`meeting_end_time`,
+        m.`meeting_process_audio`,
+        m.`third_record_id`,
+        m.`deleted`,
+        m.`tenant`,
+        m.`create_by`,
+        m.`create_time`,
+        m.`update_by`,
+        m.`update_time`
+        FROM
+        `meeting` m
+        <where>
+            m.`deleted` = 0
+            <if test="param.period != null">
+                AND m.`meeting_start_time` &gt;= #{param.period.begin} AND m.`meeting_start_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        ORDER BY m.`create_time` DESC
+    </select>
+</mapper>

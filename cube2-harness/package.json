@@ -1,0 +1,18 @@
+{
+  "name": "cube2-harness",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cube2 仓库专用 MCP Server — 为 AI Agent 提供 Bazel 查询、模块导航、构建验证等能力",
+  "scripts": {
+    "start": "bun run server.ts",
+    "dev": "bun --watch server.ts",
+    "check": "bun run tools/check-environment.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.0",
+    "zod": "^3.25.28"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

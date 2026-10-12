@@ -1,0 +1,101 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/base/process-engine:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/dictionary/client",
+        "//packages/base/file/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/base/process-engine/client",
+        "//packages/base/todo/client",
+        "//packages/base/work-center/client",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/model:paging",
+        "//packages/platform/base/model:period",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/model:tree",
+        "//packages/platform/base/utils:base64",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:spring-file",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:tree",
+        "//packages/platform/event",
+        "//packages/platform/database",
+        "//packages/platform/dcm/server-support",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/activiti",
+        "//third-party/java/alibaba:easyexcel_core",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/hibernate:validator",
+        "//third-party/java/hutool:extra",
+        "//third-party/java/hutool:http",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:inject_api",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+        "src-activiti/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+artifactId = "flow-server"
+
+_MAIN_CLASS = "com.guhecloud.cube.base.flow.FlowServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube-base-flow",
+    datasource_package = "com.guhecloud.cube.base.flow",
+    gw_prefix = "/flow/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "processEngine",
+    visibility = ["//packages:__subpackages__"],
+)

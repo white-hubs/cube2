@@ -1,0 +1,2 @@
+com.guhecloud.cube.biz.ouaa.server.captcha.service.impl.CaptchaCacheServiceMemImpl
+com.guhecloud.cube.biz.ouaa.server.captcha.service.impl.CaptchaCacheServiceRedisImpl

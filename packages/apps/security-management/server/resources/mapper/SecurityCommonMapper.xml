@@ -1,0 +1,393 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.common.dao.SecurityCommonMapper">
+
+
+    <select id="getGenreVo"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.DeviceProdCategoryVo">
+        SELECT distinct `device_prod_category_code` `deviceProdCategoryCode`,`device_prod_category_name` `deviceProdCategoryName` FROM
+        `security_device` WHERE `application_code` = #{applicationCode}
+    </select>
+
+    <select id="getModelVo"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.ModelVo">
+        SELECT distinct `model_id` `modelId`,`model_name` `modelName` FROM `security_device`
+        WHERE `application_code` = #{applicationCode} and `genre` = #{genre}
+    </select>
+
+    <select id="getDeviceNum" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.AreaDeviceNumVO">
+        SELECT
+        `area_id`,
+        count( COALESCE ( id, 0 ) ) AS `device_num`
+        FROM
+        `security_device`
+        WHERE
+        `application_code` = #{applicationCode}
+        AND `area_id` IS NOT NULL
+        AND `area_id` != ''
+        GROUP BY
+        `area_id`
+    </select>
+
+    <select id="selectSecurityDeviceApplicationStatistics"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.SecurityDeviceApplicationCodeStatisticsVO">
+        SELECT
+        `application_code`,
+        COUNT(1) as `num`
+        FROM
+        `security_device`
+        WHERE `application_code` IS NOT NULL
+        AND `application_code` != ''
+        GROUP BY `application_code`
+    </select>
+
+    <select id="selectSecurityDeviceApplicationStatusStatistics"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.SecurityDeviceApplicationStatusStatisticsVO">
+        SELECT
+        `application_code`,
+        SUM(CASE WHEN `device_status` = 1 THEN 1 ELSE 0 END) AS `onlineNum`,
+        SUM(CASE WHEN `device_status` = 0 THEN 1 ELSE 0 END) AS `offlineNum`
+        FROM
+        `security_device`
+        WHERE `application_code` IS NOT NULL
+        AND `application_code` != ''
+        GROUP BY `application_code`
+    </select>
+
+    <select id="getApplicationGenreVo"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.DeviceProdCategoryVo">
+        SELECT
+        `device_prod_category_code_concat` `deviceProdCategoryCodeConcat`,
+        `device_prod_category_name` `deviceProdCategoryName`,
+        COUNT( id ) `num`
+        FROM
+        `security_device`
+        WHERE
+        `application_code` = #{applicationCode}
+        and `device_prod_category_code_concat` is not NULL
+        GROUP BY
+        `device_prod_category_code_concat`,
+        `device_prod_category_name`
+    </select>
+
+    <select id="getApplicationModels"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.ModelVo">
+        SELECT
+        `device_prod_id` `deviceProdId`,
+        `device_prod_name` `deviceProdName`
+        FROM
+        `security_device`
+        WHERE
+        `application_code` = #{applicationCode}
+        and `device_prod_id` is not NULL
+        GROUP BY
+        `device_prod_id`,
+        `device_prod_name`
+    </select>
+
+    <select id="getStatisticsGenreVo"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.DeviceProdCategoryVo">
+
+        SELECT
+        `device_prod_category_code` `deviceProdCategoryCode`,
+        `device_prod_category_name` `deviceProdCategoryName`,
+        COUNT( `id` ) `num`
+        FROM
+        `security_device`
+        WHERE
+        `device_id` in
+        <foreach collection="list" item="item" separator="," close=")" open="(">
+            #{item}
+        </foreach>
+        GROUP BY
+        `device_prod_category_code`,
+        `device_prod_category_name`
+    </select>
+    <select id="getDeviceCollection"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.DeviceCollectionVo">
+        SELECT
+        DISTINCT a.`device_id` `deviceId`,
+        b.`device_name` `deviceName`
+        FROM
+        `device_collection` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        where
+        a.`application_code` = #{applicationCode}
+        and a.`user_id` = #{userId}
+    </select>
+    <select id="selectDeviceInfoPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.dao.dto.SecurityDeviceInfoDTO">
+        SELECT DISTINCT a.`device_id` `deviceId`
+        ,a.`device_name` `deviceName`
+        ,a.`area_id` `areaId`
+        ,a.`area_name` `areaName`
+        ,a.`device_prod_name` `deviceProdName`
+        ,a.`device_prod_category_name` `deviceProdCategoryName`
+        ,a.`device_prod_category_code` `deviceProdCategoryCode`
+        ,a.`device_prod_id` `deviceProdId`
+        ,a.`device_status` `deviceStatus`
+        ,a.`code` `deviceCode`
+        ,a.`third_party_id` `thirdPartyId`
+        ,a.`lnt_and_lat` `lntAndLat`
+        ,a.`communication_status`
+        ,a.`brand_name`
+        FROM
+        `security_device` a
+        where
+        a.`application_code` = #{param.applicationCode}
+        <if test="param.deviceStatus !=null">
+            and a.`device_status` = #{param.deviceStatus}
+        </if>
+        <if test="param.deviceProdCategoryCodeConcat !=null and param.deviceProdCategoryCodeConcat !=''">
+            and a.`device_prod_category_code_concat` like concat('%',#{param.deviceProdCategoryCodeConcat},'%')
+        </if>
+        <if test="param.areaId !=null and param.areaId !=''">
+            and a.`area_id` like concat('%',#{param.areaId},'%')
+        </if>
+        <if test="param.deviceId !=null and param.deviceId !=''">
+            and a.`device_id` = #{param.deviceId}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and a.`device_name` like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.ids !=null and param.ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="param.ids" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        order by a.`device_status` desc
+    </select>
+    <select id="getEquipmentOverview" resultType="java.lang.Integer">
+        select
+        count(distinct `application_code`)
+        from `security_device` where `device_id` in (
+        <foreach collection="list" item="item" separator=",">
+            #{item}
+        </foreach>
+        )
+    </select>
+
+
+    <update id="delDeviceInstance">
+        <foreach collection="list" separator=";" item="item">
+            UPDATE `security_device`
+            SET `deleted` = #{delTime}
+            WHERE
+            `device_id` = #{item}
+        </foreach>
+
+    </update>
+
+    <update id="delCollectionDeviceInstance">
+        <foreach collection="list" separator=";" item="item">
+            UPDATE `device_collection`
+            SET `deleted` = #{delTime}
+            WHERE
+            `device_id` = #{item}
+        </foreach>
+
+    </update>
+
+    <update id="delCollectionSecurityDeviceInstance">
+
+        UPDATE `device_collection`
+        SET `deleted` = #{delTime}
+        WHERE
+        `device_id` = #{id} and `application_code` = #{applicationCode}
+
+    </update>
+
+    <update id="delAppDevices">
+        UPDATE `security_device`
+        SET `deleted` = #{delTime}
+        WHERE
+        `application_code` = #{applicationCode}
+    </update>
+
+    <update id="delAppSecurityDeviceInstance">
+        UPDATE `security_device`
+        SET `deleted` = #{delTime}
+        WHERE
+        `application_code` = #{applicationCode}
+        and `device_id` in
+        <foreach collection="list" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+
+    <select id="insertBatch" resultType="java.lang.Integer">
+        insert into
+        `security_device`(`id`,`create_by`,`creator_id`,`creator_type`,`create_time`,
+        `update_by`,`updater_id`,`updater_type`,`update_time`,`device_name`,`device_id`,
+        `device_prod_category_name`,`device_prod_category_code`,`application_code`,`area_id`,`device_prod_id`,
+        `device_prod_name`,`area_name`,`code`,`device_status`,`communication_status`,`third_party_id`,`brand_code`,
+        `brand_name`,`lnt_and_lat`,`device_prod_category_code_concat`)
+        values
+        <foreach collection="securityDevices" item="device" separator=",">
+            (#{device.id},#{device.createBy},#{device.creatorId},#{device.creatorType},#{device.createTime},
+            #{device.updateBy},#{device.updaterId},#{device.updaterType},#{device.updateTime},#{device.deviceName},
+            #{device.deviceId},#{device.deviceProdCategoryName},#{device.deviceProdCategoryCode},#{device.applicationCode},
+            #{device.areaId},#{device.deviceProdId},#{device.deviceProdName},#{device.areaName},#{device.code},#{device.deviceStatus},
+            #{device.communicationStatus},#{device.thirdPartyId},#{device.brandCode},#{device.brandName},#{device.lntAndLat},
+            #{device.deviceProdCategoryCodeConcat})
+        </foreach>
+    </select>
+
+    <update id="updateBatch" parameterType="java.util.List">
+        <foreach collection="list" item="item" separator=";">
+            UPDATE `security_device`
+            SET `device_name` = #{item.name},
+            `area_id` = #{item.areaId},
+            `model_id` = #{item.modelId},
+            `model_name` = #{item.modelName},
+            `genre_name` = #{item.genreName},
+            `genre` = #{item.genreId},
+            `area_name` = #{item.areaName},
+            `model_name` = #{item.modelName},
+            `device_name` = #{item.deviceName},
+            `code` = #{item.code},
+            `device_status` = #{item.deviceStatus},
+            `communication_status` = #{item.communicationStatus}
+            WHERE `device_id` = #{item.device_id}
+        </foreach>
+    </update>
+    <update id="updateDeviceStatus">
+        update `security_device` set `device_status` = #{deviceStatus},`communication_status` = #{communicationStatus} where `device_id` =
+        #{deviceId} and `deleted` = 0
+    </update>
+
+    <select id="getAreaStatusNum"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.perimeter.vo.AreaOfflineVo">
+        SELECT
+        `area_name` `areaName`,
+        SUM( IF ( `device_status` = '0', 1, 0 ) ) AS `offlineNum`,
+        SUM( IF ( `device_status` = '1', 1, 0 ) ) as `onNum`
+        FROM
+        `security_device`
+        <where>
+            <if test="ids.size()>0">
+                `id` in
+                <foreach collection="ids" item="item" close=")" open="(" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY `area_name`
+
+    </select>
+
+
+    <update id="updateDeviceBatch">
+        <foreach collection="list" item="item" separator=";">
+            update `security_device` set `device_name` = #{item.deviceName}
+            ,`device_prod_category_name` = #{item.deviceProdCategoryName}
+            ,`device_prod_category_code` = #{item.deviceProdCategoryCode}
+            ,`device_prod_category_code_concat` = #{item.deviceProdCategoryCodeConcat}
+            ,`brand_name` = #{item.brandName}
+            ,`lnt_and_lat` = #{item.lntAndLat}
+            ,`area_name` = #{item.areaName}
+            ,`area_id` = #{item.areaId}
+            ,`third_party_id` = #{item.thirdPartyId}
+            ,`device_prod_id` = #{item.deviceProdId}
+            ,`device_prod_name` = #{item.deviceProdName}
+            ,`code` = #{item.code}
+            where `device_id` = #{item.deviceId}
+        </foreach>
+    </update>
+    <update id="updateProduct">
+        update `security_device`
+        set `device_prod_name` = #{productInfo.name},
+        `brand_Name` = #{productInfo.brandName}
+        <if test="productInfo.productCategory != null">
+            ,`device_prod_category_name` = #{productInfo.productCategory.name},
+            `device_prod_category_code` = #{productInfo.productCategory.code},
+            `device_prod_category_code_concat` = #{productInfo.productCategory.pathCode}
+        </if>
+        where `device_prod_id` =#{productInfo.id}
+    </update>
+
+    <select id="selectConditionDeleteSecurityDeviceIds" resultType="java.lang.Long">
+        select
+        `device_id`
+        from
+        `security_device`
+        <where>
+            `application_code` = #{param.applicationCode}
+            <if test="param.keyword != null and param.keyword != ''">
+                and (`device_name` like concat('%',#{param.keyword},'%')
+                or
+                `code` like concat('%',#{param.keyword},'%'))
+            </if>
+            <if test="param.productId != null">
+                and `device_prod_id` = #{param.productId}
+            </if>
+            <if test="param.categoryCode != null and param.categoryCode != ''">
+                and `device_prod_category_code` = #{categoryCode}
+            </if>
+            <if test="param.matchedDeviceIds != null and param.matchedDeviceIds.size > 0">
+                and `device_id` in
+                <foreach collection="param.matchedDeviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+            <if test="param.anyMatchedAreaId != null and param.anyMatchedAreaId != ''">
+                and `area_id` like concat('%',#{param.anyMatchedAreaId},'%')
+            </if>
+            <if test="param.deviceState !=null">
+                and `device_status` = #{param.deviceState}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectDeviceIds" resultType="java.lang.Long">
+        select
+        `device_id`
+        from
+        `security_device`
+        <where>
+            `application_code` = #{applicationCode}
+        </where>
+    </select>
+    <select id="selectSecurityDeviceByIds"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.entity.SecurityDevice">
+        select
+        `id`,`create_by`,`creator_id`,`creator_type`,`create_time`,`update_by`,`updater_id`,`updater_type`,`update_time`,`device_name`,`device_id`,
+        `device_prod_category_name`,`device_prod_category_code`,`application_code`,`area_id`,`device_prod_id`,
+        `device_prod_name`,`area_name`,`code`,`device_status`,`communication_status`,`third_party_id`,`brand_code`,
+        `brand_name`,`lnt_and_lat`,`device_prod_category_code_concat`
+        from
+        `security_device`
+        <where>
+            `deleted` = 0
+            <if test="param.keyword != null and param.keyword != ''">
+                and (`device_name` like concat('%',#{param.keyword},'%')
+                or
+                `code` like concat('%',#{param.keyword},'%'))
+            </if>
+            <if test="param.productId != null">
+                and `device_prod_id` = #{param.productId}
+            </if>
+            <if test="param.categoryCode != null and param.categoryCode != ''">
+                and `device_prod_category_code` = #{categoryCode}
+            </if>
+            <if test="param.ids != null and param.ids.size > 0">
+                and `id` in
+                <foreach collection="param.ids" item="id" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.matchedDeviceIds != null and param.matchedDeviceIds.size > 0">
+                and `device_id` in
+                <foreach collection="param.matchedDeviceIds" item="deviceId" open="(" separator="," close=")">
+                    #{deviceId}
+                </foreach>
+            </if>
+            <if test="param.anyMatchedAreaId != null and param.anyMatchedAreaId != ''">
+                and `area_id` like concat('%',#{param.anyMatchedAreaId},'%')
+            </if>
+            <if test="param.deviceState !=null">
+                and `device_status` = #{param.deviceState}
+            </if>
+        </where>
+    </select>
+</mapper>

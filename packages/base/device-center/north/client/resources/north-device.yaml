@@ -1,0 +1,441 @@
+openapi: 3.0.3
+info:
+  title: 北向设备接口
+  description: 北向设备接口
+  version: 1.0.0
+components:
+  schemas:
+    deviceThinInfo:
+      type: object
+      properties:
+        deviceId:
+          type: integer
+          description: 设备id
+        deviceParentId:
+          type: integer
+          description: 父设备id
+          required: false
+        deviceNumber:
+          type: string
+          description: 物联网设备编码,注意此编码不等同于孪生设备编码，但可作为默认的孪生设备编码
+        productId:
+          type: integer
+        productName:
+          type: string
+          description: 产品名称
+        deviceName:
+          type: string
+          description: 设备名称
+        tags:
+          type: string
+          description: 未来支持的设备标签
+      required:
+        - id
+        - deviceNumber
+        - productName
+    deviceFullInfo:
+      type: object
+      description: 设备详情
+      allOf:
+        - $ref: '#/components/schemas/deviceThinInfo'
+        - properties:
+            properties:
+              type: array
+              items:
+                $ref: 'north.yaml#/components/schemas/productProp'
+            events:
+              type: array
+              items:
+                $ref: 'north.yaml#/components/schemas/productEvent'
+            commands:
+              type: array
+              items:
+                $ref: 'north.yaml#/components/schemas/productCommand'
+            snapshots:
+              type: array
+              items:
+                $ref: 'north.yaml#/components/schemas/keyValWithTs'
+    historySampleItem:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        properties: { type: array, items: { type: string } }
+        start: { type: integer, title: "", description: 毫秒 }
+        end: { type: integer, description: 毫秒 }
+        step: { type: integer, description: '采样时间,单位分钟' }
+        maxRecords: { type: integer, default: 1000, description: '最大记录,默认1000' }
+        aggType:
+          type: string
+          enum:
+            - min
+            - max
+            - count
+            - sum
+            - avg
+            - any
+          default: any
+          description: '聚合类型'
+
+        order: { type: string, default: 'desc', description: 排序 }
+      x-apifox-orders:
+        - properties
+        - aggType
+        - start
+        - end
+        - step
+        - maxRecords
+        - order
+      required:
+        - properties
+        - start
+        - end
+        - step
+        - maxRecords
+        - order
+    historySampleRes:
+      type: object
+      properties:
+        deviceId:
+          type: string
+        deviceName:
+          type: string
+        propertyTsBoList:
+          type: array
+          items:
+            type: object
+            properties:
+              propertyCode:
+                type: string
+                description: 属性code
+              propertyName:
+                type: string
+                description: 属性名称
+              dataType:
+                type: string
+                enum:
+                  - int
+                  - long
+                  - float
+                  - double
+                  - boolean
+                  - string
+                  - enum
+                description: 数据类型
+              propertyUnit:
+                type: string
+              dataConstraint:
+                type: object
+                description: 数据约束定义
+                anyOf:
+                  - $ref: 'north.yaml#/components/schemas/enumDataConstraint'
+                  - $ref: 'north.yaml#/components/schemas/numberDataConstraint'
+                  - $ref: 'north.yaml#/components/schemas/stringDataConstraint'
+              valueTsBoList:
+                type: array
+                items:
+                  $ref: 'north.yaml#/components/schemas/valWithTs'
+          required:
+            - deviceId
+            - deviceName
+            - propertyTsBoList
+
+  parameters:
+    deviceQuery:
+      in: query
+      name: deviceQuery
+      schema:
+        type: object
+        properties:
+          productId:
+            type: string
+            format: int32
+          deviceCode:
+            type: string
+            description: deviceCode like be
+          prodCategoryCode:
+            type: string
+            format: int64
+            description: '产品品类code(前期使用id实现,后期可能会用code实现)'
+          prodBrandCode:
+            type: string
+            format: int64
+            description: '产品品牌code(前期使用id实现,后期可能会用code实现)'
+          prodNumberCode:
+            type: integer
+            format: int64
+            description: '产品型号(前期使用id实现,后期可能会用code实现)'
+        oneOf:
+          - required:
+              - productId
+          - required:
+              - deviceCode
+          - required:
+              - prodCategoryCode
+          - required:
+              - prodBrandCode
+          - required:
+              - prodNumberCode
+    deviceDetailQuery:
+      in: query
+      name: deviceDetailQuery
+      schema:
+        type: object
+        properties:
+          deviceId:
+            type: string
+            format: int32
+          withSnapShot:
+            type: boolean
+            description: 是否包含属性快照(即实时属性)
+            default: false
+          withEventSpec:
+            type: boolean
+            description: 是否包含事件规格描述
+            default: false
+          withCommandSpec:
+            type: boolean
+            description: 是否包含命令规格描述
+            default: false
+          withPropertySpec:
+            type: boolean
+            description: 是否包含事件规格描述
+            default: false
+        required:
+          - deviceId
+    historyPropQuery:
+      in: query
+      name: historyPropQuery
+      schema:
+        type: object
+        properties:
+          deviceId:
+            type: string
+          propertyCodes:
+            type: string
+            description: 按照逗号(,)分割
+          startTs:
+            type: integer
+            description: UTC+8 Millis
+          endTs:
+            type: integer
+            description: UTC+8 Millis
+          maxRecords:
+            type: integer
+            description: 最大返回行数
+            default: 1000
+          order:
+            type: string
+            default: DESC
+            description: 排序
+    historyPropPageQuery:
+      in: query
+      name: historyPropPageQuery
+      schema:
+        type: object
+        properties: # 不知道为啥不能重用。。。。。
+          deviceId:
+            type: string
+          propertyCodes:
+            type: string
+            description: 按照逗号(,)分割
+          startTs:
+            type: integer
+            description: UTC+8 Millis
+          endTs:
+            type: integer
+            description: UTC+8 Millis
+          maxRecords:
+            type: integer
+            description: 最大返回行数
+            default: 1000
+          order:
+            type: string
+            default: DESC
+            description: 排序
+          page:
+            type: integer
+            format: int32
+            description: 页码
+            required: false
+            default: 1
+          pageSize:
+            type: integer
+            format: int32
+            description: 每页条数
+            required: false
+            default: 10
+
+paths:
+  /device/page:
+    get:
+      tags:
+        - device
+      summary: 获取设备信息
+      description: 批量或点个获取设备信息
+      parameters:
+        - $ref: '#/components/parameters/deviceQuery'
+      responses:
+        200:
+          description: 获取产品分类成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deviceThinInfo'
+
+  /device/detail:
+    get:
+      tags:
+        - device
+      summary: 设备实例详情
+      description: 查询设备详情，包含实时属性等
+      parameters:
+        - $ref: '#/components/parameters/deviceDetailQuery'
+      responses:
+        200:
+          description: 设备详情
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deviceFullInfo'
+
+  /device/prop:
+    get:
+      tags:
+        - device
+      summary: 设备属性实时数据
+      description: 查询设备实时属性
+      parameters:
+        - name: devicePropQuery
+          in: query
+          schema:
+            type: object
+            properties:
+              deviceId:
+                type: string
+                description: 设备ID
+              propertyCodes:
+                type: string
+                description: 需要查询的设备属性
+              notBeforeTs:
+                type: boolean
+                description: 时间过滤UTC+8 Millis
+                default: null
+      responses:
+        200:
+          description: 设备属性数据
+          content:
+            application/json:
+              schema:
+                $ref: 'north.yaml#/components/schemas/keyValWithTs'
+
+  /device/multi-prop:
+    get:
+      tags:
+        - device
+      summary: 多设备属性实时数据
+      description: 查询多个设备实时属性
+      parameters:
+        - name: devicePropQuery
+          in: query
+          schema:
+            type: object
+            properties:
+              devIdAndPropCodes:
+                type: string
+                description: 需要查询的设备和属性,deviceId1.temp,deviceId2.air
+              notBeforeTs:
+                type: boolean
+                description: 时间过滤UTC+8 Millis
+                default: null
+      responses:
+        200:
+          description: 设备属性数据
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deviceId:
+                    type: array
+                    items:
+                      $ref: 'north.yaml#/components/schemas/keyValWithTs'
+
+  /device/history-sample-prop:
+    get:
+      tags:
+        - device
+        - device-history
+      parameters:
+        - in: query
+          name: sampleHistoryQuery
+          schema:
+            $ref: '#/components/schemas/historySampleItem'
+      responses:
+        200:
+          description: 设备属性采样值
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/historySampleRes'
+
+  /device/history-prop:
+    get:
+      tags:
+        - device
+        - device-history
+      description: 设备历史属性
+      parameters:
+        - $ref: '#/components/parameters/historyPropQuery'
+      responses:
+        200:
+          description: 属性历史值
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: 'north.yaml#/components/schemas/keyValWithTs'
+
+  /device/history-prop-page:
+    get:
+      tags:
+        - device
+        - device-history
+      description: 设备历史属性分页
+      parameters:
+        - $ref: '#/components/parameters/historyPropPageQuery'
+      responses:
+        200:
+          description: 设备历史属性分页
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: 'north.yaml#/components/schemas/pageResult'
+                  - type: object
+                    properties:
+                      list:
+                        $ref: 'north.yaml#/components/schemas/keyValWithTs'
+
+  /device/command/issue:
+    post:
+      tags:
+        - unImplements
+
+
+  /device/command/multi-issue:
+    post:
+      tags:
+        - unImplements
+
+
+  /device/command/issue-status:
+    post:
+      tags:
+        - unImplements
+
+
+
+
+

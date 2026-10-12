@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.SysDictItemMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.base.model.SysDictItem">
+        <!--@mbg.generated-->
+        <!--@Table iot_sys_dict_item-->
+        <!--    <result column="logic_id" jdbcType="VARCHAR" property="logicId" />-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="dict_id" jdbcType="BIGINT" property="dictId"/>
+        <result column="item_parent_id" jdbcType="BIGINT" property="itemParentId"/>
+        <result column="item_sort" jdbcType="INTEGER" property="itemSort"/>
+        <result column="item_level" jdbcType="VARCHAR" property="itemLevel"/>
+        <result column="item_label" jdbcType="VARCHAR" property="itemLabel"/>
+        <result column="item_value" jdbcType="VARCHAR" property="itemValue"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="remark" jdbcType="VARCHAR" property="remark"/>
+        <result column="admin_id" jdbcType="INTEGER" property="adminId"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `dict_id`, `item_parent_id`, `item_sort`, `item_level`, `item_label`, `item_value`,
+        `status`, `remark`, `admin_id`
+    </sql>
+
+    <select id="queryAssociatedFromSourceId" resultMap="BaseResultMap">
+        SELECT `item`.*
+        FROM `iot_sys_dict_item_ref` `item_ref`
+                 JOIN `iot_sys_dict_item` `item` on `item`.`id` = `item_ref`.`target_item_id`
+        WHERE `item_ref`.`source_item_id` = #{sourceItemId}
+          and `item_ref`.`target_dict_id` = #{targetDictId}
+    </select>
+
+    <select id="queryAssociatedFromTargetId" resultMap="BaseResultMap">
+        SELECT `item`.*
+        FROM `iot_sys_dict_item_ref` `item_ref`
+                 JOIN `iot_sys_dict_item` `item` on `item`.`id` = `item_ref`.`source_item_id`
+        WHERE `item_ref`.`target_item_id` = #{targetItemId}
+          and `item_ref`.`source_dict_id` = #{sourceDictId}
+    </select>
+
+    <select id="queryDictIdByAdminId" resultType="java.lang.Long">
+        SELECT `id`
+        FROM `iot_sys_dict_item`
+        WHERE `admin_id` = #{adminId}
+    </select>
+
+    <select id="queryDictItemByIdAndTenantId" resultMap="BaseResultMap">
+        SELECT `item`.*
+        FROM `iot_sys_dict_item` `item`
+        WHERE `item`.`dict_id` = #{dictId}
+          and `item`.`tenant` = #{tenantId}
+          and `item`.`deleted` = 0
+    </select>
+
+    <select id="countProdUse" resultType="long">
+        SELECT count(1)
+        FROM `iot_md_product` `prod`
+        WHERE `prod`.`prod_category_id` in
+        <foreach collection="ids" item="id" index="index" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        and `deleted` = 0
+    </select>
+
+    <select id="queryIdsByLikeLevel" resultType="java.lang.Long">
+        SELECT `id`
+        FROM `iot_sys_dict_item`
+        WHERE `dict_id` = #{dictId}
+          and `deleted` = 0
+          and `item_level` like concat(#{itemLevel}, '%')
+    </select>
+
+    <!-- 统计型号在改品牌出现的次数 -->
+    <select id="countNumberUniqueInBrand" resultType="int">
+        SELECT count(*)
+        FROM `iot_sys_dict_item` `dict_item`
+                 join `iot_sys_dict_item_ref` `item_ref` on `dict_item`.`id` = `item_ref`.`source_item_id`
+        WHERE `dict_item`.`dict_id` = #{numberDictId}
+          and `item_ref`.`target_item_id` = #{brandItemId}
+          and `dict_item`.`item_label` = #{numberLabel}
+    </select>
+
+    <select id="queryItemListByParentIdAndDictId" resultMap="BaseResultMap">
+        SELECT *
+        FROM `iot_sys_dict_item`
+        WHERE `item_parent_id` = #{parentId}
+          and `dict_id` = #{dictId}
+          and `tenant` = #{tenant}
+          and `deleted` = 0
+        order by `item_level` desc
+    </select>
+
+    <select id="queryIdsByLikeLevelAndSort" resultMap="BaseResultMap">
+        SELECT *
+        FROM `iot_sys_dict_item`
+        WHERE `dict_id` = #{dictId}
+          and `deleted` = 0
+          and `item_level` like concat(#{itemLevel}, '%')
+        order by item_level asc
+    </select>
+
+    <select id="queryDictItemByIdThin" resultType="com.guhecloud.cube.iot.mgt.base.vo.DictItemThinVo">
+        select `id`,
+               `dict_id`,
+               `item_parent_id`,
+               `item_sort`,
+               `item_level`,
+               `item_label`,
+               `item_value`
+        from `iot_sys_dict_item`
+        where `dict_id` = #{dictId}
+    </select>
+
+    <select id="queryDictItemByDictIdAndItemIdThin"
+            resultType="com.guhecloud.cube.iot.mgt.base.vo.DictItemThinVo">
+        select `id`,
+               `dict_id`,
+               `item_parent_id`,
+               `item_sort`,
+               `item_level`,
+               `item_label`,
+               `item_value`
+        from `iot_sys_dict_item`
+        where `dict_id` = #{dictId}
+          and `id` = #{itemId}
+    </select>
+
+    <select id="countBrandUse" resultType="java.lang.Long">
+        SELECT count(1)
+        FROM `iot_md_product` `prod`
+        WHERE `prod`.`prod_brand_id` = #{brandId}
+    </select>
+</mapper>

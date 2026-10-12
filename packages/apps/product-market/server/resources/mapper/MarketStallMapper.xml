@@ -1,0 +1,42 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.common.dao.MarketStallMapper">
+
+    <!-- 档位查询 -->
+    <select id="getStallGroupByBoss" resultType="com.guhecloud.cube.srv.gen.product.market.server.common.vo.MarketStallGroupByBossVO">
+        select s.boss_id,s.boss_name,s.boss_phone,GROUP_CONCAT(s.name SEPARATOR ',') as name from market_stall s
+        where s.boss_name is not null
+        <if test="param.name != null and param.name != ''">
+            and s.name like concat('%',#{param.name},'%')
+        </if>
+        <if test="param.bossName != null and param.bossName != ''">
+            and s.bossName like concat('%',#{param.bossName},'%')
+        </if>
+        GROUP BY s.boss_name order by s.name desc
+    </select>
+
+    <insert id="insertOrUpdateStallBatch" parameterType="com.guhecloud.cube.srv.gen.product.market.server.common.entity.MarketStall">
+        insert into
+        market_stall( id,code,name,type,area,location,built_up_area,
+        practical_area,dept_id,dept_name,
+        lease_type,leased,bim_bind,remark,enabled,
+        tenant,deleted,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.code},#{item.name},#{item.type},#{item.area},#{item.location},#{item.builtUpArea},
+            #{item.practicalArea},#{item.deptId},#{item.deptName},
+            #{item.leaseType},#{item.leased},#{item.bimBind},#{item.remark},#{item.enabled},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        code = values(code),
+        name = values(name),
+        type = values(type),
+        dept_id = values(dept_id),
+        dept_name = values(dept_name),
+        area = values(area),
+        enabled = values(enabled),
+        deleted = values(deleted),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

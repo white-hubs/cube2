@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchDeviceMapper">
+
+    <insert id="insertOrUpdateDeviceBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchDevice">
+        insert into
+        `dispatch_device`(id,name,code,password,type,user_id,
+        tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.code},#{item.password},#{item.type},#{item.userId},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        password = values(password),
+        type = values(type),
+        update_time = values(update_time)
+    </insert>
+
+    <!-- type = 10 为调度台 不用查询 -->
+    <select id="deviceDetail" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchDeviceDetailVO">
+        select d.id,
+        d.code,
+        d.`name`,
+        d.type,
+        d.user_id,
+        d.create_time,
+        s.online_status,
+        s.video_status,
+        s.lng,
+        s.lat,
+        s.direction,
+        s.speed,
+        s.upload_time,
+        s.tenant
+        from dispatch_device d
+        LEFT JOIN dispatch_device_status s on d.id = s.id
+        <where>
+            d.type != 10
+            <if test="param.name != null and param.name != ''">
+                and (
+                d.name like concat('%',#{param.name},'%')
+                or
+                d.code like concat('%',#{param.name},'%')
+                )
+            </if>
+            <if test="param.code != null and param.code != ''">
+                and d.code like concat('%',#{param.code},'%')
+            </if>
+            <if test="param.type != null and param.type != ''">
+                and d.type = #{param.type}
+            </if>
+            <if test="param.onlineStatus != null">
+                and s.online_status = #{param.onlineStatus}
+            </if>
+        </where>
+        order by s.upload_time desc
+    </select>
+
+    <select id="deviceInGroup" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchDeviceVO">
+        select d.id,d.name,d.code,d.type,d.user_id from dispatch_device d
+        inner join dispatch_device_group_refer r on d.id = r.device_id
+        where r.group_id = #{groupId}
+    </select>
+
+    <select id="deviceBelongGroup" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchGroupVO">
+        select g.id,g.parent_id,g.`code`,g.`name`,g.type,g.valid_time,g.sort
+        from dispatch_device_group_refer r
+        left join dispatch_group g on r.group_id = g.id
+        where r.device_id = #{deviceId}
+    </select>
+
+    <select id="deviceInGroupWithStatus" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchDeviceDetailVO">
+        select d.id,d.name,d.code,d.type,d.user_id,s.online_status,s.lat,s.lng,s.speed,s.direction,s.upload_time
+        from dispatch_device d
+        inner join dispatch_device_group_refer r on d.id = r.device_id
+        left join dispatch_device_status s on d.id = s.id
+        where r.group_id = #{groupId}
+    </select>
+</mapper>

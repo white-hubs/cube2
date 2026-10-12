@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.dao.DisinfectionProjectMapper">
+    <select id="selectProjectNumbGroupByParam"
+            resultType="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.vo.detail.ProjectStatisticsBaseVO">
+        SELECT
+        ${groupType} AS keyName,
+        COUNT( id ) AS number
+        FROM
+        `disinfection_project`
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and project_name like CONCAT('%',#{param.keyword},'%')
+            </if>
+            <if test="param.status != null">
+                and status = #{param.status}
+            </if>
+        </where>
+        GROUP BY
+        ${groupType}
+    </select>
+    <select id="selectProjectNumberGroupByType"
+            resultType="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.vo.detail.ProjectStatisticsBaseVO">
+        SELECT
+        place_type_id AS keyId,
+        place_type_name AS keyName,
+        COUNT( DISTINCT id ) AS number
+        FROM
+        disinfection_key_place
+        <where>
+            <if test="param.projectId != null ">
+                and project_id = #{param.projectId}
+            </if>
+            <if test="param.dataTypeId != null ">
+                and place_type_id = #{param.dataTypeId}
+            </if>
+        </where>
+        GROUP BY
+        place_type_id
+    </select>
+    <select id="selectDisinfectionUserStatistics"
+            resultType="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.vo.detail.DisinfectionUserInfoVO">
+        SELECT
+        dgu.user_id,
+        dgu.group_id,
+        dg.group_name,
+        dp.project_name
+        FROM
+        disinfection_group_user dgu
+        LEFT JOIN disinfection_group dg ON dg.id = dgu.group_id
+        LEFT JOIN disinfection_project dp ON dp.id = dg.project_id
+        <where>
+            <if test="param.projectId != null ">
+                and dg.project_id = #{param.projectId}
+            </if>
+            <if test="param.disinfectionGroupId != null ">
+                and dgu.group_id = #{param.disinfectionGroupId}
+            </if>
+            <if test="param.userIds != null and param.userIds.size() > 0">
+                and dgu.user_id in
+                <foreach collection="param.userIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        dgu.user_id
+    </select>
+    <select id="selectDisinfectionUserIdList" resultType="java.lang.Long">
+
+                SELECT
+                dgu.user_id
+                FROM
+                disinfection_group_user dgu
+                GROUP BY
+                dgu.user_id
+
+    </select>
+    <select id="selectDisinfectionTaskNumberGroupByUser"
+            resultType="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.vo.detail.ProjectStatisticsBaseVO">
+        SELECT
+        executor_id AS keyId,
+        COUNT(id) AS number
+        FROM
+        disinfection_task
+        WHERE
+        `status` = 'FINISHED'
+        <if test="period != null and period.begin !=null and period.end != null">
+            and create_time between #{period.begin} and #{period.end}
+        </if>
+        GROUP BY
+        executor_id
+    </select>
+    <select id="selectProjectNumberGroupByAddress"
+            resultType="com.guhecloud.cube.srv.gen.disinfection.server.disinfection.vo.detail.ProjectStatisticsBaseVO">
+
+                SELECT
+                    region AS keyName,
+                    COUNT(DISTINCT ID) AS number
+                FROM
+                    disinfection_key_place
+                GROUP BY
+                    region
+
+    </select>
+    <select id="getAllTenants">
+
+                select DISTINCT tenant from disinfection_project;
+
+    </select>
+</mapper>

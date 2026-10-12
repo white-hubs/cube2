@@ -1,0 +1,259 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.dao.BoilerDataMapper">
+
+
+
+    <select id="getBoilerData" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.entity.BoilerData">
+        SELECT t1.`device_id` `deviceId`,t1.`water_last_value` `waterLastValue`,t1.`electricity_last_value` `electricityLastValue`
+        FROM `boiler_data` t1
+                 INNER JOIN (
+            SELECT MAX(`collect_time`) AS `max_time`,`device_id`
+            FROM `boiler_data`
+            where
+            <if test="param.stTime != null ">
+                `collect_time` &gt;= #{param.stTime}
+            </if>
+            GROUP BY `device_id`
+        ) t2 ON t1.`device_id` = t2.`device_id` AND t1.`collect_time` = t2.max_time
+        where
+        <if test="param.stTime != null ">
+            t1.`collect_time` &gt;= #{param.stTime}
+        </if>
+    </select>
+    <select id="getWaterValue" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE(SUM( `water_value` ),0)
+        FROM
+            `boiler_data`
+            where
+        <if test="st != null and st != null">
+             `collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and `collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size > 0">
+            and `device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+    <select id="getElectricityValue" resultType="java.math.BigDecimal">
+        SELECT
+            COALESCE(SUM( `electricity_value` ),0)
+        FROM
+        `boiler_data`
+        where
+        <if test="st != null and st != null">
+            `collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and `collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size > 0">
+            and `device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getDataTemperature" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="mysql">
+        SELECT
+            COALESCE( AVG( a.`temperature` ), 0 ) `dataValue`,
+            b.`device_name` `deviceName`,
+            DATE_FORMAT( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+            `boiler_data` a
+                LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+            b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+           and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+            b.`device_name`,
+            DATE_FORMAT( a.`collect_time`, ${dateFormat})
+    </select>
+    <select id="getDataTemperature" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="dm">
+        SELECT
+        COALESCE( AVG( a.`temperature` ), 0 ) `dataValue`,
+        b.`device_name` `deviceName`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+        `boiler_data` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+        b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+            and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        b.`device_name`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat})
+    </select>
+    <select id="getDataTemperature" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="pg">
+        SELECT
+        COALESCE( AVG( a.`temperature` ), 0 ) `dataValue`,
+        b.`device_name` `deviceName`,
+        to_char( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+        `boiler_data` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+        b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+            and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        b.`device_name`,
+        to_char( a.`collect_time`, ${dateFormat})
+    </select>
+
+
+    <select id="getDataElectricity"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="mysql">
+        SELECT
+        COALESCE( sum( a.`electricity_value` ), 0 ) `dataValue`,
+        b.`device_name` `deviceName`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+        `boiler_data` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+        b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+            and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        b.`device_name`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat})
+    </select>
+    <select id="getDataElectricity"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="dm">
+        SELECT
+        COALESCE( sum( a.`electricity_value` ), 0 ) `dataValue`,
+        b.`device_name` `deviceName`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+        `boiler_data` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+        b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+            and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        b.`device_name`,
+        DATE_FORMAT( a.`collect_time`, ${dateFormat})
+    </select>
+    <select id="getDataElectricity"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerDataVo" databaseId="pg">
+        SELECT
+        COALESCE( sum( a.`electricity_value` ), 0 ) `dataValue`,
+        b.`device_name` `deviceName`,
+        to_char( a.`collect_time`, ${dateFormat} ) `timeFlag`
+        FROM
+        `boiler_data` a
+        LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        WHERE
+        b.`application_code` = 'BOLIER'
+        <if test="st != null and st != null">
+            and a.`collect_time` &gt;= #{st}
+        </if>
+        <if test="et != null and et != null">
+            and a.`collect_time` &lt;= #{et}
+        </if>
+        <if test="ids.size() > 0">
+            and a.`device_id` in
+            <foreach collection="ids" item="id" open="(" close=")"
+                     separator=",">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY
+        b.`device_name`,
+        to_char( a.`collect_time`, ${dateFormat})
+    </select>
+    
+
+    <select id="getBoilerDataRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.boiler.vo.BoilerRecordPageVo">
+        SELECT
+            a.`water_value` `waterValue`,
+            a.`temperature` `temperature`,
+            a.`electricity_value` `electricityValue`,
+            a.`collect_time` `collectTime`,
+            b.`device_name` `deviceName`,
+            b.`area_name` `areaName`
+        FROM
+            `boiler_data` a
+                LEFT JOIN `security_device` b ON a.`device_id` = b.`device_id`
+        where
+        b.`application_code` = 'BOLIER'
+        <if test="param.period != null">
+            and a.`collect_time` &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null">
+            and a.`collect_time` &lt;= #{param.period.end}
+        </if>
+        <if test="param.keyword != null and param.keyword !=''">
+            and b.`device_name` like concat('%',#{param.keyword},'%')
+        </if>
+    </select>
+
+
+</mapper>

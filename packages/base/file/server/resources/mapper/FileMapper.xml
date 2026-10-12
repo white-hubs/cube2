@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.file.server.dao.FileMapper">
+    <insert id="addFile">
+        insert into file
+        (id, name, suffix, path, size, ref_count, type, deleted, create_by, creator_id, creator_type, create_time,
+         update_by, updater_id, updater_type, update_time,
+        access_prefix, config_id, bucket_file_name, scene_code, cleaning_time, storage_strategy)
+        values (#{file.id}, #{file.name}, #{file.suffix}, #{file.path}, #{file.size}, #{file.refCount},
+                #{file.type}, 0, #{file.createBy},#{file.creatorId},#{file.creatorType}, #{file.createTime},
+                #{file.updateBy},#{file.updaterId},#{file.updaterType},#{file.updateTime},
+                #{file.accessPrefix}, #{file.configId}, #{file.bucketFileName}, #{file.sceneCode},
+                #{file.cleaningTime}, #{file.storageStrategy})
+    </insert>
+
+    <update id="updateFile">
+        UPDATE file
+        SET `name` = #{file.name},
+        `suffix` = #{file.suffix},
+        <choose>
+            <when test="_databaseId == 'pg'">
+                "size" = #{file.size},
+            </when>
+            <!-- 默认情况（MySQL语法） -->
+            <otherwise>
+                `size` = #{file.size},
+            </otherwise>
+        </choose>
+        `ref_count` = #{file.refCount},
+        `type` = #{file.type},
+        `access_prefix` = #{file.accessPrefix},
+        `config_id` = #{file.configId},
+        `scene_code` = #{file.sceneCode},
+        `path` = #{file.path},
+        `bucket_file_name` = #{file.bucketFileName},
+        <if test="file.cleaningTime !=null">
+            `cleaning_time` = #{file.cleaningTime},
+        </if>
+        `storage_strategy` = #{file.storageStrategy}
+        WHERE `id` = #{file.id}
+    </update>
+    <update id="updateRefCount">
+        update file
+        <set>
+            <if test="flag == true">
+                `ref_count` = ref_count + 1
+            </if>
+            <if test="flag == false">
+                `ref_count` = ref_count - 1
+            </if>
+        </set>
+        where `id` = #{id}
+    </update>
+
+    <update id="updateBatchRefCount">
+        update file
+        <set>
+            <if test="flag == true">
+                `ref_count` = ref_count + 1
+            </if>
+            <if test="flag == false">
+                `ref_count` = ref_count - 1
+            </if>
+        </set>
+        <where>
+            `id` in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </where>
+    </update>
+
+    <select id="getById" resultType="com.guhecloud.cube.base.file.server.entity.File">
+        select
+        *
+        from file
+        where `id` = #{id}
+    </select>
+
+    <select id="listByIds" resultType="com.guhecloud.cube.base.file.server.entity.File">
+        select
+        *
+        from file
+        where `id` in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and `deleted` = 0
+        order by `create_time` desc
+    </select>
+    <select id="listAll" resultType="com.guhecloud.cube.base.file.server.entity.File">
+        select
+        *
+        from file
+        where `scene_code` =#{sceneCode}
+        and `deleted` != 0
+        and config_id = #{configId}
+        <if test="expirationTime !=null">
+            and `cleaning_time` &lt; #{expirationTime}
+        </if>
+        order by `cleaning_time` desc
+    </select>
+    <select id="listTenantAll" resultType="com.guhecloud.cube.base.file.server.entity.File">
+        select
+        *
+        from file
+        where `scene_code` like concat('%', #{sceneCode}, '%')
+        and `create_time` &lt; #{expirationTime}
+        and `deleted` = 0
+        order by `create_time` desc
+    </select>
+    <select id="selectListBySceneCodeAndExpirationTime"
+            resultType="com.guhecloud.cube.base.file.server.entity.File">
+        select
+        *
+        from file f
+        join file_config fc on fc.id = f.config_id
+        where f.`scene_code` like concat('%', #{sceneCode}, '%')
+        and f.`create_time` &lt; #{expirationTime}
+        and f.`deleted` = 0
+        order by f.`create_time` desc
+    </select>
+    <update id="remove">
+        update file
+        set `deleted` = #{time},cleaning_time = #{operationTime}
+        where `id` = #{id}
+    </update>
+    <delete id="deleteByIds">
+        delete from file
+        where `id` in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="removeTag">
+        update file
+        set `cleaning_time` = #{operationTime},deleted = #{time}
+        where `create_time` &lt; #{cleaningTime} and scene_code = #{sceneCode}
+        and `deleted` = 0
+    </delete>
+    <update id="persistentFile">
+        update file
+        set `storage_strategy` = 'SUSTAIN'
+        where `id` = #{id}
+    </update>
+</mapper>

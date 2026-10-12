@@ -1,0 +1,39 @@
+schemaVersion: 1.0
+dataVersion: 1.0
+common:
+  appCode: IOT
+  appDescription: 提供物联网配置相关能力
+provides:
+  - {type: DictType, versions: [1.0]}   # 对应于iot的字典类型
+  - {type: DictEntry, versions: [1.0]}  # 目前为各租户特定的各类封装在字典项下内容， 含品类库，品牌库等
+  - {type: ProdModel, versions: [1.0]}  # 物模型定义（产品库）
+requests:
+  - provider: "IOT"
+    requirements:
+      - configType: "DictType"
+        isRemoval: false
+        vargs:
+          - name: "产品品类"
+            code: "prod_category"
+            remark: "产品品类"
+          - name: "产品品牌"
+            code: "prod_brand"
+            remark: "产品品牌"
+          - name: "设备型号"
+            code: "prod_number"
+            remark: "设备型号"
+          - name: "属性单位"
+            code: "prop_unit"
+            remark: "属性单位"
+          - name: "事件类型"
+            code: "event_type"
+            remark: "事件类型"
+          - name: "直连设备接入方式"
+            code: "direct_node_acc"
+            remark: "直连设备接入方式"
+          - name: "网关设备接入方式"
+            code: "gateway_node_acc"
+            remark: "网关设备接入方式"
+          - name: "网关子设备接入方式"
+            code: "gw_child_node_acc"
+            remark: "网关子设备接入方式"

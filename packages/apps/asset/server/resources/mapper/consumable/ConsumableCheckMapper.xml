@@ -1,0 +1,29 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableCheckMapper">
+
+    <select id="getCheckDetail" resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableStoreStockExtendVO">
+        select c.id,c.`name`,c.code,c.category_id,c.brand,c.model,c.goods_code,c.unit,c.quality_period,
+        c.stock_max,c.stock_min,c.use_limit,c.stock,c.amount,cd.num,ss.position,ss.store_id,
+        cd.check_num as checkNum,cc.id as checkId,cd.status,cd.checker_name,cd.check_time
+        from consumable_check cc
+        inner join consumable_store_stock ss on cc.store_id = ss.store_id
+        inner join consumable_check_detail cd on cd.check_id = cc.id
+        inner join consumable c on ss.consumable_id = c.id and cd.consumable_id=c.id
+        where cc.id = #{param.checkId}
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (c.name like concat("%",#{param.keyword},"%") or c.code like concat("%",#{param.keyword},"%"))
+        </if>
+        <if test="param.categoryId != null">
+            and c.category_id = #{param.categoryId}
+        </if>
+        GROUP BY c.id
+    </select>
+
+    <select id="getCheckDetailStat" resultType="com.guhecloud.cube.property.management.client.common.vo.KeyValueVO">
+        select status AS name,count(1) AS value
+        from consumable_check_detail
+        where check_id=#{checkId}
+        GROUP BY status
+    </select>
+
+</mapper>

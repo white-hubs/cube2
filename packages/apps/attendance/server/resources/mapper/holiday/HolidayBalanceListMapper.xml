@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.holiday.infrastructure.mapper.HolidayBalanceListMapper">
+
+
+    <update id="updateBatchNotIn">
+        update `holiday_balance_list` set `show`= #{entity.show} where `holiday_type_id`=#{entity.holidayTypeId} and `user_id` not in
+    <foreach collection="staffIds" item="id" open="(" close=")" separator=",">
+        #{id}
+    </foreach>
+    </update>
+    <update id="updateBatchIn">
+        update `holiday_balance_list`
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.show != null">
+                `show`= #{entity.show},
+            </if>
+            <if test="entity.employeeName != null">
+                `employee_name` = #{entity.employeeName},
+            </if>
+            <if test="entity.employeeOrganization != null">
+                `employee_organization` = #{entity.employeeOrganization},
+            </if>
+        </trim>
+        where `user_id` in
+        <foreach collection="staffIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+        <if test="entity.holidayTypeId != null">
+            and `holiday_type_id`=#{entity.holidayTypeId}
+        </if>
+    </update>
+
+    <update id="updateAttendanceGroupId">
+        update `holiday_balance_list` set `attendance_group_id_of_arrange`=#{attendanceGroupId}  where `user_id` in
+        <foreach collection="staffIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

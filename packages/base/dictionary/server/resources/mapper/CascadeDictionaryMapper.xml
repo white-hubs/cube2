@@ -1,0 +1,22 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dictionary.server.dao.CascadeDictionaryMapper">
+
+    <sql id="COLUMN_LIST">
+        `id`, `name`, `code`, `remarks`, `version`, `variable`,
+        `item_code`, `level`, `superiors_id`, `status`, `permission_state`
+    </sql>
+    <select id="getMaxLevel" resultType="integer">
+        select max(level)
+        from `cascade_dictionary`
+        where `status` in
+        <foreach collection="statusNameList" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getByTenant" resultType="com.guhecloud.cube.base.dictionary.server.entity.CascadeDictionary">
+        select
+        <include refid="COLUMN_LIST" />
+        from `cascade_dictionary`
+        where `tenant` = #{tenantId}  and `deleted` = 0
+    </select>
+</mapper>

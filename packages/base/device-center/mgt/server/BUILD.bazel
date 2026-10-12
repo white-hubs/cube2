@@ -1,0 +1,24 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+
+# 仅用于单独启动服务测试使用
+package(default_visibility = ["//visibility:private"])
+
+_MAIN_CLASS = "com.guhecloud.cube.iot.mgt.IotApplication"
+
+java_library(
+    name = "server",
+    srcs = ["IotApplication.java"],
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [
+        "//packages/base/device-center/mgt",
+        "//packages/platform/event",
+        "//packages/platform/server",
+    ],
+)
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)

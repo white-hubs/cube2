@@ -1,0 +1,80 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_package_configuration")
+load("@rules_jvm_external//:defs.bzl", "java_export")
+load("//packages/base/scada:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/device-center/north/client",
+        "//packages/base/file/client",
+        "//packages/base/ouaa/client",
+        "//packages/platform/base/model:pagination",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/apache:tomcat_annotations_api",
+        "//third-party/java/glasnost:orika",
+        "//third-party/java/jackson:annotations",
+        "//third-party/java/jackson:core",
+        "//third-party/java/jackson:databind",
+        "//third-party/java/jakarta:activation_api",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:servlet_api",
+        "@maven//:commons_io_commons_io",
+        "@maven//:io_github_openfeign_feign_core",
+        "@maven//:io_github_openfeign_feign_jackson",
+        "@maven//:org_apache_tomcat_annotations_api",
+        "@maven//:org_jsoup_jsoup",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.kaihe.scada.server.ScadaServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "scada-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "kaihe-scada",
+    datasource_package = "com.guhecloud.kaihe.scada",
+    gw_prefix = "/scada/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "scada",
+    visibility = ["//packages:__subpackages__"],
+)

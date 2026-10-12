@@ -1,0 +1,31 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.devicecondition.dao.RuleDeviceConditionMapper">
+
+    <select id="page"
+            resultType="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.devicecondition.vo.RuleDeviceConditionPageVO">
+        SELECT
+        t1.id,
+        t1.`code`,
+        t1.`name`,
+        t1.enabled,
+        t1.update_time,
+        t1.trigger_num,
+        t1.create_by,
+        t1.creator_id,
+        t1.creator_type
+        FROM
+        rule t1
+        <where>
+            t1.business_type = 'DEVICE_CONDITION'
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.enabled !=null">
+                and t1.enabled = #{param.enabled}
+            </if>
+        </where>
+        order by
+        t1.create_time desc
+    </select>
+
+</mapper>

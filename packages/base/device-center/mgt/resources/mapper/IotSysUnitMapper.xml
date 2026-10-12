@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.IotSysUnitMapper">
+    <select id="queryAll" resultType="com.guhecloud.cube.iot.mgt.base.vo.IotSysUnitVo">
+        select
+        `isu`.`id` as `id`,
+        `isu`.`unit_code` as `unitCode`,
+        `isu`.`unit_name` as `unitName`,
+        `isu`.`unit_type` as `unitType`,
+        `isu`.`unit_status` as `unitStatus`,
+        `isu`.`remark` as `remark`
+        from `iot_sys_unit` `isu`
+        <where>
+            and `deleted` = 0
+        </where>
+    </select>
+
+    <select id="checkIsUsed" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select count(1)
+        from `iot_md_product_prop` `impp`
+        where `impp`.`unit_id` = #{unitId}
+    </select>
+
+    <select id="queryByUnitCode" resultType="com.guhecloud.cube.iot.mgt.base.model.IotSysUnitEntity"
+            parameterType="java.lang.String">
+        select `isu`.`id`          as `id`,
+               `isu`.`unit_code`   as `unitCode`,
+               `isu`.`unit_name`   as `unitName`,
+               `isu`.`unit_type`   as `unitType`,
+               `isu`.`unit_status` as `unitStatus`,
+               `isu`.`remark`      as `remark`
+        from `iot_sys_unit` `isu`
+        where `isu`.`unit_code` = #{unitCode}
+          and `isu`.`deleted` = 0
+    </select>
+</mapper>

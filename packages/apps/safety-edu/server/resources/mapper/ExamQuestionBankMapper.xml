@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.infrastructure.repository.mapper.ExamQuestionBankMapper">
+
+    <select id="selectExamQuestionBankPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.exam.interfaces.vo.ExamQuestionBankVO">
+        SELECT
+        eqb.id,
+        eqb.`name`,
+        eqb.theme_id,
+        eqb.question_type,
+        eqb.question_content,
+        eqb.score,
+        eqb.answer_analysis,
+        th.`name` as theme_name
+        FROM
+        exam_question_bank eqb
+        LEFT JOIN theme th on eqb.theme_id = th.id
+        <where>
+            <if test="query.keyword != null and query.keyword != ''">
+                and (eqb.name like concat('%',#{query.keyword},'%')
+                or
+                th.name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+        </where>
+        order by eqb.create_time desc
+    </select>
+</mapper>

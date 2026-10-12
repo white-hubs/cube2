@@ -1,0 +1,23 @@
+- provider: "DICT"
+  isPartialMode: false
+  requirements:
+    - configType: "DictType"
+      version: "1.0"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      vargs:
+        - code: "TypeA"
+          remark: "Type A"
+        - code: "TypeB"
+          remark: "Type B"
+    - configType: "DictEntry"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      kwargs:
+        dictType: "TypeA"
+      vargs:
+        - "item1"
+        - "item2"
+        - "item3"

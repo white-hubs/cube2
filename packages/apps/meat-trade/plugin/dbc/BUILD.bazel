@@ -1,0 +1,81 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/apps/meat-trade/plugin/dbc:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/apps/meat-trade/client",
+        "//packages/base/dictionary/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:http",
+        "//packages/platform/base/standard:jackson",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/apache:hc5-client",
+        "//third-party/java/apache:tomcat_embed_core",
+        "//third-party/java/google:guava",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.sn.meattrade.plugin.MeatTradeSnPluginServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+artifactId = "meattrade-sn-meattrade-plugin"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_biz_sn_meattrade_plugin",
+    datasource_package = "com.guhecloud.cube.sn.meattrade.plugin",
+    gw_prefix = "/sn-meattrade-plugin/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "dbcMeatTradePlugin",
+    visibility = ["//packages:__subpackages__"],
+)

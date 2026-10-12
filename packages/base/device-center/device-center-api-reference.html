@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<title>Device Center API - 完整规格与 Schema 附录</title>
+<style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background-color: #fafafa; margin: 0; padding: 20px; color: #3b4151; }
+        .wrapper { max-width: 1200px; margin: 0 auto; background: #fff; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 4px; }
+        h1 { color: #1e2022; text-align: center; }
+        .header-info { text-align: center; margin-bottom: 30px; font-size: 14px; color: #666; line-height: 1.5; }
+        .api-group { margin-bottom: 20px; }
+        .api-group-title { font-size: 18px; font-weight: bold; padding: 10px; background: #e8e8e8; border-radius: 4px; cursor: pointer; color: #333; }
+        
+        .api-item { margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; border-left: 6px solid #ccc; background: #fff; }
+        .api-item.get { border-left-color: #61affe; }
+        .api-item.post { border-left-color: #49cc90; }
+        .api-item.delete { border-left-color: #f93e3e; }
+        
+        .api-header { display: flex; align-items: center; padding: 10px; cursor: pointer; }
+        .method { color: #fff; font-weight: bold; padding: 4px 8px; border-radius: 3px; min-width: 60px; text-align: center; margin-right: 15px; font-size: 14px; }
+        .method.get { background: #61affe; }
+        .method.post { background: #49cc90; }
+        .method.delete { background: #f93e3e; }
+        
+        .path { font-family: monospace; font-size: 15px; font-weight: bold; flex: 1; color: #333; }
+        .summary { color: #888; font-size: 14px; }
+        
+        .api-detail { display: none; padding: 15px; border-top: 1px solid #eee; background: #fbfbfb; }
+        h4 { margin: 15px 0 5px; font-size: 14px; color: #3b4151; border-bottom: 1px solid #ccc; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; background: #fff; }
+        th, td { padding: 8px; text-align: left; border: 1px solid #eee; font-size: 13px; }
+        th { background: #f4f4f4; color: #333; }
+        
+        .schema-link { color: #49cc90; text-decoration: none; font-weight: bold; }
+        .schema-link:hover { text-decoration: underline; }
+        
+        /* 附录 Schema 样式 */
+        .schema-section { margin-top: 50px; border-top: 3px solid #333; padding-top: 20px; }
+        .schema-block { margin-bottom: 30px; border: 1px solid #eee; border-radius: 4px; }
+        .schema-header { background: #f4f4f4; padding: 10px 15px; font-weight: bold; font-family: monospace; font-size: 15px; color: #3b4151; display: flex; justify-content: space-between; }
+        .schema-desc { color: #888; font-weight: normal; font-size: 13px; font-family: sans-serif; }
+        .schema-body { padding: 15px; }
+        .schema-body table th { background: #fafafa; }
+    </style>
+<script>
+        function toggleDisplay(id) {
+            var el = document.getElementById(id);
+            if (el.style.display === "block") { el.style.display = "none"; } else { el.style.display = "block"; }
+        }
+    </script>
+</head>
+<body>
+<div class="wrapper">
+<h1>Device Center 接口规格说明书</h1>
+<div class="header-info">
+        涵盖 9 个 Client 客户端的所有 38 个 API 及参数结构。<br/>
+<b>提示：所有复杂的入参出参模型均抽离至页面底部的【附录：Schemas 数据模型】中，可点击绿色链接跳转查阅。</b>
+</div>
+<!-- 1. IotDevicePropClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g1')">1. 设备属性服务 (IotDevicePropClient) - 8 个接口</div>
+<div id="g1" style="display: block;">
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_1')">
+<span class="method get">GET</span><span class="path">/north/device/prop</span><span class="summary">查询设备实时属性</span>
+</div><div class="api-detail" id="m1_1">
+<h4>Parameters (<a class="schema-link" href="#schema-DevicePropParam">DevicePropParam</a>)</h4>
+<p>通过 Query 传递参数。</p>
+<h4>Responses</h4>
+<p>返回列表结构: <code>List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop?deviceId=0&amp;propertyCodes=string&amp;notBeforeTs=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "key": "string",
+    "value": "string",
+    "ts": 0
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m1_2')">
+<span class="method post">POST</span><span class="path">/north/device/prop/multi-prop</span><span class="summary">批量查询多个设备的属性</span>
+</div><div class="api-detail" id="m1_2">
+<h4>Parameters (<a class="schema-link" href="#schema-MultiDevicePropParam">MultiDevicePropParam</a>)</h4>
+<p>以 RequestBody 形式传递。</p>
+<h4>Responses (Map)</h4>
+<p><code>Map&lt;String, List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;&gt;</code>。Key 为 deviceId。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/prop/multi-prop' \
+-H 'Content-Type: application/json' \
+-d '{
+  "deviceIds": [
+    "string"
+  ],
+  "propertyCodes": [
+    "string"
+  ]
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "key": "string",
+    "value": "string",
+    "ts": 0
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_3')">
+<span class="method get">GET</span><span class="path">/north/device/prop/history-sample-prop</span><span class="summary">获取历史采样数据</span>
+</div><div class="api-detail" id="m1_3">
+<h4>Parameters (<a class="schema-link" href="#schema-HistorySampleParam">HistorySampleParam</a>)</h4>
+<p>通过 Query 进行分页和时间聚合限定。</p>
+<h4>Responses (<a class="schema-link" href="#schema-DeviceTSDTO">DeviceTSDTO</a>)</h4>
+<p>封装后的设备时序集合大对象。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop/history-sample-prop?deviceId=string&amp;startTs=0&amp;endTs=0&amp;step=0&amp;aggType=string&amp;maxRecords=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "deviceId": "string",
+  "deviceName": "string",
+  "deviceNumber": "string",
+  "propertyTsBoList": [
+    {
+      "propertyCode": "string",
+      "propertyName": "string",
+      "dataType": "string",
+      "propertyUnit": "string",
+      "valueTsBoList": [
+        {
+          "key": {},
+          "value": {},
+          "ts": {}
+        }
+      ]
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_4')">
+<span class="method get">GET</span><span class="path">/north/device/prop/history-prop-page</span><span class="summary">历史属性分页获取</span>
+</div><div class="api-detail" id="m1_4">
+<h4>Parameters (<a class="schema-link" href="#schema-DevicePropHistoryPageParam">DevicePropHistoryPageParam</a>)</h4>
+<h4>Responses</h4>
+<p>分页包裹: <code><a class="schema-link" href="#schema-Pagination">Pagination</a>&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop/history-prop-page?deviceId=0&amp;propertyCode=string&amp;pageIndex=0&amp;pageSize=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "key": "string",
+      "value": "string",
+      "ts": 0
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_5')">
+<span class="method get">GET</span><span class="path">/north/device/prop/device-history-page</span><span class="summary">单设备采样分页 (10分钟粒度)</span>
+</div><div class="api-detail" id="m1_5">
+<h4>Parameters (<a class="schema-link" href="#schema-DeviceSamplingPageParam">DeviceSamplingPageParam</a>)</h4>
+<h4>Responses</h4>
+<p><code><a class="schema-link" href="#schema-Pagination">Pagination</a>&lt;<a class="schema-link" href="#schema-DeviceSamplingTSDTO">DeviceSamplingTSDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop/device-history-page?deviceId=0&amp;pageIndex=0&amp;pageSize=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "propValues": {
+        "string_key": "object_value"
+      },
+      "ts": 0
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_6')">
+<span class="method get">GET</span><span class="path">/north/device/prop/history</span><span class="summary">单设备全量历史属性</span>
+</div><div class="api-detail" id="m1_6">
+<h4>Parameters (<a class="schema-link" href="#schema-DevicePropHistoryParam">DevicePropHistoryParam</a>)</h4>
+<h4>Responses</h4>
+<p><code>List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop/history?prodCategoryId=string&amp;deviceId=0&amp;startTs=0&amp;endTs=0ℴ=string&amp;maxRecords=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "key": "string",
+    "value": "string",
+    "ts": 0
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m1_7')">
+<span class="method get">GET</span><span class="path">/north/device/prop/history-group</span><span class="summary">按属性归类获取历史</span>
+</div><div class="api-detail" id="m1_7">
+<h4>Parameters (<a class="schema-link" href="#schema-DevicePropHistoryParam">DevicePropHistoryParam</a>)</h4>
+<h4>Responses</h4>
+<p><code>Map&lt;String, List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;&gt;</code>。Key 为属性 Code。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/prop/history-group?prodCategoryId=string&amp;deviceId=0&amp;startTs=0&amp;endTs=0ℴ=string&amp;maxRecords=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "key": "string",
+    "value": "string",
+    "ts": 0
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m1_8')">
+<span class="method post">POST</span><span class="path">/north/device/prop/multi-history-sample-prop</span><span class="summary">多设备历史属性采样获取</span>
+</div><div class="api-detail" id="m1_8">
+<h4>Parameters (<a class="schema-link" href="#schema-MultiHistorySampleParam">MultiHistorySampleParam</a>)</h4>
+<h4>Responses</h4>
+<p><code>Map&lt;String, <a class="schema-link" href="#schema-DeviceTSDTO">DeviceTSDTO</a>&gt;</code>。Key 为 deviceId。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/prop/multi-history-sample-prop' \
+-H 'Content-Type: application/json' \
+-d '{
+  "devIdAndPropCodes": "string",
+  "order": "string",
+  "startTs": 0,
+  "endTs": 0,
+  "step": 0,
+  "aggType": "string",
+  "maxRecords": 0
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "string_key": {
+    "deviceId": "string",
+    "deviceName": "string",
+    "deviceNumber": "string",
+    "propertyTsBoList": [
+      {
+        "propertyCode": "string",
+        "propertyName": "string",
+        "dataType": "string",
+        "propertyUnit": "string",
+        "valueTsBoList": [
+          {
+            "key": {},
+            "value": {},
+            "ts": {}
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 2. IotCommandClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g2')">2. 设备控制服务 (IotCommandClient) - 4 个接口</div>
+<div id="g2">
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m2_1')"><span class="method post">POST</span><span class="path">/north/device/command/issue</span><span class="summary">单属性命令下发</span></div><div class="api-detail" id="m2_1">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-CommandParam">CommandParam</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-CommandResponseDTO">CommandResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/command/issue' \
+-H 'Content-Type: application/json' \
+-d '{
+  "commandSeq": "string",
+  "deviceId": "string",
+  "propCode": "string",
+  "propValue": "string"
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "commandHandle": "string",
+  "statusCode": "string",
+  "message": "string"
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m2_2')"><span class="method post">POST</span><span class="path">/north/device/command/issue/batch</span><span class="summary">批量命令下发</span></div><div class="api-detail" id="m2_2">
+<h4>Parameters (RequestBody)</h4><p><code>Set&lt;<a class="schema-link" href="#schema-CommandParam">CommandParam</a>&gt;</code></p>
+<h4>Responses</h4><p><code>List&lt;<a class="schema-link" href="#schema-CommandResponseDTO">CommandResponseDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/command/issue/batch' \
+-H 'Content-Type: application/json' \
+-d '[
+  {
+    "commandSeq": "string",
+    "deviceId": "string",
+    "propCode": "string",
+    "propValue": "string"
+  }
+]'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "commandHandle": "string",
+    "statusCode": "string",
+    "message": "string"
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m2_3')"><span class="method post">POST</span><span class="path">/north/device/command/reset/issues</span><span class="summary">命令下发重置</span></div><div class="api-detail" id="m2_3">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-CommandRestParam">CommandRestParam</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-CommandResponseDTO">CommandResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/command/reset/issues' \
+-H 'Content-Type: application/json' \
+-d '{
+  "deviceId": "string",
+  "resetType": "string"
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "commandHandle": "string",
+  "statusCode": "string",
+  "message": "string"
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m2_4')"><span class="method get">GET</span><span class="path">/north/device/command/issue-status</span><span class="summary">查询命令状态</span></div><div class="api-detail" id="m2_4">
+<h4>Parameters</h4>
+<table><tr><th>Name</th><th>Type</th><th>In</th><th>Required</th><th>Description</th></tr><tr><td>instanceId</td><td>String</td><td>query</td><td>是</td><td>命令的会话标志</td></tr></table>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-CommandResponseDTO">CommandResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/command/issue-status?instanceId=string'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "commandHandle": "string",
+  "statusCode": "string",
+  "message": "string"
+}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 3. IotProductClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g3')">3. 产品管理服务 (IotProductClient) - 5 个接口</div>
+<div id="g3">
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m3_1')"><span class="method get">GET</span><span class="path">/north/product/category/tree</span><span class="summary">@Deprecated 旧版品类树</span></div><div class="api-detail" id="m3_1">已废弃，请使用 iot/category-tree。
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product/category/tree'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m3_2')"><span class="method get">GET</span><span class="path">/north/product/iot/category-tree</span><span class="summary">获取产品品类树</span></div>
+<div class="api-detail" id="m3_2">
+<h4>Parameters</h4>
+<table><tr><th>Name</th><th>Type</th><th>In</th><th>Description</th></tr><tr><td>tenantId</td><td>Integer</td><td>query</td><td>多租户隔离</td></tr></table>
+<h4>Responses</h4><p><code>List&lt;ProductCategoryDTO&gt;</code> (此对象主要为ID/Pid构成树)。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product/iot/category-tree?tenantId=0'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  "string"
+]</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m3_3')"><span class="method get">GET</span><span class="path">/north/product/page</span><span class="summary">分页获取产品对象</span></div><div class="api-detail" id="m3_3">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-ProductPageParam">ProductPageParam</a></p>
+<h4>Responses</h4><p><code><a class="schema-link" href="#schema-Pagination">Pagination</a>&lt;<a class="schema-link" href="#schema-ProductDTO">ProductDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product/page?productId=string&amp;withEventSpec =False'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "prodId": "string",
+      "prodNumber": "string",
+      "prodName": "string",
+      "prodCategoryCode": "string",
+      "prodCategoryName": "string",
+      "prodBrandCode": "string",
+      "prodBrandName": "string",
+      "prodModel": "string",
+      "prodIcon": 0,
+      "prodPic": 0,
+      "remark": "string",
+      "productPropVoList": [
+        {
+          "propCode": "string",
+          "propName": "string",
+          "dataType": "string",
+          "precision": 0,
+          "unitName": "string",
+          "dataWrite": 0,
+          "dataConstraint": "string",
+          "isTelemetry": false
+        }
+      ],
+      "productEventVoList": [
+        {
+          "eventCode": "string",
+          "eventName": "string",
+          "eventConfig": "string",
+          "categoryCode": "string",
+          "categoryName": "string"
+        }
+      ],
+      "productMethodVoList": [
+        {
+          "methodCode": "string",
+          "methodType": "string",
+          "inputParams": {
+            "string_key": "object_value"
+          },
+          "outputParams": {
+            "string_key": "object_value"
+          }
+        }
+      ]
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m3_4')"><span class="method get">GET</span><span class="path">/north/product/prod-list-detail</span><span class="summary">批量产品详情拉取</span></div><div class="api-detail" id="m3_4">
+<h4>Parameters</h4>
+<table><tr><th>Name</th><th>Type</th><th>In</th><th>Description</th></tr><tr><td>prodIds</td><td>List&lt;String&gt;</td><td>query</td><td>逗号分隔</td></tr></table>
+<h4>Responses</h4><p><code>List&lt;<a class="schema-link" href="#schema-ProductDTO">ProductDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product/prod-list-detail'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "prodId": "string",
+    "prodNumber": "string",
+    "prodName": "string",
+    "prodCategoryCode": "string",
+    "prodCategoryName": "string",
+    "prodBrandCode": "string",
+    "prodBrandName": "string",
+    "prodModel": "string",
+    "prodIcon": 0,
+    "prodPic": 0,
+    "remark": "string",
+    "productPropVoList": [
+      {
+        "propCode": "string",
+        "propName": "string",
+        "dataType": "string",
+        "precision": 0,
+        "unitName": "string",
+        "dataWrite": 0,
+        "dataConstraint": "string",
+        "isTelemetry": false
+      }
+    ],
+    "productEventVoList": [
+      {
+        "eventCode": "string",
+        "eventName": "string",
+        "eventConfig": "string",
+        "categoryCode": "string",
+        "categoryName": "string"
+      }
+    ],
+    "productMethodVoList": [
+      {
+        "methodCode": "string",
+        "methodType": "string",
+        "inputParams": {
+          "string_key": "object_value"
+        },
+        "outputParams": {
+          "string_key": "object_value"
+        }
+      }
+    ]
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m3_5')"><span class="method get">GET</span><span class="path">/north/product/deviceStatusRuleEnum</span><span class="summary">获取状态规则枚举</span></div><div class="api-detail" id="m3_5"><p>无参数，返回基础枚举字典。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product/deviceStatusRuleEnum'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 4. IotDeviceClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g4')">4. 设备管理服务 (IotDeviceClient) - 4 个接口</div>
+<div id="g4">
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m4_1')"><span class="method get">GET</span><span class="path">/north/device/page</span><span class="summary">设备检索 (轻量)</span></div>
+<div class="api-detail" id="m4_1">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-DeviceQueryParam">DeviceQueryParam</a></p>
+<h4>Responses</h4><p><code><a class="schema-link" href="#schema-Pagination">Pagination</a>&lt;<a class="schema-link" href="#schema-DeviceThinDTO">DeviceThinDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/page?productId=string&amp;deviceCode=string&amp;prodCategoryCode=string&amp;prodBrandCode=string&amp;deviceNameLike=string&amp;withNumberAndBrandPath=False'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "deviceId": "string",
+      "deviceNumber": "string",
+      "deviceName": "string",
+      "productId": "string",
+      "productName": "string",
+      "prodBrandName": "string",
+      "prodCategoryName": "string"
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m4_2')"><span class="method get">GET</span><span class="path">/north/device/detail</span><span class="summary">设备详情与规格</span></div><div class="api-detail" id="m4_2">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-DeviceDetailParam">DeviceDetailParam</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-DeviceDetailDTO">DeviceDetailDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/detail?deviceId=string&amp;withSnapShot=False&amp;withPropertySpec=False'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "deviceId": "string",
+  "deviceParentId": "string",
+  "deviceNumber": "string",
+  "deviceName": "string",
+  "productId": "string",
+  "productName": "string",
+  "onlineState": 0,
+  "tags": "string",
+  "productPropVoList": [
+    {
+      "propCode": "string",
+      "propName": "string",
+      "dataType": "string",
+      "precision": 0,
+      "unitName": "string",
+      "dataWrite": 0,
+      "dataConstraint": "string",
+      "isTelemetry": false
+    }
+  ],
+  "productEventVoList": [
+    {
+      "eventCode": "string",
+      "eventName": "string",
+      "eventConfig": "string",
+      "categoryCode": "string",
+      "categoryName": "string"
+    }
+  ],
+  "productCommandVoList": [
+    "string"
+  ],
+  "snapshots": [
+    {
+      "key": "string",
+      "value": "string",
+      "ts": 0
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m4_3')"><span class="method get">GET</span><span class="path">/north/device/devicePropName</span><span class="summary">查询物模型名称映射字典</span></div><div class="api-detail" id="m4_3">
+<h4>Parameters</h4><table><tr><th>Name</th><th>Type</th><th>In</th><th>Description</th></tr><tr><td>deviceId</td><td>String</td><td>query</td><td>设备ID</td></tr></table>
+<h4>Responses</h4><p><code>Map&lt;String, String&gt;</code> 例如 {"temp":"温度"}</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/devicePropName?deviceId=string'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "string_key": "string"
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m4_4')"><span class="method post">POST</span><span class="path">/north/device/add</span><span class="summary">注册设备</span></div><div class="api-detail" id="m4_4">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-DeviceAddParam">DeviceAddParam</a></p>
+<h4>Responses (Long)</h4><p>返回新增设备的 ID 主键。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/add' \
+-H 'Content-Type: application/json' \
+-d '{
+  "productId": 0,
+  "deviceNumber": "string",
+  "deviceName": "string"
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">123456789</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 5. IotDeviceEventClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g5')">5. 设备历史事件 (IotDeviceEventClient) - 1 个接口</div>
+<div id="g5">
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m5_1')"><span class="method get">GET</span><span class="path">/north/device/event/history/page</span><span class="summary">单设备历史事件</span></div><div class="api-detail" id="m5_1">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-DeviceEventQueryParam">DeviceEventQueryParam</a></p>
+<h4>Responses</h4><p><code><a class="schema-link" href="#schema-Pagination">Pagination</a>&lt;<a class="schema-link" href="#schema-DeviceEventHistoryDTO">DeviceEventHistoryDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/event/history/page?deviceId=0&amp;bizType=string'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "eventCode": "string",
+      "instanceId": "string",
+      "category": "string",
+      "bizType": "string"
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 6. IotLinkageClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g6')">6. 联动引擎管理 (IotLinkageClient) - 7 个接口</div>
+<div id="g6">
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m6_1')"><span class="method post">POST</span><span class="path">/north/linkage/rule</span><span class="summary">新增联动协议规则</span></div><div class="api-detail" id="m6_1">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-RuleCreateParam">RuleCreateParam</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-RuleCreateResponseDTO">RuleCreateResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/linkage/rule' \
+-H 'Content-Type: application/json' \
+-d '{
+  "ruleName": "string",
+  "ruleNum": "string",
+  "ruleConfig": "string",
+  "enabled": "string"
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "ruleId": "string",
+  "ruleNum": "string"
+}</pre>
+</div></div>
+</div>
+<div class="api-item delete">
+<div class="api-header" onclick="toggleDisplay('m6_2')"><span class="method delete">DELETE</span><span class="path">/north/linkage/rule/{ruleNum}</span><span class="summary">删除规则</span></div><div class="api-detail" id="m6_2"><p><b>{ruleNum}</b>: PathVariable, 规则标识码。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X DELETE 'http://api.domain.com/north/linkage/rule/{ruleNum}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+<div class="api-item delete">
+<div class="api-header" onclick="toggleDisplay('m6_3')"><span class="method delete">DELETE</span><span class="path">/north/linkage/rule/batch</span><span class="summary">批量删除规则</span></div>
+<div class="api-detail" id="m6_3"><p><b>ruleNums</b>: Query 逗号分隔数组。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X DELETE 'http://api.domain.com/north/linkage/rule/batch'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m6_4')"><span class="method get">GET</span><span class="path">/north/linkage/rule/{ruleNum}</span><span class="summary">联动配置详情</span></div>
+<div class="api-detail" id="m6_4"><h4>Responses</h4><p><a class="schema-link" href="#schema-RuleDetailDTO">RuleDetailDTO</a> (结构类似 RuleCreateParam)</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/linkage/rule/{ruleNum}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "ruleName": "string",
+  "ruleNum": "string",
+  "ruleConfig": "string",
+  "enabled": false
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m6_5')"><span class="method post">POST</span><span class="path">/north/linkage/rule/state/change</span><span class="summary">启停规则状态</span></div>
+<div class="api-detail" id="m6_5">
+<h4>Parameters (ChangeRuleStateParam)</h4><p>包含 <code>ruleNums: List</code> 和 <code>enabled: boolean</code> 的 JSON 对象。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/linkage/rule/state/change' \
+-H 'Content-Type: application/json' \
+-d '{
+  "ruleNums": [
+    "rule_1",
+    "rule_2"
+  ],
+  "enabled": true
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m6_6')"><span class="method get">GET</span><span class="path">/north/linkage/rule/{ruleNum}/event-log</span><span class="summary">规则触发日志提取</span></div><div class="api-detail" id="m6_6">
+<h4>Parameters</h4><p><a class="schema-link" href="#schema-LinkageLogPageParam">LinkageLogPageParam</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-Pagination">Pagination</a> 包裹的日志信息集合。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/linkage/rule/{ruleNum}/event-log?ruleNum=string&amp;tenantId=0&amp;startTs=string&amp;endTs=string'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "total": 100,
+  "pages": 10,
+  "records": [
+    {
+      "total": 0,
+      "pages": 0,
+      "records": [
+        "string"
+      ]
+    }
+  ]
+}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m6_7')"><span class="method get">GET</span><span class="path">/north/linkage/rule/{ruleNum}/event-log/{instanceId}</span><span class="summary">触发执行细节镜像</span></div><div class="api-detail" id="m6_7"><p>无需复杂参数，用于调试触发日志单条细节。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/linkage/rule/{ruleNum}/event-log/{instanceId}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 7. IotProductMethodClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g7')">7. 产品方法调用 (IotProductMethodClient) - 4 个接口</div>
+<div id="g7">
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m7_1')"><span class="method get">GET</span><span class="path">/north/product-method/list</span><span class="summary">查询支持的方法规格池</span></div>
+<div class="api-detail" id="m7_1">
+<h4>Parameters</h4><p>prodId (Long)</p>
+<h4>Responses</h4><p><code>List&lt;<a class="schema-link" href="#schema-ProductMethodDTO">ProductMethodDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product-method/list'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "methodCode": "string",
+    "methodType": "string",
+    "inputParams": {
+      "string_key": "object_value"
+    },
+    "outputParams": {
+      "string_key": "object_value"
+    }
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m7_2')"><span class="method post">POST</span><span class="path">/north/product-method/invoke</span><span class="summary">执行业务方法</span></div><div class="api-detail" id="m7_2">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-MethodInvokeRequestDTO">MethodInvokeRequestDTO</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-MethodInvokeResponseDTO">MethodInvokeResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/product-method/invoke' \
+-H 'Content-Type: application/json' \
+-d '{
+  "commandSeq": "string",
+  "deviceId": "string",
+  "methodCode": "string",
+  "inputParams": {
+    "string_key": "object_value"
+  }
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "commandSeq": "string",
+  "commandHandle": "string",
+  "statusCode": "string",
+  "message": "string",
+  "outputParams": {
+    "string_key": "object_value"
+  }
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m7_3')"><span class="method post">POST</span><span class="path">/north/product-method/invoke/batch</span><span class="summary">并行执行多个方法</span></div><div class="api-detail" id="m7_3">
+<h4>Parameters</h4><p><code>List&lt;<a class="schema-link" href="#schema-MethodInvokeRequestDTO">MethodInvokeRequestDTO</a>&gt;</code></p>
+<h4>Responses</h4><p><code>List&lt;<a class="schema-link" href="#schema-MethodInvokeResponseDTO">MethodInvokeResponseDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/product-method/invoke/batch' \
+-H 'Content-Type: application/json' \
+-d '[
+  {
+    "commandSeq": "string",
+    "deviceId": "string",
+    "methodCode": "string",
+    "inputParams": {
+      "string_key": "object_value"
+    }
+  }
+]'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">[
+  {
+    "commandSeq": "string",
+    "commandHandle": "string",
+    "statusCode": "string",
+    "message": "string",
+    "outputParams": {
+      "string_key": "object_value"
+    }
+  }
+]</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m7_4')"><span class="method get">GET</span><span class="path">/north/product-method/invoke-status</span><span class="summary">查询异步方法的回执</span></div><div class="api-detail" id="m7_4">
+<h4>Parameters</h4><p>instanceId (String) Query 参数</p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-MethodRawCmdContentDTO">MethodRawCmdContentDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/product-method/invoke-status'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "instanceId": "string",
+  "deviceId": 0,
+  "deviceName": "string",
+  "methodCode": "string",
+  "methodName": "string",
+  "methodType": "string",
+  "inputParams": {
+    "string_key": "object_value"
+  },
+  "outputParams": {
+    "string_key": "object_value"
+  }
+}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 8. IotDeviceEventExtClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g8')">8. 扩展事件命令控制 (IotDeviceEventExtClient) - 3 个接口</div>
+<div id="g8">
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m8_1')"><span class="method post">POST</span><span class="path">/north/device/event/ext/command/issues</span><span class="summary">事件阈值重设</span></div><div class="api-detail" id="m8_1">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-DeviceCommandIssuesDTO">DeviceCommandIssuesDTO</a></p>
+<h4>Responses</h4><p><a class="schema-link" href="#schema-CommandResponseDTO">CommandResponseDTO</a></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/event/ext/command/issues' \
+-H 'Content-Type: application/json' \
+-d '{
+  "deviceId": 0,
+  "eventCode": "string",
+  "thresholdCode": "string",
+  "value": "string"
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "commandHandle": "string",
+  "statusCode": "string",
+  "message": "string"
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m8_2')"><span class="method post">POST</span><span class="path">/north/device/event/ext/command/issue/batch</span><span class="summary">事件阈值重设批处理</span></div><div class="api-detail" id="m8_2">
+<h4>Parameters</h4><p><code>Set&lt;<a class="schema-link" href="#schema-DeviceCommandIssuesDTO">DeviceCommandIssuesDTO</a>&gt;</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/event/ext/command/issue/batch' \
+-H 'Content-Type: application/json' \
+-d '[
+  {
+    "deviceId": 0,
+    "eventCode": "string",
+    "thresholdCode": "string",
+    "value": "string"
+  }
+]'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+<div class="api-item get">
+<div class="api-header" onclick="toggleDisplay('m8_3')"><span class="method get">GET</span><span class="path">/north/device/event/ext/command/issue/status</span><span class="summary">重设回执查询</span></div><div class="api-detail" id="m8_3">
+<h4>Parameters</h4><p>instanceId</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X GET 'http://api.domain.com/north/device/event/ext/command/issue/status'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 9. IotSubscribeClient -->
+<div class="api-group">
+<div class="api-group-title" onclick="toggleDisplay('g9')">9. HTTP 订阅管理 (IotSubscribeClient) - 2 个接口</div>
+<div id="g9">
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m9_1')"><span class="method post">POST</span><span class="path">/north/device/subscribe</span><span class="summary">基于 HTTP 创建订阅监听</span></div><div class="api-detail" id="m9_1">
+<h4>Parameters (RequestBody)</h4><p><a class="schema-link" href="#schema-SubscribeHttpParam">SubscribeHttpParam</a></p>
+<h4>Responses</h4><p>返回 JSON 包含分配的唯一订阅任务 ID <code>{ "subscribeId": "xxx" }</code></p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/subscribe' \
+-H 'Content-Type: application/json' \
+-d '{
+  "callbackUrl": "string",
+  "ttsWithSecond": 0,
+  "devicePropConditions": [
+    {
+      "deviceIdAndPropCode": [
+        "string"
+      ],
+      "changeNotify": false
+    }
+  ],
+  "deviceEventConditions": [
+    {
+      "deviceIdAndEventCode": [
+        "string"
+      ]
+    }
+  ]
+}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{
+  "status": "success",
+  "message": "Example simple response text"
+}</pre>
+</div></div>
+</div>
+<div class="api-item post">
+<div class="api-header" onclick="toggleDisplay('m9_2')"><span class="method post">POST</span><span class="path">/north/device/unsubscribe/{subscriptionId}</span><span class="summary">退订</span></div><div class="api-detail" id="m9_2">
+<p><b>subscriptionId</b> 为 PathVariable，无需 RequestBody。</p>
+<div class="example-section" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 15px;">
+<h4 style="color: #61affe;">Example - Request</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">curl -X POST 'http://api.domain.com/north/device/unsubscribe/{subscriptionId}' \
+-H 'Content-Type: application/json' \
+-d '{}'</pre>
+<h4 style="color: #49cc90;">Example - Response</h4>
+<pre style="background:#282c34; color:#abb2bf; padding:10px; border-radius:4px; font-size:13px; overflow-x:auto; font-family: monospace;">{}</pre>
+</div></div>
+</div>
+</div>
+</div>
+<!-- 附录：Schemas -->
+<div class="schema-section">
+<h2 id="schemas">附录：Schemas 数据模型字典</h2>
+<p>本附录详尽记录了所有由 HTTP Body 提交或响应接收的复杂大对象实体。对应于 Java 中位于 `pj/dto` 与 `pj/param` 下的类。</p>
+<div class="schema-block" id="schema-Pagination">
+<div class="schema-header"><span>Pagination&lt;T&gt;</span><span class="schema-desc">通用分页返回体壳装</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>total</td><td>Long</td><td>数据检索命中的总数量</td></tr>
+<tr><td>pages</td><td>Long</td><td>按照每页承载量切分出的总页面数</td></tr>
+<tr><td>records</td><td>List&lt;T&gt;</td><td>当页剥离出的负载数据列表（泛型结果）</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-KeyValueWithTsDTO">
+<div class="schema-header"><span>KeyValueWithTsDTO</span><span class="schema-desc">基础时序存取载体</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>key</td><td>String</td><td>属性标识符代码</td></tr>
+<tr><td>value</td><td>Object</td><td>属性在当前时刻的值，可能是数值也可能是结构化文本</td></tr>
+<tr><td>ts</td><td>Long</td><td>数据产生的时间戳 (毫秒)</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceTSDTO">
+<div class="schema-header"><span>DeviceTSDTO</span><span class="schema-desc">设备历史属性聚合包</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td>设备归属ID</td></tr>
+<tr><td>deviceName</td><td>String</td><td>设备归属名称</td></tr>
+<tr><td>deviceNumber</td><td>String</td><td>编号/序列号</td></tr>
+<tr><td>propertyTsBoList</td><td>List&lt;<a class="schema-link" href="#schema-PropertyTsDTO">PropertyTsDTO</a>&gt;</td><td>包裹了针对单个属性的历史轨迹信息</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceSamplingTSDTO">
+<div class="schema-header"><span>DeviceSamplingTSDTO</span><span class="schema-desc">一次包含多属性刻面的采样数据</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>propValues</td><td>Map&lt;String, <a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</td><td>Map 形式组织的各个属性值快照</td></tr>
+<tr><td>ts</td><td>Long</td><td>该采样点的时间基准</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-HistorySampleParam">
+<div class="schema-header"><span>HistorySampleParam</span><span class="schema-desc">用于采样历史轨迹的条件约束</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td><b>True</b></td><td>设备唯一识别</td></tr>
+<tr><td>properties</td><td>List&lt;String&gt;</td><td><b>True</b></td><td>要捕捉的属性字段群</td></tr>
+<tr><td>startTs</td><td>Long</td><td>False</td><td>采样的起始时钟区间</td></tr>
+<tr><td>endTs</td><td>Long</td><td>False</td><td>采样的结束时钟区间</td></tr>
+<tr><td>step</td><td>Integer</td><td>False</td><td>时间步长分片尺寸，单位为分钟（默认 1）</td></tr>
+<tr><td>aggType</td><td>String</td><td>False</td><td>指定用于对步长内数据的聚合公式 (min, max, count, sum, avg, any, raw)</td></tr>
+<tr><td>maxRecords</td><td>Integer</td><td>False</td><td>结果防溢出限制，默认 1000</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DevicePropParam">
+<div class="schema-header"><span>DevicePropParam</span><span class="schema-desc">设备单一控制或查询参量基类</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>Long</td><td><b>True</b></td><td>指向设备的 Long 型主键</td></tr>
+<tr><td>propertyCodes</td><td>String</td><td>False</td><td>过滤需要的 Code，以系统兼容的逗号做划分</td></tr>
+<tr><td>notBeforeTs</td><td>Long</td><td>False</td><td>不希望接收此时间之前陈旧数据的边界限定</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-MultiDevicePropParam">
+<div class="schema-header"><span>MultiDevicePropParam</span><span class="schema-desc">多设备并发提取属性约束</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceIds</td><td>List&lt;String&gt;</td><td><b>True</b></td><td>目标设备的串联群</td></tr>
+<tr><td>propertyCodes</td><td>List&lt;String&gt;</td><td>False</td><td>特定属性组</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DevicePropHistoryPageParam">
+<div class="schema-header"><span>DevicePropHistoryPageParam</span><span class="schema-desc">带分页的历史查阅指针</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>Long</td><td><b>True</b></td><td>设备基表标识</td></tr>
+<tr><td>propertyCode</td><td>String</td><td><b>True</b></td><td>针对哪一个属性分析轨迹</td></tr>
+<tr><td>pageIndex</td><td>Integer</td><td>False</td><td>当前检索页码</td></tr>
+<tr><td>pageSize</td><td>Integer</td><td>False</td><td>每页数据尺寸</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DevicePropHistoryParam">
+<div class="schema-header"><span>DevicePropHistoryParam</span><span class="schema-desc">忽略分页的全量取数参数</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>prodCategoryId</td><td>String</td><td>产品品类ID</td></tr>
+<tr><td>deviceId</td><td>Long</td><td>设备唯一寻址主键</td></tr>
+<tr><td>propCodes</td><td>List&lt;String&gt;</td><td>针对哪些属性分析轨迹</td></tr>
+<tr><td>startTs</td><td>Long</td><td>区间起始时间戳</td></tr>
+<tr><td>endTs</td><td>Long</td><td>区间截止时间戳</td></tr>
+<tr><td>order</td><td>String</td><td>排序，默认 "desc"</td></tr>
+<tr><td>maxRecords</td><td>Integer</td><td>默认最大 1000 条，避免一次性查询过多数据</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceSamplingPageParam">
+<div class="schema-header"><span>DeviceSamplingPageParam</span><span class="schema-desc">采样分页封装请求单</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>Long</td><td><b>True</b></td><td>-</td></tr>
+<tr><td>propertyCodes</td><td>List&lt;String&gt;</td><td>False</td><td>-</td></tr>
+<tr><td>pageIndex</td><td>Integer</td><td>False</td><td>当前请求页号</td></tr>
+<tr><td>pageSize</td><td>Integer</td><td>False</td><td>请求条数</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-MultiHistorySampleParam">
+<div class="schema-header"><span>MultiHistorySampleParam</span><span class="schema-desc">多设备-属性时序历史采样查询参数</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>devIdAndPropCodes</td><td>String</td><td>格式：deviceId.propCode,deviceId.propCode...</td></tr>
+<tr><td>order</td><td>String</td><td>排序顺序</td></tr>
+<tr><td>startTs</td><td>Long</td><td>时间区间起</td></tr>
+<tr><td>endTs</td><td>Long</td><td>时间区间止</td></tr>
+<tr><td>step</td><td>Integer</td><td>时间分片粒度，单位分钟（默认1）</td></tr>
+<tr><td>aggType</td><td>String</td><td>聚合类型：min, max, count, sum, avg, any 等（默认 raw）</td></tr>
+<tr><td>maxRecords</td><td>Integer</td><td>最大结果数（默认 1000）</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-CommandParam">
+<div class="schema-header"><span>CommandParam</span><span class="schema-desc">指令控制流请求基元</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>commandSeq</td><td>String</td><td>False</td><td>客户端维系的外部幂等流程序列号，可选</td></tr>
+<tr><td>deviceId</td><td>String</td><td><b>True</b></td><td>向哪个对象发号施令</td></tr>
+<tr><td>propCode</td><td>String</td><td><b>True</b></td><td>指令作用于的特定物模型能力点</td></tr>
+<tr><td>propValue</td><td>String</td><td><b>True</b></td><td>期望被调整至的目标态</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-CommandRestParam">
+<div class="schema-header"><span>CommandRestParam</span><span class="schema-desc">中断/重置正在异步进行的指令请求</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td><b>True</b></td><td>所属的设备基元</td></tr>
+<tr><td>resetType</td><td>CommandResetEnum</td><td><b>True</b></td><td>限定的阻断枚举域规则（如 ALL 或者某个特定的策略）</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-CommandResponseDTO">
+<div class="schema-header"><span>CommandResponseDTO</span><span class="schema-desc">标准异步推演反馈体</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>commandHandle</td><td>String</td><td>平台分发的用于追溯异步生命周期的实例会话 ID</td></tr>
+<tr><td>statusCode</td><td>String</td><td>枚举状态轴：INIT (挂起)、PROCESSING (传输中)、ACCEPT (已触达边缘)、SUCCESS / FAIL / EXPIRED (结算态)</td></tr>
+<tr><td>message</td><td>String</td><td>便于人类诊断的字符串</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-ProductPageParam">
+<div class="schema-header"><span>ProductPageParam</span><span class="schema-desc">多要素筛选产品规格的分页结构</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>productId</td><td>String</td><td>提供精确或 Like 的索引提取</td></tr>
+<tr><td>productName</td><td>String</td><td>提供精确或 Like 的索引提取</td></tr>
+<tr><td>withEventSpec</td><td>boolean</td><td>重要的级联指示位，若为 ture 将拉起所有物模型矩阵消耗带宽</td></tr><tr><td>withPropertySpec</td><td>boolean</td><td>重要的级联指示位，若为 ture 将拉起所有物模型矩阵消耗带宽</td></tr><tr><td>withMethodSpec</td><td>boolean</td><td>重要的级联指示位，若为 ture 将拉起所有物模型矩阵消耗带宽</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-ProductDTO">
+<div class="schema-header"><span>ProductDTO</span><span class="schema-desc">极重产品级模型载体</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>prodId</td><td>String</td><td>产品ID的主键形态</td></tr>
+<tr><td>prodNumber</td><td>String</td><td>产品外部统一编码</td></tr>
+<tr><td>prodName</td><td>String</td><td>产品业务名称</td></tr>
+<tr><td>prodCategoryCode</td><td>String</td><td>所属品类约束代码</td></tr>
+<tr><td>prodCategoryName</td><td>String</td><td>所属品类名称</td></tr>
+<tr><td>prodBrandCode</td><td>String</td><td>所属品牌约定代码</td></tr>
+<tr><td>prodBrandName</td><td>String</td><td>所属品牌名称</td></tr>
+<tr><td>prodModel</td><td>String</td><td>硬件制造型号</td></tr>
+<tr><td>prodIcon</td><td>Long</td><td>UI 展示预设 Icon ID</td></tr>
+<tr><td>prodPic</td><td>Long</td><td>大图资源库展示 ID</td></tr>
+<tr><td>remark</td><td>String</td><td>备注信息</td></tr>
+<tr><td>productPropVoList</td><td>List&lt;<a class="schema-link" href="#schema-ProductPropDTO">ProductPropDTO</a>&gt;</td><td>物模型：属性定义大纲</td></tr>
+<tr><td>productEventVoList</td><td>List&lt;<a class="schema-link" href="#schema-ProductEventDTO">ProductEventDTO</a>&gt;</td><td>物模型：事件能力大纲</td></tr>
+<tr><td>productMethodVoList</td><td>List&lt;<a class="schema-link" href="#schema-ProductMethodDTO">ProductMethodDTO</a>&gt;</td><td>物模型：服务方法调用大纲</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-ProductMethodDTO">
+<div class="schema-header"><span>ProductMethodDTO</span><span class="schema-desc">功能方法的说明字典</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>methodCode</td><td>String</td><td>方法的物理寻址编号</td></tr>
+<tr><td>methodType</td><td>String</td><td>sync (同步阻断)/ async (异步脱卷)</td></tr>
+<tr><td>inputParams</td><td>Map</td><td>执行函数所需的入参对象字典</td></tr>
+<tr><td>outputParams</td><td>Map</td><td>方法出境回流结果集字典</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceQueryParam">
+<div class="schema-header"><span>DeviceQueryParam</span><span class="schema-desc">设备扫描器 (继承 <a class="schema-link" href="#schema-Pagination">Pagination</a>)</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>productId</td><td>String</td><td>根据产品进行收束查询</td></tr>
+<tr><td>deviceCode</td><td>String</td><td>精确匹配机身号码</td></tr>
+<tr><td>prodCategoryCode</td><td>String</td><td>按照品类进行海选</td></tr>
+<tr><td>prodBrandCode</td><td>String</td><td>所属品牌代码</td></tr>
+<tr><td>deviceNameLike</td><td>String</td><td>宽泛的名称模糊搜索匹配</td></tr>
+<tr><td>withNumberAndBrandPath</td><td>boolean</td><td>是否关联品牌与型号级联信息</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceThinDTO">
+<div class="schema-header"><span>DeviceThinDTO</span><span class="schema-desc">剔除了沉重物模型的列表用设备体</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td>设备全局通用的鉴权码</td></tr>
+<tr><td>deviceNumber</td><td>String</td><td>设备出厂标记号码</td></tr>
+<tr><td>deviceName</td><td>String</td><td>设备的业务别名</td></tr>
+<tr><td>productId</td><td>String</td><td>出厂血缘归属模型ID</td></tr>
+<tr><td>productName</td><td>String</td><td>从属产品可视名称</td></tr>
+<tr><td>prodBrandName</td><td>String</td><td>品牌标签组合（多级用@@接洽）</td></tr>
+<tr><td>prodCategoryName</td><td>String</td><td>品类标签组合（用@@接洽）</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceDetailParam">
+<div class="schema-header"><span>DeviceDetailParam</span><span class="schema-desc">穿透请求设备底核</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td><b>(Required)</b> 唯一寻址</td></tr>
+<tr><td>withSnapShot</td><td>boolean</td><td>携带目前各属性刻度停滞值一并返回</td></tr>
+<tr><td>withPropertySpec</td><td>boolean</td><td>携带从产品复制而来的约束大对象</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceDetailDTO">
+<div class="schema-header"><span>DeviceDetailDTO</span><span class="schema-desc">最高复杂度的设备快照</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>String</td><td>设备全局通用的鉴权码</td></tr>
+<tr><td>deviceParentId</td><td>String</td><td>边缘网关等场景下的上挂拓扑</td></tr>
+<tr><td>deviceNumber</td><td>String</td><td>设备外部统一编码</td></tr>
+<tr><td>deviceName</td><td>String</td><td>设备可读别名</td></tr>
+<tr><td>productId</td><td>String</td><td>从属的顶层产品对象ID</td></tr>
+<tr><td>productName</td><td>String</td><td>产品的展示名称</td></tr>
+<tr><td>onlineState</td><td>Integer</td><td>网络状态，通常标示在线与离线</td></tr>
+<tr><td>tags</td><td>String</td><td>业务维护标签</td></tr>
+<tr><td>productPropVoList</td><td>List&lt;<a class="schema-link" href="#schema-ProductPropDTO">ProductPropDTO</a>&gt;</td><td>继承自产品的属性说明书</td></tr>
+<tr><td>productEventVoList</td><td>List&lt;<a class="schema-link" href="#schema-ProductEventDTO">ProductEventDTO</a>&gt;</td><td>继承自产品的事件说明书</td></tr>
+<tr><td>productCommandVoList</td><td>List&lt;Object&gt;</td><td>可直接调用的指令集</td></tr>
+<tr><td>snapshots</td><td>List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</td><td>此时此刻最新的属性缓存全貌快照</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceAddParam">
+<div class="schema-header"><span>DeviceAddParam</span><span class="schema-desc">发放在线实例工单</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>productId</td><td>Long</td><td>基于哪个产品出厂规范</td></tr>
+<tr><td>deviceNumber</td><td>String</td><td>必须预制的外部特征序列号</td></tr>
+<tr><td>deviceName</td><td>String</td><td>运营别名 (可选)</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceEventQueryParam">
+<div class="schema-header"><span>DeviceEventQueryParam</span><span class="schema-desc">告警/事件检索参数</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>Long</td><td>锁定到对应目标</td></tr>
+<tr><td>eventCodes</td><td>List&lt;String&gt;</td><td>针对某类型特殊事件做索引</td></tr>
+<tr><td>bizType</td><td>String</td><td>业务源头分类</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceEventHistoryDTO">
+<div class="schema-header"><span>DeviceEventHistoryDTO</span><span class="schema-desc">事件流落库档案</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>eventCode</td><td>String</td><td>事件定义的指纹锁</td></tr>
+<tr><td>instanceId</td><td>String</td><td>那次事件生成的独立证明号</td></tr>
+<tr><td>category</td><td>String</td><td>事件业务大类</td></tr>
+<tr><td>bizType</td><td>String</td><td>具体子业务形态标注</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-RuleCreateParam">
+<div class="schema-header"><span>RuleCreateParam</span><span class="schema-desc">联动自动化布置章程</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>ruleName</td><td>String</td><td>自建联动的中文名称</td></tr>
+<tr><td>ruleNum</td><td>String</td><td>业务层强绑定的业务主键特征</td></tr>
+<tr><td>ruleConfig</td><td>JSONObject</td><td>定义复杂的 AND/OR Trigger 及所映射执行的 Action List。为保护扩展性采用底层无类型 JSON。</td></tr>
+<tr><td>enabled</td><td>String</td><td>"true" 或 "false" 控制是否布置生效</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-RuleCreateResponseDTO">
+<div class="schema-header"><span>RuleCreateResponseDTO</span><span class="schema-desc">布置联动布置回执单</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>ruleId</td><td>String</td><td>被核心持久化平台赋予了灵魂生命周期的 ID</td></tr>
+<tr><td>ruleNum</td><td>String</td><td>原发的 Rule 唯一业务编码</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-RuleDetailDTO">
+<div class="schema-header"><span>RuleDetailDTO</span><span class="schema-desc">已有联动自动化规则详尽内容</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>ruleName</td><td>String</td><td>规则名称</td></tr>
+<tr><td>ruleNum</td><td>String</td><td>规则唯一标识代码</td></tr>
+<tr><td>ruleConfig</td><td>JSONObject</td><td>内含详尽 Triggers/Actions 黑盒定义拓扑图的庞大 JSON 对象</td></tr>
+<tr><td>enabled</td><td>boolean</td><td>代表此自动机是否挂载至事件反应堆中被激活运行</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-LinkageLogPageParam">
+<div class="schema-header"><span>LinkageLogPageParam</span><span class="schema-desc">联动触发痕迹打捞器 (继承 <a class="schema-link" href="#schema-Pagination">Paging</a>)</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>ruleNum</td><td>String</td><td>必须携带，指定提取哪个规则触发产生的历史痕迹</td></tr>
+<tr><td>tenantId</td><td>Integer</td><td>多租户鉴权体系下的安全边界</td></tr>
+<tr><td>startTs</td><td>String</td><td>起测分析时间锚点 (字符串格式)</td></tr>
+<tr><td>endTs</td><td>String</td><td>终结时间锚点 (字符串格式)</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-MethodInvokeRequestDTO">
+<div class="schema-header"><span>MethodInvokeRequestDTO</span><span class="schema-desc">驱动高级方法业务调用的信使</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>commandSeq</td><td>String</td><td>跨环境防抖校验序号</td></tr>
+<tr><td>deviceId</td><td>String</td><td>方法目标底座</td></tr>
+<tr><td>methodCode</td><td>String</td><td>调用哪个方法规范</td></tr>
+<tr><td>inputParams</td><td>Map&lt;String, Object&gt;</td><td>按照方法描述符要求的真实值投喂</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-MethodInvokeResponseDTO">
+<div class="schema-header"><span>MethodInvokeResponseDTO</span><span class="schema-desc">方法调用响应回执</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>commandSeq</td><td>String</td><td>客户端传入的命令序列号防抖</td></tr>
+<tr><td>commandHandle</td><td>String</td><td>命令实例 ID (用于异步场景后续的状态查询)</td></tr>
+<tr><td>statusCode</td><td>String</td><td>执行状态码：REJECT, INIT, PROCESSING, ACCEPT, SUCCESS, FAIL, EXPIRED</td></tr>
+<tr><td>message</td><td>String</td><td>附带解释说明或错误报告的补充信息串</td></tr>
+<tr><td>outputParams</td><td>Map&lt;String, Object&gt;</td><td>输出参数 (同步方法执行立刻返回的处理结果集)</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-MethodRawCmdContentDTO">
+<div class="schema-header"><span>MethodRawCmdContentDTO</span><span class="schema-desc">方法执行链路完整报告状态流</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>instanceId</td><td>String</td><td>命令生成的实例追踪流水 ID</td></tr>
+<tr><td>deviceId</td><td>Long</td><td>处理本事件的源节点实体主键</td></tr>
+<tr><td>deviceName</td><td>String</td><td>设备的业务别名</td></tr>
+<tr><td>methodCode</td><td>String</td><td>方法寻址特征码，例如 "reboot" 或 "clean"</td></tr>
+<tr><td>methodName</td><td>String</td><td>用于展示的人类语义名称</td></tr>
+<tr><td>methodType</td><td>String</td><td>方法类型："sync"-同步方法、"async"-异步脱卷等待方法</td></tr>
+<tr><td>inputParams</td><td>Map&lt;String, Object&gt;</td><td>触发方法时的现场快照与用户参数表</td></tr>
+<tr><td>outputParams</td><td>Map&lt;String, Object&gt;</td><td>异步终点处理完成后的应答实体表</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceCommandIssuesDTO">
+<div class="schema-header"><span>DeviceCommandIssuesDTO</span><span class="schema-desc">越过属性干预阈值的探子</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceId</td><td>Long</td><td>涉事方</td></tr>
+<tr><td>eventCode</td><td>String</td><td>绑定的事件模型</td></tr>
+<tr><td>thresholdCode</td><td>String</td><td>特定的比较器门限位</td></tr>
+<tr><td>value</td><td>String</td><td>篡改后的阈值极限</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-SubscribeHttpParam">
+<div class="schema-header"><span>SubscribeHttpParam</span><span class="schema-desc">北向 WebHook 构建提单</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>callbackUrl</td><td>String</td><td>开放以迎接云端投递的 WebHook 管道门牌号</td></tr>
+<tr><td>ttsWithSecond</td><td>long</td><td>保障租期（秒），流逝后需续租避免被云端回收</td></tr>
+<tr><td>devicePropConditions</td><td>List&lt;<a class="schema-link" href="#schema-DevicePropCondition">DevicePropCondition</a>&gt;</td><td>订阅关切：结构为 deviceIdAndPropCode 的阵列，指引云端只下发特定过滤包</td></tr>
+<tr><td>deviceEventConditions</td><td>List&lt;<a class="schema-link" href="#schema-DeviceEventCondition">DeviceEventCondition</a>&gt;</td><td>关切之二：只索要特定设备诱发的特定事情</td></tr>
+</table>
+</div>
+</div>
+<!-- 补充底层级联结构 -->
+<div class="schema-block" id="schema-ProductPropDTO">
+<div class="schema-header"><span>ProductPropDTO</span><span class="schema-desc">物模型：属性定义大纲</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>propCode</td><td>String</td><td>属性核心标识符代码</td></tr>
+<tr><td>propName</td><td>String</td><td>人类可读语义</td></tr>
+<tr><td>dataType</td><td>String</td><td>约束的数据类型，如 int, double, bool, text, enum 等</td></tr>
+<tr><td>precision</td><td>Integer</td><td>如果是浮点数，指定控制的精度位</td></tr>
+<tr><td>unitName</td><td>String</td><td>带上的计量物理单位（℃, m, kg 等）</td></tr>
+<tr><td>dataWrite</td><td>Integer</td><td>控制此属性为只读或可读可写</td></tr>
+<tr><td>dataConstraint</td><td>JSONArray</td><td>复杂扩展标尺，描述极大值、极小值或枚举集的字典映射</td></tr>
+<tr><td>isTelemetry</td><td>Boolean</td><td>是否需要遥测归档存储时序线</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-ProductEventDTO">
+<div class="schema-header"><span>ProductEventDTO</span><span class="schema-desc">物模型：事件能力大纲</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>eventCode</td><td>String</td><td>事件识别码</td></tr>
+<tr><td>eventName</td><td>String</td><td>人类可读称谓</td></tr>
+<tr><td>eventConfig</td><td>EventConfig</td><td>复杂配置规则声明</td></tr>
+<tr><td>categoryCode</td><td>String</td><td>所属组别代称代码</td></tr>
+<tr><td>categoryName</td><td>String</td><td>所属组别名词</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-PropertyTsDTO">
+<div class="schema-header"><span>PropertyTsDTO</span><span class="schema-desc">携带物模型上下文的轨迹列表</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>propertyCode</td><td>String</td><td>物理特性的英文变量名</td></tr>
+<tr><td>propertyName</td><td>String</td><td>物理特性的直观名词</td></tr>
+<tr><td>dataType</td><td>String</td><td>此特定属性点的限定数据范式</td></tr>
+<tr><td>propertyUnit</td><td>String</td><td>冗余出厂度量衡以便前端直绘</td></tr>
+<tr><td>valueTsBoList</td><td>List&lt;<a class="schema-link" href="#schema-KeyValueWithTsDTO">KeyValueWithTsDTO</a>&gt;</td><td>包裹这段时间的具体历史点坐标</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DevicePropCondition">
+<div class="schema-header"><span>DevicePropCondition</span><span class="schema-desc">属性过滤探测器</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceIdAndPropCode</td><td>List&lt;String&gt;</td><td>精准锁定某些 {设备.属性} 的元组阵列</td></tr>
+<tr><td>changeNotify</td><td>boolean</td><td>配置云端策略：是全量下发，还是仅当产生跳变差值时下发</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceEventCondition">
+<div class="schema-header"><span>DeviceEventCondition</span><span class="schema-desc">事件过滤探测器</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceIdAndEventCode</td><td>List&lt;String&gt;</td><td>精准锁定某些 {设备.事件} 的关切发生</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceCommandCondition">
+<div class="schema-header"><span>DeviceCommandCondition</span><span class="schema-desc">下发控制的指令过滤探测器</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>commandId</td><td>String</td><td>订阅针对特定范围所产生指令行为的记录</td></tr>
+</table>
+</div>
+</div>
+<div class="schema-block" id="schema-DeviceStatusCondition">
+<div class="schema-header"><span>DeviceStatusCondition</span><span class="schema-desc">上下线震荡生命状态探测器</span></div>
+<div class="schema-body">
+<table>
+<tr><th>Field</th><th>Type</th><th>Description</th></tr>
+<tr><td>deviceIds</td><td>List&lt;String&gt;</td><td>订阅所关切存活状态的一批核心实体清单</td></tr>
+</table>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

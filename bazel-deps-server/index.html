@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bazel 依赖分析工具</title>
+    <link rel="stylesheet" href="/style.css">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1>🔍 Bazel 依赖分析工具</h1>
+                <div class="view-toggle">
+                    <button id="listViewBtn" class="view-btn active" title="列表视图">
+                        📋 列表视图
+                    </button>
+                    <button id="graphViewBtn" class="view-btn" title="图形视图">
+                        🗺️ 图形视图
+                    </button>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="搜索 target..."
+                        autocomplete="off"
+                    />
+                    <span class="search-icon">🔎</span>
+                </div>
+                <div class="filter-box">
+                    <label for="ruleFilter">Rule 类型过滤:</label>
+                    <div id="ruleFilter" class="rule-filter"></div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h2>Targets 列表</h2>
+                    <span id="targetCount" class="count">加载中...</span>
+                </div>
+                <div id="targetList" class="target-list">
+                    <div class="loading">正在加载 targets...</div>
+                </div>
+            </aside>
+
+            <main class="content-area">
+                <div id="targetDetails" class="target-details list-view">
+                    <div class="welcome-message">
+                        <h2>👈 从左侧选择一个 target 查看依赖关系</h2>
+                        <p>使用搜索框可以快速查找目标</p>
+                    </div>
+                </div>
+                <div id="graphView" class="graph-view hidden">
+                    <div class="graph-controls">
+                        <div class="graph-tabs">
+                            <button id="depsGraphTab" class="graph-tab active" data-graph="deps">📦 直接依赖</button>
+                            <button id="rdepsGraphTab" class="graph-tab" data-graph="rdeps">🔗 反向依赖</button>
+                        </div>
+                        <div class="graph-control-buttons">
+                            <button id="centerGraphBtn" class="control-btn">🎯 居中</button>
+                            <button id="fitGraphBtn" class="control-btn">🔍 适应窗口</button>
+                            <button id="resetGraphBtn" class="control-btn">🔄 重置</button>
+                            <button id="fullscreenBtn" class="control-btn">⛶ 全屏</button>
+                        </div>
+                        <span id="graphInfo" class="graph-info">选择一个 target 查看依赖关系图</span>
+                    </div>
+                    <div id="depsGraphContainer" class="graph-container active"></div>
+                    <div id="rdepsGraphContainer" class="graph-container hidden"></div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
+

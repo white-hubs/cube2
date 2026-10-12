@@ -1,0 +1,35 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.fault.dao.FaultCaseMapper">
+
+    <select id="pageFaultCase"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.fault.interfaces.vo.FaultCaseVO">
+        SELECT
+        fc.id id,
+        fc.`name` `name`,
+        fc.fault_type_id faultTypeId,
+        fc.fault_type_name faultTypeName,
+        fc.device_type_id deviceTypeId,
+        fc.device_type_name deviceTypeName,
+        fc.fault_phenomenon faultPhenomenon,
+        fc.fault_reason faultReason,
+        fc.treatment_measures treatmentMeasures,
+        fc.product_category_code productCategoryCode,
+        b.num faultCount
+        FROM
+        fault_case fc
+        LEFT JOIN ( SELECT fault_case_id, COUNT( id ) num FROM fault_closed GROUP BY fault_case_id ) b ON fc.id = b.fault_case_id
+        <where>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and fc.name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.productCategoryCode !=null and param.productCategoryCode !=''">
+                and fc.product_category_code like concat('%',#{param.productCategoryCode},'%')
+            </if>
+            <if test="param.faultTypeId !=null and param.faultTypeId !=''">
+                and fc.fault_type_id = #{param.faultTypeId}
+            </if>
+
+        </where>
+        order by faultCount DESC
+    </select>
+</mapper>

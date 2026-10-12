@@ -1,0 +1,39 @@
+- provider: "DICT"
+  isPartialMode: true
+  requirements:
+    - configType: "DictType"
+      version: "1.0"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      vargs:
+        - code: "TypeA"
+          remark: "Type A"
+        - code: "TypeB"
+          remark: "Type B"
+    - configType: "DictType"
+      version: "1.0"
+      isMandatory: true
+      isSystem: true
+      isRemoval: true
+      vargs:
+        - code: "TypeC"
+          remark: "Type C"
+    - configType: "DictEntry"
+      isMandatory: true
+      isSystem: true
+      isRemoval: false
+      kwargs:
+        dictType: "TypeA"
+      vargs:
+        - "item1"
+        - "item2"
+        - "item3"
+    - configType: "DictEntry"
+      isMandatory: true
+      isSystem: true
+      isRemoval: true
+      kwargs:
+        dictType: "TypeA"
+      vargs:
+        - "item4"

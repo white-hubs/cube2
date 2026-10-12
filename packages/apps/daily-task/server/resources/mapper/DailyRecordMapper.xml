@@ -1,0 +1,26 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--批量更新计划字段-->
+<mapper namespace="com.guhecloud.cube.biz.daily.task.record.dao.DailyRecordMapper">
+
+    <select id="countTargetAbnormalNum" resultType="java.lang.Integer">
+        SELECT COUNT(DISTINCT t1.id)
+        FROM
+        daily_record t1
+        INNER JOIN daily_record_target t2 on t1.id = t2.record_id
+        <where>
+            t1.execution_result = 'ABNORMAL'
+            <if test="targetId != null">
+                AND t2.target_id = #{targetId}
+            </if>
+            <if test="dailyType != null and dailyType != ''">
+                AND t1.daily_type = #{dailyType}
+            </if>
+            <if test="period != null and period.begin != null">
+                and t1.create_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.create_time &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

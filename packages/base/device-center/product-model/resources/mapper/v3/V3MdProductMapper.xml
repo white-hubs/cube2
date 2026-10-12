@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3MdProductMapper">
+
+    <!-- 产品实体ResultMap -->
+    <resultMap id="MdProductResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.MdProduct">
+        <id column="id" property="id"/>
+        <result column="prod_number" property="prodNumber"/>
+        <result column="prod_name" property="prodName"/>
+        <result column="prod_name_pinyin" property="prodNamePinyin"/>
+        <result column="prod_category_id" property="prodCategoryId"/>
+        <result column="node_type" property="nodeType"/>
+        <result column="prod_brand_id" property="prodBrandId"/>
+        <result column="prod_model" property="prodModel"/>
+        <result column="protocol_id" property="protocolId"/>
+        <result column="remark" property="remark"/>
+        <result column="extend_config" property="extendConfig"/>
+        <result column="status" property="status"/>
+        <result column="prod_version" property="prodVersion"/>
+        <result column="prod_icon" property="prodIcon"/>
+        <result column="prod_pic" property="prodPic"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 产品VO的ResultMap -->
+    <resultMap id="ProductVOResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.vo.ProductVO">
+        <id column="id" property="id"/>
+        <result column="prod_number" property="prodNumber"/>
+        <result column="prod_name" property="prodName"/>
+        <result column="prod_name_pinyin" property="prodNamePinyin"/>
+        <result column="prod_category_id" property="prodCategoryId"/>
+        <result column="prod_category_name" property="prodCategoryName"/>
+        <result column="prod_category_name_chain" property="prodCategoryNameChain"/>
+        <result column="node_type" property="nodeType"/>
+        <result column="prod_brand_id" property="prodBrandId"/>
+        <result column="prod_brand_name" property="prodBrandName"/>
+        <result column="prod_model" property="prodModel"/>
+        <result column="protocol_id" property="protocolId"/>
+        <result column="protocol_name" property="protocolName"/>
+        <result column="remark" property="remark"/>
+        <result column="extend_config" property="extendConfig"/>
+        <result column="status" property="status"/>
+        <result column="prod_version" property="prodVersion"/>
+        <result column="prod_icon" property="prodIcon"/>
+        <result column="prod_pic" property="prodPic"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据产品编号查询产品 -->
+    <select id="selectByProdNumber" resultMap="MdProductResultMap">
+        SELECT
+            `id`,
+            `prod_number`,
+            `prod_name`,
+            `prod_name_pinyin`,
+            `prod_category_id`,
+            `node_type`,
+            `prod_brand_id`,
+            `prod_model`,
+            `protocol_id`,
+            `remark`,
+            `extend_config`,
+            `status`,
+            `prod_version`,
+            `prod_icon`,
+            `prod_pic`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_md_product_v3
+        WHERE `prod_number` = #{prodNumber}
+    </select>
+
+    <!-- 分页查询产品列表 -->
+    <select id="selectProductPage" resultMap="ProductVOResultMap">
+        SELECT
+            p.`id`,
+            p.`prod_name`,
+            p.`prod_number`,
+            p.`prod_name_pinyin`,
+            p.`prod_category_id`,
+            category.`item_label` AS prod_category_name,
+            category.`item_level_label` AS prod_category_name_chain,
+            p.`node_type`,
+            p.`prod_brand_id`,
+            brand.`item_label` AS prod_brand_name,
+            p.`prod_model`,
+            p.`protocol_id`,
+            protocol.`item_label` AS protocol_name,
+            p.`prod_version`,
+            p.`prod_icon`,
+            p.`prod_pic`,
+            p.`status`,
+            p.`remark`,
+            p.`tenant`,
+            p.`create_by`,
+            p.`create_time`,
+            p.`update_by`,
+            p.`update_time`
+        FROM iot_md_product_v3 p
+        LEFT JOIN iot_sys_dict_item_v3 category ON p.`prod_category_id` = category.`id` AND category.`deleted` = 0
+        LEFT JOIN iot_sys_dict_item_v3 brand ON p.`prod_brand_id` = brand.`id` AND brand.`deleted` = 0
+        LEFT JOIN iot_sys_dict_item_v3 protocol ON p.`protocol_id` = protocol.`id` AND protocol.`deleted` = 0
+        WHERE 1=1
+        <if test="param.prodName != null and param.prodName != ''">
+            AND p.`prod_name` LIKE CONCAT('%', #{param.prodName}, '%')
+        </if>
+        <if test="param.prodNumber != null and param.prodNumber != ''">
+            AND p.`prod_number` = #{param.prodNumber}
+        </if>
+        <if test="param.nodeType != null">
+            AND p.`node_type` = #{param.nodeType}
+        </if>
+        <if test="param.prodCategoryId != null">
+            AND p.`prod_category_id` = #{param.prodCategoryId}
+        </if>
+        <if test="param.prodBrandId != null">
+            AND p.`prod_brand_id` = #{param.prodBrandId}
+        </if>
+        <if test="param.protocolId != null">
+            AND p.`protocol_id` = #{param.protocolId}
+        </if>
+        <if test="param.status != null">
+            AND p.`status` = #{param.status}
+        </if>
+        <if test="param.prodNamePinyin != null and param.prodNamePinyin != ''">
+            AND p.`prod_name_pinyin` LIKE CONCAT(#{param.prodNamePinyin}, '%')
+        </if>
+        ORDER BY p.`create_time` DESC
+    </select>
+
+    <!-- 查询产品详情(包含属性、事件、方法数量统计) -->
+    <select id="selectProductDetail" resultMap="ProductVOResultMap">
+        SELECT
+            p.`id`,
+            p.`prod_name`,
+            p.`prod_number`,
+            p.`prod_name_pinyin`,
+            p.`prod_category_id`,
+            category.`item_label` AS prod_category_name,
+            category.`item_level_label` AS prod_category_name_chain,
+            p.`node_type`,
+            p.`prod_brand_id`,
+            brand.`item_label` AS prod_brand_name,
+            p.`prod_model`,
+            p.`protocol_id`,
+            protocol.`item_label` AS protocol_name,
+            p.`prod_version`,
+            p.`prod_icon`,
+            p.`prod_pic`,
+            p.`status`,
+            p.`remark`,
+            p.`extend_config`,
+            p.`tenant`,
+            p.`create_by`,
+            p.`create_time`,
+            p.`update_by`,
+            p.`update_time`
+        FROM iot_md_product_v3 p
+        LEFT JOIN iot_sys_dict_item_v3 category ON p.`prod_category_id` = category.`id` AND category.`deleted` = 0
+        LEFT JOIN iot_sys_dict_item_v3 brand ON p.`prod_brand_id` = brand.`id` AND brand.`deleted` = 0
+        LEFT JOIN iot_sys_dict_item_v3 protocol ON p.`protocol_id` = protocol.`id` AND protocol.`deleted` = 0
+        WHERE p.`id` = #{prodId}
+    </select>
+
+</mapper>

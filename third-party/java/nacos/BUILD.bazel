@@ -1,0 +1,88 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "nacos_spring_boot_autoconfigure",
+    actual = "@maven//:com_alibaba_boot_nacos_config_spring_boot_autoconfigure",
+)
+
+alias(
+    name = "nacos_sprint_boot_starter",
+    actual = "@maven//:com_alibaba_boot_nacos_config_spring_boot_starter",
+)
+
+alias(
+    name = "nacos_spring_boot_base",
+    actual = "@maven//:com_alibaba_boot_nacos_spring_boot_base",
+)
+
+java_library(
+    name = "spring_alibaba_nacos_config",
+    exports = [
+        "@maven//:com_alibaba_cloud_spring_alibaba_nacos_config",
+    ],
+)
+
+java_library(
+    name = "nacos_spring_boot",
+    exports = [
+        ":nacos_spring_boot_autoconfigure",
+        ":nacos_spring_boot_base",
+        ":nacos_sprint_boot_starter",
+    ],
+)
+
+alias(
+    name = "nacos_spring_cloud_commons",
+    actual = "@maven//:com_alibaba_cloud_spring_cloud_alibaba_commons",
+)
+
+alias(
+    name = "nacos_spring_cloud_discovery",
+    actual = "@maven//:com_alibaba_cloud_spring_cloud_starter_alibaba_nacos_discovery",
+)
+
+alias(
+    name = "nacos_spring_cloud_config",
+    actual = "@maven//:com_alibaba_cloud_spring_cloud_starter_alibaba_nacos_config",
+)
+
+java_library(
+    name = "nacos_spring_cloud",
+    exports = [
+        ":nacos_spring_cloud_commons",
+        ":nacos_spring_cloud_config",
+        ":nacos_spring_cloud_discovery",
+    ],
+)
+
+alias(
+    name = "nacos_client",
+    actual = "@maven//:com_alibaba_nacos_nacos_client",
+)
+
+java_library(
+    name = "nacos_core",
+    exports = [
+        ":nacos_client",
+    ],
+)
+
+alias(
+    name = "nacos_spring_context",
+    actual = "@maven//:com_alibaba_nacos_nacos_spring_context",
+)
+
+alias(
+    name = "nacos_spring_context_support",
+    actual = "@maven//:com_alibaba_spring_spring_context_support",
+)
+
+java_library(
+    name = "nacos_spring",
+    exports = [
+        ":nacos_spring_context",
+        ":nacos_spring_context_support",
+    ],
+)

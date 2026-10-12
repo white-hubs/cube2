@@ -1,0 +1,146 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.door.server.dao.DoorVisualizationMapper">
+    <select id="getCurrentList" resultType="com.guhecloud.cube.biz.door.server.vo.StatisticalChartDataVO" databaseId="mysql">
+        select
+        <if test="dimension == 'TODAY'">
+            HOUR(a.event_time) as name,
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            DAY(a.event_time) as name,
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            MONTH(a.event_time) as name,
+        </if>
+        count(1) as valus
+        from event_record a
+        where a.event_time between #{date.startTime} and #{date.endTime}
+        and a.door_index_code in
+        <foreach collection="param.deviceCodes" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="param.eventResult !=null and param.eventResult !=''">
+            and a.event_result=#{param.eventResult}
+        </if>
+        <if test="dimension == 'TODAY'">
+            GROUP BY HOUR(a.event_time)
+            order by HOUR(a.event_time)
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            GROUP BY DAY(a.event_time)
+            order by DAY(a.event_time)
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            GROUP BY MONTH(a.event_time)
+            order by MONTH(a.event_time)
+        </if>
+    </select>
+    <select id="getCurrentList" resultType="com.guhecloud.cube.biz.door.server.vo.StatisticalChartDataVO" databaseId="pg">
+        SELECT
+        <choose>
+            <when test="dimension == 'TODAY'">
+                EXTRACT(HOUR FROM a.event_time)::INT AS name
+            </when>
+            <when test="dimension == 'THIS_WEEK' or dimension == 'THIS_MONTH'">
+                EXTRACT(DAY FROM a.event_time)::INT AS name
+            </when>
+            <when test="dimension == 'THIS_YEAR'">
+                EXTRACT(MONTH FROM a.event_time)::INT AS name
+            </when>
+        </choose>
+        ,
+        COUNT(1) AS valus
+        FROM event_record a
+        WHERE a.event_time BETWEEN #{date.startTime} AND #{date.endTime}
+        AND a.door_index_code IN
+        <foreach collection="param.deviceCodes" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="param.eventResult != null and param.eventResult != ''">
+            AND a.event_result = #{param.eventResult}
+        </if>
+        GROUP BY name
+        ORDER BY name
+    </select>
+    <select id="getPreviousList" resultType="java.lang.Integer">
+        select
+        count(1) as value
+        from event_record a
+        where a.event_time between #{date.startTime} and #{date.endTime}
+        and a.door_index_code in
+        <foreach collection="param.deviceCodes" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        <if test="param.eventResult !=null and param.eventResult !=''">
+            and a.event_result=#{param.eventResult}
+        </if>
+    </select>
+    <select id="getDoorThroughTypeCurrent" resultType="com.guhecloud.cube.biz.door.server.vo.PieChartValueVO">
+        SELECT a.event_way as name, count(1) as value
+        FROM `event_record` a
+        inner join door_device b on a.door_index_code=b.out_business_id
+        where a.event_time between #{date.startTime} and #{date.endTime}
+        and b.business_id in
+        <foreach collection="param.businessIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY a.event_way
+    </select>
+    <select id="getDoorAccessSummary" resultType="com.guhecloud.cube.biz.door.server.vo.PieChartValueVO">
+        SELECT event_result as name,count(1) as value
+        FROM `event_record` a
+        where a.event_time between #{date.startTime} and #{date.endTime}
+        and a.door_index_code in
+        <foreach collection="param.thirdPartyIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        group by event_result
+    </select>
+    <select id="getDoorThroughTypePervious" resultType="java.lang.Integer">
+        SELECT in_and_out_type as name, count(1) as value
+        FROM `event_record` a
+        inner join door_device b on a.door_index_code=b.out_business_id
+        where a.event_time between #{date.startTime} and #{date.endTime}
+        and b.business_id in
+        <foreach collection="param.businessIds" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getDoorAnomalousTopCurrent" resultType="com.guhecloud.cube.biz.door.server.vo.PieChartValueVO">
+        SELECT event_name as name,count(1) as value
+        FROM `event_record` a
+        where
+        a.event_time between #{date.startTime} and #{date.endTime}
+        and event_result='DO_REFUSE'
+        and a.door_index_code in
+        <foreach collection="param.deviceCodes" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        GROUP BY event_name
+        ORDER BY COUNT(1) desc
+    </select>
+    <select id="getoutBusinessId" resultType="java.lang.String">
+        select out_business_id
+        from door_device
+        where business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        group by out_business_id
+    </select>
+    <select id="getOnlineDevice" resultType="java.lang.Long">
+        SELECT count(1) as value FROM door_device
+        where business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and status = '1'
+    </select>
+    <select id="getOfflineDevice" resultType="java.lang.Long">
+        SELECT count(1) as value FROM door_device
+        where business_id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        and (status != '1' or status is null)
+    </select>
+</mapper>

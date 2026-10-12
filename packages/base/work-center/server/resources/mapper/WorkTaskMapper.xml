@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.work.center.server.dao.WorkTaskMapper">
+
+    <select id="selectWorkPage" resultType="com.guhecloud.cube.biz.work.center.server.entity.WorkTask">
+        SELECT
+        t1.`id`,
+        t1.`task_name`,
+        t1.`task_time`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t1.`business_key`,
+        t1.`business_type`,
+        t1.`business_type_name`,
+        t1.`business_status`,
+        t1.`business_status_name`,
+        t1.`business_principal`,
+        t1.`status`,
+        t1.`url`,
+        t1.`task_del_state`
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and t1.`status` = 'TODO' and t1.`task_del_state` = 0
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.`task_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.businessTypes != null and param.businessTypes.size() > 0">
+                and t1.`business_type` in
+                <foreach collection="param.businessTypes" item="businessType" separator="," open="(" close=")">
+                    #{businessType}
+                </foreach>
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`task_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`task_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        order by t1.`task_time` DESC
+    </select>
+
+    <select id="selectDonePage" resultType="com.guhecloud.cube.biz.work.center.server.entity.WorkTask">
+        SELECT
+        t1.`id`,
+        t1.`task_name`,
+        t1.`task_time`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t1.`business_key`,
+        t1.`business_type`,
+        t1.`business_type_name`,
+        t1.`business_status`,
+        t1.`business_status_name`,
+        t1.`next_business_status`,
+        t1.`next_business_status_name`,
+        t1.`business_principal`,
+        t1.`handler_time`,
+        t1.`status`,
+        t1.`url`,
+        t1.`task_del_state`
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and t1.`status` = 'DONE' and t2.`status` = 'DONE' and t1.`task_del_state` = 0
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.`task_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.businessTypes != null and param.businessTypes.size() > 0">
+                and t1.`business_type` in
+                <foreach collection="param.businessTypes" item="businessType" separator="," open="(" close=")">
+                    #{businessType}
+                </foreach>
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`task_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`task_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+        order by t1.`task_time` desc
+    </select>
+
+    <select id="selectAllWorkNumTotal" resultType="java.lang.Long">
+        SELECT
+        count(t1.`id`) as total
+        FROM
+        `work_task` t1
+        <where>
+            t1.`status` = 'TODO' and t1.`task_del_state` = 0
+            <if test="period != null and period.begin != null">
+                and t1.`task_time` &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.`task_time` &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectWorkNumTotal" resultType="java.lang.Long">
+        SELECT
+        count(t1.`id`) as total
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and t1.`status` = 'TODO' and t2.`status` = 'TODO' and t1.`task_del_state` = 0
+        </where>
+    </select>
+
+    <select id="selectAllWorkBusinessTypeWorkStatistics"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkBusinessTypeStatisticsVO">
+        SELECT
+        t1.`business_type`,
+        t1.`business_type_name`,
+        count(t1.`id`) as total
+        FROM
+        `work_task` t1
+        <where>
+            t1.`status` = 'TODO' and t1.`task_del_state` = 0
+            <if test="period != null and period.begin != null">
+                and t1.`task_time` &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.`task_time` &lt;= #{period.end}
+            </if>
+        </where>
+        group by t1.`business_type`
+    </select>
+
+    <select id="selectWorkBusinessTypeWorkStatistics"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkBusinessTypeStatisticsVO">
+        SELECT
+        t1.`business_type`,
+        t1.`business_type_name`,
+        count(t1.`id`) as total
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and t1.`status` = 'TODO' and t2.`status` = 'TODO' and t1.`task_del_state` = 0
+        </where>
+        group by t1.`business_type`
+    </select>
+
+    <select id="selectWorkBusinessTypes"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkBusinessTypeVO">
+        SELECT
+        t1.`business_type`,
+        t1.`business_type_name`
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t1.`task_del_state` = 0
+        </where>
+        group by t1.`business_type`
+    </select>
+
+    <select id="selectWorkDoneBusinessTypes"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkBusinessTypeVO">
+        SELECT
+        t1.`business_type`,
+        t1.`business_type_name`
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and t1.`status` = 'DONE'
+        </where>
+        group by t1.`business_type`
+    </select>
+
+    <select id="selectWorkTaskTrendStatistics"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkTaskTrendStatisticsVO">
+        SELECT
+        DATE_FORMAT(t1.`task_time`,'%Y-%m-%d') as period,
+        COUNT(t1.`id`) as total
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t2.`user_id` = #{userId} and ((t1.`status` = 'TODO' and t1.`task_del_state` = 0) or (t1.`status` = 'DONE' and
+            t2.`status` = 'TODO'))
+            <if test="period != null and period.begin != null">
+                and t1.`task_time` &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and t1.`task_time` &lt;= #{period.end}
+            </if>
+        </where>
+        GROUP BY DATE_FORMAT(t1.`task_time`,'%Y-%m-%d')
+    </select>
+    <select id="selectAllowedHandoverTaskList" resultType="java.lang.Integer">
+        SELECT
+        count(DISTINCT ts.id)
+        FROM
+        work_task ts
+        JOIN work_tag_refer_business_type ref ON ts.business_type = ref.business_type
+        JOIN work_tag tt ON tt.`code` = ref.work_tag_code
+        WHERE
+        tt.handover = 1
+        AND ts.id IN
+        <foreach collection="taskIdList" item="workTaskId" open="(" separator="," close=")">
+            #{workTaskId}
+        </foreach>
+    </select>
+    <select id="selectWorkTaskNumTotal" resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkTaskGroupTagVO">
+        SELECT
+        count(DISTINCT t1.`id`) AS number,
+        t3.work_tag_code as type
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 ON t2.`work_task_id` = t1.`id`
+        INNER JOIN work_tag_refer_business_type t3 ON t3.business_type = t1.business_type
+        <where>
+            t1.`task_del_state` = 0
+            <if test="status != null and status != ''">
+                and t2.`status` = #{status}
+            </if>
+            <if test="status != null and status == 'TODO' ">
+                and t1.`status` = #{status}
+            </if>
+            <if test="param.type != null and param.type != ''">
+                and t3.work_tag_code = #{param.type}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`task_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`task_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessTypes != null and param.businessTypes.size() > 0">
+                and t1.`business_type` in
+                <foreach collection="param.businessTypes" item="businessType" separator="," open="(" close=")">
+                    #{businessType}
+                </foreach>
+            </if>
+            <if test="param.userIdList != null and param.userIdList.size() > 0">
+                and t2.`user_id` in
+                <foreach collection="param.userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        t3.work_tag_code
+    </select>
+    <select id="selectWorkTaskNumBatch"
+            resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkTaskBatchGroupTagVO">
+        SELECT
+        `scope`.`group_id` AS `groupId`,
+        COUNT(DISTINCT `task`.`id`) AS `number`,
+        COUNT(DISTINCT CASE WHEN `person`.`status` = 'DONE' THEN `task`.`id` END) AS `doneNumber`,
+        `tag_ref`.`work_tag_code` AS `type`
+        FROM (
+            <foreach collection="param.userIdMap" index="groupId" item="userIds" separator=" UNION ALL ">
+                <foreach collection="userIds" item="userId" separator=" UNION ALL ">
+                    SELECT #{groupId} AS `group_id`, #{userId} AS `user_id`
+                </foreach>
+            </foreach>
+        ) `scope`
+        INNER JOIN `work_person` `person` ON `person`.`user_id` = `scope`.`user_id`
+        INNER JOIN `work_task` `task` ON `task`.`id` = `person`.`work_task_id`
+        INNER JOIN `work_tag_refer_business_type` `tag_ref`
+            ON `tag_ref`.`business_type` = `task`.`business_type`
+        <where>
+            `task`.`task_del_state` = 0
+            <if test="param.type != null and param.type != ''">
+                AND `tag_ref`.`work_tag_code` = #{param.type}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                AND `task`.`task_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                AND `task`.`task_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.businessTypes != null and param.businessTypes.size() > 0">
+                AND `task`.`business_type` IN
+                <foreach collection="param.businessTypes" item="businessType" separator="," open="(" close=")">
+                    #{businessType}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY `scope`.`group_id`, `tag_ref`.`work_tag_code`
+    </select>
+    <select id="selectTask" resultType="com.guhecloud.cube.biz.work.center.server.vo.WorkTaskPageVO">
+        SELECT
+        t1.`id`,
+        t1.`task_name`,
+        t1.`task_time`,
+        t1.`application_code`,
+        t1.`application_name`,
+        t1.`business_key`,
+        t1.`business_type`,
+        t1.`business_type_name`,
+        t1.`business_status`,
+        t1.`business_status_name`,
+        t1.`business_principal`,
+        t1.`handler_time`,
+        t2.`status`,
+        t1.`url`,
+        t1.`task_del_state`
+        FROM
+        `work_task` t1
+        INNER JOIN `work_person` t2 on t1.`id` = t2.`work_task_id`
+        <where>
+            t1.`task_del_state` = 0
+            <if test="param.taskStatus != null and param.taskStatus != ''">
+                and t2.`status` = #{param.taskStatus}
+            </if>
+            <if test="param.taskStatus != null and param.taskStatus == 'TODO' ">
+                and t1.`status` = #{param.taskStatus}
+            </if>
+            <if test="param.status != null and param.status != ''">
+                and t1.`business_status_name` = #{param.status}
+            </if>
+            <if test="param.createBy != null and param.createBy != ''">
+                and t1.`create_by` = #{param.createBy}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.`task_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.businessTypes != null and param.businessTypes.size() > 0">
+                and t1.`business_type` in
+                <foreach collection="param.businessTypes" item="businessType" separator="," open="(" close=")">
+                    #{businessType}
+                </foreach>
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t1.`task_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t1.`task_time` &lt;= #{param.period.end}
+            </if>
+            <if test="param.userIdList != null and param.userIdList.size() > 0">
+                and t2.`user_id` in
+                <foreach collection="param.userIdList" item="userId" separator="," open="(" close=")">
+                    #{userId}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY t1.`id`
+        order by t1.`task_time` desc
+    </select>
+    <select id="selectHandoverRecordTenant" resultType="java.lang.Integer">
+             select distinct tenant from handover_record
+    </select>
+    <select id="getOverdueTask" resultType="com.guhecloud.cube.biz.work.center.server.vo.HandoverRecordVO">
+        SELECT
+        hr.`id`,
+        hr.`record_name` AS recordName,
+        hr.`task_num` AS taskNum,
+        hr.`shift_over_time` AS shiftOverTime,
+        hr.`shift_over_user` AS shiftOverUserId,
+        hr.`take_over_user` AS takeOverUserId,
+        hr.`take_over_time` AS takeOverTime,
+        hr.`status`
+        FROM `handover_record` hr
+        <where>
+            hr.`status` = 'WAIT_HANDOVER'
+            <if test="period != null and period.begin != null">
+                AND DATE_ADD(hr.`create_time`, INTERVAL IFNULL(#{value}, 0) MINUTE) &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                AND DATE_ADD(hr.`create_time`, INTERVAL IFNULL(#{value}, 0) MINUTE) &lt;= #{period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

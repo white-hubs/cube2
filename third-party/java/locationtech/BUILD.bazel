@@ -1,0 +1,8 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "jts_core",
+    actual = "@maven//:org_locationtech_jts_jts_core",
+)

@@ -1,0 +1,82 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dao.InformationPlanMapper">
+
+    <select id="getInformationPlanPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.vo.InformationPlanVO">
+        SELECT
+        a.`id`, a.`plan_name`, a.`plan_start_time`, a.`plan_end_time`,a.`open_time`,a.`close_time`,a.`is_enable`,
+        a.`open_job_task_id`,a.`close_job_task_id`,a.`tenant`, a.`deleted`,a.`create_by`, a.`create_time`,a.`update_by`, a.`update_time`
+        FROM
+        `information_plan` a
+        where a.`deleted` = 0
+        <if test="param.isEnable !=null and param.isEnable !=''">
+            and a.`is_enable` = #{param.isEnable}
+        </if>
+        <if test="param.planName !=null and param.planName !=''">
+            and a.`plan_name` like concat('%', #{param.planName}, '%')
+        </if>
+        order by a.`create_time` DESC
+    </select>
+    <select id="getInformationPlanListNeedStart"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dto.InformationPlanDTO">
+        SELECT
+        a.`id`, a.`plan_name`, a.`plan_start_time`, a.`plan_end_time`,a.`open_time`,a.`close_time`,a.`is_enable`,a.`execution_cycle`,
+        a.`open_job_task_id`,a.`close_job_task_id`,a.`tenant`, a.`deleted`,a.`create_by`, a.`create_time`,a.`update_by`, a.`update_time`
+        FROM
+        `information_plan` a
+        where a.`deleted` = 0
+            and a.`is_enable` = #{param.isEnable}
+            and a.`plan_start_time` &lt;= #{nowDate} and a.`plan_end_time` &gt;= #{nowDate}
+        order by a.`create_time` DESC
+    </select>
+    <select id="getInformationPlanListNeedStop"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dto.InformationPlanDTO">
+        SELECT
+        a.`id`, a.`plan_name`, a.`plan_start_time`, a.`plan_end_time`,a.`open_time`,a.`close_time`,a.`is_enable`,a.`execution_cycle`,
+        a.`open_job_task_id`,a.`close_job_task_id`,a.`tenant`, a.`deleted`,a.`create_by`, a.`create_time`,a.`update_by`, a.`update_time`
+        FROM
+        `information_plan` a
+        where a.`deleted` = 0
+            and a.`is_enable` = #{param.isEnable}
+            and a.`plan_start_time` &gt;= #{nowDate} and a.`plan_end_time` &lt;= #{nowDate}
+        order by a.`create_time` DESC
+    </select>
+    <select id="getUnusedDevicePage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.SecurityDeviceInfoVO">
+        SELECT
+        a.`id`,
+        a.`code`,
+        a.`area_name` `areaName`,
+        a.`brand_code` `brandCode`,
+        a.`device_id` `deviceId`,
+        a.`device_name` `deviceName`,
+        a.`area_id` `areaId`,
+        a.`area_name` `areaName`,
+        a.`device_prod_name` `deviceProdName`,
+        a.`device_prod_category_name` `deviceProdCategoryName`,
+        a.`device_prod_category_code` `deviceProdCategoryCode`,
+        a.`device_prod_id` `deviceProdId`,
+        a.`device_status` `deviceStatus`,
+        a.`code` `deviceCode`,
+        a.`third_party_id` `thirdPartyId`,
+        a.`lnt_and_lat` `lntAndLat`,
+        a.`communication_status` `communicationStatus`,
+        a.`brand_name` `brandName`
+        FROM
+        `security_device` a
+        where a.`deleted` = 0
+        <if test="param.applicationCode !=null and param.applicationCode !=''">
+            and a.`application_code` =#{param.applicationCode}
+        </if>
+        and not exists(select a.`id` from `info_screen_schedule_assoc` issa where a.`id` = issa.`security_device_id`)
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (
+            a.`code` like concat('%', #{param.keyword}, '%')
+            or a.`device_name` like concat('%', #{param.keyword}, '%')
+            or a.`device_prod_name` like concat('%', #{param.keyword}, '%')
+            or a.`area_name` like concat('%', #{param.keyword}, '%')
+            or a.`brand_name` like concat('%', #{param.keyword}, '%')
+            )
+        </if>
+    </select>
+</mapper>

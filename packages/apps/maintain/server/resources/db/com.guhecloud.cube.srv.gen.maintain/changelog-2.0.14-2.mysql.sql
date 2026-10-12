@@ -1,0 +1,1 @@
+ALTER TABLE `cube-srv-gen-maintain`.`inspect_record_item` MODIFY COLUMN `standard_name` varchar(256) DEFAULT NULL COMMENT '巡检标准名称';

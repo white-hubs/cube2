@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.customized.youxianqu.park.management.server.rent.mapper.RentRecordMapper">
+
+    <select id="RentRecordEqStatusAreaStat"
+            resultType="com.guhecloud.cube.customized.youxianqu.park.management.server.rent.dto.RentRecordAreaSumDTO">
+        select STATUS, sum(ROOM_AREA_CALCULATE)
+        from V_ZHYQ_YQWY_ROOM_RENT_VIEW
+        <where>
+            <if test="status != null and status != ''">
+                and STATUS = #{status}
+            </if>
+        </where>
+    </select>
+
+    <select id="RentRecordNeStatusAreaStat"
+            resultType="com.guhecloud.cube.customized.youxianqu.park.management.server.rent.dto.RentRecordAreaSumDTO">
+        select status, sum(ROOM_AREA_CALCULATE) as roomAreaCalculate
+        from V_ZHYQ_YQWY_ROOM_RENT_VIEW
+        <where>
+            <if test="status != null and status != ''">
+                and STATUS = #{status}
+            </if>
+        </where>
+    </select>
+</mapper>

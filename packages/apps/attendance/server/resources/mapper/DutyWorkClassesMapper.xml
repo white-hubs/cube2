@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.arrange.dao.DutyWorkClassesMapper">
+
+    <select id="getUserClassesByDay" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.domain.classes.Classes">
+        select
+        dwc.`id`,
+        dwc.`classes_id`,
+        dwc.`name`,
+        dwc.`start_work_time`,
+        dwc.`end_work_time`
+        from `duty_work` dw
+        INNER JOIN  `duty_work_classes` dwc ON dw.`duty_work_classes_ids` LIKE CONCAT('%',dwc.`id','%')
+        where 1=1
+        <if test="userId != null">
+            AND dw.`staff_id` = #{userId}
+        </if>
+        <if test="date != null">
+            AND dw.`date` = #{date}
+        </if>
+    </select>
+
+    <select id="getNoUseWorkClasses" resultType="java.lang.Long">
+        SELECT
+            dwc.`id`
+        FROM
+            `duty_work_classes` dwc
+            LEFT JOIN `duty_work` dw ON dw.`duty_work_classes_ids` LIKE CONCAT( '%', dwc.`id`, '%' )
+        WHERE
+            dw.id IS NULL
+    </select>
+
+</mapper>

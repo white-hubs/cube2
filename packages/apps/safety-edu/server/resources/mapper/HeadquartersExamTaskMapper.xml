@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.infrastructure.repository.mapper.HeadquartersExamTaskMapper">
+
+    <select id="selectExamTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.HeadquartersExamTaskVO">
+        SELECT
+        et.id,
+        et.`name`,
+        et.theme_id,
+        et.theme_name,
+        et.exam_start_time,
+        et.exam_end_time,
+        et.exam_paper_id,
+        et.exam_paper_name,
+        et.charge_user_id,
+        et.charge_user_name,
+        et.timed,
+        et.exam_duration,
+        et.exam_duration_unit,
+        et.retake,
+        et.retake_number,
+        et.exam_task_type,
+        et.exam_user_number,
+        et.exam_task_status,
+        et.remark
+        FROM
+        headquarters_exam_task et
+        LEFT JOIN theme t on et.theme_id = t.id
+        <where>
+            et.deleted = 0
+            <if test="query.keyword != null and query.keyword != ''">
+                and (et.name like concat('%',#{query.keyword},'%')
+                or
+                t.name like concat('%',#{query.keyword},'%')
+                or
+                et.theme_name like concat('%',#{query.keyword},'%')
+                )
+            </if>
+            <if test="query.examTaskType != null ">
+                and et.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examTaskStatus != null ">
+                and et.exam_task_status = #{query.examTaskStatus}
+            </if>
+            <if test="query.themeId != null">
+                and et.theme_id = #{query.themeId}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and et.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and et.exam_start_time &lt;= #{query.period.end}
+            </if>
+        </where>
+        order by et.exam_start_time desc
+    </select>
+
+    <resultMap id="ExamTaskUserRecordVOMap"
+               type="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO">
+        <id column="id" property="id"/>
+        <result column="user_name" property="name"/>
+        <result column="user_department_name" property="departmentName"/>
+        <result column="user_post_name" property="postName"/>
+        <association property="market"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamMarketInfoVO">
+            <result column="market_tenant" property="marketTenant"/>
+            <result column="market_name" property="marketName"/>
+        </association>
+        <association property="userExamPaper"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamUserPaperInfoVO">
+            <result column="score" property="score"/>
+            <result column="exam_status" property="status"/>
+            <result column="passed" property="passed"/>
+        </association>
+        <association property="userExamTime"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamTimeInfoVO">
+            <result column="user_exam_begin_time" property="startTime"/>
+            <result column="user_exam_end_time" property="endTime"/>
+            <result column="exam_duration" property="duration"/>
+        </association>
+        <association property="examTask"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamTaskInfoVO">
+            <result column="task_name" property="name"/>
+            <result column="charge_user_name" property="chargeUserName"/>
+            <result column="source_key" property="sourceKey"/>
+            <result column="theme_name" property="themeName"/>
+        </association>
+        <association property="examPaper"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamPaperInfoVO">
+            <result column="total_score" property="score"/>
+            <result column="exam_paper_passing_grade_score" property="gradeScore"/>
+        </association>
+        <association property="examTime"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordVO$ExamTimeInfoVO">
+            <result column="exam_start_time" property="startTime"/>
+            <result column="exam_end_time" property="endTime"/>
+        </association>
+    </resultMap>
+
+    <select id="selectExamTaskUserRecordPage"
+            resultMap="ExamTaskUserRecordVOMap">
+        SELECT
+        t1.id,
+        t1.user_name,
+        t1.user_department_name,
+        t1.user_post_name,
+        t2.market_tenant,
+        t5.market_name,
+        t3.exam_time as user_exam_begin_time,
+        t3.exam_submitted_time as user_exam_end_time,
+        t3.exam_duration,
+        t1.score,
+        t1.exam_status,
+        t1.passed,
+        t2.`name` as task_name,
+        t2.theme_name,
+        t2.charge_user_name,
+        t2.exam_start_time,
+        t2.exam_end_time,
+        t2.source_key,
+        t4.exam_paper_score as total_score,
+        t4.exam_paper_passing_grade_score
+        FROM
+        exam_task_user t1
+        LEFT JOIN exam_task t2 on t1.exam_task_id = t2.id
+        LEFT JOIN exam_task_user_record t3 on t1.user_exam_task_record_id = t3.id
+        LEFT JOIN exam_task_paper t4 on t1.exam_task_id = t4.exam_task_id and t3.exam_paper_id = t4.exam_paper_id
+        LEFT JOIN headquarters_exam_task_market t5 on t2.source_key = t5.headquarters_exam_task_id  AND t2.market_tenant = t5.market_tenant_code
+        <where>
+            t1.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and t1.user_name like concat('%',#{query.keyword},'%')
+            </if>
+            <if test="query.examTaskId != null">
+                and t1.exam_task_id = #{query.examTaskId}
+            </if>
+            <if test="query.themeId != null">
+                and t2.theme_id = #{query.themeId}
+            </if>
+            <if test="query.examTaskType != null">
+                and t2.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examStatus != null">
+                and t1.exam_status = #{query.examStatus}
+            </if>
+            <if test="query.marketTenant != null">
+                and t2.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and t2.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and t2.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.passed != null">
+                and t1.passed = #{query.passed}
+            </if>
+        </where>
+        GROUP BY t1.id
+        order by t1.create_time desc
+    </select>
+
+    <select id="selectExamUserRecordExport"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.exam.interfaces.vo.ExamTaskUserRecordExportVO">
+        SELECT
+        t1.id,
+        t1.user_name as `name`,
+        t1.user_department_name as department_name,
+        t1.user_post_name as post_name,
+        t2.market_tenant,
+        t5.market_name,
+        t3.exam_time AS user_exam_start_time,
+        t3.exam_submitted_time AS user_exam_end_time,
+        t3.exam_duration as duration,
+        t1.score,
+        t1.exam_status as `status`,
+        t1.passed,
+        t2.`name` AS task_name,
+        t2.theme_name,
+        t2.charge_user_name,
+        t2.exam_start_time,
+        t2.exam_end_time,
+        t2.source_key,
+        t4.exam_paper_score AS paper_score,
+        t4.exam_paper_passing_grade_score as paper_grade_score
+        FROM
+        exam_task_user t1
+        LEFT JOIN exam_task t2 ON t1.exam_task_id = t2.id
+        LEFT JOIN exam_task_user_record t3 ON t1.user_exam_task_record_id = t3.id
+        LEFT JOIN exam_task_paper t4 ON t1.exam_task_id = t4.exam_task_id and t3.exam_paper_id = t4.exam_paper_id
+        LEFT JOIN headquarters_exam_task_market t5 on t2.source_key = t5.headquarters_exam_task_id AND t2.market_tenant = t5.market_tenant_code
+        <where>
+            t1.tenant = #{tenant}
+            <if test="query.keyword != null and query.keyword != ''">
+                and t1.user_name like concat('%',#{query.keyword},'%')
+            </if>
+            <if test="query.examTaskId != null">
+                and t1.exam_task_id = #{query.examTaskId}
+            </if>
+            <if test="query.themeId != null">
+                and t2.theme_id = #{query.themeId}
+            </if>
+            <if test="query.examTaskType != null">
+                and t2.exam_task_type = #{query.examTaskType}
+            </if>
+            <if test="query.examStatus != null">
+                and t1.exam_status = #{query.examStatus}
+            </if>
+            <if test="query.marketTenant != null">
+                and t2.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null and query.period.begin != null">
+                and t2.exam_start_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and t2.exam_start_time &lt;= #{query.period.end}
+            </if>
+            <if test="query.passed != null">
+                and t1.passed = #{query.passed}
+            </if>
+        </where>
+        GROUP BY t1.id
+        order by t1.create_time desc
+    </select>
+</mapper>

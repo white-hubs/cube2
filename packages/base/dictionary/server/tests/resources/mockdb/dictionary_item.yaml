@@ -1,0 +1,6 @@
+- id: 1
+  code: TypeA
+  remarks: Type A
+- id: 2
+  code: TypeB
+  remarks: Type B

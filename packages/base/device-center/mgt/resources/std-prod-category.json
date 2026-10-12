@@ -1,0 +1,158 @@
+[
+  {
+    "categoryName": "人员通行",
+    "level": "A001",
+    "sub": [
+      { "categoryName": "人脸门禁", "level": "A001001" },
+      { "categoryName": "人脸识别机", "level": "A001002" },
+      { "categoryName": "密码门禁", "level": "A001003" },
+      { "categoryName": "门禁", "level": "A001004" },
+      { "categoryName": "闸机", "level": "A001005" },
+      { "categoryName": "考勤机", "level": "A001006" }
+    ]
+  },
+  {
+    "categoryName": "车辆管理",
+    "level": "A002",
+    "sub": [
+      { "categoryName": "道闸一体机", "level": "A002001" },
+      { "categoryName": "车位传感器", "level": "A002002" },
+      { "categoryName": "车位引导类设备", "level": "A002003" }
+    ]
+  },
+  {
+    "categoryName": "视频监控",
+    "level": "A003",
+    "sub": [
+      { "categoryName": "摄像机", "level": "A003001" },
+      { "categoryName": "高清枪式摄像机", "level": "A003002" },
+      { "categoryName": "高清半球摄像机", "level": "A003003" },
+      { "categoryName": "高清球式摄像机", "level": "A003004" },
+      { "categoryName": "NVR/DVR", "level": "A003005" }
+    ]
+  },
+  {
+    "categoryName": "环境广播",
+    "level": "A004",
+    "sub": [
+      { "categoryName": "功放", "level": "A004001" },
+      { "categoryName": "扬声器/扬声器回路", "level": "A004002" },
+      { "categoryName": "控制主机", "level": "A004003" }
+    ]
+  },
+  {
+    "categoryName": "照明系统",
+    "level": "A005",
+    "sub": [
+      { "categoryName": "照明回路", "level": "A005001" },
+      { "categoryName": "控制设备", "level": "A005002" }
+    ]
+  },
+  {
+    "categoryName": "电力与变配电",
+    "level": "A006",
+    "sub": [
+      { "categoryName": "功率补偿柜", "level": "A006001" },
+      { "categoryName": "变压器及温控", "level": "A006002" },
+      { "categoryName": "配电柜/箱", "level": "A006003" },
+      { "categoryName": "电力监测点", "level": "A006004" }
+    ]
+  },
+  {
+    "categoryName": "备用动力设备",
+    "level": "A007",
+    "sub": [
+      { "categoryName": "UPS", "level": "A007001" },
+      { "categoryName": "电池组", "level": "A007002" },
+      { "categoryName": "发电机组", "level": "A007003" }
+    ]
+  },
+  {
+    "categoryName": "能源监测",
+    "level": "A008",
+    "sub": [
+      { "categoryName": "水表", "level": "A008001" },
+      { "categoryName": "电表", "level": "A008002" },
+      { "categoryName": "气表", "level": "A008003" },
+      { "categoryName": "冷/热能表", "level": "A008004" }
+    ]
+  },
+  {
+    "categoryName": "消防安全",
+    "level": "A009",
+    "sub": [
+      { "categoryName": "消防主机", "level": "A009001" },
+      { "categoryName": "可燃物探测器", "level": "A009002" },
+      { "categoryName": "感烟探测器", "level": "A009003" },
+      { "categoryName": "温感探测器", "level": "A009004" },
+      { "categoryName": "手动报警器", "level": "A009005" },
+      { "categoryName": "防火卷帘门", "level": "A009006" },
+      { "categoryName": "消防喷淋设备", "level": "A009007" },
+      { "categoryName": "消火栓", "level": "A009008" },
+      { "categoryName": "消防水泵", "level": "A009009" },
+      { "categoryName": "声光报警器", "level": "A009010" },
+      { "categoryName": "消防水压传感器", "level": "A009011" }
+    ]
+  },
+  {
+    "categoryName": "信息显示",
+    "level": "A010",
+    "sub": [
+      { "categoryName": "显示屏", "level": "A010001" },
+      { "categoryName": "电子信息显示机柜", "level": "A010002" }
+    ]
+  },
+  {
+    "categoryName": "通风与空调",
+    "level": "A011",
+    "sub": [
+      { "categoryName": "通风设备", "level": "A011001" },
+      { "categoryName": "空调", "level": "A011002" },
+      { "categoryName": "大型空调/环境冷热源", "level": "A011003" }
+    ]
+  },
+  {
+    "categoryName": "入侵报警系统",
+    "level": "A012",
+    "sub": [
+      { "categoryName": "报警点", "level": "A012001" },
+      { "categoryName": "区域感知", "level": "A012002" }
+    ]
+  },
+  {
+    "categoryName": "电梯与控制系统",
+    "level": "A013",
+    "sub": [
+      { "categoryName": "液压电梯", "level": "A013001" },
+      { "categoryName": "曳引式电梯", "level": "A013002" },
+      { "categoryName": "自动扶梯、人行道", "level": "A013003" },
+      { "categoryName": "梯控设备", "level": "A013004" }
+    ]
+  },
+  {
+    "categoryName": "网络通信类设备",
+    "level": "A014",
+    "sub": [
+      { "categoryName": "网络路由类设备", "level": "A014001" },
+      { "categoryName": "网络交换类设备", "level": "A014002" },
+      { "categoryName": "无线AP/AC", "level": "A014003" },
+      { "categoryName": "物联协议网关", "level": "A014004" }
+    ]
+  },
+  {
+    "categoryName": "通用传感器",
+    "level": "A015",
+    "sub": [
+      { "categoryName": "温湿度", "level": "A015001" },
+      { "categoryName": "空气质量", "level": "A015002" },
+      { "categoryName": "水浸/漏水", "level": "A015003" }
+    ]
+  },
+  {
+    "categoryName": "智能分析类",
+    "level": "A016",
+    "sub": [
+      { "categoryName": "视频辅助", "level": "A016001" }
+    ]
+  }
+]

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.deliver.project.merchant.mapper.SpaceMapper">
+    <select id="getQuestionnaire" resultType="com.guhecloud.cube.deliver.project.merchant.dto.KeyValueDTO">
+        SELECT d.name AS name, count(1) as `value`
+        FROM `wholesaler_questionnaire` a
+                 inner join wholesaler_relationship b on a.id = b.business_id
+                 inner join space c on b.stall_id = c.id
+                 inner join company d on c.company_id=d.id
+        where a.create_time BETWEEN #{period.begin} AND #{period.end}
+        GROUP BY stall_id
+    </select>
+    <select id="getContractCountd" resultType="com.guhecloud.cube.deliver.project.merchant.dto.KeyValueDTO">
+        select b.`name` as name, count(1) as `value`
+        from wholesaler_contract a
+                 inner join wholesaler_contract_type b on a.contract_type_id = b.id
+        where a.create_time BETWEEN #{period.begin} AND #{period.end}
+        GROUP BY a.contract_type_id
+    </select>
+    <select id="getOperatingPrice" resultType="com.guhecloud.cube.deliver.project.merchant.dto.OperatingPriceDTO">
+        SELECT DISTINCT s.`name` as deviceName,
+                        c.`name` AS companyName,
+                        c.`owner`,
+                        e.z_score_avg,
+                        e.s_score_avg,
+                        e.t_score_avg,
+                        e.w_score_avg,
+                        e.honesty_score
+        FROM company c
+                 inner JOIN space s ON s.company_id = c.id
+                 left JOIN stall_evaluation e ON s.id = e.stall_id
+    </select>
+    <select id="getOperatingProportion" resultType="com.guhecloud.cube.deliver.project.merchant.dto.KeyValueDTO">
+        SELECT #{type}  as name,
+                        count(1) as `value`
+        FROM stall_evaluation_record c
+        where examine_status = 1
+        GROUP BY #{type}
+    </select>
+    <select id="safeProductionByProportion" resultType="com.guhecloud.cube.deliver.project.merchant.dto.KeyValueDTO">
+        select 100 - IFNULL(sum(b.item_result_mark), 0) `name`, count(1) `value`
+        from space a
+                 left join stall_safety_insp b on a.id = b.stall_id
+        where a.deleted = false
+    </select>
+</mapper>

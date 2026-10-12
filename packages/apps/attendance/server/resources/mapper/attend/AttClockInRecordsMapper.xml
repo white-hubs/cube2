@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.mapper.AttClockInRecordsMapper">
+    <resultMap id="getClockInInfoByUser" type="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.interfaces.result.ClockInInfoClassesResult">
+        <result property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="startWorkTime" column="start_work_time"/>
+        <result property="endWorkTime" column="end_work_time"/>
+        <collection property="records" javaType="java.util.List" ofType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.interfaces.result.ClockInRecordsResult">
+            <result column="clock_type" property="clockType"/>
+            <result column="state" property="state"/>
+            <result column="actual_clock_in_time" property="actualClockInTime"/>
+        </collection>
+    </resultMap>
+    <select id="getClockInInfoByUser" resultMap="getClockInInfoByUser">
+        SELECT b.`classes_id` as `id`,
+               b.`name`,
+               b.`start_work_time`,
+               b.`end_work_time`,
+               a.`state`,
+               a.`clock_type`,
+               a.`actual_clock_in_time`
+        FROM `att_clock_in_records` a
+                 INNER JOIN `att_classes_record` b ON a.`classes_id` = b.`classes_id`
+            AND a.`classes_version` = b.`version`
+        where a.`clock_in_date` = #{clockInDate}
+          and a.`user_id` = #{userId}
+          and a.`clock_type` in ('START', 'END')
+        order by require_clock_in_time,clock_type desc
+    </select>
+    <select id="getRecordsByClock" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.foundation.infrastructure.po.AttClassesRecordPO">
+        SELECT b.* FROM `att_clock_in_records` a
+        inner join `att_classes_record` b on a.`classes_id`=b.`classes_id` and a.`classes_version`=b.`version`
+        where a.`id`=#{clockInId}
+    </select>
+    <select id="getClockInInAbnormalfoByUser" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInRecordsPO">
+        select * from `att_clock_in_records`
+        where `user_id`=#{userId}
+          and `clock_in_date`=#{clockInDate}
+          and `state` in ('EARLY_CHECKED','LATE_CHECKED','LACK_CHECKED')
+          and `clock_type` in ('START','END')
+        limit 1
+    </select>
+    <select id="getClockInInNormalByUser" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInRecordsPO">
+        select * from att_clock_in_records
+        where `user_id`=#{userId}
+          and `clock_in_date`=#{clockInDate}
+          and `state` = 'NORMAL'
+          and `clock_type` in ('START','END')
+            limit 1
+    </select>
+    <select id="getAllByCorrect" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInRecordsPO">
+        select `user_id`,`user_name`,`clock_in_date`,`clock_type`,`state`,count(1) as `num` from `att_clock_in_records`
+        where `clock_type`='START' and `deleted`=0
+        GROUP BY `user_name`,`clock_in_date`,`classes_id`,`clock_type`
+        HAVING `num`>1
+    </select>
+    <select id="getClockInInByUserIdAndTime" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.clockin.infrastructure.po.AttClockInRecordsPO">
+        SELECT * FROM `att_clock_in_records`
+        where `user_id`=#{userId} and `clock_after_time` &lt;= #{clockInTime}
+        and `clock_type`='START'
+        ORDER BY `clock_after_time` desc
+        limit 1
+    </select>
+</mapper>

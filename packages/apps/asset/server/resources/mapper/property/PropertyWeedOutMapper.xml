@@ -1,0 +1,71 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.property.dao.dispose.PropertyWeedOutMapper">
+    <resultMap id="getPropertyWeedOutPage"
+               type="com.guhecloud.cube.property.management.client.property.vo.property.PropertyWeedOutPageVO">
+        <id column="id" property="id"></id>
+        <result column="weed_out_user_id" property="weedOutUserId"></result>
+        <result column="manage_time" property="manageTime"></result>
+        <result column="cause_id" property="causeId"></result>
+        <result column="overdue" property="overdue"></result>
+        <result column="weed_out_numbers" property="weedOutNumbers"></result>
+        <result column="status" property="status"></result>
+        <result column="remarks" property="remarks"></result>
+        <result column="process_instance_id" property="processInstanceId"></result>
+    </resultMap>
+    <select id="getPropertyWeedOutPage" resultMap="getPropertyWeedOutPage">
+        select a.id,
+        a.weed_out_user_id,
+        a.manage_time,
+        a.cause_id,
+        a.overdue,
+        a.remarks,
+        a.files,
+        a.deleted,
+        a.create_by,
+        a.create_time,
+        a.update_by,
+        a.update_time,
+        a.tenant,
+        a.weed_out_numbers,
+        a.status,
+        a.process_instance_id
+        from property_weed_out a
+        inner join property_weed_out_relation b on a.id=b.weed_out_id
+        inner join property_detailed c on b.property_id=c.id
+        <where>
+            <if test="param.manageTime !=null">
+                a.manage_time =#{param.manageTime}
+            </if>
+            <if test="param.causeId !=null">
+                and a.cause_id =#{param.causeId}
+            </if>
+            <if test="param.typeId !=null">
+                and c.type_id =#{param.typeId}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and a.status =#{param.status}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and (
+                c.name like concat('%',#{param.keyword},'%')
+                or a.weed_out_numbers like concat('%',#{param.keyword},'%')
+                )
+            </if>
+        </where>
+        group by a.id
+        order by a.manage_time desc,create_time desc
+    </select>
+    <select id="propertyDetailed"
+            resultType="com.guhecloud.cube.property.management.client.property.vo.property.PropertyDetailedVO">
+        select a.*
+        from property_detailed a
+        inner join property_weed_out_relation b on a.id = b.property_id
+        where b.weed_out_numbers = #{weedOutNumbers}
+        <if test="keyword != null and keyword != ''">
+            and (
+            a.name like concat('%',#{keyword},'%')
+            or a.serial_number like concat('%',#{keyword},'%')
+            )
+        </if>
+    </select>
+</mapper>

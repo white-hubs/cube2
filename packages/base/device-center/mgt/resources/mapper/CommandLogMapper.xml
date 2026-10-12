@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.base.mapper.CommandLogMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.base.model.CommandLog">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="instance_id" jdbcType="VARCHAR" property="instanceId" />
+        <result column="cmd_seq" jdbcType="VARCHAR" property="cmdSeq" />
+        <result column="log_content" jdbcType="VARCHAR" property="logContent" />
+        <result column="tenant" jdbcType="INTEGER" property="tenant" />
+        <result column="deleted" jdbcType="BIGINT" property="deleted" />
+        <result column="create_by" jdbcType="VARCHAR" property="createBy" />
+        <result column="creator_id" jdbcType="VARCHAR" property="creatorId" />
+        <result column="creator_type" jdbcType="VARCHAR" property="creatorType" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_by" jdbcType="VARCHAR" property="updateBy" />
+        <result column="updater_id" jdbcType="VARCHAR" property="updaterId" />
+        <result column="updater_type" jdbcType="VARCHAR" property="updaterType" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, instance_id, cmd_seq, log_content, tenant, deleted, create_by, creator_id, creator_type, create_time, update_by,
+        updater_id, updater_type, update_time
+    </sql>
+</mapper>

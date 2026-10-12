@@ -1,0 +1,32 @@
+provider: DICT  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+isPartialMode: True
+useBuiltinConfig: False
+isFailureOnMissingProvider: True # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+  - configType: DictType  # 需要的配置能力类型
+    version: 1.0 # 配置能力描述使用的版本号
+    # 是否本配置项必选(必须配置成功, 失败则终止配置报错) 缺省为True
+    isMandatory: True
+    # tenants: all # 适用的租户, 可以是all, 或 tenantId数组, 或','分割的tenantId字符串. 为空(无key, null, 空白, 空集合) 都代表着是系统模式.
+    # 匿名参数是数组, 数组元素的类型依赖于特定的模块支持的能力, 允许是数组,对象.
+    vargs: [{"code":"TypeA","remark":""}, {"code":"TypeB"}]
+  - configType: DictEntry  # 应用于所有租户, 添加配置型参数样例
+    isMandatory: True
+    tenants: all
+    kwargs:  # 命名参数, 可以为空
+      dictType: TypeA  # dictType 是能力提供方提供的配置命令的参数
+    vargs: ["item1", "item2", "item3"] # 匿名参数, 实际是否可以考虑把匿名参数作为命名参数的特例?
+  - configType: DictEntry  # 应用于所有租户, 添加配置型参数样例
+    isMandatory: True
+    tenants: "1,2"
+    kwargs:  # 命名参数, 可以为空
+      dictType: TypeA  # dictType 是能力提供方提供的配置命令的参数
+    vargs: ["item3", "item4", "item5"] # 匿名参数, 实际是否可以考虑把匿名参数作为命名参数的特例?
+  - configType: DictEntry  # 删除型配置样例
+    isMandatory: True
+    tenants: [1,2]
+    isRemoval: True
+    kwargs:   # 用例: k-v mapps,  验证size.
+      dictType: TypeB  # dictType 是能力提供方提供的配置命令的参数
+      order: 1   #
+    vargs: [{"code":"item1", "name": 1.1}, "item2", "item3"]  # 用例: 测试vargs解析, 验证vargs size,

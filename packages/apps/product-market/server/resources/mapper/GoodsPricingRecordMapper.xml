@@ -1,0 +1,91 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.product.market.server.pricing.dao.GoodsPricingRecordMapper">
+
+    <!-- 品类价格统计 -->
+    <select id="getGoodsPriceStat"
+            resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.GoodsPriceStatVO">
+        select c.id as goodsCategoryId,c.name as goodsCategoryName,
+        ROUND(AVG(r.max_price),2) as maxPriceAvg,
+        ROUND(AVG(r.mid_price),2) as midPriceAvg,
+        ROUND(AVG(r.min_price),2) as minPriceAvg
+        from market_goods_category c
+        left join goods_pricing_record r on c.id = r.goods_category_id
+        where c.deleted = 0
+        <if test="param.goodsCategoryIds != null and param.goodsCategoryIds.size() > 0">
+            and c.id in
+            <foreach collection="param.goodsCategoryIds" item="goodsCategoryId" open="(" close=")" separator=",">
+                #{goodsCategoryId}
+            </foreach>
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and r.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and r.create_time &lt; #{param.period.end}
+        </if>
+        GROUP BY c.id ORDER BY midPriceAvg desc
+    </select>
+
+    <!--'%Y-%m-%d' -->
+    <select id="getGoodsPriceTrendStat"
+            resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.GoodsPriceTrendStatVO">
+        SELECT c.id AS goodsCategoryId,c.name AS goodsCategoryName,DATE_FORMAT(r.create_time,#{param.groupDateFormat})
+        as date,
+        ROUND(AVG(r.max_price),2) AS maxPriceAvg,
+        ROUND(AVG(r.mid_price),2) AS midPriceAvg,
+        ROUND(AVG(r.min_price),2) AS minPriceAvg
+        FROM market_goods_category c LEFT JOIN goods_pricing_record r ON c.id = r.goods_category_id
+        WHERE c.deleted = 0
+        <if test="param.goodsCategoryIds != null and param.goodsCategoryIds.size() > 0">
+            and c.id in
+            <foreach collection="param.goodsCategoryIds" item="goodsCategoryId" open="(" close=")" separator=",">
+                #{goodsCategoryId}
+            </foreach>
+        </if>
+        <if test="param.goodsCategoryName != null and param.goodsCategoryName != null">
+            and c.name like concat('%',#{param.goodsCategoryName},'%')
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and r.create_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and r.create_time &lt; #{param.period.end}
+        </if>
+        GROUP BY c.id,DATE_FORMAT(r.create_time,#{param.groupDateFormat})
+        ORDER BY midPriceAvg desc
+    </select>
+
+    <sql id="getGoodsPricingRecordThird">
+        select gpr.id,gpr.task_name, gpr.user_id, gpr.user_name, gpr.goods_category_id, gpr.goods_from, gpr.max_price,
+        gpr.mid_price,
+        gpr.min_Price, gpr.create_time,
+        mgc.name as goodsCategoryName, mgc.sequence as goodsCategorySequence, mgc.parent_id as goodsCategoryParentId
+        from goods_pricing_record gpr
+        left join market_goods_category mgc on (mgc.id = gpr.goods_category_id)
+        <where>
+            <if test="param.period != null and param.period.begin != null and param.period.end != null">
+                and gpr.create_time &gt;= #{param.period.begin} and gpr.create_time &lt; #{param.period.end}
+            </if>
+            <if test="param.goodsCategoryId != null">
+                and gpr.goods_category_id = #{param.goodsCategoryId}
+            </if>
+            <if test="param.goodsCategoryName != null and param.goodsCategoryName != ''">
+                and gpr.goods_category_Name like like concat('%',#{param.goodsCategoryName},'%')
+            </if>
+            <if test="param.name !=null and param.name != ''">
+                and gpr.user_name like concat('%',#{param.name},'%')
+            </if>
+        </where>
+    </sql>
+
+    <select id="getGoodsPricingRecordThirdPage"
+            resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.GoodsPricingRecordThirdVO">
+        <include refid="getGoodsPricingRecordThird"></include>
+    </select>
+
+    <select id="getGoodsPricingRecordThirdList"
+            resultType="com.guhecloud.cube.srv.gen.product.market.server.pricing.vo.GoodsPricingRecordThirdVO">
+        <include refid="getGoodsPricingRecordThird"></include>
+    </select>
+
+</mapper>

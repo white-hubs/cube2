@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.order.dao.OrderDetailMapper">
+
+    <select id="listOrderGoodsCategoryByOrderIds"
+            resultType="com.guhecloud.cube.biz.meattrade.server.order.vo.OrderGoodsCategoryVO">
+        SELECT
+        od.order_id,
+        od.goods_category_id,
+        od.goods_category_name,
+        COUNT(od.id) as total,
+        SUM(od.price) amount
+        FROM
+        meattrade_order_detail od
+        <where>
+            od.tenant = #{tenant} and
+            od.order_id in
+            <foreach collection="orderIds" item="orderId" open="(" separator="," close=")">
+                #{orderId}
+            </foreach>
+        </where>
+        GROUP BY od.order_id,od.goods_category_id
+    </select>
+
+    <select id="listUnCanceledByPorkArrangeDetails"
+            resultType="com.guhecloud.cube.biz.meattrade.server.order.entity.OrderDetail">
+        SELECT
+        t1.*
+        FROM
+        `meattrade_order_detail` t1
+        INNER JOIN meattrade_order t2 on t1.order_id = t2.id
+        <where>
+            t2.`status` != 'CANCELED' and t1.tenant = #{tenant} and t2.tenant = #{tenant}
+            <if test="porkArrangeDetailIds != null and porkArrangeDetailIds.size() > 0">
+                and t1.pork_arrange_detail_id in
+                <foreach collection="porkArrangeDetailIds" item="porkArrangeDetailId" open="(" separator="," close=")">
+                    #{porkArrangeDetailId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,131 @@
+package com.guhecloud.cube.base.file.client.util;
+
+import com.alibaba.excel.write.handler.SheetWriteHandler;
+import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
+import com.alibaba.excel.write.metadata.holder.WriteWorkbookHolder;
+import com.guhecloud.platform.base.util.CollectionUtils;
+import org.apache.poi.hssf.usermodel.HSSFDataValidation;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
+import org.apache.poi.ss.usermodel.Name;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddressList;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @Author: lijie
+ * @CreateTime: 2024-06-26  11:49
+ * @Description: easyexcel 自定义拦截器
+ * @Version: 1.0
+ */
+public class SelectSheetWriteHandler implements SheetWriteHandler {
+    private Map<Integer, List<String>> selectMap;
+    private Integer columnWidth = 18;
+
+    private char[] alphabet = new char[]{
+            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+            'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
+    };
+
+    public SelectSheetWriteHandler(Map<Integer, List<String>> selectMap) {
+        this.selectMap = selectMap;
+    }
+
+    public SelectSheetWriteHandler(Map<Integer, List<String>> selectMap, Integer columnWidth) {
+        this.selectMap = selectMap;
+        this.columnWidth = columnWidth;
+    }
+
+    @Override
+    public void beforeSheetCreate(WriteWorkbookHolder writeWorkbookHolder, WriteSheetHolder writeSheetHolder) {
+    }
+
+    @Override
+    public void afterSheetCreate(WriteWorkbookHolder writeWorkbookHolder, WriteSheetHolder writeSheetHolder) {
+        if (selectMap == null || selectMap.size() == 0) {
+            return;
+        }
+        Integer sheetlx = 1;
+        for (Map.Entry<Integer, List<String>> entry : selectMap.entrySet()) {
+            if (CollectionUtils.isEmpty(entry.getValue())) {
+                continue;
+            }
+            // 需要设置下拉框的sheet页
+            Sheet curSheet = writeSheetHolder.getSheet();
+            curSheet.setDefaultColumnWidth(columnWidth);
+
+            DataValidationHelper helper = curSheet.getDataValidationHelper();
+            String dictSheetName = "字典sheet" + entry.getKey();
+            Workbook workbook = writeWorkbookHolder.getWorkbook();
+            // 数据字典的sheet页
+            Sheet dictSheet = workbook.createSheet(dictSheetName);
+            // 设置下拉单元格的首行、末行、首列、末列
+            CellRangeAddressList rangeAddressList = new CellRangeAddressList(1, 65533, entry.getKey(), entry.getKey());
+            int rowLen = entry.getValue().size();
+            // 设置字典sheet页的值 每一列一个字典项
+            for (int i = 0; i < rowLen; i++) {
+                Row row = dictSheet.getRow(i);
+                if (row == null) {
+                    row = dictSheet.createRow(i);
+                }
+                row.createCell(entry.getKey()).setCellValue(entry.getValue().get(i));
+            }
+            String excelColumn = getExcelColumn(entry.getKey());
+            // 下拉框数据来源 eg:字典sheet!$B1:$B2
+            String refers = dictSheetName + "!$" + excelColumn + "$1:$" + excelColumn + "$" + rowLen;
+            // 创建可被其他单元格引用的名称
+            Name name = workbook.createName();
+            // 设置名称的名字
+            name.setNameName("dict" + entry.getKey());
+            // 设置公式
+            name.setRefersToFormula(refers);
+            // 设置引用约束
+            DataValidationConstraint constraint = helper.createFormulaListConstraint("dict" + entry.getKey());
+            // 设置约束
+            DataValidation validation = helper.createValidation(constraint, rangeAddressList);
+            if (validation instanceof HSSFDataValidation) {
+                validation.setSuppressDropDownArrow(false);
+            } else {
+                validation.setSuppressDropDownArrow(true);
+                validation.setShowErrorBox(true);
+            }
+            // 阻止输入非下拉框的值
+            validation.setErrorStyle(DataValidation.ErrorStyle.STOP);
+            validation.createErrorBox("提示", "此值与单元格定义格式不一致！");
+            // 添加下拉框约束
+            writeSheetHolder.getSheet().addValidationData(validation);
+            workbook.setSheetHidden(sheetlx, true);
+            sheetlx += 1;
+        }
+    }
+
+    /**
+     * 将数字列转化成为字母列
+     *
+     * @param num
+     *
+     * @return
+     */
+    private String getExcelColumn(int num) {
+        String column = "";
+        int len = alphabet.length - 1;
+        int first = num / len;
+        int second = num % len;
+        if (num <= len) {
+            column = alphabet[num] + "";
+        } else {
+            column = alphabet[first - 1] + "";
+            if (second == 0) {
+                column = column + alphabet[len] + "";
+            } else {
+                column = column + alphabet[second - 1] + "";
+            }
+        }
+        return column;
+    }
+}

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.device.center.core.mapper.CenterBizGroupRefMapper">
+
+    <insert id="insertBatch">
+        INSERT INTO `center_biz_group_ref` (`id`, `group_id`, `device_id`, `create_by`, `creator_id`, `creator_type`, `create_time`,
+        `update_by`, `updater_id`, `updater_type`, `update_time`)
+        VALUES
+        <foreach collection="bizGroupRefs" item="bizGroupRef" separator=",">
+            (#{bizGroupRef.id}, #{bizGroupRef.groupId}, #{bizGroupRef.deviceId},
+            #{bizGroupRef.createBy}, #{bizGroupRef.creatorId}, #{bizGroupRef.creatorType}, #{bizGroupRef.createTime},
+            #{bizGroupRef.updateBy}, #{bizGroupRef.updaterId}, #{bizGroupRef.updaterType}, #{bizGroupRef.updateTime})
+        </foreach>
+    </insert>
+
+    <update id="logicBatchDelete">
+        UPDATE `center_biz_group_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime},
+        `update_by` = #{username,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        WHERE group_id = #{groupId}
+    </update>
+
+    <update id="logicBatchDeleteByDeviceIds">
+        UPDATE `center_biz_group_ref`
+        SET `deleted` = 1,
+        `update_time` = #{updateTime},
+        `update_by` = #{username,jdbcType=VARCHAR},
+        `updater_id` = #{userId,jdbcType=VARCHAR},
+        `updater_type` = #{userType,jdbcType=VARCHAR}
+        WHERE group_id = #{groupId}
+        and device_id in
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </update>
+</mapper>

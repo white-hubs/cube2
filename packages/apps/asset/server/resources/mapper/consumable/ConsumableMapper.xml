@@ -1,0 +1,46 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableMapper">
+
+    <insert id="updateConsumableStock"
+            parameterType="com.guhecloud.cube.srv.gen.property.management.server.consumable.entity.Consumable">
+        update consumable
+        set stock  = stock + #{param.stock},
+            amount = amount + #{param.amount}
+        where id = #{param.id}
+    </insert>
+    <select id="getUseLimit" resultType="java.lang.Integer">
+        select sum(num)
+        from consumable_stock_detail a
+        inner join consumable_reduce_record b on a.stock_id = b.id
+        where a.stock_flag = 'REDUCE'
+        and a.consumable_id=#{consumableId}
+        <choose>
+            <when test="flowResult !=null">
+                and b.status = ('PASS')
+            </when>
+            <otherwise>
+                and b.status in ('PASS','APPLYING')
+            </otherwise>
+        </choose>
+        and b.claimant = #{claimant}
+        and b.reduce_date like CONCAT('%',#{reduceDate},'%')
+    </select>
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.entity.Consumable">
+        select * from consumable
+        where status ='NO_DELETE'
+        <if test="param.getCategoryId !=null">
+            and category_id = #{param.categoryId}
+        </if>
+        <if test="param.type != null and 'STOCK_MAX'==param.type">
+            and stock > stock_max
+        </if>
+        <if test="param.type != null and 'STOCK_MIN'==param.type">
+            and stock &lt; stock_min
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (name like CONCAT('%',#{param.keyword},'%')
+            or code like CONCAT('%',#{param.keyword},'%'))
+        </if>
+    </select>
+</mapper>

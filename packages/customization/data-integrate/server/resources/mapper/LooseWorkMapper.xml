@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.LooseWorksMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.LooseWorks">
+        insert into
+        loose_works(id,project_num,project_name,party_b,completion_time,
+        supervise_user,supervise_user_name,supervise_dep,supervise_dep_name,status,
+        has_problem,schedule,
+        market_tenant,market_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.projectNum},#{item.projectName},#{item.partyB},#{item.completionTime},
+            #{item.superviseUser},#{item.superviseUserName},#{item.superviseDep},#{item.superviseDepName},
+            #{item.status},#{item.hasProblem},#{item.schedule},
+            #{item.marketTenant},#{item.marketName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        project_num = values(project_num),
+        project_name = values(project_name),
+        party_b = values(party_b),
+        completion_time = values(completion_time),
+        supervise_user = values(supervise_user),
+        supervise_user_name = values(supervise_user_name),
+        supervise_dep = values(supervise_dep),
+        supervise_dep_name = values(supervise_dep_name),
+        status = values(status),
+        has_problem = values(has_problem),
+        schedule = values(schedule),
+        market_tenant = values(market_tenant),
+        market_name = values(market_name),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

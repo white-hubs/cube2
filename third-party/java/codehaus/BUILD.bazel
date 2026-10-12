@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "janino_commons_compiler",
+    exports = [
+        "@maven//:org_codehaus_janino_commons_compiler",
+    ],
+)

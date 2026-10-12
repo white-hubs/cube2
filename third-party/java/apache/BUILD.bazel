@@ -1,0 +1,123 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "collections4",
+    actual = "@maven//:org_apache_commons_commons_collections4",
+)
+
+alias(
+    name = "lang3",
+    actual = "@maven//:org_apache_commons_commons_lang3",
+)
+
+alias(
+    name = "text",
+    actual = "@maven//:org_apache_commons_commons_text",
+)
+
+alias(
+    name = "poi_base",
+    actual = "@maven//:org_apache_poi_poi",
+)
+
+alias(
+    name = "poi_ooxml",
+    actual = "@maven//:org_apache_poi_poi_ooxml",
+)
+
+alias(
+    name = "poi_scratchpad",
+    actual = "@maven//:org_apache_poi_poi_scratchpad",
+)
+
+java_library(
+    name = "poi",
+    exports = [
+        ":poi_base",
+        ":poi_ooxml",
+        ":poi_scratchpad",
+    ],
+)
+
+java_library(
+    name = "rocketmq",
+    exports = [
+        "@maven//:org_apache_rocketmq_rocketmq_acl",
+        "@maven//:org_apache_rocketmq_rocketmq_client",
+        "@maven//:org_apache_rocketmq_rocketmq_common",
+        "@maven//:org_apache_rocketmq_rocketmq_remoting",
+        "@maven//:org_apache_rocketmq_rocketmq_spring_boot",
+        "@maven//:org_apache_rocketmq_rocketmq_spring_boot_starter",
+        "@maven//:org_apache_rocketmq_rocketmq_srvutil",
+    ],
+)
+
+java_library(
+    name = "tomcat_embed_core",
+    exports = [
+        "@maven//:org_apache_tomcat_embed_tomcat_embed_core",
+    ],
+)
+
+java_library(
+    name = "tomcat_embed_websocket",
+    exports = [
+        "@maven//:org_apache_tomcat_embed_tomcat_embed_websocket",
+    ],
+)
+
+java_library(
+    name = "tomcat_annotations_api",
+    exports = [
+        "@maven//:org_apache_tomcat_tomcat_annotations_api",
+    ],
+)
+
+java_library(
+    name = "tomcat_annotations_api_legacy",
+    exports = [
+        "@maven//:org_apache_tomcat_annotations_api",
+    ],
+)
+
+java_library(
+    name = "tomcat",
+    exports = [
+        ":tomcat_embed_core",
+        ":tomcat_embed_websocket",
+    ],
+)
+
+java_library(
+    name = "shardingsphere_jdbc",
+    exports = [
+        "@maven//:org_apache_shardingsphere_shardingsphere_jdbc",
+    ],
+)
+
+java_library(
+    name = "sharding-jdbc",
+    exports = [
+        ":shardingsphere_jdbc",
+        "@maven//:org_apache_shardingsphere_shardingsphere_infra_database_core",
+        "@maven//:org_apache_shardingsphere_shardingsphere_infra_exception_core",
+        "@maven//:org_apache_shardingsphere_shardingsphere_infra_spi",
+        "@maven//:org_apache_shardingsphere_shardingsphere_infra_url_spi",
+    ],
+)
+
+java_library(
+    name = "hc5",
+    exports = [
+        "@maven//:org_apache_httpcomponents_core5_httpcore5",
+    ],
+)
+
+java_library(
+    name = "hc5-client",
+    exports = [
+        "@maven//:org_apache_httpcomponents_client5_httpclient5",
+    ],
+)

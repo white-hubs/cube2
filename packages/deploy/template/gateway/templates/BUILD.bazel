@@ -1,0 +1,4 @@
+exports_files([
+    "application.tpl.yaml",
+    "WebSecurityConfig.tpl.java",
+])

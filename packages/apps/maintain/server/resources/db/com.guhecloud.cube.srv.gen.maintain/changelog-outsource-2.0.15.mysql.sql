@@ -1,0 +1,55 @@
+-- liquibase formatted sql
+
+-- changeset qqq:1686103358461-1
+CREATE TABLE `outsource_work_order` (
+    `id` bigint(20) NOT NULL,
+    `code` varchar(255) DEFAULT NULL COMMENT '编号',
+    `process_instance_id` varchar(255) DEFAULT NULL COMMENT '流程实例id',
+    `obj_id` bigint(20) DEFAULT NULL COMMENT '维修对象id',
+    `obj_name` varchar(255) DEFAULT NULL COMMENT '维修对象名称',
+    `reason` varchar(255) DEFAULT NULL COMMENT '维修理由',
+    `attachment` varchar(255) DEFAULT NULL COMMENT '附件图片',
+    `identify_result` varchar(255) DEFAULT NULL COMMENT '确认结果',
+    `identify_remarks` varchar(255) DEFAULT NULL COMMENT '确认描述',
+    `company_id` bigint(20) DEFAULT NULL COMMENT '委外公司',
+    `type_id` bigint(20) DEFAULT NULL COMMENT '委外模式',
+    `handle_result` varchar(255) DEFAULT NULL COMMENT '处理结果',
+    `handle_remarks` varchar(255) DEFAULT NULL COMMENT '处理描述',
+    `appraise` varchar(64) DEFAULT NULL COMMENT '效果评估',
+    `appraise_remarks` varchar(255) DEFAULT NULL COMMENT '评估描述',
+    `appraise_attachment` varchar(255) DEFAULT NULL COMMENT '评估附件',
+    `tenant` int(10) DEFAULT NULL COMMENT '租户编号',
+    `deleted` bigint(20) DEFAULT NULL COMMENT '是否删除',
+    `create_by` varchar(100) DEFAULT NULL COMMENT '创建用户',
+    `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+    `update_by` varchar(100) DEFAULT NULL COMMENT '更新用户',
+    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='委外2.0';
+
+CREATE TABLE `cube-srv-gen-maintain`.`retrofit_order`  (
+  `id` bigint(20) NOT NULL,
+  `code` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '编号',
+  `process_instance_id` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '流程实例id',
+  `obj_id` bigint(20) NOT NULL COMMENT '改造对象id',
+  `obj_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '改造对象名称',
+  `reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '申报理由',
+  `expected_resolution_date` datetime NULL DEFAULT NULL COMMENT '期望解决日期',
+  `attachment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '附件图片',
+  `retrofit_before_status` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '改造前状态',
+  `identify_result` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '确认结果',
+  `identify_remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '确认描述',
+  `handle_result` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理结果',
+  `handle_remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '处理描述',
+  `appraise` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '效果评估',
+  `appraise_remarks` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评估描述',
+  `appraise_attachment` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '评估附件',
+  `retrofit_after_status` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '改造后状态',
+  `tenant` int(10) NULL DEFAULT NULL COMMENT '租户编号',
+  `deleted` bigint(20) NULL DEFAULT NULL COMMENT '是否删除',
+  `create_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+  `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
+  `update_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '更新用户',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '更新改造2.0' ROW_FORMAT = Dynamic;

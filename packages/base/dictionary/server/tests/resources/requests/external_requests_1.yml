@@ -1,0 +1,29 @@
+provider: DICT
+isPartialMode: true
+useBuiltinConfig: false
+requirements:
+  - configType: DictType  # 需要的配置能力类型
+    version: 1.0 # 配置能力描述使用的版本号
+    vargs: ["TypeA", "TypeB", "TypeC"]
+  - configType: DictEntry  # 系统字典配置
+    kwargs:
+      dictType: TypeA
+    vargs: ["item1", "item2", "item3"]
+  - configType: DictEntry  # 数据字典
+    isMandatory: True
+    tenants: all
+    kwargs:
+      dictType: TypeB
+    vargs: ["item3", "item4", "item5"]
+  - configType: DictEntry  # 级联字典
+    isMandatory: True
+    tenants: all
+    kwargs:
+      dictType: TypeC
+      isCascade: True
+    vargs: ["item1", "item2", "item3"]
+  - configType: DictEntry  # removal
+    isRemoval: true
+    kwargs:
+      dictType: TypeA
+    vargs: ["item4"]

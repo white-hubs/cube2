@@ -1,0 +1,214 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.emergency.server.rule.infrastructure.repository.mapper.EmergencyRuleMapper">
+
+    <resultMap id="ruleMap" type="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleDetailVO">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="alarm_level_id" property="alarmLevelId" />
+        <result column="enabled" property="enabled" />
+        <result column="repeat_time" property="repeatTime" />
+        <result column="repeat_time_unit" property="repeatTimeUnit" />
+        <result column="estimated_handler_time" property="estimatedHandlerTime" />
+        <result column="estimated_handler_unit" property="estimatedHandlerUnit" />
+        <result column="emergency_event_type_code" property="emergencyEventTypeCode" />
+        <result column="emergency_event_type_id" property="emergencyEventTypeId" />
+        <result column="emergency_event_type_name" property="emergencyEventTypeName" />
+        <result column="emergency_type_id" property="emergencyTypeId" />
+        <result column="emergency_type_name" property="emergencyTypeName" />
+        <result column="application_code" property="applicationCode" />
+        <result column="application_name" property="applicationName" />
+        <result column="logical_op" property="logicalOp" />
+        <result column="notify_command_dispatch" property="notifyCommandDispatch" />
+        <result column="turn_warning_sound" property="turnWarningSound" />
+        <result column="remark" property="remark" />
+        <result column="tenant" property="tenant" />
+        <collection property="emergencyRuleConditionGroups"
+                    ofType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleConditionGroupVO"
+                    javaType="List">
+            <id column="group_id" property="id" />
+        </collection>
+        <collection property="emergencyRuleConditionCollections"
+                    ofType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleConditionCollectionVO"
+                    javaType="List">
+            <id column="emergency_rule_condition_id" property="id" />
+            <result column="group_id" property="groupId" />
+            <result column="device_prod_category_code" property="deviceProdCategoryCode" />
+            <result column="device_prod_category_code_concat" property="deviceProdCategoryCodeConcat" />
+            <result column="device_prod_category_name" property="deviceProdCategoryName" />
+            <result column="device_prod_id" property="deviceProdId" />
+            <result column="device_prod_name" property="deviceProdName" />
+            <result column="condition_type" property="conditionType" />
+            <result column="device_event_id" property="deviceEventId" />
+            <result column="device_event_code" property="deviceEventCode" />
+            <result column="device_event_name" property="deviceEventName" />
+            <result column="device_event_type" property="deviceEventType" />
+            <result column="logical_op" property="logicalOp" />
+            <result column="event_config_type" property="eventConfigType" />
+            <result column="emergency_rule_condition_group_id" property="groupId" />
+        </collection>
+        <collection property="emergencyRuleConditionExps"
+                    ofType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleConditionExpCollectionVO"
+                    javaType="List">
+            <id column="emergency_rule_condition_exp_id" property="id" />
+            <result column="emergency_rule_condition_id" property="emergencyRuleConditionId" />
+            <result column="prop_code" property="propCode" />
+            <result column="prop_name" property="propName" />
+            <result column="prop_unit" property="propUnit" />
+            <result column="op" property="op" />
+            <result column="oprand" property="oprand" />
+            <result column="delay_time" property="delayTime" />
+            <result column="start_delay_time" property="startDelayTime" />
+            <result column="end_delay_time" property="endDelayTime" />
+            <result column="emergency_rule_condition_exp_group_id" property="groupId" />
+        </collection>
+        <collection property="emergencyRuleConditionDevices"
+                    ofType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleConditionDeviceCollectionVO">
+            <id column="emergency_rule_condition_device_id" property="id" />
+            <result column="device_prod_category_code" property="deviceProdCategoryCode" />
+            <result column="device_prod_category_code_concat" property="deviceProdCategoryCodeConcat" />
+            <result column="device_prod_category_name" property="deviceProdCategoryName" />
+            <result column="device_prod_id" property="deviceProdId" />
+            <result column="device_prod_name" property="deviceProdName" />
+            <result column="device_id" property="deviceId" />
+
+            <result column="device_name" property="deviceName" />
+            <result column="device_area_id" property="deviceAreaId" />
+            <result column="device_area_name" property="deviceAreaName" />
+            <result column="device_enabled" property="enabled" />
+        </collection>
+        <collection property="emergencyRuleTimes"
+                    ofType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleTimeVO">
+            <id column="emergency_rule_time_id" property="id" />
+            <result column="emergency_rule_time_group_id" property="groupId" />
+            <result column="time_type" property="timeType" />
+            <result column="time_conditions" property="timeConditions" />
+        </collection>
+    </resultMap>
+
+    <sql id="BASIC_RULE_INFO">
+SELECT
+	t1.`id`,
+	t1.`name`,
+	t1.`alarm_level_id`,
+	t1.`emergency_event_type_code`,
+	t7.`id` AS `emergency_event_type_id`,
+	t7.`name` AS `emergency_event_type_name`,
+	t1.`enabled`,
+	t1.`repeat_time`,
+	t1.`repeat_time_unit`,
+	t1.`estimated_handler_time`,
+	t1.`estimated_handler_unit`,
+	t1.`emergency_type_id`,
+	t6.`name` AS `emergency_type_name`,
+	t1.`application_code`,
+	t1.`application_name`,
+	t1.`logical_op`,
+	t1.`rule_period_timed`,
+	t1.`notify_command_dispatch`,
+	t1.`turn_warning_sound`,
+	t1.`remark`,
+	t1.`tenant`,
+	erc.`id` AS `group_id`,
+	t2.`id` AS `emergency_rule_condition_id`,
+	t2.`device_prod_category_code` as `condition_device_prod_category_code`,
+	t2.`device_prod_category_code_concat` as `condition_device_prod_category_code_concat`,
+	t2.`device_prod_category_name` as `condition_device_prod_category_name`,
+	t2.`device_prod_id` as `condition_device_prod_id`,
+	t2.`device_prod_name` as `condition_device_prod_name`,
+	t2.`condition_type`,
+	t2.`device_event_id`,
+	t2.`device_event_code`,
+	t2.`device_event_name`,
+	t2.`device_event_type`,
+	t2.`group_id` AS `emergency_rule_condition_group_id`,
+	t2.`logical_op`,
+	t2.`event_config_type`,
+	t3.`id` AS `emergency_rule_condition_exp_id`,
+	t3.`emergency_rule_condition_id`,
+	t3.`prop_code`,
+	t3.`prop_name`,
+	t3.`prop_unit`,
+	t3.`op`,
+	t3.`oprand`,
+	t3.`delay_time`,
+	t3.`start_delay_time`,
+	t3.`end_delay_time`,
+	t3.`group_id` AS `emergency_rule_condition_exp_group_id`,
+	t4.`id` AS `emergency_rule_condition_device_id`,
+	t4.`device_prod_category_code` as `erc_device_prod_category_code`,
+	t4.`device_prod_category_code_concat` as `erc_condition_device_prod_category_code_concat`,
+	t4.`device_prod_category_name` as `erc_condition_device_prod_category_name`,
+	t4.`device_prod_id` as `erc_condition_device_prod_id`,
+	t4.`device_prod_name` as `erc_condition_device_prod_name`,
+	t4.`device_id`,
+	t4.`device_name`,
+	t4.`device_area_id`,
+	t4.`device_area_name`,
+	t4.`enabled` AS `device_enabled`,
+	t5.`id` AS `emergency_rule_time_id`,
+	t5.`group_id` AS `emergency_rule_time_group_id`,
+	t5.`time_type`,
+	t5.`time_conditions`
+    FROM
+	`emergency_rule` t1
+	INNER JOIN `emergency_rule_condition_group` erc ON t1.`id` = erc.`emergency_rule_id`
+	INNER JOIN `emergency_rule_condition` t2 ON t1.`id` = t2.`emergency_rule_id`
+	INNER JOIN `emergency_rule_condition_exp` t3 ON t2.`id` = t3.`emergency_rule_condition_id`
+	LEFT JOIN `emergency_rule_condition_device` t4 ON t1.`id` = t4.`emergency_rule_id`
+	LEFT JOIN `emergency_rule_time` t5 ON t1.`id` = t5.`emergency_rule_id`
+	INNER JOIN `emergency_type` t6 ON t1.`emergency_type_id` = t6.`id`
+	LEFT JOIN `emergency_event_type` t7 ON t1.`emergency_event_type_code` = t7.`code`
+    </sql>
+
+    <select id="selectRuleByEventCode" resultMap="ruleMap">
+        <include refid="BASIC_RULE_INFO" />
+        <where>
+            t2.`device_prod_id` = #{modelId}
+            and t2.`device_event_code` = #{eventCode}
+            and t1.`enabled` = #{enable}
+        </where>
+    </select>
+
+    <select id="selectEventEmergencyTenant" resultType="java.lang.Integer">
+        SELECT
+        t1.`tenant`
+        FROM
+        `emergency_rule` t1
+        INNER JOIN `emergency_rule_condition_group` erc ON t1.`id` = erc.`emergency_rule_id`
+        INNER JOIN `emergency_rule_condition` t2 ON t1.`id` = t2.`emergency_rule_id`
+        INNER JOIN `emergency_rule_condition_device` t3 ON t1.`id` = t3.`emergency_rule_id`
+        <where>
+
+        </where>
+        WHERE t2.`device_event_code` = #{eventCode} AND t3.`device_id` = #{deviceId}
+        GROUP BY t1.`tenant`
+    </select>
+    <select id="selectEmergencyRuleSetInfo"
+            resultType="com.guhecloud.cube.biz.emergency.server.rule.interfaces.vo.EmergencyRuleSafetyReportVO">
+        SELECT DISTINCT
+        SUBSTRING_INDEX( eet.`NAME`, '-', - 1 ) AS `name`,
+        er.`application_code` as `application_name`,
+        er.`enabled`
+        FROM
+        `emergency_event_type` eet
+        INNER JOIN `emergency_rule` er ON er.`emergency_event_type_code` = eet.`code`
+        WHERE
+        1=1
+        <if test="param.applicationList != null and param.applicationList.size > 0">
+            and er.`application_code` IN
+            <foreach collection="param.applicationList" item="code" open="(" close=")"
+                     separator=",">
+                #{code}
+            </foreach>
+        </if>
+        <if test="param.alarmEventList != null and param.alarmEventList.size > 0">
+            AND SUBSTRING_INDEX( eet.`NAME`, '-', - 1 ) IN
+            <foreach collection="param.alarmEventList" item="alarmEvent" open="(" close=")"
+                     separator=",">
+                #{alarmEvent}
+            </foreach>
+        </if>
+
+    </select>
+
+</mapper>

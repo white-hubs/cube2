@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.dao.WorkOvertimeLedgerMapper">
+    <select id="getLedgerByPage" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.result.WorkOvertimeLedgerPageResult">
+        SELECT
+        `user_id`,
+        `user_name`,
+        `org_id`,
+        sum( `work_duration` ) AS `work_duration`,
+        sum( `work_pay_duration` ) AS `work_pay_duration`,
+        sum( `rest_duration` ) AS `rest_duration`,
+        sum( `rest_pat_duration` ) AS `rest_pat_duration`,
+        sum( `fest_duration` ) AS `fest_duration`,
+        sum( `fest_oat_duration` ) AS `fest_oat_duration`
+        FROM
+        `work_overtime_ledger`
+        <where>
+            <if test="param.period !=null and param.period.begin != null">
+                `work_date` between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and `user_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.orgId !=null">
+                and `org_id` = #{param.orgId}
+            </if>
+        </where>
+    </select>
+    <select id="getLedgerByAll" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.attend.overtime.result.WorkOvertimeLedgerPageResult">
+        SELECT
+        `user_id`,
+        `user_name`,
+        `org_id`,
+        sum( `work_duration` ) AS `work_duration`,
+        sum( `work_pay_duration` ) AS `work_pay_duration`,
+        sum( `rest_duration` ) AS `rest_duration`,
+        sum( `rest_pat_duration` ) AS `rest_pat_duration`,
+        sum( `fest_duration` ) AS `fest_duration`,
+        sum( `fest_oat_duration` ) AS `fest_oat_duration`
+        FROM
+        `work_overtime_ledger`
+        <where>
+            <if test="param.period !=null and param.period.begin != null">
+                `work_date` between #{param.period.begin} and #{param.period.end}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and `user_name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.orgId !=null">
+                and `org_id` = #{param.orgId}
+            </if>
+        </where>
+    </select>
+</mapper>

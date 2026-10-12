@@ -1,0 +1,31 @@
+schemaVersion: 1.0  # 代表文件格式定义版本, 缺省1.0
+dataVersion: 1.0   # 代表文件数据版本, 单调增长, 仅供记录跟踪用.
+common:
+  appCode: BROADCAST   # 提供方标识
+  appDescription: 提供广播模板服务
+provides:  # 提供的能力种类,  每个元素是一个对象, 也可以考虑用特定格式的字符串.第一版就先考虑下面示例的形态
+  - {type: BroadcastTemplate, versions: [1.0]}
+requests:  # 需要的能力
+  - provider: BROADCAST  # 需要的能力的提供方, 同一个提供方的声明规格合并成一个请求.
+    # 配置提供方不存在时是否报错, True 报错, False, 记录配置问题,后续处理. 第一期缺省TRUE 且仅支持TRUE
+    isFailureOnMissingProvider: True
+
+    requirements: # 基于每一个requirement项目, 生成一次对于provider提供的声明式定义原语的调用.
+      - configType: BroadcastTemplate  # 需要的配置能力类型
+        version: 1.0 # 配置能力描述使用的版本号
+        isMandatory: True
+        tenants: All
+        isFailOnMissingProvider: True
+        vargs:
+          - "name": "园区找人"
+            "content": "来宾${name}您好，请您听到广播后到${address}有人找。"
+            "defaulted": "1"
+          - "name": "失物招领"
+            "content": "来宾您好，我司现场管理人员于${curTime}在${address}拾到${genericText}，请您听到广播后到${address}认领。"
+            "defaulted": "1"
+          - "name": "火情疏散"
+            "content": "${address}出现火情，目前正在扑救中，请勿惊慌，在听到广播后捂好口鼻，从安全通道有序撤离！"
+            "defaulted": "1"
+          - "name": "车辆违停"
+            "content": "车主您好！当前${address}不可停车，您已违停，请立即驶离，前往规定地点停车！"
+            "defaulted": "1"

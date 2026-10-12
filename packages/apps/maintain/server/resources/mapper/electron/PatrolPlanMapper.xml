@@ -1,0 +1,28 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.electron.dao.PatrolPlanMapper">
+    <select id="getPalnStatus" resultType="com.guhecloud.cube.srv.gen.maintain.server.electron.vo.KeyValueVO">
+        select `status` as name, count(1) as `value`
+        from patrol_plan
+        where `status` in ('ENABLE','END','STOP')
+        GROUP BY `status`
+    </select>
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.srv.gen.maintain.server.electron.entity.PatrolPlan">
+        insert into
+        patrol_plan(id,plan_name,status,start_data,end_data,patrol_cycle,
+        patrol_data,execute_data,route_id,on_duty,in_order,user_id,patrol_data_type,last_date,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.planName},#{item.status},#{item.startData},#{item.endData},#{item.patrolCycle},
+            #{item.patrolData},#{item.executeData},#{item.routeId},#{item.onDuty},#{item.inOrder},
+            #{item.userId},#{item.patrolDataType},#{item.lastDate},#{item.tenant},
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},0)
+        </foreach>
+        on duplicate key update
+        start_data = values(start_data),
+        end_data = values(end_data),
+        route_id = values(route_id)
+    </insert>
+</mapper>

@@ -1,0 +1,17 @@
+- configType: DictEntry
+  version: 1.0
+  isMandatory: false
+  isSystem: false
+  isRemoval: false
+  tenants: all
+  kwargs:
+    isCascade: false
+    parent: ""
+    dictType: "TypeB"
+  vargs:
+    - label: item1
+      key: item1
+    - label: item2
+      key: item2
+    - label: item3
+      key: item3

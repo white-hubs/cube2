@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.business.info.sync.server.mapper.SyncUserMapper">
+
+    <sql id="baseSelect">
+        SELECT
+            ui.`id`,
+            ui.`NAME`,
+            ui.`mobile`,
+            ui.`STATUS` AS user_status,
+            ui.`paper_number`,
+            ui.`update_time`,
+            SUBSTRING(org.`org_path_id`,1,LENGTH(org.`org_path_id`)-1)  as org_path_id,
+            org.`org_path_name`,
+            uoc.`serial_number`,
+            uoc.`STATUS` AS `card_status`,
+            uoc.`validity_date`
+        FROM
+            user_info ui
+                LEFT JOIN user_organization uorg ON uorg.user_id = ui.id AND uorg.deleted = 0
+                LEFT JOIN organization org ON org.id = uorg.organization_id AND org.deleted = 0
+                LEFT JOIN user_one_card uoc ON uoc.user_id = ui.id AND uoc.deleted = 0
+    </sql>
+    <select id="selectUserInfoAll"
+            resultType="com.guhecloud.cube.srv.gen.business.info.sync.server.controller.vo.UserInfoVO">
+        <include refid="baseSelect" />
+        <where>
+            <if test="keyword != null and keyword != ''">
+                ui.`name` like concat('%',#{keyword},'%')
+            </if>
+            <if test="period != null and period.begin != null">
+                and ui.update_time &gt;= #{period.begin}
+            </if>
+            <if test="period != null and period.end != null">
+                and ui.update_time &lt;= #{period.end}
+            </if>
+        </where>
+        GROUP BY
+        ui.`id`
+    </select>
+    <select id="selectUserInfoById"
+            resultType="com.guhecloud.cube.srv.gen.business.info.sync.server.controller.vo.UserInfoVO">
+        <include refid="baseSelect" />
+        where
+        ui.id = #{id}
+    </select>
+</mapper>

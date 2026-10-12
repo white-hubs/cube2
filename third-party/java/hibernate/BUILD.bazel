@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "validator",
+    exports = [
+        "@maven//:org_hibernate_validator_hibernate_validator",
+    ],
+)

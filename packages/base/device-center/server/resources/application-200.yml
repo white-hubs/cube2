@@ -1,0 +1,71 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.200:18848
+        namespace: 25361486-9737-46a8-b488-4768cfd1fe77
+
+  datasource:
+    url: jdbc:mysql://192.168.0.200:3306/cube_base_iot_center?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: DNYrUkt45Eq5Nb5
+  #    url: jdbc:highgo://192.168.0.241:5866/cube?currentSchema=cube_base_iot_center
+  #    username: sysdba
+  #    password: Aa123456@
+  #    driver-class-name: com.highgo.jdbc.Driver
+
+  redis:
+    host: 192.168.0.200
+    port: 16379
+    database: 3
+    password: SVA1UnH1Dy9KUN7Z
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://192.168.0.200:4009/oauth/jwt.key'
+      resourceclient:
+        clientcredential:
+          client-id: inner_server
+          client-secret: cli@pwd#ghy!123
+          access-token-uri: http://192.168.0.200:4009/oauth/token
+
+ribbon:
+  ReadTimeout: 5000
+  ConnectTimeout: 5000
+
+rocketmq:
+  name-server: http://192.168.0.243:9876
+
+logging:
+  level:
+    root: debug
+
+#全量订阅IOT消息
+thirdparty:
+  iot:
+    subscribe:
+      full:
+        consumer:
+          rabbit:
+            host: 192.168.0.243
+            port: 5672
+            username: ghymq
+            password: ghy@RabbitMq2022
+            virtual-host: iotp_v2
+
+clickHouse:
+  jdbcUrl: jdbc:clickhouse://192.168.0.243:8123
+  driverClassName: ru.yandex.clickhouse.ClickHouseDriver # com.github.housepower.jdbc.ClickHouseDriver
+  username: ghych
+  password: ghy@ClickHouse2022
+
+license:
+  subject: ghy-test
+  publicAlias: guheCloudPublicCert
+  storePass: guheCloudPublic@1234
+  licensePath:
+  publicKeysStorePath: /Users/lhp/keystore/publicCerts.keystore
+
+debug: true

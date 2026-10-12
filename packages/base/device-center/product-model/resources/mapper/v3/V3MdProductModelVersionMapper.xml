@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3MdProductModelVersionMapper">
+
+    <!-- 物模型版本实体ResultMap -->
+    <resultMap id="MdProductModelVersionResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.MdProductModelVersion">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="prod_number" property="prodNumber"/>
+        <result column="version_number" property="versionNumber"/>
+        <result column="version_name" property="versionName"/>
+        <result column="model_snapshot" property="modelSnapshot"/>
+        <result column="change_description" property="changeDescription"/>
+        <result column="change_type" property="changeType"/>
+        <result column="change_summary" property="changeSummary"/>
+        <result column="is_current" property="isCurrent"/>
+        <result column="status" property="status"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 物模型版本VO的ResultMap -->
+    <resultMap id="ProductModelVersionVOResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.vo.ProductModelVersionVO">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="prod_number" property="prodNumber"/>
+        <result column="prod_name" property="prodName"/>
+        <result column="version_number" property="versionNumber"/>
+        <result column="version_tag" property="versionTag"/>
+        <result column="version_desc" property="versionDesc"/>
+        <result column="model_snapshot" property="modelSnapshot"/>
+        <result column="change_type" property="changeType"/>
+        <result column="change_summary" property="changeSummary"/>
+        <result column="is_active" property="isActive"/>
+        <result column="create_time" property="createTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_by_name" property="createByName"/>
+    </resultMap>
+
+    <!-- 根据产品ID查询最新版本号 - MySQL -->
+    <select id="selectMaxVersionNumber" resultType="java.lang.Integer" databaseId="mysql">
+        SELECT MAX(CAST(`version_number` AS SIGNED))
+        FROM iot_md_product_model_version_v3
+        WHERE `prod_id` = #{prodId}
+    </select>
+
+    <!-- 根据产品ID查询最新版本号 - PostgreSQL/瀚高 -->
+    <select id="selectMaxVersionNumber" resultType="java.lang.Integer" databaseId="pg">
+        SELECT MAX(CAST(`version_number` AS INTEGER))
+        FROM iot_md_product_model_version_v3
+        WHERE `prod_id` = #{prodId}
+    </select>
+
+    <!-- 根据产品ID查询最新版本号 - 达梦 -->
+    <select id="selectMaxVersionNumber" resultType="java.lang.Integer" databaseId="dm">
+        SELECT MAX(CAST(`version_number` AS INT))
+        FROM iot_md_product_model_version_v3
+        WHERE `prod_id` = #{prodId}
+    </select>
+
+    <!-- 根据产品ID查询当前激活版本 -->
+    <select id="selectActiveVersion" resultMap="MdProductModelVersionResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `prod_number`,
+            `version_number`,
+            `version_name`,
+            `model_snapshot`,
+            `change_description`,
+            `change_type`,
+            `change_summary`,
+            `is_current`,
+            `status`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_md_product_model_version_v3
+        WHERE `prod_id` = #{prodId}
+          AND `is_current` = 1
+        LIMIT 1
+    </select>
+
+    <!-- 分页查询版本列表 -->
+    <select id="selectVersionPage" resultMap="ProductModelVersionVOResultMap">
+        SELECT
+            v.`id`,
+            v.`prod_id`,
+            v.`prod_number`,
+            p.`prod_name`,
+            v.`version_number`,
+            v.`version_name` AS version_tag,
+            v.`change_description` AS version_desc,
+            v.`change_type`,
+            v.`change_summary`,
+            v.`is_current` AS is_active,
+            v.`create_time`,
+            v.`create_by`,
+            '' AS create_by_name
+        FROM iot_md_product_model_version_v3 v
+        LEFT JOIN iot_md_product_v3 p ON v.`prod_id` = p.`id`
+        WHERE v.`prod_id` = #{prodId}
+        ORDER BY v.`version_number` DESC, v.`create_time` DESC
+    </select>
+
+    <!-- 查询版本详情 -->
+    <select id="selectVersionDetail" resultMap="ProductModelVersionVOResultMap">
+        SELECT
+            v.`id`,
+            v.`prod_id`,
+            v.`prod_number`,
+            p.`prod_name`,
+            v.`version_number`,
+            v.`version_name` AS version_tag,
+            v.`change_description` AS version_desc,
+            v.`model_snapshot`,
+            v.`change_type`,
+            v.`change_summary`,
+            v.`is_current` AS is_active,
+            v.`create_time`,
+            v.`create_by`,
+            '' AS create_by_name
+        FROM iot_md_product_model_version_v3 v
+        LEFT JOIN iot_md_product_v3 p ON v.`prod_id` = p.`id`
+        WHERE v.`id` = #{versionId}
+    </select>
+
+    <!-- 停用产品的所有激活版本 -->
+    <update id="deactivateAllVersions">
+        UPDATE iot_md_product_model_version_v3
+        SET `is_current` = 0,
+            `update_time` = NOW()
+        WHERE `prod_id` = #{prodId}
+          AND `is_current` = 1
+    </update>
+
+    <!-- 激活指定版本 -->
+    <update id="activateVersion">
+        UPDATE iot_md_product_model_version_v3
+        SET `is_current` = 1,
+            `update_time` = NOW()
+        WHERE `id` = #{versionId}
+    </update>
+
+</mapper>

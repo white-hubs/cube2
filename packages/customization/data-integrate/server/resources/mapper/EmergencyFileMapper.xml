@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.SafetyEmergencyFileMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyEmergencyFile">
+        insert into
+        safety_emergency_file(id,name,level_code,emergency_event_type_code,emergency_event_type_name,
+        expiration_status,expiration_date,remark,
+        document_file_id,document_file_name,document_file_path,
+        process_file_id,process_file_name,process_file_path,
+        market_tenant,market_name,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.levelCode},#{item.emergencyEventTypeCode},#{item.emergencyEventTypeName},
+            #{item.expirationStatus},#{item.expirationDate},#{item.remark},
+            #{item.documentFileId},#{item.documentFileName},#{item.documentFilePath},
+            #{item.processFileId},#{item.processFileName},#{item.processFilePath},
+            #{item.marketTenant},#{item.marketName},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        level_code = values(level_code),
+        emergency_event_type_code = values(emergency_event_type_code),
+        emergency_event_type_name = values(emergency_event_type_name),
+        expiration_status = values(expiration_status),
+        expiration_date = values(expiration_date),
+        remark = values(remark),
+        document_file_id = values(document_file_id),
+        document_file_name = values(document_file_name),
+        document_file_path = values(document_file_path),
+        process_file_id = values(process_file_id),
+        process_file_name = values(process_file_name),
+        process_file_path = values(process_file_path),
+        market_tenant = values(market_tenant),
+        market_name = values(market_name),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

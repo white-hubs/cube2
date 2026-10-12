@@ -1,0 +1,84 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/szga-business-sync:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/apps/door/client",
+        "//packages/apps/parking/client",
+        "//packages/base/process-engine/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/job",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/alibaba:easyexcel",
+        "//third-party/java/alibaba:fastjson2",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/jackson",
+        "//third-party/java/netty:handler",
+        "//third-party/java/netty:transport",
+        "//third-party/java/projectreactor:reactor_core",
+        "//third-party/java/projectreactor:reactor_netty_core",
+        "//third-party/java/projectreactor:reactor_netty_http",
+        "//third-party/java/spring:spring_web_flux",
+        "//third-party/java/zaxxer:hikari_cp",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.srv.gen.business.info.sync.server.BusinessInfoSyncServerApplication"
+
+artifactId = "cube-srv-gen-business-info-sync-server"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_srv_gen_business_info_sync",
+    datasource_package = "com.guhecloud.cube.srv.gen.business.info.sync.server",
+    gw_prefix = "/third-party/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "szgaBusinessSyncServer",
+    visibility = ["//packages:__subpackages__"],
+)

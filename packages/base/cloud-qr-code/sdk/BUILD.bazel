@@ -1,0 +1,34 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "java_export", "maven_bom")
+load("//packages/base/alarm:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/platform/base/standard:jackson",
+        "//third-party/java:lombok",
+        "//third-party/java/jackson",
+    ],
+)
+
+java_library(
+    name = "sdk",
+    srcs = glob(["src/**/*.java"]),
+    deps = [":deps"],
+)
+
+artifactId = "cloud-qr-code-sdk"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":sdk"],
+)

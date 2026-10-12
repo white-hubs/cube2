@@ -1,0 +1,62 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.upkeep.dao.MaintenanceRuleConditionMapper">
+    <resultMap id="selectAllByPlanId"
+               type="com.guhecloud.cube.srv.gen.maintain.server.upkeep.commandgateway.command.MaintenancePlanRuleCommand">
+        <id column="id" property="id"/>
+        <result column="device_prod_category_code_concat" property="deviceProdCategoryCodeConcat"/>
+        <result column="device_prod_id" property="deviceProdId"/>
+        <result column="device_prod_name" property="deviceProdName"/>
+        <result column="condition_type" property="conditionType"/>
+        <result column="device_event_id" property="deviceEventId"/>
+        <result column="device_event_code" property="deviceEventCode"/>
+        <result column="device_event_name" property="deviceEventName"/>
+        <result column="device_event_type" property="deviceEventType"/>
+        <result column="logical_op" property="logicalOp"/>
+        <collection property="emergencyRuleConditionExps"
+                    ofType="com.guhecloud.cube.srv.gen.maintain.server.upkeep.commandgateway.command.MaintenanceRuleConditionExpCommand"
+                    javaType="List">
+            <result column="emergency_rule_id" property="emergencyRuleId"/>
+            <result column="emergency_rule_condition_id" property="emergencyRuleConditionId"/>
+            <result column="prop_code" property="propCode"/>
+            <result column="prop_name" property="propName"/>
+            <result column="prop_unit" property="propUnit"/>
+            <result column="op" property="op"/>
+            <result column="oprand" property="oprand"/>
+            <result column="start_delay_time" property="startDelayTime"/>
+            <result column="delay_time" property="delayTime"/>
+            <result column="end_delay_time" property="endDelayTime"/>
+            <result column="b_group_id" property="groupId"/>
+        </collection>
+    </resultMap>
+    <select id="selectAllByPlanId" resultMap="selectAllByPlanId">
+        select a.id,
+        a.device_prod_category_code,
+        a.device_prod_category_code_concat,
+        a.device_prod_category_name,
+        a.device_prod_id,
+        a.device_prod_name,
+        a.condition_type,
+        a.device_event_id,
+        a.device_event_code,
+        a.device_event_name,
+        a.device_event_type,
+        a.logical_op,
+        b.emergency_rule_id,
+        b.emergency_rule_condition_id,
+        b.prop_code,
+        b.prop_name,
+        b.prop_unit,
+        b.op,
+        b.oprand,
+        b.start_delay_time,
+        b.delay_time,
+        b.end_delay_time,
+        b.group_id as b_group_id
+        from maintenance_rule_condition a
+        inner join maintenance_rule_condition_exp b on a.id = b.emergency_rule_condition_id
+        where a.emergency_rule_id = #{planId}
+        <if test="conditionType !=null and conditionType !=''">
+           and a.condition_type =#{conditionType}
+        </if>
+    </select>
+</mapper>

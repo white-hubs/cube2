@@ -1,0 +1,93 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.attendance.management.server.rule.dao.AttendanceGroupStaffMapper">
+
+
+    <select id="theStaffIdsHaveManyGroup" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        `attendance_group_staff` ags
+        LEFT JOIN `attendance_group` ag ON ags.`group_id` = ag.`id`
+        WHERE
+        ags.`staff_id` IN
+        <foreach collection="staffIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+        AND ag.`type` = #{groupType}
+        <if test="groupId != null">
+            AND ag.`id` <![CDATA[ <> ]]> #{groupId}
+        </if>
+    </select>
+
+    <select id="getGroupIdByStaffIds" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.interfaces.vo.AttendanceGroupStaffVO">
+        SELECT
+	    ag.`id` AS `groupId`,
+	    ags.`staff_id`
+        FROM
+	    `attendance_group_staff` ags
+	    LEFT JOIN `attendance_group` ag ON ags.`group_id` = ag.`id`
+        WHERE
+	    ags.`staff_id` IN
+        <foreach collection="staffIds" item="item" open="(" close=")" separator=",">
+            #{item}
+        </foreach>
+	    AND ag.`type` = #{groupType}
+    </select>
+
+    <select id="getGroupIdByStaffId" resultType="java.lang.Long">
+        SELECT
+        ags.`group_id`
+        FROM
+        `attendance_group_staff` ags
+        LEFT JOIN `attendance_group` ag ON ags.`group_id` = ag.`id`
+        WHERE
+        ags.`staff_id` = #{staffId}
+        <if test="groupType != null and groupType != ''">
+            AND ag.`type` = #{groupType}
+        </if>
+        <if test="groupId != null">
+            AND ags.`group_id` <![CDATA[ <> ]]> #{groupId}
+        </if>
+    </select>
+    <select id="getStaffIdByGroupId" resultType="java.lang.Long">
+        SELECT
+        ags.`staff_id`
+        FROM
+        `attendance_group_staff` ags
+        LEFT JOIN `attendance_group` ag ON ags.`group_id` = ag.`id`
+        <where>
+            <if test="groupType != null and groupType != ''">
+                ag.`type` = #{groupType}
+            </if>
+            <if test="groupId != null">
+                AND ags.`group_id` <![CDATA[ <> ]]> #{groupId}
+            </if>
+        </where>
+    </select>
+    <select id="getAttendanceStaff" resultType="com.guhecloud.cube.srv.gen.attendance.management.server.rule.po.AttendanceGroupStaffPO">
+        select DISTINCT aw.`staff_id`,
+        aw.`staff_name`,
+        aw.`staff_mobile`,
+        aw.`staff_organization_id`,
+        aw.`group_id`
+        from `arrange_work` aw
+        WHERE aw.`deleted` = 0
+        <if test="param.groupId != null and param.groupId != ''">
+            AND aw.`group_id` = #{param.groupId}
+        </if>
+        <if test="param.organizationId != null and param.organizationId != ''">
+            AND aw.`staff_organization_id` = #{param.organizationId}
+        </if>
+        <if test="param.month != null and param.month != ''">
+            AND aw.`month` = #{param.month}
+        </if>
+        <if test="param.staffName != null and param.staffName != ''">
+            AND aw.`staff_name` like CONCAT('%',#{param.staffName},'%')
+        </if>
+        group by aw.`staff_id`
+        order by aw.`staff_id`
+    </select>
+
+
+
+</mapper>

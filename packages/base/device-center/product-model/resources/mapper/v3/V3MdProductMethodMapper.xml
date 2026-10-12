@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3MdProductMethodMapper">
+
+    <!-- 产品方法实体ResultMap -->
+    <resultMap id="MdProductMethodResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.MdProductMethod">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="method_code" property="methodCode"/>
+        <result column="call_type" property="callType"/>
+        <result column="input_params" property="inputParams"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.model.params.Params"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="output_params" property="outputParams"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.model.params.Params"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="timeout_seconds" property="timeoutSeconds"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="retry_interval" property="retryInterval"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 产品方法VO的ResultMap -->
+    <resultMap id="ProductMethodVOResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.vo.ProductMethodVO">
+        <id column="id" property="id"/>
+        <result column="prod_id" property="prodId"/>
+        <result column="name" property="name"/>
+        <result column="method_code" property="methodCode"/>
+        <result column="call_type" property="callType"/>
+        <result column="input_params" property="inputParams"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.model.params.Params"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="output_params" property="outputParams"
+                javaType="com.guhecloud.cube.base.iot.product.model.v3.model.params.Params"
+                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="timeout_seconds" property="timeoutSeconds"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="retry_interval" property="retryInterval"/>
+        <result column="remark" property="remark"/>
+        <result column="status" property="status"/>
+        <result column="sort_order" property="sortOrder"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <!-- 根据产品ID查询方法列表 -->
+    <select id="selectByProdId" resultMap="ProductMethodVOResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `name`,
+            `method_code`,
+            `call_type`,
+            `input_params`,
+            `output_params`,
+            `timeout_seconds`,
+            `retry_count`,
+            `retry_interval`,
+            `remark`,
+            `status`,
+            `sort_order`,
+            `create_time`
+        FROM iot_md_product_method_v3
+        WHERE `prod_id` = #{prodId}
+        ORDER BY `sort_order` ASC, `create_time` ASC
+    </select>
+
+    <!-- 根据产品ID和方法Code查询方法 -->
+    <select id="selectByProdIdAndCode" resultMap="MdProductMethodResultMap">
+        SELECT
+            `id`,
+            `prod_id`,
+            `name`,
+            `method_code`,
+            `call_type`,
+            `input_params`,
+            `output_params`,
+            `timeout_seconds`,
+            `retry_count`,
+            `retry_interval`,
+            `remark`,
+            `status`,
+            `sort_order`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_md_product_method_v3
+        WHERE `prod_id` = #{prodId}
+          AND `method_code` = #{methodCode}
+    </select>
+
+</mapper>

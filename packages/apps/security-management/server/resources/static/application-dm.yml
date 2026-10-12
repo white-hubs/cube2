@@ -1,0 +1,82 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.233:18848
+        namespace: 25361486-9737-46a8-b488-4768cfd1fe77
+  datasource:
+    url: jdbc:mysql://192.168.0.233:3306/cube-srv-gen-securitymanagement?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: sat@Db$2021
+#    url: jdbc:highgo://192.168.0.242:5866/highgo?currentSchema=cube-srv-gen-securitymanagement
+#    username: sysdba
+#    password: Ghy@2022
+#    driver-class-name: com.highgo.jdbc.Driver
+#    db-config:
+#      db-type: mysql
+  redis:
+    host: 192.168.0.233
+    port: 16379
+    database: 3
+    password: sat@Redis021
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://192.168.0.233:3200/ouaa/oauth/jwt.key'
+      resourceclient:
+        clientcredential:
+          client-id: inner_server
+          client-secret: cli@pwd#ghy!123
+          access-token-uri: http://192.168.0.233:3200/ouaa/oauth/token
+      authorizationserver:
+        token:
+          key-pair:
+            alias: jwt
+            resource: demojwt.jks
+            key-pair-password: keypairpass
+            key-store-password: keystorepass
+
+nacos:
+  config:
+    server-addr: 192.168.0.233:18848
+    namespace: 25361486-9737-46a8-b488-4768cfd1fe77
+
+rocketmq:
+  name-server: http://192.168.0.233:19876
+
+platform:
+  security:
+    resource:
+      permit: "/**"
+
+#定时器配置
+xxl:
+  job:
+    admin:
+      addresses: http://192.168.0.233:18080/xxl-job-admin
+    accessToken:
+    executor:
+      appname: bimops-be-servone
+      address:
+      ip:
+      port: 0
+      logpath: logs/servone/job
+      logretentiondays: 7
+  username: admin
+  password: 123456
+service:
+  regularIp: 192.168.0.233
+#全量订阅IOT消息
+thirdparty:
+  iot:
+    subscribe:
+      full:
+        consumer:
+          rabbit:
+            host: 192.168.0.233
+            port: 5672
+            username: ghymq
+            password: ghy@RabbitMq2022
+            virtual-host: iotp_v2

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.dispatch.server.dao.DispatchGroupMapper">
+
+    <insert id="insertOrUpdateGroupBatch" parameterType="com.guhecloud.cube.biz.dispatch.server.entity.DispatchGroup">
+        insert into
+        `dispatch_group`(id,parent_id,code,name,type,valid_time,sort,
+        tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.parentId},#{item.code},#{item.name},#{item.type},#{item.validTime},#{item.sort},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        sort = values(sort),
+        parent_id = values(parent_id),
+        valid_time = values(valid_time),
+        update_time = values(update_time)
+    </insert>
+
+    <select id="getGroupWithDevice" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchGroupTreeVO">
+        select * from (select g.id,g.parent_id,g.code,g.name,g.type,'group' as category,g.tenant,g.deleted from dispatch_group g
+        union all
+        select d.id,r.group_id,d.code,d.name,d.type,'device' as category,d.tenant,d.deleted from dispatch_device d
+        left join dispatch_device_group_refer r on d.id = r.device_id) t
+        <where>
+            t.tenant = #{param.tenant} and t.deleted = 0
+            <if test="param.keyword != null and param.keyword != ''">
+                and (t.name like concat('%',#{param.keyword},'%') or t.code like concat('%',#{param.keyword},'%'))
+            </if>
+            <if test="param.type != null and param.type != ''">
+                and t.type = #{param.type}
+            </if>
+        </where>
+    </select>
+
+    <select id="getGroupWithDeviceDetail" resultType="com.guhecloud.cube.biz.dispatch.server.vo.DispatchGroupTreeVO">
+        select g.id,g.parent_id,g.code,g.name,g.type,'group' as category,1 as status,g.tenant,g.deleted from dispatch_group g
+        <where>
+            g.tenant = #{param.tenant} and g.deleted = 0
+            <if test="param.type != null and param.type != ''">
+                and (g.type = #{param.type} or g.parent_id = '' or g.parent_id = null)
+            </if>
+        </where>
+        union all
+        select d.id,r.group_id as parent_id,d.code,d.name,d.type,'device' as category,s.online_status as status,d.tenant,d.deleted from dispatch_device d
+        left join dispatch_device_group_refer r on d.id = r.device_id
+				left join dispatch_device_status s on d.id = s.id
+        <where>
+            d.tenant = #{param.tenant} and d.deleted = 0 and r.group_id is not null
+            <if test="param.keyword != null and param.keyword != ''">
+                and (d.name like concat('%',#{param.keyword},'%') or d.code like concat('%',#{param.keyword},'%'))
+            </if>
+            <if test="param.deviceType != null and param.deviceType != ''">
+                and d.type = #{param.deviceType}
+            </if>
+            <if test="param.deviceOnline != null and param.deviceOnline != ''">
+                and s.online_status = #{param.deviceOnline}
+            </if>
+        </where>
+    </select>
+</mapper>

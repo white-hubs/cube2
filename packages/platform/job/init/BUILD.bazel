@@ -1,0 +1,10 @@
+load("@rules_pkg//pkg:mappings.bzl", "pkg_files")
+
+pkg_files(
+    name = "init-mysql",
+    srcs = ["init-db.mysql.sql"],
+    renames = {
+        "init-db.mysql.sql": "xxl_job_init.mysql.sql",
+    },
+    visibility = ["//packages/deploy/database:__subpackages__"],
+)

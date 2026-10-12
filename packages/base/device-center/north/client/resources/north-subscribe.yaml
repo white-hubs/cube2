@@ -1,0 +1,25 @@
+openapi: 3.0.3
+info:
+  title: 北向订阅
+  description: 北向订阅，支持websocket、
+  version: 1.0.0
+servers:
+  - url: 'https'
+paths:
+  /subscribe/socket:
+
+  /subscribe/http:
+
+  /rocketMq/push:
+    #  物联网主动推送到RocketMq中
+    #  - 设备状态
+    #  - 联动事件与告警
+    #  - 命令执行变更
+    #  - 事件附件推送
+
+    #  业务订阅功能支持[http、webSocket]
+    #  - 实时属性订阅
+    #  - 其他支持
+
+    #  北向提供功能
+    #

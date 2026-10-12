@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.north.mapper.LinkTriggerMetaMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.north.model.LinkTriggerMeta">
+        <!--@mbg.generated-->
+        <!--@Table iot_link_trigger_meta-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="rule_num" jdbcType="VARCHAR" property="ruleNum"/>
+        <result column="rule_name" jdbcType="VARCHAR" property="ruleName"/>
+        <result column="device_id" jdbcType="BIGINT" property="deviceId"/>
+        <result column="prop_code" jdbcType="VARCHAR" property="propCode"/>
+        <result column="need_value" jdbcType="VARCHAR" property="needValue"/>
+        <result column="transparent_statement" jdbcType="VARCHAR" property="transparentStatement"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `rule_num`, `rule_name`, `device_id`, `prop_code`, `need_value`, `transparent_statement`
+    </sql>
+
+</mapper>

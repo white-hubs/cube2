@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.dao.CultivateTaskMapper">
+
+    <select id="getCultivateTaskStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateTaskStatVO">
+        select
+        count(id) as cultivateNum,
+        count(DISTINCT theme_id) as themeNum,
+        sum(IF(exam_task_id is not null,1,0)) as examNum,
+        sum(IF(cultivate_mode = 'ONLINE',1,0)) as onlineNum,
+        sum(IF(cultivate_mode = 'OFFLINE',1,0)) as offlineNum,
+        sum(IF(cultivate_target = 'STAFF',1,0)) as staffNum,
+        sum(IF(cultivate_target = 'MERCHANT',1,0)) as merchantNum
+        from cultivate_task t
+        where t.deleted = 0
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+    </select>
+
+    <select id="getCultivateTaskPermissionStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateTaskStatVO">
+        SELECT
+        COUNT( t3.id ) AS cultivateNum,
+        COUNT( DISTINCT t3.theme_id ) AS themeNum,
+        sum(
+        IF
+        ( t3.exam_task_id IS NOT NULL, 1, 0 )) AS examNum,
+        sum(
+        IF
+        ( t3.cultivate_mode = 'ONLINE', 1, 0 )) AS onlineNum,
+        sum(
+        IF
+        ( t3.cultivate_mode = 'OFFLINE', 1, 0 )) AS offlineNum,
+        sum(
+        IF
+        ( t3.cultivate_target = 'STAFF', 1, 0 )) AS staffNum,
+        sum(
+        IF
+        ( t3.cultivate_target = 'MERCHANT', 1, 0 )) AS merchantNum
+        FROM
+        (
+        SELECT
+        t.id,
+        t.theme_id,
+        t.exam_task_id,
+        t.cultivate_mode,
+        t.cultivate_target
+        FROM
+        cultivate_task t
+        INNER JOIN cultivate_task_user t2 ON t.id = t2.cultivate_task_id
+        WHERE
+        t.deleted = 0
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+        GROUP BY
+        t.id
+        ) t3;
+    </select>
+
+    <!-- 主题占比统计 -->
+    <select id="getCultivateThemeStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateCommonStatVO">
+        select
+        t.theme_name as name,count(*) as num
+        from cultivate_task t
+        where t.deleted = 0
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+        group by t.theme_name
+    </select>
+
+    <!-- 培训对象占比统计 -->
+    <select id="getCultivateTargetStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateCommonStatVO">
+        select
+        t.cultivate_target as name,count(*) as num
+        from cultivate_task t
+        where t.deleted = 0
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+        group by t.cultivate_target
+    </select>
+
+    <!-- 培训趋势统计 -->
+    <select id="getCultivateTrendStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateCommonStatVO">
+        select
+        DATE_FORMAT(t.cultivate_start_time,'%Y-%m') as name,
+        count(*) as num
+        from cultivate_task t
+        where t.deleted = 0
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+        group by DATE_FORMAT(t.cultivate_start_time,'%Y-%m')
+    </select>
+
+    <!-- 获取培训人员 -->
+    <select id="getTrainUserStat"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateUserStatVO">
+        select
+        count(tu.id) as trainNum,
+        sum(IF(tu.user_sign_status = 'SIGNED',1,0)) AS signedNum,
+        sum(IF(tu.user_sign_status = 'UNSIGNED',1,0)) AS unsignedNum,
+        sum(IF(tu.belated = 1,1,0)) AS belatedNum
+        from cultivate_task_user tu
+        inner join cultivate_task t on tu.cultivate_task_id = t.id
+        <if test="period != null">
+            and t.cultivate_start_time &gt;= #{period.begin} and t.cultivate_start_time &lt; #{period.end}
+        </if>
+    </select>
+
+    <select id="getMyTask"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateMyTaskVO">
+        select t.id,t.code,t.name,t.theme_id,t.theme_name,t.cultivate_start_time,t.cultivate_end_time,
+        t.exam_task_id,cultivate_user_number,cultivate_mode,t.cultivate_target,t.cultivate_address,
+        t.speaker,t.charge_user_id,t.charge_user_name,t.cultivate_content,t.cultivate_task_status,
+        t.tenant,u.user_id,u.user_name,u.user_phone,u.user_sign_status,u.user_sign_time,u.belated,
+        u.merchant_id,u.merchant_name
+        from cultivate_task_user u
+        inner join cultivate_task t on u.cultivate_task_id = t.id
+        where t.deleted = 0 and t.cultivate_task_status != 'WAIT_PUBLISH'
+        <if test="param.userId != null">
+            and u.user_id = #{param.userId}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and t.name like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.cultivateTaskStatus != null and param.cultivateTaskStatus != ''">
+            and t.cultivate_task_status = #{param.cultivateTaskStatus}
+        </if>
+        order by t.create_time desc
+    </select>
+
+    <select id="getPublicMyTaskPage"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateMyTaskVO">
+        SELECT
+        t.id,
+        t.CODE,
+        t.NAME,
+        t.theme_id,
+        t.theme_name,
+        t.source_code,
+        t.cultivate_start_time,
+        t.cultivate_end_time,
+        t.exam_task_id,
+        cultivate_user_number,
+        cultivate_mode,
+        t.cultivate_target,
+        t.cultivate_address,
+        t.speaker,
+        t.charge_user_id,
+        t.charge_user_name,
+        t.cultivate_content,
+        t.cultivate_task_status,
+        t.tenant,
+        t.user_id,
+        t.user_name,
+        t.user_phone,
+        t.user_sign_status,
+        t.user_sign_time,
+        t.belated,
+        t.merchant_id,
+        t.merchant_name
+        FROM
+        (
+        SELECT
+        t.id,
+        t.CODE,
+        t.NAME,
+        t.theme_id,
+        t.theme_name,
+        t.source_code,
+        t.cultivate_start_time,
+        t.cultivate_end_time,
+        t.exam_task_id,
+        cultivate_user_number,
+        cultivate_mode,
+        t.cultivate_target,
+        t.cultivate_address,
+        t.speaker,
+        t.charge_user_id,
+        t.charge_user_name,
+        t.cultivate_content,
+        t.cultivate_task_status,
+        t.tenant,
+        NULL AS user_id,
+        NULL AS user_name,
+        NULL AS user_phone,
+        NULL AS user_sign_status,
+        NULL AS user_sign_time,
+        NULL AS belated,
+        NULL AS merchant_id,
+        NULL AS merchant_name,
+        t.create_time
+        FROM
+        cultivate_task t
+        WHERE
+        t.deleted = 0
+        AND t.cultivate_task_status != 'WAIT_PUBLISH'
+        AND ( SELECT COUNT( 1 ) FROM cultivate_task_user WHERE cultivate_task_id = t.id AND user_identify = #{param.userIdentify} ) &lt;= 0
+        <if test="param.keyword != null and param.keyword != ''">
+            and t.name like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.marketTenant != null">
+            and t.market_tenant = #{param.marketTenant}
+        </if>
+        <if test="param.cultivateTaskStatus != null and param.cultivateTaskStatus != ''">
+            and t.cultivate_task_status = #{param.cultivateTaskStatus}
+        </if>
+        GROUP BY
+        t.id
+        UNION
+        SELECT
+        t.id,
+        t.CODE,
+        t.NAME,
+        t.theme_id,
+        t.theme_name,
+        t.source_code,
+        t.cultivate_start_time,
+        t.cultivate_end_time,
+        t.exam_task_id,
+        cultivate_user_number,
+        cultivate_mode,
+        t.cultivate_target,
+        t.cultivate_address,
+        t.speaker,
+        t.charge_user_id,
+        t.charge_user_name,
+        t.cultivate_content,
+        t.cultivate_task_status,
+        t.tenant,
+        u.user_id,
+        u.user_name,
+        u.user_phone,
+        u.user_sign_status,
+        u.user_sign_time,
+        u.belated,
+        u.merchant_id,
+        u.merchant_name,
+        t.create_time
+        FROM
+        cultivate_task t
+        INNER JOIN cultivate_task_user u ON u.cultivate_task_id = t.id
+        AND u.deleted = 0
+        WHERE
+        t.deleted = 0 AND t.cultivate_task_status != 'WAIT_PUBLISH'
+        AND u.user_identify = #{param.userIdentify}
+        <if test="param.marketTenant != null">
+            and t.market_tenant = #{param.marketTenant}
+        </if>
+        <if test="param.keyword != null and param.keyword != ''">
+            and t.name like concat('%',#{param.keyword},'%')
+        </if>
+        <if test="param.cultivateTaskStatus != null and param.cultivateTaskStatus != ''">
+            and t.cultivate_task_status = #{param.cultivateTaskStatus}
+        </if>
+        GROUP BY
+        t.id
+        ) t
+        order by t.create_time desc
+    </select>
+
+    <select id="getCultivateStandardList"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.cultivate.vo.CultivateTaskPageVO">
+        select
+        id,
+        code,
+        `name`,
+        theme_id,
+        theme_name,
+        source_code,
+        source_name,
+        source_key,
+        cultivate_start_time,
+        cultivate_end_time,
+        exam_task_id,
+        cultivate_user_number,
+        cultivate_mode,
+        cultivate_target,
+        cultivate_address,
+        speaker,
+        charge_user_id,
+        charge_user_name,
+        cultivate_content,
+        cultivate_task_status,
+        tenant,
+        deleted,
+        create_by,
+        creator_id,
+        creator_type,
+        create_time,
+        update_by,
+        update_time
+        from
+        cultivate_task
+        <where>
+            tenant = #{tenant}
+            <if test="param.keyword != null and param.keyword != ''">
+                and `name` like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.cultivateTaskStatus != null and param.cultivateTaskStatus != ''">
+                and cultivate_task_status = #{param.cultivateTaskStatus}
+            </if>
+            <if test="param.period != null">
+                and update_time &gt;= #{param.period.begin} and update_time &lt; #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <!-- 主题占比统计 -->
+    <select id="selectCultivateThemeRatio"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.standard.statistics.interfaces.vo.SafetyEducationThemeRatioVO">
+        select
+        t.theme_id as id,
+        t.theme_name as `name`,
+        count(*) as total_num
+        from cultivate_task t
+        <where>
+            <if test="query.period != null">
+                and t.cultivate_start_time &gt;= #{query.period.begin} and t.cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+        group by t.theme_id,t.theme_name
+    </select>
+
+    <select id="selectCultivateCount"
+            resultType="java.lang.Integer">
+        select
+        count(*) as total_num
+        from cultivate_task t
+        <where>
+            <if test="query.period != null">
+                and t.cultivate_start_time &gt;= #{query.period.begin} and t.cultivate_start_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+    </select>
+    <select id="selectCultivateUserCount" resultType="java.lang.Long">
+        SELECT
+        COUNT( DISTINCT ctu.user_identify )
+        FROM
+        cultivate_task_user ctu
+        <where>
+            <if test="query.period != null and query.period.begin != null">
+                and ctu.create_time &gt;= #{query.period.begin}
+            </if>
+            <if test="query.period != null and query.period.end != null">
+                and ctu.create_time &lt;= #{query.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

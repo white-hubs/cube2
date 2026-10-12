@@ -1,0 +1,168 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.subsystem.parking.server.parking.infrastructure.repository.dao.ParkingVisualizationMapper">
+    <select id="getParkingOverview" resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.interfaces.vo.ParkingOverviewVO">
+        SELECT sum(`total_num`) AS `total`,
+        sum(`total_in_num`) AS `used`,
+        sum(`total_space_num`) AS `empty`,
+        count(`id`) as `parking_count`
+        FROM `parking_info`
+        <where>
+            <if test="source != null and source != ''">
+                `source` = #{source}
+            </if>
+        </where>
+    </select>
+    <select id="getMoneyOverviewCurrent"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.vehicle.vo.MoneyOverviewVO">
+        SELECT sum(`receivable_amount`) AS `receivable_amount`,
+               sum(`free_amount`)       AS `free_amount`,
+               sum(`discount_amount`)   AS `discount_amount`
+        FROM `parking_pay_record`
+        where `pay_time` between #{date.startTime} and #{date.endTime}
+    </select>
+    <select id="getTrafficTrend" resultType="com.guhecloud.cube.biz.subsystem.parking.client.vo.StatisticalChartDataVO">
+        SELECT
+        <if test="dimension == 'TODAY'">
+            HOUR(`access_time`) as `name`,
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            DAY(`access_time`) as `name`,
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            MONTH(`access_time`) as `name`,
+        </if>
+        count(1) AS `valus`
+        FROM `parking_access_record`
+        where `access_type` = #{accessType}
+        and `access_time` between #{date.startTime}
+        and #{date.endTime}
+        <if test="dimension == 'TODAY'">
+            GROUP BY HOUR(`access_time`)
+            order by HOUR(`access_time`)
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            GROUP BY DAY(`access_time`)
+            order by DAY(`access_time`)
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            GROUP BY MONTH(`access_time`)
+            order by MONTH(`access_time`)
+        </if>
+    </select>
+    <select id="getRecordNumber" resultType="java.lang.String">
+        select `identify_id`
+        from (select count(1) as `number`,`identify_id`
+        from `parking_access_record`
+        <where>
+            <if test="date !=null and date.startTime !=null">
+                `access_time` between #{date.startTime}
+                and #{date.endTime}
+            </if>
+        </where>
+        group by `identify_id`
+        having count(1) = #{number}) a
+    </select>
+    <!-- 滞留：近 lookback 天内进场、有进无出、完整滞留天数>=1；分桶对齐 ChronoUnit.DAYS -->
+    <select id="getRetentionTrafficTrendBuckets"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.client.vo.StatisticalChartDataVO">
+        SELECT
+            LEAST(TIMESTAMPDIFF(DAY, t1.`access_time`, #{now}) - 1, 4) AS `name`,
+            COUNT(1) AS `valus`
+        FROM `parking_access_record` t1 FORCE INDEX (`idx_tenant_deleted_type_time`)
+        WHERE t1.`access_type` = 'ACCESS_IN'
+          AND t1.`access_time` &gt;= #{lookbackBegin}
+          AND t1.`access_time` &lt;= #{strandedBefore}
+          AND NOT EXISTS (
+            SELECT 1
+            FROM `parking_access_record` t2
+            WHERE t2.`identify_id` = t1.`identify_id`
+              AND t2.`access_type` = 'ACCESS_OUT'
+          )
+        GROUP BY LEAST(TIMESTAMPDIFF(DAY, t1.`access_time`, #{now}) - 1, 4)
+    </select>
+    <!--
+      停车时长：进/出各做一次 type+time range，再按 identify_id 连接分桶（对齐 ChronoUnit.DAYS）。
+      避免「按 access_time 扫 56 万再 GROUP BY identify_id」——索引顺序与分组键不一致，必落磁盘临时表 ≈ 30s。
+      建好 idx_tenant_deleted_type_time_identify 后把下面 USE INDEX 换成该索引可避免回表。
+    -->
+    <select id="getParkingDurationBuckets"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.client.vo.StatisticalChartDataVO">
+        SELECT
+            CASE
+                WHEN TIMESTAMPDIFF(DAY, i.`in_time`, o.`out_time`) &lt;= 3 THEN 0
+                WHEN TIMESTAMPDIFF(DAY, i.`in_time`, o.`out_time`) &lt;= 6 THEN 1
+                WHEN TIMESTAMPDIFF(DAY, i.`in_time`, o.`out_time`) &lt;= 9 THEN 2
+                ELSE 3
+            END AS `name`,
+            COUNT(*) AS `valus`
+        FROM (
+            SELECT t1.`identify_id`, t1.`access_time` AS `in_time`
+            FROM `parking_access_record` t1 USE INDEX (`idx_tenant_deleted_type_time_identify`)
+            WHERE t1.`access_type` = 'ACCESS_IN'
+              AND t1.`access_time` &gt;= #{date.startTime}
+              AND t1.`access_time` &lt;= #{date.endTime}
+        ) i
+        INNER JOIN (
+            SELECT t1.`identify_id`, t1.`access_time` AS `out_time`
+            FROM `parking_access_record` t1 USE INDEX (`idx_tenant_deleted_type_time_identify`)
+            WHERE t1.`access_type` = 'ACCESS_OUT'
+              AND t1.`access_time` &gt;= #{date.startTime}
+              AND t1.`access_time` &lt;= #{date.endTime}
+        ) o ON o.`identify_id` = i.`identify_id`
+            AND o.`out_time` &gt;= i.`in_time`
+        GROUP BY 1
+    </select>
+    <select id="getPayType" resultType="com.guhecloud.cube.biz.subsystem.parking.server.vehicle.vo.MoneyTypeVO">
+        SELECT b.`name`,
+               b.`CODE`,
+               COALESCE(sum(`free_amount`), 0) AS `freeAmount`
+        FROM `parking_pay_convert` b
+                 left JOIN `parking_pay_record` a ON a.`pay_type` = b.`pay_type`
+            and `pay_time` between #{date.startTime} and #{date.endTime}
+        group by b.`code`
+    </select>
+    <select id="getPayTrend" resultType="com.guhecloud.cube.biz.subsystem.parking.client.vo.StatisticalChartDataVO">
+        SELECT
+        <if test="dimension == 'TODAY'">
+            HOUR(`pay_time`)
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            DAY(`pay_time`)
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            MONTH(`pay_time`)
+        </if>
+        as `name`,sum( `free_amount` ) AS `valus`
+        FROM
+        `parking_pay_record`
+        where `pay_time` between #{date.startTime}
+        and #{date.endTime}
+        <if test="dimension == 'TODAY'">
+            GROUP BY HOUR(`pay_time`)
+            order by HOUR(`pay_time`)
+        </if>
+        <if test="dimension == 'THIS_WEEK' || dimension == 'THIS_MONTH'">
+            GROUP BY DAY(`pay_time`)
+            order by DAY(`pay_time`)
+        </if>
+        <if test="dimension == 'THIS_YEAR'">
+            GROUP BY MONTH(`pay_time`)
+            order by MONTH(`pay_time`)
+        </if>
+    </select>
+    <select id="getParkEventInOrOut"
+            resultType="com.guhecloud.cube.biz.subsystem.parking.server.parking.interfaces.vo.ParkStatisticsVo">
+        SELECT
+        COUNT(CASE WHEN `access_type` = 'ACCESS_IN' THEN 1 END) AS `inNum`,
+        COUNT(CASE WHEN `access_type` = 'ACCESS_OUT' THEN 1 END) AS `outNum`
+        FROM `parking_access_record`
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                and `access_time` &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and `access_time` &lt;= #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

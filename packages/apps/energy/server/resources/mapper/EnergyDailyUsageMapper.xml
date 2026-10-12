@@ -1,0 +1,215 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.EnergyDailyUsageMapper">
+    <insert id="insertOrUpdateEnergyDailyUsage" parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsage"
+            databaseId="mysql">
+        insert into
+        energy_daily_usage(id,stat_date,instrument_type,instrument_type_name,
+        d_value,f_value,p_value,g_value,j_value,dc_value,zh_value,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.statDate},#{item.instrumentType},#{item.instrumentTypeName},
+            #{item.dValue},#{item.fValue},#{item.pValue},#{item.gValue},#{item.jValue},#{item.dcValue},#{item.zhValue},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        d_value = values(d_value),
+        f_value = values(f_value),
+        p_value = values(p_value),
+        g_value = values(g_value),
+        j_value = values(j_value),
+        dc_value = values(dc_value),
+        zh_value = values(zh_value),
+        update_time = values(update_time)
+    </insert>
+
+    <insert id="insertOrUpdateEnergyDailyUsage" parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsage"
+            databaseId="dm">
+        <foreach collection="list" item="item" separator=";">
+            MERGE INTO energy_daily_usage AS target
+            USING (
+            SELECT
+            #{item.id} AS id,
+            #{item.statDate} AS stat_date,
+            #{item.instrumentType} AS instrument_type,
+            #{item.instrumentTypeName} AS instrument_type_name,
+            #{item.dValue} AS d_value,
+            #{item.fValue} AS f_value,
+            #{item.pValue} AS p_value,
+            #{item.gValue} AS g_value,
+            #{item.jValue} AS j_value,
+            #{item.dcValue} AS dc_value,
+            #{item.zhValue} AS zh_value,
+            #{item.tenant} AS tenant,
+            #{item.createBy} AS create_by,
+            #{item.creatorId} AS creator_id,
+            #{item.creatorType} AS creator_type,
+            #{item.createTime} AS create_time,
+            #{item.updateBy} AS update_by,
+            #{item.updaterId} AS updater_id,
+            #{item.updaterType} AS updater_type,
+            #{item.updateTime} AS update_time,
+            #{item.deleted} AS deleted
+            FROM DUAL
+            ) AS source
+            ON (target.id = source.id)
+            WHEN MATCHED THEN
+            UPDATE SET
+            target.d_value = source.d_value,
+            target.f_value = source.f_value,
+            target.p_value = source.p_value,
+            target.g_value = source.g_value,
+            target.j_value = source.j_value,
+            target.dc_value = source.dc_value,
+            target.zh_value = source.zh_value,
+            target.update_time = source.update_time
+            WHEN NOT MATCHED THEN
+            INSERT (
+            id, stat_date, instrument_type, instrument_type_name,
+            d_value, f_value, p_value, g_value, j_value, dc_value, zh_value,
+            tenant, create_by, creator_id, creator_type, create_time, update_by, updater_id, updater_type, update_time, deleted
+            ) VALUES (
+            source.id, source.stat_date, source.instrument_type, source.instrument_type_name,
+            source.d_value, source.f_value, source.p_value, source.g_value, source.j_value,
+            source.dc_value, source.zh_value,
+            source.tenant, source.create_by, source.creator_id, source.creator_type, source.create_time,
+            source.update_by, source.updater_id, source.updater_type, source.update_time, source.deleted
+            )
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateEnergyDailyUsage" parameterType="com.guhecloud.cube.srv.gen.energymanagement.server.entity.EnergyDailyUsage"
+            databaseId="pg">
+        <foreach collection="list" item="item" separator=";">
+            MERGE INTO energy_daily_usage AS target
+            USING (
+            SELECT
+            #{item.id} AS id,
+            #{item.statDate} AS stat_date,
+            #{item.instrumentType} AS instrument_type,
+            #{item.instrumentTypeName} AS instrument_type_name,
+            #{item.dValue} AS d_value,
+            #{item.fValue} AS f_value,
+            #{item.pValue} AS p_value,
+            #{item.gValue} AS g_value,
+            #{item.jValue} AS j_value,
+            #{item.dcValue} AS dc_value,
+            #{item.zhValue} AS zh_value,
+            #{item.tenant} AS tenant,
+            #{item.createBy} AS create_by,
+            #{item.creatorId} AS creator_id,
+            #{item.creatorType} AS creator_type,
+            #{item.createTime} AS create_time,
+            #{item.updateBy} AS update_by,
+            #{item.updaterId} AS updater_id,
+            #{item.updaterType} AS updater_type,
+            #{item.updateTime} AS update_time,
+            #{item.deleted} AS deleted
+            FROM DUAL
+            ) AS source
+            ON (target.id = source.id)
+            WHEN MATCHED THEN
+            UPDATE SET
+            target.d_value = source.d_value,
+            target.f_value = source.f_value,
+            target.p_value = source.p_value,
+            target.g_value = source.g_value,
+            target.j_value = source.j_value,
+            target.dc_value = source.dc_value,
+            target.zh_value = source.zh_value,
+            target.update_time = source.update_time
+            WHEN NOT MATCHED THEN
+            INSERT (
+            id, stat_date, instrument_type, instrument_type_name,
+            d_value, f_value, p_value, g_value, j_value, dc_value, zh_value,
+            tenant, create_by, creator_id, creator_type, create_time, update_by, updater_id, updater_type, update_time, deleted
+            ) VALUES (
+            source.id, source.stat_date, source.instrument_type, source.instrument_type_name,
+            source.d_value, source.f_value, source.p_value, source.g_value, source.j_value,
+            source.dc_value, source.zh_value,
+            source.tenant, source.create_by, source.creator_id, source.creator_type, source.create_time,
+            source.update_by, source.updater_id, source.updater_type, source.update_time, source.deleted
+            )
+        </foreach>
+    </insert>
+
+    <select id="getUsageStatByInstrumentType" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyDailyUsageVO">
+        select instrument_type,sum(d_value) as ddValue,sum(dc_value) as dcValue,sum(zh_value) as zhValue,sum(f_value) as fValue,sum(p_value)
+        as pValue,sum(g_value) as gValue,sum(j_value) as jValue
+        from energy_daily_usage
+        where deleted = 0
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+    </select>
+
+    <select id="getUsageStatWithCarbonByTime"
+            resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyDailyUsageWithCarbonVO">
+        select sum(d_value) as dValue,sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage
+        where deleted = 0
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+    </select>
+
+    <select id="getUsageStatWithCarbonByType"
+            resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyDailyUsageWithCarbonVO">
+        select instrument_type,sum(d_value) as dValue,sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage
+        where deleted = 0
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by instrument_type;
+    </select>
+
+    <select id="getUsageToDcStatForTrend" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select DATE_FORMAT(stat_date,#{param.groupFormat}) as time,sum(d_value) as value,
+        sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage
+        where deleted = 0
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by time
+    </select>
+
+    <select id="getUsageToDcStatByTimeAndType" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.TrendStatVO">
+        select DATE_FORMAT(stat_date,#{param.groupFormat}) as time,instrument_type_name as name,
+        sum(d_value) as value,sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from energy_daily_usage
+        where deleted = 0
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and stat_date &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and stat_date &lt;= #{param.period.end}
+        </if>
+        group by time,name
+    </select>
+</mapper>

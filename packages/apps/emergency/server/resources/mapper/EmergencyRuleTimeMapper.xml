@@ -1,0 +1,104 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.emergency.server.rule.infrastructure.repository.mapper.EmergencyRuleTimeMapper">
+
+    <select id="selectEventEmergencyTimeCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(ert.`id`)
+        FROM
+        `emergency_rule_condition` erc
+        INNER JOIN `emergency_rule_condition_device` ercd ON erc.`emergency_rule_id` = ercd.`emergency_rule_id`
+        INNER JOIN `emergency_rule_time` ert ON erc.`emergency_rule_id` = ert.`emergency_rule_id`
+        WHERE erc.`condition_type` = 'DEVICE_EVENT_CONDITION'
+        <if test="emergencyId != null">
+            and erc.`emergency_rule_id` != #{emergencyId}
+        </if>
+        <if test="modelIds != null and modelIds.size() > 0">
+            AND erc.`device_model_id` in
+            <foreach collection="modelIds" item="modelId" open="(" separator="," close=")">
+                #{modelId}
+            </foreach>
+        </if>
+        <if test="eventCodes != null and eventCodes.size() > 0">
+            AND erc.`device_event_code` in
+            <foreach collection="eventCodes" item="eventCode" open="(" separator="," close=")">
+                #{eventCode}
+            </foreach>
+        </if>
+        <if test="deviceIds != null and deviceIds.size() > 0 ">
+            AND ercd.`device_id` IN
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </if>
+        <if test="emergencyRuleTimePOS != null and emergencyRuleTimePOS.size() > 0">
+            AND
+            <foreach collection="emergencyRuleTimePOS" item="emergencyRuleTimePO" separator="or" open="(" close=")">
+                (
+                <!--时间段整体包含-->
+                (#{emergencyRuleTimePO.startTime} &lt;= ert.`start_time` and ert.`end_time` &lt;=
+                #{emergencyRuleTimePO.endTime}) or
+                <!--开始时间包含-->
+                (#{emergencyRuleTimePO.startTime} &lt;= ert.`start_time` and ert.`start_time` &lt;=
+                #{emergencyRuleTimePO.endTime}) or
+                <!--结束时间包含-->
+                (#{emergencyRuleTimePO.startTime} &gt;= ert.`start_time` and #{emergencyRuleTimePO.startTime} &lt;=
+                ert.end_time)
+                )
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectPropertyEmergencyTimeCount" resultType="java.lang.Integer">
+        SELECT
+        COUNT(ert.`id`)
+        FROM
+        `emergency_rule_condition` erc
+        INNER JOIN `emergency_rule_condition_device` ercd ON erc.`emergency_rule_id` = ercd.`emergency_rule_id`
+        INNER JOIN `emergency_rule_condition_exp` ercx on erc.`emergency_rule_id` = ercx.`emergency_rule_id`
+        INNER JOIN `emergency_rule_time` ert ON erc.`emergency_rule_id` = ert.`emergency_rule_id`
+        WHERE erc.`condition_type` = 'CUSTOM_RULE_CONDITION'
+        <if test="emergencyId != null">
+            and erc.`emergency_rule_id` != #{emergencyId}
+        </if>
+        <if test="modelIds != null and modelIds.size() > 0">
+            AND erc.`device_model_id` in
+            <foreach collection="modelIds" item="modelId" open="(" separator="," close=")">
+                #{modelId}
+            </foreach>
+        </if>
+        <if test="deviceIds != null and deviceIds.size() > 0 ">
+            AND ercd.`device_id` IN
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </if>
+        <if test="emergencyRuleConditionExpPOS != null and emergencyRuleConditionExpPOS.size() > 0">
+            AND
+            <foreach collection="emergencyRuleConditionExpPOS" item="emergencyRuleConditionExp" separator="or">
+                (
+                ercx.`prop_code` = #{emergencyRuleConditionExp.propCode} and
+                ercx.`op` = #{emergencyRuleConditionExp.op} and
+                ercx.`oprand` = #{emergencyRuleConditionExp.oprand}
+                )
+            </foreach>
+        </if>
+        <if test="emergencyRuleTimePOS != null and emergencyRuleTimePOS.size() > 0">
+            AND
+            <foreach collection="emergencyRuleTimePOS" item="emergencyRuleTimePO" separator="or">
+                (
+                <!--时间段整体包含-->
+                (#{emergencyRuleTimePO.startTime} &lt;= ert.`start_time` and ert.`end_time` &lt;=
+                #{emergencyRuleTimePO.endTime}) or
+                (
+                <!--开始时间包含-->
+                #{emergencyRuleTimePO.startTime} &lt;= ert.`start_time` and ert.`start_time` &lt;=
+                #{emergencyRuleTimePO.endTime}) or
+                (
+                <!--结束时间包含-->
+                #{emergencyRuleTimePO.startTime} &gt;= ert.`start_time` and #{emergencyRuleTimePO.startTime} &lt;=
+                ert.end_time)
+                )
+            </foreach>
+        </if>
+    </select>
+</mapper>

@@ -1,0 +1,18 @@
+server:
+  port: 11003
+
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: license
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+logging:
+  level:
+    root: info
+
+license:
+  licensePath: /Users/lhp/license/license.lic

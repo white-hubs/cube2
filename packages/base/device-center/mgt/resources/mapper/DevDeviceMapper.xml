@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.iot.mgt.device.mapper.DevDeviceMapper">
+    <resultMap id="BaseResultMap" type="com.guhecloud.cube.iot.mgt.device.model.DevDevice">
+        <!--@mbg.generated-->
+        <!--@Table iot_dev_device-->
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="device_parent_id" jdbcType="BIGINT" property="deviceParentId"/>
+        <result column="device_key" jdbcType="VARCHAR" property="deviceKey"/>
+        <result column="device_number" jdbcType="VARCHAR" property="deviceNumber"/>
+        <result column="product_id" jdbcType="BIGINT" property="productId"/>
+        <result column="name" jdbcType="VARCHAR" property="name"/>
+        <result column="status" jdbcType="INTEGER" property="status"/>
+        <result column="device_type" jdbcType="INTEGER" property="deviceType"/>
+        <result column="activation_time" jdbcType="TIMESTAMP" property="activationTime"/>
+        <result column="online_time" jdbcType="TIMESTAMP" property="onlineTime"/>
+        <result column="config" jdbcType="LONGVARCHAR" property="config"/>
+        <result column="raw_device_id" jdbcType="VARCHAR" property="rawDeviceId"/>
+        <result column="auth_algorithm" jdbcType="VARCHAR" property="authAlgorithm"/>
+        <result column="salt" jdbcType="VARCHAR" property="salt"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        `id`, `device_parent_id`, `device_key`, `device_number`, `product_id`, `name`, `status`, `device_type`,
+        `activation_time`,
+        `online_time`, `config`, `raw_device_id`, `auth_algorithm`, `salt`
+    </sql>
+
+    <select id="listThinDeviceByProductId" resultType="com.guhecloud.cube.iot.mgt.device.vo.DeviceThinPairVo">
+        select `d`.`id`               as `deviceId`,
+               `d`.`device_parent_id` as `deviceParentId`,
+               `d`.`name`             as `deviceName`,
+               `d`.`device_number`    as `deviceNumber`,
+               `d`.`product_id`       as `productId`
+        from `iot_dev_device` `d`
+        where `d`.`product_id` = #{productId}
+    </select>
+
+    <select id="selectVisibleGatewayDevice" resultMap="BaseResultMap">
+        SELECT `dev`.`id`,
+               `dev`.`device_parent_id`,
+               `dev`.`device_number`,
+               `dev`.`product_id`,
+               `dev`.`name`,
+               `dev`.`status`,
+               `dev`.`device_type`,
+               `dev`.`activation_time`,
+               `dev`.`online_time`
+        FROM `iot_dev_device` `dev`
+                 JOIN `iot_md_product` `prod` ON `dev`.`product_id` = `prod`.`id`
+        WHERE `prod`.`node_type` = 2
+    </select>
+
+    <select id="queryDeviceCache" resultType="com.guhecloud.cube.iot.mgt.core.data.vo.cache.DeviceDigestVo">
+        SELECT `dev`.`id`                                   AS `deviceId`,
+               `dev`.`name`                                 AS `deviceName`,
+               `dev`.`device_number`                        AS `deviceNumber`,
+               `dev`.`device_parent_id`                     AS `parentDeviceId`,
+               (SELECT `device_number`
+                FROM `iot_dev_device`
+                WHERE `id` = `dev`.`device_parent_id`)      AS `parentDeviceNumber`,
+               `dev`.`tenant`                               AS `tenantId`,
+               `prod`.`id`                                  AS `prodId`,
+               `prod`.`prod_version`                        AS `prodVersion`,
+               `prod`.`protocol_id`                         AS `protocolId`,
+               `prod`.`node_type`                           AS `nodeType`,
+               `prod`.`prod_category_id`                    AS `productCategoryId`,
+               `prod`.`prod_brand_id`                       AS `productBrandCode`,
+               (SELECT `item_value`
+                FROM `iot_sys_dict_item` `item`
+                WHERE `item`.`id` = `prod`.`prod_brand_id`) AS `productBrandCode`
+        FROM `iot_dev_device` `dev`
+                 JOIN `iot_md_product` `prod` ON `dev`.`product_id` = `prod`.`id`
+        WHERE `dev`.`id` = #{deviceId}
+          AND `dev`.`deleted` = 0
+          AND `prod`.`deleted` = 0
+    </select>
+
+    <update id="batchUpdate">
+        <foreach collection="infos" item="info" separator=";">
+            UPDATE `iot_dev_device`
+            SET `device_number` = #{info.deviceNumber}, `name` = #{info.name}
+            WHERE `id` = #{info.deviceId}
+        </foreach>
+    </update>
+
+    <select id="queryDeviceCode" resultType="java.lang.String">
+        select `device_number` from `iot_dev_device`
+        <where>
+            `device_number` in
+            <foreach collection="devices" item="dev" separator="," open="(" close=")">
+                #{dev.deviceNumber}
+            </foreach>
+        </where>
+    </select>
+</mapper>

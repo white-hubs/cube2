@@ -1,0 +1,122 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.content.management.server.announcement.dao.AnnouncementMapper">
+
+    <select id="getAnnouncementTotal"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.announcement.interfaces.vo.AnnouncementTotalVo">
+        SELECT
+        COUNT( a.`id` ) `num`,
+        b.`type_name` `typeName`
+        FROM
+        `announcement` a LEFT JOIN `model_type` b on a.`type`=b.`id`
+        GROUP BY
+        a.`type`
+        ORDER BY
+        `num`
+    </select>
+
+    <select id="pageAnnouncement"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.announcement.interfaces.vo.AnnouncementVO">
+        SELECT
+        a.`id` `id`,
+        a.`title` `title`,
+        a.`notice_time` `noticeTime`,
+        a.`content` `content`,
+        a.`create_by` `createBy`,
+        a.`creator_id` `creatorId`,
+        a.`creator_type` `creatorType`,
+        a.`level` `level`,
+        a.`type` `type`,
+        b.`type_name` `typeName`,
+        a.`viewed`,
+        a.`is_topping`,
+        a.`status`,
+        b.`one_level_type` as `firstType`
+        FROM
+        `announcement` a
+        LEFT JOIN `model_type` b ON a.`type` = b.`id`
+        <where>
+            <if test="query.status !=null and query.status !=''">
+                and a.`status` = #{query.status}
+            </if>
+            <if test="query.keyword !=null and query.keyword !=''">
+                <bind name="keywordLike" value="'%' + query.keyword + '%'" />
+                and a.`title` like #{keywordLike}
+            </if>
+            <if test="query.type !=null and query.type !=''">
+                and a.`type` =#{query.type}
+            </if>
+            <if test="query.level !=null and query.level !=''">
+                and a.`level` =#{query.level}
+            </if>
+            <if test="query.period !=null and query.period.begin !=null and query.period.end !=null">
+                and a.`notice_time` BETWEEN #{query.period.begin} and #{query.period.end}
+            </if>
+        </where>
+        order by
+        a.`is_topping` DESC,
+        a.`notice_time` DESC
+
+
+    </select>
+    <select id="getDetail"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.announcement.interfaces.vo.AnnouncementVO">
+        SELECT
+        a.`id` `id`,
+        a.`title` `title`,
+        a.`notice_time` `noticeTime`,
+        a.`content` `content`,
+        a.`create_by` `createBy`,
+        a.`creator_id` `creatorId`,
+        a.`creator_type` `creatorType`,
+        a.`level` `level`,
+        a.`type` `type`,
+        b.`type_name` `typeName`,
+        p.`type_name` `publish_agency`,
+        t.`type_name` `tag_name`
+        FROM
+        `announcement` a
+        LEFT JOIN `model_type` b ON a.`type` = b.`id`
+        LEFT JOIN `model_type` p on p.`id` = a.`publish_agency`
+        LEFT JOIN `model_type` t on t.`id` = a.`tag_id`
+        where
+        a.`id` = #{id}
+    </select>
+    <select id="getAnnouncementsForPublic"
+            resultType="com.guhecloud.cube.srv.gen.content.management.server.announcement.interfaces.vo.PublicAnnouncementVO1">
+        SELECT
+        an.`id`,
+        an.`title`,
+        an.`level`,
+        an.`content`,
+        an.`create_by`,
+        p.`type_name` `publish_agency`,
+        t.`type_name` `tag_name`,
+        mt.`type_name` `type_name`,
+        an.`create_time`
+        FROM
+        `announcement` an
+        INNER JOIN `model_type` mt ON mt.`id` = an.`type`
+        LEFT JOIN `model_type` p ON p.`id` = an.`publish_agency`
+        LEFT JOIN `model_type` t ON t.`id` = an.`tag_id`
+        <where>
+            <if test="command.status !=null and command.status !=''">
+                and an.`status` = #{command.status}
+            </if>
+            <if test="command.tagType != null and command.tagType !=''">
+                and t.`type_name` = #{command.tagType}
+            </if>
+            <if test="command.keyword !=null and command.keyword !=''">
+                <bind name="keywordLike" value="'%' + command.keyword + '%'" />
+                and an.`title` like #{keywordLike}
+            </if>
+            <if test="command.informationType !=null and command.informationType != '' ">
+                and mt.`one_level_type` = #{command.informationType}
+            </if>
+        </where>
+        ORDER BY
+        an.`is_topping` DESC,
+        an.`notice_time` DESC
+    </select>
+
+
+</mapper>

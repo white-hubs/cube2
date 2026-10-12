@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.OrganizationMapper">
+    <sql id="BASIC_ORGANIZATION_SELECT">
+        select org.`id`, org.`name`, org.`icon`, org.`sort`, org.`remark`, org.`enabled`, org.`extension`, org.`tenant`, org.`level`,
+        org.`parent_id`, org.`sequence`, org.`deleted`, org.`create_by`, org.`create_time`, org.`update_by`, org.`update_time`
+        from `organization` org
+    </sql>
+
+    <select id="listOrganizations" resultType="com.guhecloud.cube.biz.ouaa.server.entity.Organization">
+        <include refid="BASIC_ORGANIZATION_SELECT"/>
+        <where>
+            <foreach collection="sequences" item="sequence" separator="or" open="(" close=")">
+                org.`sequence` like concat(#{sequence},"%")
+            </foreach>
+        </where>
+    </select>
+    <select id="parentListById" resultType="com.guhecloud.cube.biz.ouaa.server.vo.OrganizationVO" databaseId="mysql">
+        SELECT DATA
+                   .*
+        FROM
+            (
+                SELECT
+                    @id AS _id,
+		( SELECT @id := parent_id FROM organization WHERE id = @id ) AS _pid
+                FROM
+                    organization,
+                    ( SELECT @id := #{id}, @l := 0 ) b
+                WHERE @id > 0 ) ID,
+            `organization` DATA
+        WHERE
+            ID._id = DATA.id
+        ORDER BY
+            `level`;
+    </select>
+    <select id="parentListById" resultType="com.guhecloud.cube.biz.ouaa.server.vo.OrganizationVO" databaseId="hg">
+        WITH RECURSIVE org_tree AS (
+            SELECT
+                id AS _id,
+                parent_id AS _pid
+            FROM
+                organization
+            WHERE
+                id = #{id}
+
+            UNION ALL
+
+            SELECT
+                o.id AS _id,
+                o.parent_id AS _pid
+            FROM
+                organization o
+                    JOIN org_tree ot ON o.id = ot._pid
+        )
+        SELECT
+            DATA.*
+        FROM
+            org_tree ID
+                JOIN organization DATA ON ID._id = DATA.id
+        ORDER BY
+            "level";
+
+    </select>
+
+</mapper>

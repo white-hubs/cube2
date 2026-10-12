@@ -1,0 +1,57 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.common.dao.CommandDispatchRecordMapper">
+
+    <insert id="insertOrUpdateProgram"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.entity.CommandDispatchRecordEntity">
+        INSERT INTO `command_dispatch_record` (`id`, `application_code`, `task_type`, `task_name`, `send_details`, `terminal_ids`,
+        `send_status`,`send_result`,`third_record_id`,`tenant`,`deleted`,`create_by`,`creator_id`,`creator_type`,
+        `create_time`,`update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUE
+        (#{entity.id}, #{entity.applicationCode}, #{entity.taskType},#{entity.taskName},#{entity.sendDetails},
+        #{entity.terminalIds}, #{entity.sendStatus}, #{entity.sendResult},#{entity.thirdRecordId},
+        #{entity.tenant}, #{entity.deleted},#{entity.createBy},#{entity.creatorId},#{entity.creatorType}, #{entity.createTime},
+        #{entity.updateBy},#{entity.updaterId},#{entity.updaterType}, #{entity.updateTime}
+        )
+        ON DUPLICATE KEY UPDATE
+        `application_code` = VALUES(`application_code`),
+        `task_type` = VALUES(`task_type`),
+        `task_name` = VALUES(`task_name`),
+        `send_details` = VALUES(`send_details`),
+        `terminal_ids` = VALUES(`terminal_ids`),
+        `send_status` = VALUES(`send_status`),
+        `send_result` = VALUES(`send_result`),
+        `tenant` = VALUES(`tenant`),
+        `deleted` = VALUES(`deleted`),
+        `create_by` = VALUES(`create_by`),
+        `create_time` = VALUES(`create_time`),
+        `update_by` = VALUES(`update_by`),
+        `updater_id` = VALUES(`updater_id`),
+        `updater_type` = VALUES(`updater_type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+
+    <select id="getCommandDispatchRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.entity.CommandDispatchRecordEntity">
+        SELECT
+        a.`id`, a.`application_code`, a.`task_type`, a.`task_name`, a.`send_details`,
+        a.`terminal_ids`,a.`send_status`,a.`send_result`,a.`third_record_id`,
+        a.`tenant`,a.`deleted`,a.`create_by`,a.`creator_id`,a.`creator_type`, a.`create_time`,
+        a.`update_by`,a.`updater_id`,a.`updater_type`, a.`update_time`
+        FROM
+        `command_dispatch_record` a
+        where a.`deleted` = 0
+        <if test="param.applicationCode !=null and param.applicationCode !=''">
+            and a.`application_code` = #{param.applicationCode}
+        </if>
+        <if test="param.taskType !=null and param.taskType !=''">
+            and a.`task_type` = #{param.taskType}
+        </if>
+        <if test="param.taskName !=null and param.taskName !=''">
+            and a.`task_name` like concat('%', #{param.taskName}, '%')
+        </if>
+        <if test="param.sendStatus !=null">
+            and a.`send_status` = #{param.sendStatus}
+        </if>
+        order by a.`create_time` DESC
+    </select>
+</mapper>

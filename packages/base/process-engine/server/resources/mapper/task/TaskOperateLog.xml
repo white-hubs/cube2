@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.task.infrastructure.mapper.TaskOperateLogMapper">
+
+
+    <resultMap id="selectTaskOperationLogsMap" type="com.guhecloud.cube.base.flow.flowable.task.infrastructure.po.TaskOperateLogPO" autoMapping="true">
+        <id column="id" property="id"/>
+        <result column="operate_node_name" property="operateNodeName"/>
+        <result column="task_definition_key" property="taskDefinitionKey"/>
+        <result column="process_instance_id" property="processInstanceId"/>
+        <result column="task_operation_type" property="taskOperationType"/>
+        <result column="create_time" property="createTime"/>
+        <result column="task_infos" property="taskInfosJson"/>
+    </resultMap>
+
+<select id="selectTaskOperationLogs"
+            resultMap="selectTaskOperationLogsMap">
+    select * from (select distinct(a.`task_definition_key`) taskKey, a.* from `task_operate_log` a
+    WHERE `process_instance_id`=#{formNo} order by a.`create_time` desc ) tt group by tt.`taskKey`,tt.id ORDER BY tt.`create_time` asc,tt.`id` asc
+</select>
+</mapper>

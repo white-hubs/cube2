@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.dataintegrate.server.dao.ExamTaskMapper">
+
+    <insert id="insertOrUpdateBatch" parameterType="com.guhecloud.cube.base.dataintegrate.server.entity.SafetyExamTask">
+        insert into
+        safety_exam_task(id,name,theme_id,theme_name,exam_start_time,exam_end_time,
+        exam_paper_id,exam_paper_name,exam_paper_content,charge_user_id,
+        charge_user_name,timed,exam_duration,exam_duration_unit,retake,retake_number,
+        exam_task_type,exam_task_type_name,exam_user_number,exam_task_status,exam_task_status_name,
+        published_time,remark,market_name,market_tenant,
+        tenant,create_by,creator_id,creator_type,create_time,update_by,updater_id,updater_type,update_time,deleted)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.name},#{item.themeId},#{item.themeName},#{item.examStartTime},#{item.examEndTime},
+            #{item.examPaperId},#{item.examPaperName},#{item.examPaperContent},#{item.chargeUserId},
+            #{item.chargeUserName},#{item.timed},#{item.examDuration},#{item.examDurationUnit},#{item.retake},#{item.retakeNumber},
+            #{item.examTaskType},#{item.examTaskTypeName},#{item.examUserNumber},#{item.examTaskStatus},#{item.examTaskStatusName},
+            #{item.publishedTime},#{item.remark},#{item.marketName},#{item.marketTenant},
+            #{item.tenant},#{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},#{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime},#{item.deleted})
+        </foreach>
+        on duplicate key update
+        name = values(name),
+        theme_id = values(theme_id),
+        theme_name = values(theme_name),
+        exam_start_time = values(exam_start_time),
+        exam_end_time = values(exam_end_time),
+        exam_paper_id = values(exam_paper_id),
+        exam_paper_name = values(exam_paper_name),
+        exam_paper_content = values(exam_paper_content),
+        charge_user_id = values(charge_user_id),
+        charge_user_name = values(charge_user_name),
+        timed = values(timed),
+        exam_duration = values(exam_duration),
+        exam_duration_unit = values(exam_duration_unit),
+        retake = values(retake),
+        retake_number = values(retake_number),
+        exam_task_type = values(exam_task_type),
+        exam_task_type_name = values(exam_task_type_name),
+        exam_user_number = values(exam_user_number),
+        exam_task_status = values(exam_task_status),
+        exam_task_status_name = values(exam_task_status_name),
+        published_time = values(published_time),
+        remark = values(remark),
+        market_name = values(market_name),
+        market_tenant = values(market_tenant),
+        deleted = values(deleted),
+        update_by = values(update_by),
+        updater_id = values(updater_id),
+        updater_type = values(updater_type),
+        update_time = values(update_time)
+    </insert>
+
+</mapper>

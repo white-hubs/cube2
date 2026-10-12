@@ -1,0 +1,11 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "truelicense",
+    exports = [
+        "@maven//:de_schlichtherle_truelicense_truelicense_core",
+        "@maven//:de_schlichtherle_truelicense_truelicense_xml",
+    ],
+)

@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.mdata.server.scene.dao.SceneTypeMapper">
+
+    <sql id="Basic_Query_Column">
+        id,project_id,code,name,level,parent_id,sequence,remark,tenant,deleted,`create_by`,`creator_id`,`creator_type`,`create_time`,`update_by`,`updater_id`,`updater_type`,`update_time`
+    </sql>
+
+    <select id="getBySequences" resultType="com.guhecloud.cube.biz.mdata.server.scene.entity.SceneType">
+        select
+        <include refid="Basic_Query_Column" />
+        from scene_type
+        <where>
+            <if test="projectId != null">
+                and project_id = #{projectId}
+            </if>
+            <if test="sequences != null and sequences.size() > 0">
+                and sequence in
+                <foreach collection="sequences" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        order by sort asc
+    </select>
+</mapper>

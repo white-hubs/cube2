@@ -1,0 +1,28 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.dao.MedicalRuleTriggerMapper">
+    <resultMap id="getAllById"
+               type="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.RuleTriggerVO">
+        <result column="product_id" property="productId"></result>
+        <result column="device_id" property="deviceId"></result>
+        <result column="device_name" property="deviceName"></result>
+        <result column="depart_name" property="departName"></result>
+        <collection property="norms" javaType="java.util.ArrayList"
+                    ofType="com.guhecloud.cube.srv.gen.medical.cleanliness.server.rule.vo.RuleTriggerNormVO">
+            <id column="id" property="id"></id>
+            <result column="uploadTime" property="uploadTime"></result>
+            <result column="norm_value" property="normValue"></result>
+            <result column="upper_limit" property="upperLimit"></result>
+            <result column="lower_limit" property="lowerLimit"></result>
+            <result column="unit" property="unit"></result>
+            <result column="norm_name" property="normName"></result>
+            <result column="norm_code" property="normCode"></result>
+            <result column="upload_time" property="uploadTime"></result>
+        </collection>
+    </resultMap>
+    <select id="getAllById" resultMap="getAllById">
+        select a.rule_name,a.iot_instance_id, a.product_id, a.device_id, a.device_name, a.depart_name, b.*
+        from medical_rule_trigger a
+        inner join medical_rule_trigger_norm b on a.id = b.medical_rule_trigger_id
+        where a.id = #{id}
+    </select>
+</mapper>

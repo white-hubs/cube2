@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.file.server.dao.FileRefMapper">
+
+    <insert id="addFileRef">
+        insert into file_ref (`id`, `business_key`, `file_id`, `deleted`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`,`update_time`)
+        values (#{fileRef.id}, #{fileRef.businessKey}, #{fileRef.fileId}, 0,
+        #{fileRef.createBy}, #{fileRef.creatorId}, #{fileRef.creatorType}, #{fileRef.createTime},
+        #{fileRef.updateBy}, #{fileRef.updaterId}, #{fileRef.updaterType}, #{fileRef.updateTime})
+    </insert>
+
+    <insert id="addBatchFileRef">
+        insert into file_ref (`id`, `business_key`, `file_id`, `deleted`, `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`,`update_time`)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.businessKey}, #{item.fileId}, 0,
+            #{item.createBy}, #{item.creatorId}, #{item.creatorType}, #{item.createTime},
+            #{item.updateBy}, #{item.updaterId}, #{item.updaterType}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <select id="listFileRefByBusinessKey" resultType="com.guhecloud.cube.base.file.server.entity.FileRef">
+        select `id`,
+        `tag`,
+        `business_key`,
+        `file_id`,
+        `deleted`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        from file_ref
+        where business_key = #{businessKey}
+    </select>
+
+    <select id="listFileRefByBusinessKeys" resultType="com.guhecloud.cube.base.file.server.entity.FileRef">
+        select `id`,
+        `tag`,
+        `business_key`,
+        `file_id`,
+        `deleted`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        from file_ref
+        where `business_key` in
+        <foreach collection="businessKeys" item="businessKey" open="(" separator="," close=")">
+            #{businessKey}
+        </foreach>
+    </select>
+
+    <delete id="deleteByBusinessKey">
+        delete
+        from file_ref
+        where `business_key` = #{businessKey}
+        <if test="fileIds != null and fileIds.size() > 0">
+            and `file_id` in
+            <foreach collection="fileIds" item="fileId" open="(" separator="," close=")">
+                #{fileId}
+            </foreach>
+        </if>
+    </delete>
+
+</mapper>

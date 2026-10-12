@@ -1,0 +1,195 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.conferencemanage.server.dao.BookIntervalRecordMapper">
+
+
+    <select id="getCount" resultType="java.lang.Integer">
+        SELECT count(*)
+        FROM `book_time_interval` a
+                 LEFT JOIN `conference` b ON b.`id` = a.`conference_id`
+        where b.`status` = 0
+          and b.`id` = #{conferenceId}
+
+    </select>
+    <select id="getBookCount" resultType="java.lang.Integer">
+        SELECT
+        count(*)
+        FROM
+        `book_interval_record` a
+        LEFT JOIN `book_room` b ON a.`book_id` = b.`id`
+        LEFT JOIN `conference` c ON c.`id` = a.`conference_id`
+        <where>
+            b.`status` <![CDATA[<>]]> 'CANCEL_RESERVATION'
+            and c.id = #{conferenceId}
+            <if test="startTime!=null &amp; startTime!='' &amp; endTime!=null &amp; endTime!=''">
+                <choose>
+                    <when test="_databaseId == 'pg'">
+                        and a.`create_time` between to_timestamp(#{startTime},'yyyy-MM-dd hh24:mi:ss') and
+                        to_timestamp(#{endTime},'yyyy-MM-dd hh24:mi:ss')
+                    </when>
+                    <otherwise>
+                        and a.create_time between #{startTime} and #{endTime}
+                    </otherwise>
+                </choose>
+            </if>
+        </where>
+    </select>
+    <select id="getBookRoomAppointmentInfo"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookRoomAppointmentRecordVo">
+        select bir.`time_interval` ,br.`conference_id` ,br.`subscribe_person` as user_id ,br.`id` as book_id from
+        `book_interval_record` bir inner join `book_room` br on(bir.`book_id`=br.`id`)
+        <where>
+            br.status = 'RESERVED'
+            <if test="param.conferenceId != null">
+                and br.`conference_id` = #{param.conferenceId}
+            </if>
+            <if test="param.date!=null">
+                <choose>
+                    <when test="_databaseId == 'pg'">
+                        and bir.`appointment_date` =to_timestamp(#{param.date},'yyyy-MM-dd hh24:mi:ss')
+                    </when>
+                    <otherwise>
+                        and bir.`appointment_date` = #{param.date}
+                    </otherwise>
+                </choose>
+            </if>
+
+        </where>
+        ORDER BY bir.`time_interval` ASC
+    </select>
+
+    <select id="getBookIntervalStatisticsPeriod"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookIntervalStatisticsVo">
+        SELECT
+        a.`time_interval` as `periodTime`,
+        a.`book_status` as `bookRoomEnum`,
+        b.`name` as `name`
+        FROM
+        `book_time_interval` a
+        LEFT JOIN `conference` b ON a.`conference_id` = b.`id`
+        where
+        b.`name` is not null
+        <if test="periodTime !=null and periodTime.size() >0">
+            and a.`time_interval` in
+            <foreach collection="periodTime" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="getReservedStatistics"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookIntervalStatisticsVo">
+        SELECT
+        a.`time_interval` as `periodTime`,
+        'RESERVED' as `bookRoomEnum`,
+        b.`name` as `name`
+        FROM
+        `book_interval_record` a
+        LEFT JOIN `conference` b ON a.`conference_id` = b.`id`
+        <where>
+            <if test="periodTime !=null and periodTime.size() >0">
+                and a.`time_interval` in
+                <foreach collection="periodTime" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="appointmentDates !=null and appointmentDates.size() >0">
+                and a.`appointment_date` in
+                <foreach collection="appointmentDates" item="item" open="(" close=")" separator=",">
+                    <choose>
+                        <when test="_databaseId == 'pg'">
+                            to_timestamp(#{item},'yyyy-MM-dd hh24:mi:ss')
+                        </when>
+                        <otherwise>
+                            #{item}
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getPeriodCount"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookIntervalStatisticsVo">
+        select count(`id`) num, `time_interval` periodTime
+        from `book_interval_record`
+        group by `time_interval`
+    </select>
+
+    <select id="getAllInterval"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookIntervalStatisticsVo">
+        SELECT count(a.`time_interval`) num,
+               b.`name` AS              `name`,
+               b.`id`   AS              `conferenceId`
+        FROM `book_time_interval` a
+                 LEFT JOIN `conference` b ON a.`conference_id` = b.`id`
+        WHERE b.`name` IS NOT NULL
+        GROUP BY b.id,
+                 b.`name`
+    </select>
+    <select id="getAllIntervalUsage"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookIntervalStatisticsVo">
+        SELECT count(distinct a.`time_interval`) num,
+        b.`name` as `name`,
+        b.`id` AS `conferenceId`
+        FROM `book_interval_record` a
+        LEFT JOIN `conference` b ON a.`conference_id` = b.`id`
+        where
+        <choose>
+            <when test="_databaseId == 'pg'">
+                a.`appointment_date` between to_timestamp(#{st}, 'yyyy-MM-dd hh24:mi:ss') and to_timestamp(#{et},
+                'yyyy-MM-dd hh24:mi:ss')
+            </when>
+            <otherwise>
+                a.`appointment_date` between #{st} and #{et}
+            </otherwise>
+        </choose>
+        GROUP BY b.id
+    </select>
+    <select id="getFilterIntervalRecords"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.FilterIntervalRecordVo">
+        select
+        a.`conference_id` `conferenceId`,
+        a.`time_interval` `timeInterval`,
+        b.`status`
+        FROM
+        `book_interval_record` a
+        LEFT JOIN `book_room` b ON a.`book_id` = b.`id`
+        WHERE
+        b.`status` != 'CANCEL_RESERVATION'
+        <choose>
+            <when test="_databaseId == 'pg'">
+                and a.`appointment_date` = to_timestamp(#{date},'yyyy-MM-dd hh24:mi:ss')
+            </when>
+            <otherwise>
+                and a.`appointment_date` = #{date}
+            </otherwise>
+        </choose>
+        and a.`conference_id` in
+        <foreach collection="list" item="item" close=")" open="(" separator=",">
+            #{item}
+        </foreach>
+    </select>
+    <select id="getAppointmentRecordList"
+            resultType="com.guhecloud.cube.srv.gen.conferencemanage.server.vo.BookRoomAppointmentRecordVo">
+        SELECT a.`conference_id`                                      `conferenceId`,
+               b.`book_id`                                            `bookId`,
+               a.`time_interval`                                      `timeInterval`,
+                CASE
+                WHEN c.`status` = 'RESERVED' THEN c.`status`
+                WHEN c.`status` = 'APPROVAL' THEN c.`status`
+                ELSE a.`book_status`
+                END AS `bookStatus`,
+               c.`conference_theme`                                   `conferenceTheme`,
+               c.`subscribe_person`                                   `subscribePerson`,
+               c.`book_num`                                           `bookNum`,
+               d.`name`                                               `conferenceType`
+        FROM book_time_interval a
+                 LEFT JOIN `book_interval_record` b ON a.`time_interval` = b.`time_interval`
+            AND b.`appointment_date` = #{date} and b.`conference_id` = #{conferenceId}
+                 LEFT JOIN `book_room` c ON b.`book_id` = c.`id` and c.`conference_id` = #{conferenceId}
+                 LEFT JOIN `conference_type` d ON c.`conference_type` = d.`id`
+        WHERE a.`conference_id` = #{conferenceId}
+            AND c.`status` != 'CANCEL_RESERVATION'
+        ORDER BY `bookStatus` ASC,
+                 a.`time_interval` ASC
+    </select>
+</mapper>

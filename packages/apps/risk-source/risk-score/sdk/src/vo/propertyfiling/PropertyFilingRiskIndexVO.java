@@ -1,0 +1,43 @@
+package com.guhecloud.cube.srv.gen.riskscore.sdk.vo.propertyfiling;
+
+import com.guhecloud.cube.srv.gen.riskscore.sdk.vo.RiskIndexVO;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+
+import java.util.List;
+
+/**
+ * 风险源建档情况指标
+ *
+ * @author lanchun
+ * @date 2023/11/6 15:45
+ */
+@Data
+@SuperBuilder
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class PropertyFilingRiskIndexVO extends RiskIndexVO {
+
+    /**
+     * 建档类型
+     */
+    private List<PropertyCategoryRiskIndex> propertyCategoryDetails;
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class PropertyCategoryRiskIndex {
+        private String propertyCategory;
+
+        private int riskIndex;
+
+    }
+}

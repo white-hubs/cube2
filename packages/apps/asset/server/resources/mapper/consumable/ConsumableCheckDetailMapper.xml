@@ -1,0 +1,96 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableCheckDetailMapper">
+
+    <select id="getAppPhysicsPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.AppConsumablePageVO">
+        SELECT b.id,
+               b.`name`,
+               b.`code`,
+               sum(a.num) AS checkTotalNumber,
+               '0'        AS checkCompleteNumber,
+               b.unit,
+               b.brand,
+               b.amount,
+               b.stock_min,
+               b.stock_max
+        FROM consumable b
+                 INNER JOIN consumable_store_stock a ON a.consumable_id = b.id
+        where a.store_id = #{param.storeId}
+        GROUP BY b.id
+    </select>
+    <select id="getAppPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.AppConsumablePageVO">
+        SELECT b.id,
+        b.`name`,
+        b.`code`,
+        sum(d.num) AS checkTotalNumber,
+        check_num AS checkCompleteNumber,
+        b.unit,
+        b.brand,
+        a.amount,
+        b.stock_min,
+        b.stock_max,
+        b.file_ids,
+        a.avg_price
+        FROM consumable_check c
+        inner join consumable_check_detail d on c.id=d.check_id
+        inner join consumable b on d.consumable_id=b.id
+        INNER JOIN consumable_store_stock a ON a.consumable_id = b.id and c.store_id=a.store_id
+        <where>
+            c.id=#{param.checkId}
+            <if test="param.status !=null and param.status != ''">
+                and d.status=#{param.status}
+            </if>
+            <if test="param.storeId !=null">
+                and a.store_id = #{param.storeId}
+            </if>
+            <if test="param.id !=null">
+                and b.id=#{param.id}
+            </if>
+        </where>
+        GROUP BY b.id
+    </select>
+    <select id="getCheckDetail" resultType="java.lang.Long">
+        select consumable_id
+        from consumable_check_detail
+        where check_id = #{param.checkId}
+    </select>
+    <select id="getCheckDetailBySataus"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.AppConsumablePageVO">
+        SELECT b.id,
+        b.`name`,
+        b.`code`,
+        sum(a.num) AS checkTotalNumber,
+        sum(a.check_num) AS checkCompleteNumber,
+        b.unit,
+        b.brand,
+        b.amount,
+        b.stock_min,
+        b.stock_max
+        FROM consumable_check_detail a
+        INNER JOIN consumable b ON a.consumable_id = b.id
+        where check_id = #{param.checkId}
+        <if test="param.status !=null and param.status !=''">
+            and a.status=#{param.status}
+        </if>
+    </select>
+    <select id="getExcel"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableCheckExcelVO">
+        select b.id, b.name, b.model, b.unit, a.num
+        from consumable_check_detail a
+                 inner join consumable b on a.consumable_id = b.id
+        where a.check_id = #{planId}
+    </select>
+    <select id="getAddNum" resultType="java.lang.Integer">
+        select sum(b.num) as value
+        from consumable_add_record a
+        inner join consumable_stock_detail b on a.id=b.stock_id
+        where consumable_id = #{consumableId} and a.add_date between #{startDate} and #{endDate} and a.status ='PASS'
+    </select>
+    <select id="getReduceNum" resultType="java.lang.Integer">
+        select sum(b.num) as value
+        from consumable_reduce_record a
+            inner join consumable_stock_detail b on a.id=b.stock_id
+        where consumable_id = #{consumableId} and a.reduce_date between #{startDate} and #{endDate} and a.status ='PASS'
+    </select>
+</mapper>

@@ -1,0 +1,35 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "fastjson2",
+    exports = [
+        "@maven//:com_alibaba_fastjson2_fastjson2",
+    ],
+)
+
+alias(
+    name = "easyexcel_core",
+    actual = "@maven//:com_alibaba_easyexcel_core",
+)
+
+alias(
+    name = "easyexcel_support",
+    actual = "@maven//:com_alibaba_easyexcel_support",
+)
+
+java_library(
+    name = "easyexcel",
+    exports = [
+        ":easyexcel_core",
+        ":easyexcel_support",
+    ],
+)
+
+java_library(
+    name = "spring_cloud",
+    exports = [
+        "@maven//:com_alibaba_cloud_spring_cloud_alibaba_commons",
+    ],
+)

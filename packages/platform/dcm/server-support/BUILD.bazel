@@ -1,0 +1,36 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform/dcm:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = [
+    "//packages:__subpackages__",
+    "//packages/platform:__subpackages__",
+])
+
+artifactId = "dcm-server-support"
+
+java_library(
+    name = "server-support",
+    srcs = glob(["src/**/*.java"]),
+    exports = [
+        "//packages/platform/dcm/common",
+    ],
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/base/model:requester",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:convert",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/dcm/common",
+        "//third-party/java:lombok",
+        "//third-party/java/apache:hc5-client",
+        "//third-party/java/jackson",
+        "//third-party/java/jackson:dataformat_yaml",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:validation_api",
+        "//third-party/java/slf4j",
+        "//third-party/java/spring:springframework",
+    ],
+)

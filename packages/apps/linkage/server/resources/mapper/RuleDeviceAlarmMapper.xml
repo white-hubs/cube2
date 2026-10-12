@@ -1,0 +1,44 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.devicealarm.dao.RuleDeviceAlarmMapper">
+
+    <select id="page"
+            resultType="com.guhecloud.cube.biz.linkage.server.rule.strategy.input.devicealarm.vo.RuleDeviceAlarmPageVO">
+        SELECT
+        t1.id,
+        t1.`code`,
+        t1.`name`,
+        t2.device_genre_id,
+        t2.device_genre_name,
+        t1.trigger_level_id as alarmLevelId,
+        t1.trigger_level_name as alarmLevelName,
+        t1.trigger_type_id as alarmTypeId,
+        t1.trigger_type_name as alarmTypeName,
+        t1.enabled
+        FROM
+        rule t1
+        INNER JOIN rule_device_alarm t2 on t1.id = t2.rule_id
+        <where>
+            <if test="param.keyword != null and param.keyword != ''">
+                and t1.name like concat('%',#{param.keyword},'%')
+            </if>
+            <if test="param.enabled !=null">
+                and t1.enalbed = #{param.enabled}
+            </if>
+            <if test="param.deviceGenreId != null">
+                and t2.device_genre_id = #{param.deviceGenreId}
+            </if>
+            <if test="param.deviceModelId != null">
+                and t2.device_model_id = #{param.deviceModelId}
+            </if>
+            <if test="param.alarmLevelId != null">
+                and t1.trigger_level_id = #{param.alarmLevelId}
+            </if>
+            <if test="param.alarmTypeId != null">
+                and t1.trigger_type_id = #{param.alarmTypeId}
+            </if>
+        </where>
+        order by
+        t1.create_time desc
+    </select>
+
+</mapper>

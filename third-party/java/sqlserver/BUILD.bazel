@@ -1,0 +1,10 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+java_library(
+    name = "mssql_jdbc",
+    exports = [
+        "@maven//:com_microsoft_sqlserver_mssql_jdbc",
+    ],
+)

@@ -1,0 +1,5 @@
+filegroup(
+    name = "init-business-mysql",
+    srcs = glob(["**/*.mysql.sql"]),
+    visibility = ["//packages/deploy/database:__subpackages__"],
+)

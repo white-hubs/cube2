@@ -1,0 +1,29 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.AppointmentMapper">
+
+    <select id="getById" parameterType="java.lang.Long"
+            resultType="com.guhecloud.cube.biz.ouaa.server.dto.AppointmentDetailVO">
+        SELECT
+        a.`id`,
+        a.`name`,
+        a.`remark`,
+        a.`enable`,
+        a.`update_time`
+        from `appointment` a
+        where a.`id` = #{id}
+    </select>
+    <select id="getByIds" resultType="com.guhecloud.cube.biz.ouaa.server.dto.AppointmentDetailVO">
+        SELECT
+            a.`id`,
+            a.`name`,
+            a.`remark`,
+            a.`enable`,
+            a.`update_time`
+        from `appointment` a
+        where a.`id` in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+</mapper>

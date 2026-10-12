@@ -1,0 +1,25 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.dao.OperateLogMapper">
+
+    <select id="getOperateHardwareLogs"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.chilledwater.vo.OperateLogVo">
+        SELECT
+            ol.`remark` `remark`,
+            ol.`log_time` `logTime`,
+            cw.`wholesaler_name` `wholesalerName`,
+            gp.`gear_position_code` `gearPositionCode`,
+            gp.`gear_position_name` `gearPositionName`,
+            gp.`gear_position_area` `gearPositionArea`
+        FROM
+            `operate_log` ol
+                LEFT JOIN `device_position` dp ON ol.`device_id` = dp.`cold_water_device`
+                LEFT JOIN `gear_position` gp ON dp.`gear_position_id` = gp.`gear_position_id`
+                LEFT JOIN `cold_wholesaler` cw ON gp.`wholesaler` = cw.`wholesaler_id`
+        where
+            ol.`log_time` between #{param.period.begin} and #{param.period.end}
+            and ol.`log_type` = #{param.logTypeEnum}
+            <if test="param.deviceId !=null and param.deviceId !=''">
+                and ol.`device_id` = #{param.deviceId}
+            </if>
+    </select>
+</mapper>

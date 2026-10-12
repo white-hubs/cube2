@@ -1,0 +1,149 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.subsystem.broadcast.server.archive.infrastruceture.repository.mapper.BroadcastPlayPlanMapper">
+
+    <select id="selectPlanByDeviceId"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.archive.domain.po.BroadcastPlayPlanPO"
+            databaseId="mysql">
+        SELECT
+        *
+        FROM
+        broadcast_play_plan
+        WHERE JSON_CONTAINS(play_param,JSON_OBJECT('broadcastPlayText',JSON_OBJECT('deviceInfos',JSON_ARRAY(JSON_OBJECT('id',#{deviceId})))));
+    </select>
+
+    <select id="selectPlanByDeviceId"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.archive.domain.po.BroadcastPlayPlanPO"
+            databaseId="pg">
+        SELECT *
+        FROM broadcast_play_plan
+        WHERE jsonb_path_exists(play_param::jsonb, '$.broadcastPlayText.deviceInfos[*] ? (@.id == "${deviceId}")');
+    </select>
+
+    <select id="getStatisticsPlayRecordVoTop"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.statistics.vo.StatisticsPlayRecordVo">
+        SELECT
+        b.broadcast_template_name NAME,
+        COALESCE( COUNT( b.id ), 0 ) num
+        FROM
+        broadcast_play_record_device a
+        LEFT JOIN broadcast_play_record b ON a.broadcast_play_record_id = b.id
+        where
+        <if test="param.period != null and param.period.begin != null">
+            b.broadcast_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and b.broadcast_time &lt;= #{param.period.end}
+        </if>
+
+        <if test="param.names != null and param.names.size > 0">
+            and b.broadcast_template_name in
+            <foreach collection="param.names" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="param.ids != null and param.ids.size > 0">
+            and a.device_id in
+            <foreach collection="param.ids" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY
+        b.broadcast_template_name
+        order by num DESC
+        limit 5
+    </select>
+    <select id="getStatisticsPlayRecordVoNum" resultType="java.lang.Integer">
+        SELECT
+        COALESCE(COUNT( b.id ),0) num
+        FROM
+        broadcast_play_record_device a
+        LEFT JOIN broadcast_play_record b ON a.broadcast_play_record_id = b.id
+        where
+        <if test="param.period != null and param.period.begin != null">
+            b.broadcast_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and b.broadcast_time &lt;= #{param.period.end}
+        </if>
+        <if test="param.ids != null and param.ids.size > 0">
+            and a.device_id in
+            <foreach collection="param.ids" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+    </select>
+    <select id="getPlayRecordTop10"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.archive.interfaces.vo.BroadcastPlayRecordPageVO">
+        SELECT
+        b.broadcast_time broadcastTime,
+        b.broadcast_play_content broadcastPlayContent,
+        b.operator_by_name operatorByName
+        FROM
+        broadcast_play_record_device a
+        LEFT JOIN broadcast_play_record b ON a.broadcast_play_record_id = b.id
+        where
+        1=1
+        <if test="param.ids != null and param.ids.size > 0">
+            and a.device_id in
+            <foreach collection="param.ids" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+        order by b.broadcast_time DESC limit 10
+    </select>
+
+    <select id="selectTemplatePlayRecordStatistics"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.statistics.vo.BroadcastTemplatePlayStatisticsVO">
+        SELECT
+        bt.id,
+        bt.`name`,
+        COUNT(bpr.id) as total_num
+        FROM
+        broadcast_template bt
+        INNER JOIN broadcast_play_record bpr on bt.id = bpr.broadcast_template_id
+        <where>
+            <if test="param.period != null and param.period.begin != null">
+                bpr.broadcast_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and bpr.broadcast_time &lt;= #{param.period.end}
+            </if>
+        </where>
+        GROUP BY bt.id
+    </select>
+
+    <select id="getPlayRecordTrend"
+            resultType="com.guhecloud.cube.biz.subsystem.broadcast.server.statistics.vo.TrendVo">
+        SELECT
+        DATE_FORMAT(b.broadcast_time,${param.dateFormat}) as timeFlag,
+        COALESCE( COUNT( b.id ), 0 ) num
+        FROM
+        broadcast_play_record_device a
+        LEFT JOIN broadcast_play_record b ON a.broadcast_play_record_id = b.id
+        where
+        <if test="param.period != null and param.period.begin != null">
+            b.broadcast_time &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and b.broadcast_time &lt;= #{param.period.end}
+        </if>
+
+        <if test="param.ids != null and param.ids.size > 0">
+            and a.device_id in
+            <foreach collection="param.ids" item="item" open="(" close=")"
+                     separator=",">
+                #{item}
+            </foreach>
+        </if>
+        GROUP BY
+        DATE_FORMAT(b.broadcast_time,${param.dateFormat})
+        order by num ASC
+    </select>
+
+</mapper>

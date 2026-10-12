@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.ClientMapper">
+    <sql id="BASIC_CLIENT_SELECT">
+        select ct.`id`, ct.`code`, ct.`name`, ct.`remark`, ct.`enabled`, ct.`secret`, ct.`scopes`, ct.`grant_types`,
+        ct.`access_token_timeout`, ct.`refresh_token_timeout`, ct.`deleted`, ct.`create_by`, ct.`create_time`, ct.`update_by`,
+        ct.`update_time`
+        from `client` ct
+    </sql>
+</mapper>

@@ -1,0 +1,12 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.Intelligentlighting.dao.GroupControlLogMapper">
+
+    <select id="getGroupControlStat"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.common.vo.CommonStat">
+        select cg.`group_control_id` as `id`,g.`group_control_name` as `name`,cg.`action` as `label`,count(DISTINCT cg.`opt_time`) as `num`
+        from `group_control_log` cg
+        inner join `group_base_info` g on cg.`group_control_id` = g.`id`
+        group by cg.`group_control_id`,cg.`action`
+    </select>
+
+</mapper>

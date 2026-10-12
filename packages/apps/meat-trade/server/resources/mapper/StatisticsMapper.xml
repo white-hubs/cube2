@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.StatisticsMapper">
+
+    <sql id="Basic_Column">
+        id
+        ,supplier_id,average_price,highest_price,lower_price,pork_arrange_slices,deal_slices,
+        pork_arrange_weight,deal_weight,amount,commission,statistics_date,tenant,deleted,create_by,create_time,update_by,update_time
+    </sql>
+
+    <insert id="insertBatch" parameterType="com.guhecloud.cube.biz.meattrade.server.pork.entity.Statistics">
+        insert into
+        `meattrade_statistics`(id,supplier_id,pork_report_code,average_price,highest_price,lower_price,pork_arrange_slices,deal_slices,
+        pork_arrange_weight,deal_weight,amount,commission,statistics_date,tenant,deleted,create_by,create_time,update_by,update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id},#{item.supplierId},#{item.porkReportCode},#{item.averagePrice},#{item.highestPrice},#{item.lowerPrice},#{item.porkArrangeSlices},#{item.dealSlices},
+            #{item.porkArrangeWeight},#{item.dealWeight},#{item.amount},#{item.commission},#{item.statisticsDate},
+            #{item.tenant},#{item.deleted},#{item.createBy},#{item.createTime},#{item.updateBy},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        average_price = (average_price + values(average_price)) / 2,
+        lower_price =
+        case when values(lower_price) > lower_price then lower_price else values(lower_price) end,
+        highest_price =
+        case when values(highest_price) > highest_price then values(highest_price) else highest_price end,
+        deal_slices = deal_slices + values(deal_slices),
+        deal_weight = deal_weight + values(deal_weight),
+        amount = amount + values(amount),
+        commission = commission + values(commission)
+    </insert>
+
+    <select id="queryAll" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select AVG(average_price)       AS average_price,
+               MIN(lower_price)         AS lower_price,
+               MAX(highest_price)       AS highest_price,
+               SUM(pork_arrange_slices) AS pork_arrange_slices,
+               SUM(deal_slices)         AS deal_slices,
+               SUM(pork_arrange_weight) AS pork_arrange_weight,
+               SUM(deal_weight)         AS deal_weight,
+               SUM(amount)              AS amount,
+               SUM(commission)          AS commission
+        from `meattrade_statistics`
+    </select>
+
+    <select id="pageStatistics" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select
+        id,
+        supplier_id,
+        AVG( average_price ) AS average_price,
+        MIN( lower_price ) AS lower_price,
+        MAX( highest_price ) AS highest_price,
+        SUM( pork_arrange_slices ) AS pork_arrange_slices,
+        SUM( deal_slices ) AS deal_slices,
+        SUM( pork_arrange_weight ) AS pork_arrange_weight,
+        SUM( deal_weight ) AS deal_weight,
+        SUM( amount ) AS amount,
+        SUM( commission ) AS commission,
+        statistics_date
+        from `meattrade_statistics`
+        -- left join `order` o on s.merchant_id = o.merchant_id
+        -- left join `order_detail` od on o.id = od.order_id
+        -- left join `pork_arrange_detail` `pad` o `pad`.id = od.pork_arrange_detail_id
+        <where>
+            <if test="param.supplierId != null">
+                and supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.period != null">
+                and statistics_date between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by supplier_id
+        <if test="param.item != null and param.sort != null">
+            order by ${param.item} ${param.sort}
+        </if>
+    </select>
+
+    <select id="pageStatisticsV2" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select pr.supplier_id,
+        sum(pa.slices) AS pork_arrange_slices,
+        sum(pa.weight) AS pork_arrange_weight
+        from meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_report pr on pa.pork_report_id = pr.id
+        INNER JOIN meattrade_pork_arrange_audit paa on paa.pork_arrange_id = pa.id and paa.audit_status = 'PASSED'
+        <where>
+            <if test="param.supplierId != null">
+                and pr.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and pa.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and pr.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by pr.supplier_id
+        order by pa.slices desc
+    </select>
+
+    <select id="selectStatisticsV2" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select pr.supplier_id,
+        sum(pa.slices) AS pork_arrange_slices,
+        sum(pa.weight) AS pork_arrange_weight
+        from meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_report pr on pa.pork_report_id = pr.id
+        INNER JOIN meattrade_pork_arrange_audit paa on paa.pork_arrange_id = pa.id and paa.audit_status = 'PASSED'
+        <where>
+            <if test="param.supplierId != null">
+                and pr.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and pa.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and pr.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by pr.supplier_id
+        order by pa.slices desc
+    </select>
+
+    <select id="selectPageGoodsCategoryStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select pr.supplier_id,
+        sum(pa.slices) AS pork_arrange_slices,
+        sum(pa.weight) AS pork_arrange_weight,
+        pr.goods_category_id,
+        pr.goods_category_name
+        from meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_report pr on pa.pork_report_id = pr.id
+        INNER JOIN meattrade_pork_arrange_audit paa on paa.pork_arrange_id = pa.id and paa.audit_status = 'PASSED'
+        <where>
+            <if test="param.supplierId != null">
+                and pr.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and pa.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and pr.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by pr.supplier_id,pr.goods_category_id
+        order by pa.slices desc
+    </select>
+
+    <select id="selectGoodsCategoryStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select pr.supplier_id,
+        sum(pa.slices) AS pork_arrange_slices,
+        sum(pa.weight) AS pork_arrange_weight,
+        pr.goods_category_id,
+        pr.goods_category_name
+        from meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_report pr on pa.pork_report_id = pr.id
+        INNER JOIN meattrade_pork_arrange_audit paa on paa.pork_arrange_id = pa.id and paa.audit_status = 'PASSED'
+        <where>
+            <if test="param.supplierId != null">
+                and pr.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and pa.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and pr.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by pr.supplier_id,pr.goods_category_id
+        order by pa.slices desc
+    </select>
+
+    <select id="saleStatistics" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select o.supplier_id,
+        max(d.unit_price) AS highest_price,
+        min(d.unit_price) AS lower_price,
+        count(d.id) AS deal_slices,
+        sum(d.weight) AS deal_weight,
+        sum(d.price) AS amount,
+        sum(d.commission) as commission
+        from meattrade_order o
+        left join meattrade_order_detail d on d.order_id = o.id
+        <where>
+            o.status = 'FINISHED'
+            <if test="param.supplierId != null">
+                and o.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and d.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and o.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by o.supplier_id
+    </select>
+
+    <select id="saleGoodsCategoryStatistics"
+            resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select o.supplier_id,
+        max(d.unit_price) AS highest_price,
+        min(d.unit_price) AS lower_price,
+        d.goods_category_id,
+        d.goods_category_name,
+        count(d.id) AS deal_slices,
+        sum(d.weight) AS deal_weight,
+        sum(d.price) AS amount,
+        sum(d.commission) as commission
+        from meattrade_order o
+        left join meattrade_order_detail d on d.order_id = o.id
+        <where>
+            o.status = 'FINISHED'
+            <if test="param.supplierId != null">
+                and o.supplier_id = #{param.supplierId}
+            </if>
+            <if test="param.startTime != null and param.endTime != null">
+                and d.create_time between #{param.startTime} and #{param.endTime}
+            </if>
+            <if test="param.supplierIds != null and param.supplierIds.size() > 0">
+                and o.supplier_id in
+                <foreach collection="param.supplierIds" item="supplierId" index="index" open="(" close=")"
+                         separator=",">
+                    #{supplierId}
+                </foreach>
+            </if>
+        </where>
+        group by o.supplier_id,d.goods_category_id
+    </select>
+
+    <!--    <select id="pageMpStatistics" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">-->
+    <!--        select-->
+    <!--        supplier_id,-->
+    <!--        pork_report_code,-->
+    <!--        AVG( average_price ) AS average_price,-->
+    <!--        MIN( lower_price ) AS lower_price,-->
+    <!--        MAX( highest_price ) AS highest_price,-->
+    <!--        SUM( pork_arrange_slices ) AS pork_arrange_slices,-->
+    <!--        SUM( deal_slices ) AS deal_slices,-->
+    <!--        SUM( pork_arrange_weight ) AS pork_arrange_weight,-->
+    <!--        SUM( deal_weight ) AS deal_weight,-->
+    <!--        SUM( amount ) AS amount,-->
+    <!--        SUM( commission ) AS commission,-->
+    <!--        SUM (amount - commission) as actual_amount,-->
+    <!--        statistics_date-->
+    <!--        from `meattrade_statistics`-->
+    <!--        <where>-->
+    <!--            <if test="param.period != null">-->
+    <!--                and statistics_date between #{param.period.begin} and #{param.period.end}-->
+    <!--            </if>-->
+    <!--            and supplier_id = #{param.supplierId}-->
+    <!--        </where>-->
+    <!--        group by pork_report_code-->
+    <!--    </select>-->
+    <select id="pageMpStatistics" resultType="com.guhecloud.cube.biz.meattrade.server.pork.dto.StatisticsDTO">
+        select
+        o.supplier_id,
+        prd.pork_report_code,
+        prd.goods_category_id,
+        prd.goods_category_name,
+        prd.fresh_label,
+        count( d.id ) AS deal_slices,
+        SUM( d.weight ) AS deal_weight,
+        SUM( d.price ) AS amount,
+        SUM( d.commission ) AS commission,
+        DATE_FORMAT(o.update_time,'%Y-%m-%d') AS statisticsDate
+        from meattrade_order o
+        left join meattrade_order_detail d on d.order_id = o.id
+        left join meattrade_pork_arrange_detail prd on d.pork_arrange_detail_id = prd.id
+        <where>
+            o.status = 'FINISHED'
+            <if test="param.period != null">
+                and d.create_time between #{param.period.begin} and #{param.period.end}
+            </if>
+            and o.supplier_id = #{param.supplierId}
+        </where>
+        group by prd.pork_report_code,o.id,DATE_FORMAT(o.update_time,'%Y-%m-%d')
+    </select>
+
+    <!--    <select id="getPorkReportCodes" resultType="java.lang.String">-->
+    <!--        select pad.pork_report_code from `statistics` s-->
+    <!--        left join `order` o-->
+    <!--        on s.merchant_id = o.merchant_id-->
+    <!--        left join `order_detail` od-->
+    <!--        on o.id = od.order_id-->
+    <!--        left join `pork_arrange_detail` `pad`-->
+    <!--        on pad.id = od.pork_arrange_detail_id-->
+    <!--        <where>-->
+    <!--            <if test="param.merchantId != null">-->
+    <!--                and o.merchant_id = #{param.merchantId}-->
+    <!--            </if>-->
+    <!--            <if test="param.startTime != null and param.endTime != null">-->
+    <!--                and s.statistics_date between #{param.startTime} and #{param.endTime}-->
+    <!--            </if>-->
+    <!--            and o.status = 'ORDER_STATUS_FINISHED'-->
+    <!--        </where>-->
+    <!--        group by pork_report_code-->
+    <!--    </select>-->
+</mapper>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.flow.flowable.task.infrastructure.mapper.CopyLogMapper">
+    <select id="selectListByUserIdPage"
+            resultType="com.guhecloud.cube.base.flow.flowable.process.interfaces.dto.ProcessInstanceDTO">
+        SELECT
+        `r`.`id` as processInstanceId,
+        `r`.`start_user_id`,
+        `r`.`start_user_name`,
+        `r`.`organization_id`,
+        `r`.`organization_name`,
+        `r`.`result` AS `status`,
+        `r`.`instance_name`,
+        `r`.`start_user_info` AS `start_user_info`,
+        `r`.`application_code` AS `business_model`,
+        `r`.`business_type` AS `business_type`,
+        `r`.`tenant` AS `tenant`,
+        COALESCE(`r`.`result`, 'ACTIVE') AS `state`,
+        `t`.`user_ids` AS `assignee`,
+        `p`.`START_TIME_` AS `submitedTime`,
+        v.`TEXT_` as formNo,
+        vt.`NAME_` as activeNodeName
+        FROM `copy_log` `t`
+        inner JOIN `process_instance_running` `r` ON `r`.`id` = `t`.`process_instance_id`
+        LEFT JOIN `act_hi_procinst` `p` ON `p`.`PROC_INST_ID_` = `t`.`process_instance_id`
+        inner join `act_hi_varinst` as v on r.`id`= v.`PROC_INST_ID_` and v.`NAME_`='formNo'
+        inner join `act_hi_taskinst` as vt on r.`id`= vt.`PROC_INST_ID_`
+        <where>
+            <if test="query.submitTime != null and query.submitTime.begin != null">
+                p.`START_TIME_` BETWEEN #{query.submitTime.begin}
+                AND #{query.submitTime.end}
+            </if>
+            <if test="query.businessType !=null and query.businessType !=''">
+                and r.`business_type`=#{query.businessType}
+            </if>
+            <if test="query.status !=null and query.status !=''">
+                <choose>
+                    <when test="query.status =='ACTIVE'">
+                        and r.`result` is null
+                    </when>
+                    <otherwise>
+                        and r.`result` = #{query.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="userId !=null and userId != ''">
+                and t.`user_ids` like concat('%',#{userId},'%')
+            </if>
+            <if test="query.startUserId !=null and query.startUserId !=''">
+                r.`start_user_id` =#{query.startUserId}
+            </if>
+            <if test="query.organizationId !=null and query.organizationId !=''">
+                r.`organization_id` =#{query.organizationId}
+            </if>
+        </where>
+        group by r.`id`
+        order by p.`START_TIME_` desc
+    </select>
+
+
+</mapper>

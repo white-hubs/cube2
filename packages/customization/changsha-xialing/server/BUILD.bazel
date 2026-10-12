@@ -1,0 +1,91 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_plugin", "java_test", "java_toolchain")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/customization/changsha-xialing:variables.bzl", "PACKAGE_GROUP", "VERSION")
+load("//packages/deploy:variables.bzl", "VERSION_DEV", "VERSION_TEST")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/device-center/client",
+        "//packages/base/device-center/north/client",
+        "//packages/base/alarm/client",
+        "//packages/base/dictionary/client",
+        "//packages/base/file/client",
+        "//packages/base/message/sdk",
+        "//packages/base/ouaa/client",
+        "//packages/apps/emergency/client",
+        "//packages/apps/security-management/client",
+        "//packages/platform/base/model:models",
+        "//packages/platform/base/standard:exception",
+        "//packages/platform/base/utils:assert",
+        "//packages/platform/base/utils:collection",
+        "//packages/platform/base/utils:date",
+        "//packages/platform/base/utils:json",
+        "//packages/platform/base/utils:list",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:set",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/database",
+        "//packages/platform/event",
+        "//packages/platform/job",
+        "//packages/platform/liquibase",
+        "//packages/platform/redis",
+        "//packages/platform/rocketmq",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//packages/platform/subsystem-requester-sdk",
+        "//third-party/java/alibaba:easyexcel",
+        "//third-party/java/eclipse:paho_mqttv3",
+        "//third-party/java/jakarta:annotation_api",
+        "//third-party/java/jakarta:servlet_api",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob(["src/**/*.java"]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    deps = [":deps"],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.customization.xialing.server.ChangshaXialingServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+artifactId = "changsha-xialing-server"
+
+export(
+    name = "package",
+    artifact_id = artifactId,
+    exclude_deps = [":deps"],
+    package_group = PACKAGE_GROUP,
+    release_version = VERSION,
+    runtime_deps = [":server"],
+)
+
+server_info(
+    name = "server-info",
+    database = "cube_srv_customization_changsha_xialing",
+    datasource_package = "com.guhecloud.cube.customization.xialing",
+    gw_prefix = "/changsha-xialing/",
+    main_class = _MAIN_CLASS,
+    server = ":server",
+    server_id = "changsha-xialing",
+    visibility = ["//packages:__subpackages__"],
+)

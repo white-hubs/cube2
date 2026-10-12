@@ -1,0 +1,29 @@
+- configType: "DictType"
+  version: "1.0"
+  isMandatory: true
+  isSystem: true
+  vargs:
+    - code: "message-notice-type"
+      remark: "消息通知方式"
+- configType: "DictEntry"
+  version: "1.0"
+  isMandatory: true
+  isSystem: true
+  kwargs:
+    isCascade: "false"
+    parent: ""
+    isSystem: "true"
+    dictType: "message-notice-type"
+  vargs:
+    - label: "站内通知"
+      key: "CHANNEL_SITE"
+      description: "站内信消息"
+    - label: "短信通知"
+      key: "CHANNEL_SMS"
+      description: "短信消息"
+    - label: "app通知"
+      key: "CHANNEL_APP"
+      description: "app消息"
+    - label: "语音通知"
+      key: "CHANNEL_VOICE"
+      description: "语音通知"

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.FunctionMapper">
+    <sql id="BASIC_FUNCTION_SELECT">
+        select fn.`id`, fn.`code`, fn.`name`, fn.`remark`, fn.`enabled`, fn.`deleted`, fn.`create_by`, fn.`create_time`, fn.`update_by`,
+        fn.`update_time`
+        from `function` fn
+    </sql>
+</mapper>

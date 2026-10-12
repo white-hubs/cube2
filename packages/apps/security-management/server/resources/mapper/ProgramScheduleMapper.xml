@@ -1,0 +1,68 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dao.ProgramScheduleMapper">
+
+    <insert id="insertOrUpdateProgramSchedule"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.entity.ProgramScheduleEntity">
+        INSERT INTO `program_schedule` (`id`, `client_id`, `client_name`, `third_party_id`, `third_program_id`, `name`, `begin_date`,
+        `end_date`, `begin_time`, `end_time`, `weeks`, `priority`, `state`, `type`, `tenant`, `deleted`,
+        `create_by`,`creator_id`,`creator_type`, `create_time`,
+        `update_by`,`updater_id`,`updater_type`, `update_time`)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.clientId}, #{item.clientName}, #{item.thirdPartyId}, #{item.thirdProgramId}, #{item.name},
+            #{item.beginDate}, #{item.endDate}, #{item.beginTime}, #{item.endTime}, #{item.weeks}, #{item.priority},
+            #{item.state}, #{item.type}, #{item.tenant}, #{item.deleted},
+            #{item.createBy},#{item.creatorId},#{item.creatorType}, #{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType}, #{item.updateTime})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        `client_name` = VALUES(`client_name`),
+        `third_program_id` = VALUES(`third_program_id`),
+        `name` = VALUES(`name`),
+        `begin_date` = VALUES(`begin_date`),
+        `end_date` = VALUES(`end_date`),
+        `begin_time` = VALUES(`begin_time`),
+        `end_time` = VALUES(`end_time`),
+        `weeks` = VALUES(`weeks`),
+        `priority` = VALUES(`priority`),
+        `state` = VALUES(`state`),
+        `type` = VALUES(`type`),
+        `update_time` = VALUES(`update_time`)
+    </insert>
+    <select id="getPlayRecordPage"
+            resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.vo.ProgramSchedulePageVo">
+        SELECT
+        a.`id`, a.`client_id`, a.`client_name`, a.`third_party_id`, a.`third_program_id`, a.`name`, a.`begin_date`,
+        a.`end_date`, a.`begin_time`, a.`end_time`, a.`weeks`, a.`priority`, a.`state`, a.`type`, a.`tenant`, a.`deleted`,
+        a.`create_by`, a.`create_time`, a.`update_by`, a.`update_time`
+        FROM
+        `program_schedule` a
+        where a.`deleted` = 0
+        <if test="param.clientId !=null and param.clientId !=''">
+            and a.`client_id` = #{param.clientId}
+        </if>
+        <if test="param.clientName !=null and param.clientName !=''">
+            and a.`client_name` like concat('%', #{param.clientName}, '%')
+        </if>
+        <if test="param.period !=null and param.period !=''">
+            and a.`begin_date` BETWEEN #{param.period.begin} and #{param.period.end}
+        </if>
+        order by a.`create_time` DESC
+    </select>
+    <select id="getCountByParam" resultType="java.lang.Integer"
+            parameterType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.param.ProgramScheduleParam">
+        SELECT count(*)
+        from
+        `program_schedule` a
+        where a.`deleted` = 0
+        <if test="param.clientId !=null and param.clientId !=''">
+            and a.`client_id` = #{param.clientId}
+        </if>
+        <if test="param.clientName !=null and param.clientName !=''">
+            and a.`client_name` like concat('%', #{param.clientName}, '%')
+        </if>
+        <if test="param.period !=null and param.period !=''">
+            and a.`begin_date` BETWEEN #{param.period.begin} and #{param.period.end}
+        </if>
+    </select>
+</mapper>

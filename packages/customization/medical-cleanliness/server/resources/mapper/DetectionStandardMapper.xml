@@ -1,0 +1,57 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.repo.mapper.DetectionStandardMapper">
+    <!-- 子集 PropertyVO 的字段映射 -->
+    <resultMap id="PropertyResultMap" type="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.vo.PropertyVO">
+        <id property="id" column="property_id" />
+        <result property="productId" column="property_productId" />
+        <result property="productName" column="property_productName" />
+        <result property="productPropertyName" column="property_productPropertyName" />
+        <result property="productPropertyCode" column="property_productPropertyCode" />
+        <result property="productPropertyUnit" column="property_productPropertyUnit" />
+        <result property="productPropertyTenant" column="property_productPropertyTenant" />
+        <result property="maxVal" column="property_maxVal" />
+        <result property="minVal" column="property_minVal" />
+        <result property="basicId" column="property_basicId" />
+    </resultMap>
+
+    <!-- 主对象 StandardTreeVO 的字段映射 -->
+    <resultMap id="StandardWithPropertiesMap" type="com.guhecloud.cube.srv.gen.medical.cleanliness.server.detection.vo.StandardTreeVO">
+        <id property="id" column="standard_id" />
+        <result property="name" column="standard_name" />
+        <result property="basicId" column="standard_basicId" />
+        <result property="basicName" column="standard_basicName" />
+
+        <!-- 嵌套映射：propertyList 字段 -->
+        <collection property="propertyList" resultMap="PropertyResultMap" />
+    </resultMap>
+
+    <select id="getStandardTreeList" resultMap="StandardWithPropertiesMap">
+        SELECT
+        s.id AS standard_id,
+        s.name AS standard_name,
+        s.basic_id AS standard_basicId,
+        b.name AS standard_basicName,
+
+        p.id AS property_id,
+        p.product_id AS property_productId,
+        p.product_name AS property_productName,
+        p.product_property_name AS property_productPropertyName,
+        p.product_property_code AS property_productPropertyCode,
+        p.product_property_unit AS property_productPropertyUnit,
+        p.product_property_tenant AS property_productPropertyTenant,
+        p.max_val AS property_maxVal,
+        p.min_val AS property_minVal,
+        p.basic_id AS property_basicId
+        FROM detection_standard s
+        LEFT JOIN detection_property p ON s.id = p.standard_id AND p.deleted = 0
+        LEFT JOIN detection_basic b ON s.basic_id = b.id AND b.deleted = 0
+        WHERE s.deleted = 0 and p.deleted = 0
+        <if test="propList != null and !propList.isEmpty()">
+            and p.product_property_code in
+            <foreach collection="propList" item="prop" open="(" separator="," close=")">
+                #{prop}
+            </foreach>
+        </if>
+        ORDER BY s.id
+    </select>
+</mapper>

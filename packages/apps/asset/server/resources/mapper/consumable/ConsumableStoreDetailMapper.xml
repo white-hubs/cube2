@@ -1,0 +1,38 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableStockDetailMapper">
+    <select id="getStockRecordDetail"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableStockDetailExtendVO">
+        select sd.id,c.`name`,c.code,c.category_id,c.brand,c.model,c.goods_code,c.unit,c.quality_period,
+        c.stock_max,c.stock_min,c.use_limit,c.stock,c.amount,c.file_ids,
+        sd.stock_flag,sd.init_num,sd.init_amount,sd.num,sd.price,sd.amount as storeAmount,
+        r.store_id,r.handle_date,r.`handler`,sd.create_by,sd.creator_id,sd.creator_type
+        from consumable_stock_detail sd
+        inner join consumable c on sd.consumable_id = c.id
+        inner join (
+        select ar.id,ar.store_id,ar.add_date as handle_date,ar.handler from consumable_add_record ar
+        where ar.business_type in ('APPROVE','IMPORT')
+        and ar.status='PASS'
+        <if test="param.begin != null">
+            and add_date like concat("%",#{param.begin},"%")
+        </if>
+        UNION
+        select rr.id,rr.store_id,rr.reduce_date as handle_date,rr.handler from consumable_reduce_record rr where
+        rr.business_type = 'APPROVE' and rr.status='PASS'
+        <if test="param.begin != null">
+            and reduce_date like concat("%",#{param.begin},"%")
+        </if>
+        ) r on sd.stock_id = r.id
+        <if test="param.storeId != null">
+            and ss.store_id = #{param.storeId}
+        </if>
+        <if test="param.categoryId != null">
+            and c.category_id = #{param.categoryId}
+        </if>
+        <if test="param.keyword !=null and param.keyword !=''">
+            and (c.name like concat("%",#{param.keyword},"%") or c.code like concat("%",#{param.keyword},"%"))
+        </if>
+        <if test="param.stockFlag !=null and param.stockFlag !=''">
+            and sd.stock_flag = #{param.stockFlag}
+        </if>
+    </select>
+</mapper>

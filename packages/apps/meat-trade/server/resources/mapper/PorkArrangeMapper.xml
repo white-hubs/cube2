@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.meattrade.server.pork.dao.PorkArrangeMapper">
+
+    <select id="pageReportSuspicion" resultType="com.guhecloud.cube.biz.meattrade.server.pork.entity.PorkArrange">
+        SELECT
+        pa.id,pa.pork_report_id,pa.slices,pa.weight,pa.place,pa.status,pa.pork_arrange_time
+        FROM
+        meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_arrange_detail pad ON pa.pork_report_id = pad.pork_report_id
+        <where>
+            <if test="param.period != null">
+                AND pa.pork_arrange_time BETWEEN #{param.period.begin()} AND #{param.period.end()}
+            </if>
+            AND pa.tenant = 1
+            AND pad.cheat = 1
+        </where>
+
+    </select>
+
+    <select id="selectCheatCount" resultType="java.lang.Integer">
+        select
+        count(DISTINCT pa.id) as cheat_count
+        from
+        meattrade_pork_arrange pa
+        INNER JOIN meattrade_pork_arrange_detail pade ON pa.pork_report_id = pade.pork_report_id
+        <where>
+            pa.status = 'FINISHED' and pa.tenant = #{param.tenant} and pade.cheat = 1
+            <if test="param.porkReportIds != null and param.porkReportIds.size() > 0">
+                and pa.pork_report_id in
+                <foreach collection="param.porkReportIds" item="porkReportId" open="(" separator="," close=")">
+                    #{porkReportId}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                AND pa.pork_arrange_time BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+    </select>
+
+    <select id="selectArrangeCount" resultType="java.lang.Integer">
+        select
+        count(pa.id) as arrange_count
+        from
+        meattrade_pork_arrange pa
+        <where>
+            pa.status = 'FINISHED' and pa.tenant = #{param.tenant}
+            <if test="param.porkReportIds != null and param.porkReportIds.size() > 0">
+                and pa.pork_report_id in
+                <foreach collection="param.porkReportIds" item="porkReportId" open="(" separator="," close=")">
+                    #{porkReportId}
+                </foreach>
+            </if>
+            <if test="param.period != null">
+                AND pa.pork_arrange_time BETWEEN #{param.period.begin} AND #{param.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

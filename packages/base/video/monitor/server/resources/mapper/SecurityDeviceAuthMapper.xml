@@ -1,0 +1,57 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.SecurityDeviceAuthMapper">
+
+    <select id="getSecurityDeviceAuthByUserId" resultType="Long">
+        select `security_device_id`
+        from `security_device_auth`
+        where `user_id` = #{userId}
+        group by `security_device_id`
+    </select>
+    <select id="getAllUserByDeviceId" resultType="com.guhecloud.cube.biz.vmonitor.server.param.AuthUserParam">
+        select `user_id`, `user_name`
+        from `security_device_auth`
+        where `security_device_id` = #{deviceId}
+        group by `user_id`
+    </select>
+    <select id="getUserIdsByDeviceIds" resultType="com.guhecloud.cube.biz.vmonitor.server.entity.SecurityDeviceAuth">
+        select `id`,`security_device_id`,`user_id`,`user_name`
+        from `security_device_auth`
+        where `security_device_id` in
+        <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+            #{deviceId}
+        </foreach>
+    </select>
+    <insert id="insertAuth">
+        insert into `security_device_auth` (`id`, `security_device_id`, `user_id`, `user_name`, `create_by`)
+        values
+        <foreach collection="ids" item="item" separator=",">
+            (#{item.id},#{securityDeviceId},#{item.userId}, '张三',#{createBy})
+        </foreach>
+    </insert>
+
+    <select id="getSecurityUserIds" resultType="Long">
+        select
+        distinct `user_id`
+        from
+        `security_device_auth`
+        <where>
+            security_device_id in
+            <foreach collection="deviceIds" item="deviceId" open="(" separator="," close=")">
+                #{deviceId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="getSecurityDeviceIds" resultType="Long">
+        select
+        distinct `security_device_id`
+        from
+        `security_device_auth`
+        <where>
+            `user_id` in
+            <foreach collection="userIds" item="userId" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,49 @@
+load("@rules_java//java:defs.bzl", "java_library")
+load("@rules_jvm_external//:defs.bzl", "artifact", "java_export", "maven_bom")
+load("//packages/platform:variables.bzl", "PACKAGE_GROUP", "PLATFORM_VERSION")
+
+package(default_visibility = ["//packages:__subpackages__"])
+
+artifactId = "subsystem-config"
+
+java_library(
+    name = "subsystem-config",
+    srcs = glob(["src/**/*.java"]),
+    deps = [
+        "//packages/platform/base",
+        "//packages/platform/rocketmq",
+        "//third-party/java/slf4j",
+        "//third-party/java/google:guava",
+        "//third-party/java/aspectj:aspectjweaver",
+        "//third-party/java/jackson",
+        "//third-party/java/spring:springframework",
+        "//third-party/java/spring:spring_boot",
+        "//third-party/java:lombok",
+        # add
+        "//third-party/java/apache:tomcat",
+        "//third-party/java/spring:spring_data",
+        "//third-party/java/apache:rocketmq",
+        "//packages/platform/base/utils:object",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/base/utils:map",
+        "//packages/platform/base/utils:json",
+    ],
+)
+
+java_export(
+    name = "export",
+    maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    tags = ["no-javadocs"],
+    runtime_deps = [
+        ":subsystem-config",
+    ],
+)
+
+maven_bom(
+    name = "bom",
+    dependencies_maven_coordinates = "%s:%s:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+    java_exports = [
+        ":export",
+    ],
+    maven_coordinates = "%s:%s-bom:%s" % (PACKAGE_GROUP, artifactId, PLATFORM_VERSION),
+)

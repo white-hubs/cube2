@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3DictMapper">
+
+    <!-- 系统字典实体ResultMap -->
+    <resultMap id="SysDictResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.SysDict">
+        <id column="id" property="id"/>
+        <result column="dict_name" property="dictName"/>
+        <result column="dict_code" property="dictCode"/>
+        <result column="status" property="status"/>
+        <result column="type" property="type"/>
+        <result column="remark" property="remark"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据字典编码查询字典 -->
+    <select id="selectByDictCode" resultMap="SysDictResultMap">
+        SELECT
+            `id`,
+            `dict_name`,
+            `dict_code`,
+            `status`,
+            `type`,
+            `remark`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_sys_dict_v3
+        WHERE `dict_code` = #{dictCode}
+        LIMIT 1
+    </select>
+
+    <!-- 根据字典编码查询字典(包含字典项) -->
+    <select id="selectByDictCodeWithItems" resultMap="SysDictResultMap">
+        SELECT
+            d.`id`,
+            d.`dict_name`,
+            d.`dict_code`,
+            d.`status`,
+            d.`type`,
+            d.`remark`,
+            d.`create_by`,
+            d.`create_time`,
+            d.`update_by`,
+            d.`update_time`
+        FROM iot_sys_dict_v3 d
+        WHERE d.`dict_code` = #{dictCode}
+        LIMIT 1
+    </select>
+
+</mapper>

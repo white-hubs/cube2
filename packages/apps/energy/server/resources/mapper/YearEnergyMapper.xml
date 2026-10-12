@@ -1,0 +1,20 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.energymanagement.server.dao.YearEnergyMapper">
+    <select id="getYearEnergyTrend" resultType="com.guhecloud.cube.srv.gen.energymanagement.server.vo.EnergyTypeStatVO">
+        -- DATE_FORMAT(date_year,'%Y')
+        select `year` as time,sum(energy_value) as dd_value,
+        sum(dc_value) as dcValue,sum(zh_value) as zhValue
+        from year_energy
+        where deleted = 0
+        <if test="param.instrumentType != null and param.instrumentType != ''">
+            and instrument_type = #{param.instrumentType}
+        </if>
+        <if test="param.period != null and param.period.begin != null">
+            and date_year &gt;= #{param.period.begin}
+        </if>
+        <if test="param.period != null and param.period.end != null">
+            and date_year &lt;= #{param.period.end}
+        </if>
+        group by time order by time
+    </select>
+</mapper>

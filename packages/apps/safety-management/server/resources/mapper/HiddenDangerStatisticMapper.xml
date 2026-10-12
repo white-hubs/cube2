@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.management.dao.HiddenDangerStatisticMapper">
+
+    <select id="countGroupByMarket"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.hidden.HiddenDangerOverviewPageVO">
+        SELECT
+        shd.hiddenDangerNum,
+        shd.market_tenant,
+        mc.market_name
+        FROM
+        market_config mc
+        INNER JOIN
+        (
+        select count(id) as hiddenDangerNum, market_tenant, market_name from safety_hidden_danger
+        <where>
+            <if test="query.marketTenant != null">
+                and tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                and create_time &gt;= #{query.period.begin} and create_time &lt;
+                #{query.period.end}
+            </if>
+        </where>
+        group by market_tenant order by hiddenDangerNum asc
+        ) shd ON mc.market_tenant = shd.market_tenant
+        where mc.status = true
+    </select>
+
+    <select id="countStatusGroupByMarket"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.hidden.HiddenDangerCountStatusOfMarketVO">
+        SELECT
+        mc.market_tenant tenantID,
+        mc.market_name tenantName,
+        c.hidden_danger_status status,
+        c.count count
+        FROM
+        market_config mc
+        LEFT JOIN (
+        SELECT
+        shd.market_tenant,
+        shd.hidden_danger_status,
+        COUNT(1) count
+        FROM
+        safety_hidden_danger shd
+        <where>
+            <if test="marketTenantIDs != null and marketTenantIDs.size() > 0">
+                AND shd.market_tenant IN
+                <foreach item="id" collection="marketTenantIDs" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="createdPeriod != null">
+                AND shd.create_time BETWEEN #{createdPeriod.begin} AND #{createdPeriod.end}
+            </if>
+        </where>
+        GROUP BY shd.hidden_danger_status
+        ) c
+        ON c.market_tenant = mc.market_tenant
+        <where>
+            mc.status = true
+            <if test="marketTenantIDs != null and marketTenantIDs.size() > 0">
+                AND mc.market_tenant IN
+                <foreach item="id" collection="marketTenantIDs" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="countProcessStatus"
+            resultType="com.guhecloud.cube.srv.gen.safety.management.dto.vo.statistics.GroupCountVO">
+        SELECT
+        shd.hidden_danger_status groupKey,
+        COUNT(shd.id) count
+        FROM
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.marketTenantIDs != null and query.marketTenantIDs.size() > 0">
+                AND shd.market_tenant IN
+                <foreach item="id" collection="query.marketTenantIDs" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="query.createdPeriod != null">
+                AND shd.create_time BETWEEN #{query.createdPeriod.begin} AND #{query.createdPeriod.end}
+            </if>
+        </where>
+        GROUP BY shd.hidden_danger_status
+    </select>
+
+    <select id="getHiddenDangerList" resultType="com.guhecloud.cube.srv.gen.safety.management.po.HiddenDangerPO">
+        select
+        shd.*
+        from
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                AND shd.create_time BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and shd.market_tenant = #{query.marketTenant}
+            </if>
+        </where>
+    </select>
+
+    <select id="getHiddenDangerPage" resultType="com.guhecloud.cube.srv.gen.safety.management.po.HiddenDangerPO">
+        select
+        shd.*
+        from
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                AND shd.create_time BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and shd.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.status != null and query.status != ''">
+                and shd.hidden_danger_status = #{query.status}
+            </if>
+            <if test="query.category != null and query.category != ''">
+                and shd.hidden_danger_category = #{query.category}
+            </if>
+            <if test="query.filterCategories != null and query.filterCategories.size > 0">
+                and shd.hidden_danger_category not in
+                <foreach collection="query.filterCategories" item="category" open="(" separator="," close=")">
+                    #{category}
+                </foreach>
+            </if>
+        </where>
+        order by shd.create_time desc
+    </select>
+
+    <select id="countByStatus" resultType="java.lang.Integer">
+        select
+        shd.*
+        from
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.period != null">
+                AND shd.create_time BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+            <if test="query.marketTenant != null">
+                and shd.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="status != null and status.size > 0">
+                and shd.hidden_danger_status in
+                <foreach collection="status" item="state" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="getHiddenDangerCategoryList" resultType="java.lang.String">
+        select
+        shd.hidden_danger_category
+        from
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        where mc.status = true
+        group by shd.hidden_danger_category
+    </select>
+
+    <select id="countTaskNum" resultType="java.lang.Integer">
+        select
+        count(shd.id) as total_num
+        from
+        safety_hidden_danger shd
+        left join market_config mc on mc.market_tenant = shd.market_tenant
+        <where>
+            mc.status = true
+            <if test="query.status != null and query.status.size > 0">
+                and shd.hidden_danger_status in
+                <foreach collection="query.status" item="state" open="(" separator="," close=")">
+                    #{state}
+                </foreach>
+            </if>
+            <if test="query.marketTenant != null">
+                and shd.market_tenant = #{query.marketTenant}
+            </if>
+            <if test="query.period != null">
+                AND shd.create_time BETWEEN #{query.period.begin} AND #{query.period.end}
+            </if>
+        </where>
+    </select>
+</mapper>

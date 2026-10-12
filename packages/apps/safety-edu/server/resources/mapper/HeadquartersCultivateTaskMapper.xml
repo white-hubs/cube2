@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.dao.HeadquartersCultivateTaskMapper">
+
+    <resultMap id="CultivateTaskUserRecordVOMap"
+               type="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.vo.CultivateUserSignRecordVO">
+        <id column="id" property="id"/>
+        <result column="user_name" property="name"/>
+        <result column="user_department_name" property="departmentName"/>
+        <result column="user_post_name" property="postName"/>
+        <association property="market"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.vo.CultivateUserSignRecordVO$CultivateMarketInfoVO">
+            <result column="market_tenant" property="marketTenant"/>
+            <result column="market_name" property="marketName"/>
+        </association>
+        <association property="signInfo"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.vo.CultivateUserSignRecordVO$CultivateSignStatusInfoVO">
+            <result column="user_sign_time" property="signDate"/>
+            <result column="user_sign_status" property="status"/>
+            <result column="belated" property="belated"/>
+        </association>
+        <association property="cultivateTask"
+                     javaType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.vo.CultivateUserSignRecordVO$CultivateTaskInfoVO">
+            <result column="task_name" property="name"/>
+            <result column="cultivate_mode" property="cultivateMode"/>
+            <result column="cultivate_start_time" property="startTime"/>
+            <result column="cultivate_end_time" property="endTime"/>
+            <result column="source_key" property="sourceKey"/>
+            <result column="theme_name" property="themeName"/>
+            <result column="charge_user_name" property="chargeUserName"/>
+        </association>
+    </resultMap>
+
+    <select id="getUserSignRecordPage"
+            resultMap="CultivateTaskUserRecordVOMap">
+        SELECT
+        t1.id,
+        t1.user_name,
+        t1.user_department_name,
+        t1.user_post_name,
+        t2.market_tenant,
+        t3.market_name,
+        t1.user_sign_time,
+        t1.user_sign_status,
+        t1.belated,
+        t2.`name` as task_name,
+        t2.cultivate_mode,
+        t2.source_key,
+        t2.cultivate_start_time,
+        t2.cultivate_end_time,
+        t2.theme_name,
+        t2.charge_user_name
+        FROM
+        cultivate_task_user t1
+        LEFT JOIN cultivate_task t2 on t1.cultivate_task_id = t2.id
+        LEFT JOIN headquarters_cultivate_task_market t3 on t2.source_key = t3.headquarters_cultivate_task_id AND t2.market_tenant = t3.market_tenant_code
+        <where>
+            <if test="param.cultivateTaskId != null">
+                and t1.cultivate_task_id = #{param.cultivateTaskId}
+            </if>
+            <if test="param.themeId != null">
+                and t2.theme_id = #{param.themeId}
+            </if>
+            <if test="param.cultivateMode != null">
+                and t2.cultivate_mode = #{param.cultivateMode}
+            </if>
+            <if test="param.userSignStatus != null">
+                and t1.user_sign_status = #{param.userSignStatus}
+            </if>
+            <if test="param.marketTenant != null">
+                and t2.market_tenant = #{param.marketTenant}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.cultivate_start_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.cultivate_start_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.belated != null">
+                and t1.belated = #{param.belated}
+            </if>
+        </where>
+        GROUP BY t1.id
+        order by t1.create_time desc
+    </select>
+
+    <select id="getUserSignRecordExport"
+            resultType="com.guhecloud.cube.srv.gen.safety.education.server.headquarters.cultivate.vo.CultivateUserSignRecordExportVO">
+        SELECT
+        t1.id,
+        t1.user_name as `name`,
+        t1.user_department_name as department_name,
+        t1.user_post_name as post_name,
+        t2.market_tenant,
+        t3.market_name,
+        t1.user_sign_time as sign_date,
+        t1.user_sign_status as `status`,
+        t1.belated,
+        t2.`name` AS task_name,
+        t2.cultivate_mode,
+        t2.source_key,
+        t2.cultivate_start_time as start_time,
+        t2.cultivate_end_time as end_time,
+        t2.theme_name,
+        t2.charge_user_name
+        FROM
+        cultivate_task_user t1
+        LEFT JOIN cultivate_task t2 ON t1.cultivate_task_id = t2.id
+        LEFT JOIN headquarters_cultivate_task_market t3 ON t2.source_key = t3.headquarters_cultivate_task_id AND t2.market_tenant = t3.market_tenant_code
+        <where>
+            <if test="param.cultivateTaskId != null">
+                and t1.cultivate_task_id = #{param.cultivateTaskId}
+            </if>
+            <if test="param.themeId != null">
+                and t2.theme_id = #{param.themeId}
+            </if>
+            <if test="param.cultivateMode != null">
+                and t2.cultivate_mode = #{param.cultivateMode}
+            </if>
+            <if test="param.userSignStatus != null">
+                and t1.user_sign_status = #{param.userSignStatus}
+            </if>
+            <if test="param.marketTenant != null">
+                and t2.market_tenant = #{param.marketTenant}
+            </if>
+            <if test="param.period != null and param.period.begin != null">
+                and t2.cultivate_start_time &gt;= #{param.period.begin}
+            </if>
+            <if test="param.period != null and param.period.end != null">
+                and t2.cultivate_start_time &lt;= #{param.period.end}
+            </if>
+            <if test="param.belated != null">
+                and t1.belated = #{param.belated}
+            </if>
+        </where>
+        GROUP BY t1.id
+        order by t1.create_time desc
+    </select>
+</mapper>

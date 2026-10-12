@@ -1,0 +1,81 @@
+debug: false
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.0.243:8848
+        namespace: 25361486-9737-46a8-b488-4768cfd1fe77
+
+  datasource:
+    url: jdbc:mysql://192.168.0.243:3306/cube_base_iot_center?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: sat@Db$2021
+
+  redis:
+    host: 192.168.0.243
+    port: 6379
+    database: 3
+    password: sat@Redis021
+
+  application:
+    name: iotPlatform
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: 'http://192.168.0.243:3200/ouaa/oauth/jwt.key'
+      resourceclient:
+        clientcredential:
+          client-id: inner_server
+          client-secret: cli@pwd#ghy!123
+          access-token-uri: http://192.168.0.243:3200/ouaa/oauth/token
+  main:
+    allow-bean-definition-overriding: true
+
+ribbon:
+  ReadTimeout: 5000
+  ConnectTimeout: 5000
+
+rocketmq:
+  name-server: http://192.168.0.243:9876
+  producer:
+    group: iot_center_producer
+    send-message-timeout: 3000
+    retry-times-when-send-failed: 3
+
+logging:
+  level:
+    root: info
+
+#全量订阅IOT消息
+thirdparty:
+  iot:
+    subscribe:
+      full:
+        consumer:
+          rabbit:
+            host: 192.168.0.243
+            port: 5672
+            username: ghymq
+            password: ghy@RabbitMq2022
+            virtual-host: iotp_v2
+
+clickHouse:
+  jdbcUrl: jdbc:clickhouse://192.168.0.243:8123
+  driverClassName: ru.yandex.clickhouse.ClickHouseDriver
+  username: ghych
+  password: ghy@ClickHouse2022
+
+platform:
+  security:
+    secretKey: inneFeign@secret
+    timeout: 600
+    resource:
+      permit: "/**"
+  feign:
+    security:
+      secretKey: inneFeign@secret
+      timeout: 600

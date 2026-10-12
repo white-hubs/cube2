@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.infrastructure.dao.DeviceHealthValueMapper">
+
+
+    <select id="selectLast"
+            resultType="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.infrastructure.po.DeviceHealthValuePO">
+
+        SELECT dhv.* FROM device_health_value dhv JOIN (
+
+           <!-- SELECT max(dhv.id) id FROM device_health_value dhv
+
+            WHERE dhv.device_id in
+            <foreach collection="deviceInstanceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+
+            GROUP BY dhv.device_id-->
+
+        SELECT
+        t1.device_id,
+        t1.create_time,
+        t1.health_value,
+        t1.id
+        FROM
+        device_health_value t1
+        INNER JOIN ( SELECT t2.device_id, max( t2.create_time ) AS create_time,t2.id FROM device_health_value t2  where device_id in
+        <foreach collection="deviceInstanceIds" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        GROUP BY t2.device_id ) AS t3
+        ON t1.device_id = t3.device_id AND t1.create_time = t3.create_time
+        GROUP BY t1.device_id
+
+        ) t ON dhv.id = t.id
+
+
+    </select>
+    <select id="selectHealthLevelNumber"
+            resultType="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.interfaces.vo.HealthLevelVO">
+
+        SELECT
+
+        sum(case when t.ranking = 'unhealthy' then t.num else 0 end) unhealthyNumber,
+        sum(case when t.ranking = 'subNormal' then t.num else 0 end) subNormalNumber,
+        sum(case when t.ranking = 'normal' then  t.num else 0 end) normalNumber,
+        sum(case when t.ranking = 'best' then t.num else 0 end) bestNumber
+
+        from (
+        SELECT count(id) num,
+        case
+        when health_value <![CDATA[<]]> 20 then'unhealthy'
+        when health_value>=20 and health_value <![CDATA[<]]> 50 then 'subNormal'
+        when health_value>=50 and health_value <![CDATA[<]]> 80 then 'normal'
+        when health_value>=80 and health_value <![CDATA[<=]]> 100 then 'best'
+        end ranking
+        from
+
+             (
+
+<!--        SELECT * from (SELECT DISTINCT dhv.device_id deviceId, dhv.* FROM device_health_value dhv
+        where device_id in
+        <foreach collection="deviceIds" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+
+        ORDER BY dhv.create_time desc )x1 GROUP BY x1.device_id-->
+        SELECT
+        t1.device_id,
+        t1.create_time,
+        t1.health_value,
+               t1.id
+        FROM
+        device_health_value t1
+        INNER JOIN ( SELECT t2.device_id, max( t2.create_time ) AS create_time,t2.id FROM device_health_value t2  where device_id in
+        <foreach collection="deviceIds" open="(" close=")" separator="," item="id">
+            #{id}
+        </foreach>
+        GROUP BY t2.device_id ) AS t3
+        ON t1.device_id = t3.device_id AND t1.create_time = t3.create_time
+        GROUP BY t1.device_id
+
+
+
+                 ) x2
+
+        group by ranking ) t
+
+    </select>
+    <select id="selectLastPage"
+            resultType="com.guhecloud.cube.srv.gen.device.supervise.server.analysis.infrastructure.po.DeviceHealthValuePO">
+        SELECT dhv.* FROM device_health_value dhv JOIN (
+
+        SELECT max(dhv.id) id FROM device_health_value dhv
+
+    </select>
+</mapper>

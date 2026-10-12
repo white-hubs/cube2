@@ -1,0 +1,7 @@
+ouaa:
+  auth:
+    url: http://localhost:10211/oauth/token
+
+# 定制的feign logger level控制
+feign:
+  logger-level: FULL

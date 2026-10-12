@@ -1,0 +1,24 @@
+- configType: DictEntry
+  version: 1.0
+  isSystem: False
+  isRemoval: True
+  tenants: ["1"]
+  kwargs:
+    isCascade: true
+    parent: ""
+    dictType: TypeA
+  vargs:
+    - key: "item1"
+      label: "item1"
+- configType: DictEntry
+  version: 1.0
+  isSystem: False
+  isRemoval: True
+  tenants: ["1"]
+  kwargs:
+    isCascade: false
+    parent: ""
+    dictType: TypeB
+  vargs:
+    - key: "item1"
+      label: "item1"

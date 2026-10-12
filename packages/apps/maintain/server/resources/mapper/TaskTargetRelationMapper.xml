@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.dao.TaskTargetRelationMapper">
+
+    <select id="selectOrderBy" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.TaskTargetRelationPO"
+            databaseId="mysql">
+        select * from inspect_task_target_relation
+        where task_id = #{taskId}
+        group by target_id
+        ORDER BY CONVERT(target_name USING gbk)
+    </select>
+    <sql id="selectOrderByDmAndPg">
+        select * from inspect_task_target_relation
+        where task_id = #{taskId}
+        group by target_id
+        ORDER BY target_name
+    </sql>
+    <select id="selectOrderBy" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.TaskTargetRelationPO"
+            databaseId="pg">
+        <include refid="selectOrderByDmAndPg" />
+    </select>
+    <select id="selectOrderBy" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.TaskTargetRelationPO"
+            databaseId="dm">
+        <include refid="selectOrderByDmAndPg" />
+    </select>
+    <select id="selectHandleList" resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.po.TaskTargetRelationPO">
+        select DISTINCT ittr.plan_id, ittr.task_id, ittr.target_id
+        from inspect_task_target_relation ittr
+        left join inspect_task_target_item itti
+        on (itti.task_id = ittr.task_id and itti.target_id = ittr.target_id)
+        where
+            ittr.create_time >= '2024-04-03 00:00:00'
+            and itti.id is null
+        limit 10000
+    </select>
+
+    <select id="selectInspectionObjPage"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectionObjVO">
+        SELECT
+        ittr.target_id AS targetId,
+        ittr.target_code AS targetCode,
+        ittr.target_name AS targetName,
+        ittr.target_category AS targetCategory,
+        ittr.lat_and_lon AS latAndLon,
+        ittr.location AS location,
+        ittr.target_address AS targetAddress,
+        ittr.target_area_id AS areaId,
+        ittr.target_area_name AS areaName,
+        ir.id AS inspectionId,
+        ir.`time` AS `time`,
+        ir.nickname AS staff,
+        ir.`result` AS `result`,
+        COALESCE(ir.`status`, 'EXECUTING') AS state
+        FROM inspect_task_target_relation ittr
+        LEFT JOIN (
+            SELECT ir1.id, ir1.target_id, ir1.task_id, ir1.`time`, ir1.nickname, ir1.`result`, ir1.`status`
+            FROM inspect_record ir1
+            INNER JOIN (
+                SELECT target_id, MAX(id) AS max_id
+                FROM inspect_record
+                WHERE task_id = #{param.taskId} AND target_id IS NOT NULL
+                GROUP BY target_id
+            ) latest ON ir1.target_id = latest.target_id AND ir1.id = latest.max_id
+            WHERE ir1.task_id = #{param.taskId}
+        ) ir ON ir.target_id = ittr.target_id
+        <where>
+            ittr.task_id = #{param.taskId}
+            <if test="param.targetCategory != null and param.targetCategory != ''">
+                and ittr.target_category = #{param.targetCategory}
+            </if>
+            <if test="param.keyword != null and param.keyword != ''">
+                and ittr.target_name like concat('%', #{param.keyword}, '%')
+            </if>
+            <if test="param.status != null and param.status != ''">
+                <choose>
+                    <when test="param.status == 'EXECUTING'">
+                        and (ir.id is null or ir.`status` = 'EXECUTING')
+                    </when>
+                    <otherwise>
+                        and ir.`status` = #{param.status}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="param.result != null and param.result != ''">
+                and ir.`result` = #{param.result}
+            </if>
+        </where>
+        ORDER BY
+        CASE WHEN ir.id IS NULL THEN 0 WHEN ir.`status` &lt;&gt; 'OVER' THEN 1 ELSE 2 END,
+        CASE ittr.target_category WHEN 'STALL' THEN 0 WHEN 'SITE_POINT' THEN 1 ELSE 2 END,
+        <choose>
+            <when test="_databaseId == 'mysql'">CONVERT(ittr.target_name USING gbk)</when>
+            <otherwise>ittr.target_name</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectLatestAbnormalTargets"
+            resultType="com.guhecloud.cube.srv.gen.maintain.server.inspectionv2.model.vo.InspectGeneratedTaskTargetVO">
+        SELECT
+        latest_ir.target_id AS id,
+        COALESCE(latest_relation.target_name, latest_ir.target_name) AS name,
+        latest_relation.target_code AS code,
+        latest_ir.target_category AS type,
+        latest_relation.lat_and_lon AS latAndLon,
+        latest_relation.location AS location
+        FROM (
+            SELECT ir.id, ir.task_id, ir.target_id, ir.target_name, ir.target_category, ir.result
+            FROM inspect_record ir
+            INNER JOIN (
+                SELECT target_category, target_id, MAX(id) AS max_id
+                FROM inspect_record
+                WHERE target_id IS NOT NULL
+                AND target_category IS NOT NULL
+                <if test="targetCategory != null and targetCategory != ''">
+                    AND target_category = #{targetCategory}
+                </if>
+                GROUP BY target_category, target_id
+            ) latest_record ON ir.target_category = latest_record.target_category
+            AND ir.target_id = latest_record.target_id
+            AND ir.id = latest_record.max_id
+            WHERE ir.result = 'ABNORMAL'
+        ) latest_ir
+        INNER JOIN (
+            SELECT relation.target_id,
+            relation.target_category,
+            relation.target_name,
+            relation.target_code,
+            relation.lat_and_lon,
+            relation.location
+            FROM inspect_task_target_relation relation
+            INNER JOIN (
+                SELECT target_category, target_id, MAX(id) AS max_id
+                FROM inspect_task_target_relation
+                WHERE target_id IS NOT NULL
+                AND target_category IS NOT NULL
+                AND lat_and_lon IS NOT NULL
+                AND lat_and_lon != ''
+                <if test="targetCategory != null and targetCategory != ''">
+                    AND target_category = #{targetCategory}
+                </if>
+                GROUP BY target_category, target_id
+            ) latest_relation_id ON relation.target_category = latest_relation_id.target_category
+            AND relation.target_id = latest_relation_id.target_id
+            AND relation.id = latest_relation_id.max_id
+        ) latest_relation ON latest_ir.target_category = latest_relation.target_category
+        AND latest_ir.target_id = latest_relation.target_id
+        ORDER BY latest_ir.id DESC
+    </select>
+</mapper>

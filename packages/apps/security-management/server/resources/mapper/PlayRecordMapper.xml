@@ -1,0 +1,29 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.securitymanagement.server.information.dao.PlayRecordMapper">
+
+    <select id="getPlayRecordPage" resultType="com.guhecloud.cube.srv.gen.securitymanagement.server.information.vo.PlayRecordPageVo">
+        SELECT
+            a.`id`,
+            a.`record_id`,
+            a.`item_name` `itemName`,
+            a.`stop_time` `stopTime`,
+            a.`start_time` `startTime`,
+            a.`total_circle` `totalCircle`,
+            a.`total_time` `totalTime`,
+            a.`area_id`,
+            a.`area_name`,
+            a.`client_id` `clientId`,
+            a.`client_name` `clientName`
+        FROM
+            `play_record` a
+        where a.`deleted` = 0
+        <if test="param.keyword !=null and param.keyword !=''">
+          and a.`client_name` like concat('%', #{param.keyword}, '%') or a.`item_name` like concat('%', #{param.keyword}, '%')
+        </if>
+        <if test="param.period !=null and param.period !=''">
+          and a.`start_time` BETWEEN #{param.period.begin} and #{param.period.end}
+        </if>
+        order by a.`create_time` DESC
+    </select>
+
+</mapper>

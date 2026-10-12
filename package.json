@@ -1,0 +1,23 @@
+{
+  "name": "cube2",
+  "version": "1.0.0",
+  "private": true,
+  "keywords": [],
+  "author": "ghcloud",
+  "workspaces": [
+    "cube2-harness"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow bun",
+    "prepare": "husky",
+    "deps-server": "bun run bazel-deps-server/server.ts",
+    "deps-server:dev": "bun --watch bazel-deps-server/server.ts",
+    "harness": "bun run cube2-harness/server.ts",
+    "harness:dev": "bun --watch cube2-harness/server.ts",
+    "harness:check": "bun run cube2-harness/tools/check-environment.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "husky": "^9.1.7"
+  }
+}

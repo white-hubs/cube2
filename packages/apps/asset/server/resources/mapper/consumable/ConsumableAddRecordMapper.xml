@@ -1,0 +1,54 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.property.management.server.consumable.dao.ConsumableAddRecordMapper">
+    <select id="getPage"
+            resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableAddPageVO">
+        SELECT b.id,
+        a.stock_id,
+        sum(num) as num,
+        sum(price) as price,
+        b.add_date,
+        b.store_id,
+        b.HANDLER,
+        b.STATUS,
+        b.supplier,
+        b.depository_numbers,
+        b.process_instance_id,
+        sum(a.amount) as amount
+        FROM consumable_stock_detail a
+        INNER JOIN consumable_add_record b ON a.stock_id = b.id
+        inner join consumable c on a.consumable_id=c.id
+        <where>
+            and b.business_type != 'IMPORT'
+            <if test="param.addDate !=null">
+                and b.add_date = #{param.addDate}
+            </if>
+            <if test="param.status !=null and param.status !=''">
+                and b.status = #{param.status}
+            </if>
+            <if test="param.storeId !=null and param.storeId !=''">
+                and b.store_id = #{param.storeId}
+            </if>
+            <if test="param.keyword !=null and param.keyword !=''">
+                and (c.name like concat('%',#{param.keyword},'%')
+                or c.`code` like concat('%','RK168','%')
+                or b.depository_numbers like concat('%',#{param.keyword},'%'))
+            </if>
+        </where>
+        GROUP BY b.id
+        order by b.add_date desc,b.create_time desc
+    </select>
+    <select id="getExcel" resultType="com.guhecloud.cube.srv.gen.property.management.server.consumable.vo.ConsumableAddExcelVO">
+
+                SELECT b.NAME,
+                       b.model,
+                       b.unit,
+                       c.num,
+                       c.price,
+                       c.amount
+                FROM consumable_add_record a
+                inner join consumable_stock_detail c on a.id=c.stock_id
+                         INNER JOIN consumable b ON c.consumable_id = b.id
+                where a.id = #{id}
+
+    </select>
+</mapper>

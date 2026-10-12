@@ -1,0 +1,58 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library")
+load("//packages/deploy/tools:export.bzl", "export")
+load("//packages/deploy/tools:server_info.bzl", "server_info")
+load("//tools/springboot:springboot.bzl", "springboot")
+
+java_library(
+    name = "deps",
+    visibility = ["//visibility:private"],
+    exports = [
+        "//packages/base/openapi/metadata",
+        "//packages/platform/base/utils:ant-path-matcher",
+        "//packages/platform/base/utils:string",
+        "//packages/platform/security",
+        "//packages/platform/server",
+        "//third-party/java/apache:hc5",
+        "//third-party/java/apache:hc5-client",
+        "//third-party/java/apache:tomcat_embed_core",
+    ],
+)
+
+java_library(
+    name = "server",
+    srcs = glob([
+        "src/**/*.java",
+    ]),
+    resource_strip_prefix = package_name() + "/resources",
+    resources = glob(["resources/**"]),
+    runtime_deps = [
+        "//packages/platform/base/utils:string",  # 此 runtime_deps 提供给 java fc 使用
+    ],
+    deps = [
+        ":deps",
+    ],
+)
+
+_MAIN_CLASS = "com.guhecloud.cube.base.openapi.server.OpenAPIServer"
+
+java_binary(
+    name = "server-bin",
+    main_class = _MAIN_CLASS,
+    runtime_deps = [":server"],
+)
+
+springboot(
+    name = "server-exec",
+    boot_app_class = _MAIN_CLASS,
+    java_library = ":server",
+)
+
+server_info(
+    name = "server-info",
+    gw_prefix = "/open-api/",
+    main_class = _MAIN_CLASS,
+    no_datasource = True,
+    server = ":server",
+    server_id = "openGateway",
+    visibility = ["//packages:__subpackages__"],
+)

@@ -1,0 +1,33 @@
+load("@rules_java//java:defs.bzl", "java_library")
+
+package(default_visibility = ["//visibility:public"])
+
+alias(
+    name = "poi",
+    actual = "@maven//:cn_hutool_hutool_poi",
+)
+
+alias(
+    name = "core",
+    actual = "@maven//:cn_hutool_hutool_core",
+)
+
+alias(
+    name = "http",
+    actual = "@maven//:cn_hutool_hutool_http",
+)
+
+alias(
+    name = "crypto",
+    actual = "@maven//:cn_hutool_hutool_crypto",
+)
+
+java_library(
+    name = "extra",
+    exports = [
+        "@maven//:cn_hutool_hutool_extra"
+    ],
+    runtime_deps = [
+        "//third-party/java/zxing:zxing_core", # 考虑到Hutool的非强制依赖性，因此zxing自行引入https://doc.hutool.cn/pages/QrCodeUtil
+    ],
+)

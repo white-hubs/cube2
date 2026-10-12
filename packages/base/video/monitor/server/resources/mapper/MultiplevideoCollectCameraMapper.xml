@@ -1,0 +1,52 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.vmonitor.server.dao.MultipleVideoCollectCameraMapper">
+
+    <select id="selectListByCollectId"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.entity.MultipleVideoCollectCamera">
+        SELECT
+        b.`id`,
+        b.`multiple_video_collect_id`,
+        b.`user_id`,
+        b.`device_id`,
+        b.`sort`,
+        b.`tenant`,
+        b.`deleted`,
+        b.`create_by`,
+        b.`creator_id`,
+        b.`creator_type`,
+        b.`create_time`,
+        b.`update_by`,
+        b.`updater_id`,
+        b.`updater_type`,
+        b.`update_time`
+        FROM
+        `multiple_video_collect_camera` b
+        INNER JOIN `security_device_auth` a ON a.`security_device_id` = b.`device_id`
+        INNER JOIN `multiple_video_collect` c ON b.`multiple_video_collect_id` = c.`id`
+        where a.`user_id`=#{userId} AND c.`user_id` = #{userId} and b.`multiple_video_collect_id` = #{multipleVideoCollectId}
+    </select>
+
+    <select id="selectListUserMultipleVideosBySource"
+            resultType="com.guhecloud.cube.biz.vmonitor.server.entity.MultipleVideoCollectCamera">
+        SELECT
+        b.`id`,
+        b.`multiple_video_collect_id`,
+        b.`user_id`,
+        b.`device_id`,
+        b.`sort`,
+        b.`tenant`,
+        b.`deleted`,
+        b.`create_by`,
+        b.`creator_id`,
+        b.`creator_type`,
+        b.`create_time`,
+        b.`update_by`,
+        b.`updater_id`,
+        b.`updater_type`,
+        b.`update_time`
+        FROM
+        `multiple_video_collect_camera` b
+        INNER JOIN `security_device_auth` a ON a.`security_device_id` = b.`device_id`
+        where a.`user_id`=#{userId} AND b.`user_id` = #{userId} and b.`source` = #{source}
+    </select>
+</mapper>

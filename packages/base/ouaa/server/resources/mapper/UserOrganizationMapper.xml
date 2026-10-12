@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.biz.ouaa.server.dao.UserOrganizationMapper">
+    <select id="listUserOrganizations" resultType="com.guhecloud.cube.biz.ouaa.server.dto.UserOrganizationDTO">
+        select org.`id`, org.`name`, org.`icon`, org.`sort`, org.`remark`, org.`enabled`, org.`extension`, org.`tenant`,
+        org.`parent_id`, org.`sequence`, org.`deleted`, org.`create_by`, org.`create_time`, org.`update_by`, org.`update_time`,
+        uorg.`user_id`, uorg.`position_id`,uorg.`appointment_id`
+        from `organization` org
+        inner join `user_organization` uorg on uorg.`organization_id` = org.`id`
+        where uorg.`user_id` in
+        <foreach collection="collection" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        order by org.`level` asc
+    </select>
+
+    <select id="listOrganizationUsersByOrganizationIds"
+            resultType="com.guhecloud.cube.biz.ouaa.server.entity.UserOrganization">
+        SELECT
+        uorg.`id`,
+        uorg.`user_id`,
+        uorg.`position_id`,
+        uorg.`organization_id`,
+        uorg.`appointment_id`
+        FROM
+        `user_organization` uorg
+        INNER JOIN `user` u ON uorg.`user_id` = u.`id`
+        INNER JOIN `user_tenant` ut on u.`id` = ut.`user_id`
+        <where>
+            ut.`tenant` = #{tenant}
+            and u.`enabled` = true
+            and ut.`enabled` = true
+            and uorg.`organization_id` in
+            <foreach collection="organizationIds" item="organizationId" open="(" separator="," close=")">
+                #{organizationId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="listOrganizationUsers" resultType="com.guhecloud.cube.biz.ouaa.server.vo.UserVO">
+        select
+        DISTINCT(ur.`id`),
+        ur.`name`,
+        ur.`email`,
+        ur.`phone`,
+        ur.`mobile`,
+        ur.`avatar`,
+        ur.`gender`,
+        ur.`remark`,
+        ur.`username`,
+        ur.`password`,
+        ur.`admin`,
+        ur.`enabled`,
+        ur.`entry_date`,
+        ur.`last_login_time`,
+        ur.`last_login_address`,
+        ur.`last_update_password_time`,
+        ur.`extension`,
+        ur.`deleted`,
+        ur.`create_by`,
+        ur.`create_time`,
+        ur.`update_by`,
+        ur.`update_time`,
+        ur.`validity`,
+        ut.`work_status`,
+        ur.`id_card`,
+        ur.`photograph_key`
+        from `user` ur
+        inner join `user_tenant` ut on ut.`user_id` = ur.`id`
+        <if test="param.organizationId != null or (param.positionId != null and param.positionId != '')">
+            inner join `user_organization` uorg on uorg.`user_id` = ur.`id`
+        </if>
+        <where>
+            ut.`tenant` = #{tenant}
+            AND (ut.`belong_tenant` IS NULL OR ut.`belong_tenant` != 'NOT_BELONG')
+            AND ur.`enabled` = true
+            <if test="param.enabled != null and param.enabled==true">
+                and (ut.`enabled` = #{param.enabled} or ut.`enabled` is null)
+            </if>
+            <if test="param.enabled != null and param.enabled==false">
+                and ut.`enabled` = #{param.enabled}
+            </if>
+            <if test="param.ids != null and param.ids.size() > 0">
+                and ur.`id` in
+                <foreach collection="param.ids" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="param.organizationId != null">
+                and uorg.`organization_id` in (
+                select `id`
+                from `organization` org
+                inner join (
+                select sequence from `organization` org where `id` = #{param.organizationId}
+                ) t on org.`sequence` like concat(t.sequence, '%')
+                )
+            </if>
+            <if test="param.keyword != null and  param.keyword != ''">
+                and (ur.`name` like concat('%', #{param.keyword}, '%') or
+                ur.`mobile` like concat('%', #{param.keyword}, '%'))
+            </if>
+            <if test="param.workStatus != null and  param.workStatus != ''">
+                and ut.`work_status` = #{param.workStatus}
+            </if>
+            <if test="param.filterUserIds != null and param.filterUserIds.size > 0">
+                and ur.`id` not in
+                <foreach collection="param.filterUserIds" item="id" open="(" close=")" separator=",">
+                    #{id}
+                </foreach>
+            </if>
+
+        </where>
+        order by
+        <if test="param.sortId != null">
+            CASE WHEN EXISTS (
+                select 1
+                from `user_organization` sort_uorg
+                where sort_uorg.`user_id` = ur.`id`
+                and sort_uorg.`organization_id` = #{param.sortId}
+            ) THEN 0 ELSE 1 END ASC,
+        </if>
+        (CASE WHEN ut.`work_status` ='WORKING' THEN 1
+        WHEN ut.`work_status` ='LEAVE_POST' THEN 2
+        WHEN ut.`work_status` ='ASK_LEAVE' THEN 3
+        WHEN ut.`work_status` ='REST' THEN 4
+        ELSE 5
+        END) ASC ,`create_time` DESC
+    </select>
+    <select id="listEnableUserByOrgAndPost" resultType="java.lang.Long">
+        select u.`id` from `user` u left join `user_organization` uo on u.`id` = uo.`user_id`
+        where
+        u.`enabled` = true
+        <if test="orgIds != null and orgIds.size()>0">
+            and uo.`organization_id` in
+            <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="postIds != null and postIds.size()>0">
+            and uo.`appointment_id` in
+            <foreach collection="postIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="listUserByOrgAndPost" resultType="java.lang.Long">
+        select u.`id` from `user` u left join `user_organization` uo on u.`id` = uo.`user_id`
+        <where>
+            <if test="orgIds != null and orgIds.size()>0">
+                and uo.`organization_id` in
+                <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+
+            <if test="postIds != null and postIds.size()>0">
+                and uo.`position_id` in
+                <foreach collection="postIds" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="appointmentId != null">
+                and uo.`appointment_id` = #{appointmentId}
+            </if>
+        </where>
+    </select>
+
+    <select id="countUserOrganizations" resultType="java.lang.Integer">
+        SELECT
+        count(distinct u.`id`) as `user_count`
+        FROM
+        `user_organization` uorg
+        INNER JOIN `user` u ON uorg.`user_id` = u.`id`
+        INNER JOIN `user_tenant` ut on u.`id` = ut.`user_id`
+        <where>
+            ut.`tenant` = #{tenant}
+            and uorg.`organization_id` in
+            <foreach collection="orgIds" item="organizationId" open="(" separator="," close=")">
+                #{organizationId}
+            </foreach>
+        </where>
+    </select>
+
+    <select id="countUserAppointments" resultType="java.lang.Integer">
+        SELECT
+        count(distinct u.`id`) as `user_count`
+        FROM
+        `user_organization` uorg
+        INNER JOIN `user` u ON uorg.`user_id` = u.`id`
+        INNER JOIN `user_tenant` ut on u.`id` = ut.`user_id`
+        <where>
+            ut.`tenant` = #{tenant}
+            and uorg.`appointment_id` in
+            <foreach collection="appointmentIds" item="appointmentId" open="(" separator="," close=")">
+                #{appointmentId}
+            </foreach>
+        </where>
+    </select>
+    <select id="countUserPositionIds" resultType="java.lang.Integer">
+        SELECT
+        count(distinct u.`id`) as `user_count`
+        FROM
+        `user_organization` uorg
+        INNER JOIN `user` u ON uorg.`user_id` = u.`id`
+        INNER JOIN `user_tenant` ut on u.`id` = ut.`user_id`
+        <where>
+            ut.`tenant` = #{tenant}
+            and uorg.`position_id` in
+            <foreach collection="positionIds" item="positionId" open="(" separator="," close=")">
+                #{positionId}
+            </foreach>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(openspec list:*)",
+      "Bash(bazel build:*)",
+      "Bash(openspec show:*)",
+      "Bash(mkdir:*)",
+      "Bash(openspec validate:*)",
+      "Bash(tree:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

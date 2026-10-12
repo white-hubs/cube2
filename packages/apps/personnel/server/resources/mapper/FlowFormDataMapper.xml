@@ -1,0 +1,392 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.srv.gen.personnel.management.server.common.dao.FlowFormDataMapper">
+
+    <select id="getRecruitList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.po.FlowFormDataPO">
+        SELECT
+        `id`,
+        `applicant_id`,
+        `applicant_name`,
+        `applicant_organization_id`,
+        `applicant_organization_name`,
+        `applicant_post_id`,
+        `applicant_post_name`,
+        `attendance_group_id`,
+        `business_type`,
+        `json_form`,
+        `apply_time`,
+        `apply_done_time`,
+        `STATUS`,
+        `update_business`,
+        `tenant`,
+        `deleted`,
+        `create_by`,
+        `creator_id`,
+        `creator_type`,
+        `create_time`,
+        `update_by`,
+        `updater_id`,
+        `updater_type`,
+        `update_time`
+        FROM
+        `flow_form_data`
+        WHERE
+        `business_type` = 'PERSONNEL_RECRUIT'
+        AND `STATUS` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.begin != null">
+            AND `apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+    </select>
+
+    <select id="getStatisticsRecruitGroupByDept"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        select
+        applicant_organization_id as id,
+        SUM(json_form -> '$.recruitNum') as num
+        from flow_form_data
+        WHERE 1 = 1
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND apply_done_time BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        AND business_type = 'PERSONNEL_RECRUIT'
+        AND status = 'PASS'
+        GROUP BY applicant_organization_id
+    </select>
+
+    <select id="getStatisticsRecruitDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        select
+        p.`name` as `post_name`,
+        JSON_EXTRACT(f.`json_form`,'$.recruitNum') as `num`,
+        f.`applicant_name`,
+        f.`apply_time`,
+        f.`apply_done_time`
+        from `flow_form_data` f
+        LEFT JOIN `cube-biz-ouaa`.`position` p ON REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') = CONCAT('',p.`id`)
+        WHERE 1 = 1
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND f.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        AND f.`business_type` = 'PERSONNEL_RECRUIT'
+        AND f.`status` = 'PASS'
+        AND REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') = #{id}
+    </select>
+
+    <sql id="statisticsInductionList">
+        select
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') as `id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') as `post_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationIdList[0]'),'"','') as `organization_id`,
+        COUNT(*) as `num`
+        from `flow_form_data` f
+        WHERE 1 = 1
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND f.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        AND f.`business_type` = 'PERSONNEL_INDUCTION'
+        AND f.`status` = 'PASS'
+        AND LENGTH(JSON_EXTRACT(f.`json_form`,'$.postId')) != 0
+        GROUP BY JSON_EXTRACT(f.`json_form`,'$.postId')
+        ORDER BY `num` DESC
+    </sql>
+
+    <select id="getStatisticsInductionPage"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsInductionList"></include>
+    </select>
+
+    <select id="getStatisticsInductionList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsInductionList"></include>
+    </select>
+
+    <select id="getStatisticsInductionDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        select
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') as `id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') as `post_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationIdList[0]'),'"','') as `organization_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.staffName'),'"','') AS `staffName`,
+        f.`applicant_name`,
+        f.`apply_time`,
+        f.`apply_done_time`
+        from `flow_form_data` f
+        WHERE 1 = 1
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND f.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        AND f.`business_type` = 'PERSONNEL_INDUCTION'
+        AND f.`status` = 'PASS'
+        AND REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') = #{id}
+    </select>
+
+    <sql id="statisticsAssessList">
+        SELECT
+        t.`id`,
+        t.`id` as post_id,
+        t.`organization_name`,
+        COUNT( t.id ) AS `num`,
+        COUNT( CASE WHEN t.`assessResult` = 'A' THEN '1' END ) AS `outstandingNum`,
+        COUNT( CASE WHEN t.`assessResult` = 'B' THEN '1' END ) AS `qualifiedNum`,
+        COUNT( CASE WHEN t.`assessResult` &gt; 'B' THEN '1' END ) AS `unqualifiedNum`
+        FROM
+        (
+        SELECT
+        a.applicant_post_id AS id,
+        `applicant_organization_name` AS `organization_name`,
+        REPLACE(JSON_EXTRACT(`json_form`,'$.assessResult'),'"','') AS `assessResult`,
+        JSON_EXTRACT(`json_form`,'$.assessScore') AS `assessScore`,
+        JSON_EXTRACT(`json_form`,'$.assessTime') AS `assessTime`,
+        `applicant_name`
+        FROM
+        `flow_form_data` a
+        WHERE
+        `business_type` = 'PERSONNEL_PROBATION_ASSESS'
+        AND a.`status` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND a.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        ) t
+        where
+        LENGTH(t.`id`) != 0
+        GROUP BY
+        t.`id`
+        ORDER BY `num` DESC
+    </sql>
+
+    <select id="getStatisticsAssessPage"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsAssessList"></include>
+    </select>
+
+    <select id="getStatisticsAssessList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsAssessList"></include>
+    </select>
+
+    <select id="getStatisticsAssessDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        SELECT
+        `applicant_name` AS `staffName`,
+        `applicant_post_name` AS `postName`,
+        `applicant_organization_name` AS `organizationName`,
+        REPLACE(JSON_EXTRACT(`json_form`,'$.assessScore'),'"','') AS `score`,
+        REPLACE(JSON_EXTRACT(`json_form`,'$.assessResult'),'"','') AS `grade`,
+        CONCAT(REPLACE(JSON_EXTRACT(`json_form`, '$.assessTime[0]'),'"',''),'~',REPLACE(JSON_EXTRACT(`json_form`,'$.assessTime[1]'),'"',''))
+        AS `assessTime`
+        FROM
+        `flow_form_data`
+        WHERE
+        `applicant_post_id` LIKE CONCAT('%',#{id}, '%')
+        AND `business_type` = 'PERSONNEL_PROBATION_ASSESS'
+        AND `status` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND `apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+    </select>
+
+    <sql id="statisticsRegularWorkerList">
+        SELECT
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') AS `id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') AS `organization_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') AS `postId`,
+        COUNT( REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') ) AS `num`
+        FROM
+        `flow_form_data` f
+        WHERE
+        f.`business_type` = 'PERSONNEL_REGULAR_WORKER'
+        AND f.`status` = 'PASS'
+        AND LENGTH(JSON_EXTRACT(f.`json_form`,'$.organizationId')) != 0
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND apply_done_time BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        GROUP BY
+        JSON_EXTRACT(f.`json_form`,'$.organizationId')
+
+    </sql>
+
+    <select id="getStatisticsRegularWorkerPage"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsRegularWorkerList"></include>
+    </select>
+
+    <select id="getStatisticsRegularWorkerList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsRegularWorkerList"></include>
+    </select>
+
+    <select id="getStatisticsRegularWorkerDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        SELECT
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') AS `organization_id`,
+        s.`NAME` AS `staffName`,
+        REPLACE(JSON_EXTRACT(f.json_form,'$.staffIds[0]'),'"','') AS `staffId`,
+        REPLACE(JSON_EXTRACT(f.json_form,'$.postId'),'"','') AS `postId`,
+        f.`applicant_name`,
+        f.`apply_time`,
+        f.`apply_done_time`
+        FROM
+        `flow_form_data` f
+        LEFT JOIN `staff` s ON REPLACE(JSON_EXTRACT(f.`json_form`,'$.staffIds[0]'),'"','') = CONCAT('',s.`id`)
+        WHERE
+        f.`business_type` = 'PERSONNEL_REGULAR_WORKER'
+        AND f.`status` = 'PASS'
+        AND REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') = #{id}
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND `apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+    </select>
+
+    <sql id="statisticsLeaveOfficeList">
+        SELECT
+        t.`id`,
+        t.`post_id`,
+        t.`organization_id`,
+        COUNT( t.`id` ) AS `num`
+        FROM
+        (
+        SELECT
+        REPLACE(JSON_EXTRACT(a.`json_form`,'$.postId'),'"','') AS `id`,
+        REPLACE(JSON_EXTRACT(a.`json_form`,'$.postId'),'"','') AS `post_id`,
+        REPLACE(JSON_EXTRACT(a.json_form,'$.organizationId'),'"','') AS `organization_id`
+        FROM
+        `flow_form_data` a
+        WHERE
+        `business_type` = 'PERSONNEL_LEAVE_OFFICE'
+        AND a.`status` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND a.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        ) t
+        WHERE
+        LENGTH(t.`id`) != 0
+        GROUP BY
+        t.`id`
+    </sql>
+
+    <select id="getStatisticsLeaveOfficePage"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsLeaveOfficeList"></include>
+    </select>
+
+    <select id="getStatisticsLeaveOfficeList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsLeaveOfficeList"></include>
+    </select>
+
+    <select id="getStatisticsLeaveOfficeDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        SELECT
+        s.`NAME` AS `staffName`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.postId'),'"','') as `post_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.organizationId'),'"','') as `organization_id`,
+        f.`applicant_name`,
+        f.`apply_time`,
+        f.`apply_done_time`
+        FROM
+        `flow_form_data` f
+        LEFT JOIN `staff` s ON REPLACE(JSON_EXTRACT(f.`json_form`,'$.staffIds[0]'),'"','') = CONCAT('',s.`id`)
+        WHERE
+        REPLACE(JSON_EXTRACT(`json_form`,'$.postId'),'"','') LIKE CONCAT('%', #{id}, '%')
+        AND `business_type` = 'PERSONNEL_LEAVE_OFFICE'
+        AND f.`status` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND `apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+    </select>
+    <sql id="statisticsRotationPostList">
+        SELECT
+        `rotation_organization_id` as `id`,
+        COUNT( * ) AS `num`
+        FROM
+        `flow_form_data_details` f
+        inner join `flow_form_data` d on d.`id`=f.`flow_form_data_id`
+        where d.`business_type` = 'PERSONNEL_ROTATION_POST'
+        AND d.`status` = 'PASS'
+        <if test="param.period != null and param.period.begin != null and param.period.end != null">
+            AND d.`apply_done_time` BETWEEN #{param.period.begin} AND #{param.period.end}
+        </if>
+        GROUP BY
+        `rotation_organization_id`
+    </sql>
+    <!--    <sql id="statisticsRotationPostList">-->
+    <!--        SELECT-->
+    <!--            f.json_form ->> '$.rotationOrganizationIds[0]' AS id,-->
+    <!--            o.`name` as rotationOrganizationName,-->
+    <!--            org.`name` as organizationName,-->
+    <!--            COUNT( * ) AS num-->
+    <!--        FROM-->
+    <!--            flow_form_data f-->
+    <!--            LEFT JOIN `cube-biz-ouaa`.organization o ON f.json_form ->> '$.rotationOrganizationIds[0]' = o.id-->
+    <!--            LEFT JOIN `cube-biz-ouaa`.organization org ON f.json_form ->> '$.organizationId' = org.id-->
+    <!--        WHERE-->
+    <!--            1 = 1-->
+    <!--            AND f.business_type = 'PERSONNEL_ROTATION_POST'-->
+    <!--            AND f.status = 'PASS'-->
+    <!--            <if test="param.period != null and param.period.begin != null and param.period.end != null">-->
+    <!--                AND apply_done_time BETWEEN #{param.period.begin} AND #{param.period.end}-->
+    <!--            </if>-->
+    <!--        GROUP BY-->
+    <!--            f.json_form ->> '$.rotationOrganizationIds[0]'-->
+    <!--    </sql>-->
+
+    <select id="getStatisticsRotationPostPage"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsRotationPostList"></include>
+    </select>
+
+    <select id="getStatisticsRotationPostList"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        <include refid="statisticsRotationPostList"></include>
+    </select>
+
+    <select id="getStatisticsRotationPostDetail"
+            parameterType="com.guhecloud.cube.srv.gen.personnel.management.server.common.querygateway.query.FlowFormDataQueryParam"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.interfaces.vo.ApprovalDataVO">
+        SELECT c.`NAME` AS `staffName`,
+        a.`rotation_time`,
+        a.`rotation_organization_id`,
+        a.`organization_id`,
+        b.`applicant_name`,
+        b.`apply_time`,
+        b.`apply_done_time`
+        FROM `flow_form_data_details` a
+        INNER JOIN `flow_form_data` b ON a.`flow_form_data_id` = b.`id`
+        INNER JOIN `staff` c ON a.`staff_id` = c.`id`
+        where a.`rotation_organization_id` = #{id}
+    </select>
+
+    <select id="getNoUpdateLeaveOffice"
+            resultType="com.guhecloud.cube.srv.gen.personnel.management.server.common.approval.po.LeaveOfficePO">
+        SELECT
+        f.`id` as `flowFormDataId`,
+        f.`applicant_id`,
+        REPLACE(JSON_EXTRACT(f.`json_form`,'$.staffIds[0]'),'"','') AS `staffId`,
+        REPLACE(JSON_EXTRACT(f.`json_form` ,'$.time'),'"','') AS `time`
+        FROM
+        `flow_form_data` f
+        WHERE
+        REPLACE(JSON_EXTRACT(f.`json_form`, '$.staffIds[0]'),'"','') = #{staffId}
+        AND f.`business_type` = #{businessType}
+        AND f.`update_business` = 0
+        AND f.`status` = 'PASS'
+    </select>
+
+</mapper>

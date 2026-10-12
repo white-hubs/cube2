@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.iot.product.model.v3.mapper.V3DictItemMapper">
+
+    <!-- 系统字典项实体ResultMap -->
+    <resultMap id="SysDictItemResultMap" type="com.guhecloud.cube.base.iot.product.model.v3.model.SysDictItem">
+        <id column="id" property="id"/>
+        <result column="dict_id" property="dictId"/>
+        <result column="item_code" property="itemCode"/>
+        <result column="item_parent_id" property="itemParentId"/>
+        <result column="item_sort" property="itemSort"/>
+        <result column="item_level_code" property="itemLevelCode"/>
+        <result column="item_level_label" property="itemLevelLabel"/>
+        <result column="item_label" property="itemLabel"/>
+        <result column="item_value" property="itemValue"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="admin_id" property="adminId"/>
+        <result column="tenant" property="tenant"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 根据字典编码和项编码查询字典项 -->
+    <select id="selectByDictCodeAndItemCode" resultMap="SysDictItemResultMap">
+        SELECT
+            i.`id`,
+            i.`dict_id`,
+            i.`item_code`,
+            i.`item_parent_id`,
+            i.`item_sort`,
+            i.`item_level_code`,
+            i.`item_level_label`,
+            i.`item_label`,
+            i.`item_value`,
+            i.`status`,
+            i.`remark`,
+            i.`admin_id`,
+            i.`tenant`,
+            i.`create_by`,
+            i.`create_time`,
+            i.`update_by`,
+            i.`update_time`
+        FROM iot_sys_dict_item_v3 i
+        INNER JOIN iot_sys_dict_v3 d ON i.`dict_id` = d.`id`
+        WHERE d.`dict_code` = #{dictCode}
+          AND i.`item_code` = #{itemCode}
+        LIMIT 1
+    </select>
+
+    <!-- 根据字典编码查询所有字典项 -->
+    <select id="selectByDictCode" resultMap="SysDictItemResultMap">
+        SELECT
+            i.`id`,
+            i.`dict_id`,
+            i.`item_code`,
+            i.`item_parent_id`,
+            i.`item_sort`,
+            i.`item_level_code`,
+            i.`item_level_label`,
+            i.`item_label`,
+            i.`item_value`,
+            i.`status`,
+            i.`remark`,
+            i.`admin_id`,
+            i.`tenant`,
+            i.`create_by`,
+            i.`create_time`,
+            i.`update_by`,
+            i.`update_time`
+        FROM iot_sys_dict_item_v3 i
+        INNER JOIN iot_sys_dict_v3 d ON i.`dict_id` = d.`id`
+        WHERE d.`dict_code` = #{dictCode}
+        ORDER BY i.`item_sort` ASC, i.`create_time` ASC
+    </select>
+
+    <!-- 根据字典ID查询所有字典项 -->
+    <select id="selectByDictId" resultMap="SysDictItemResultMap">
+        SELECT
+            `id`,
+            `dict_id`,
+            `item_code`,
+            `item_parent_id`,
+            `item_sort`,
+            `item_level_code`,
+            `item_level_label`,
+            `item_label`,
+            `item_value`,
+            `status`,
+            `remark`,
+            `admin_id`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_sys_dict_item_v3
+        WHERE `dict_id` = #{dictId}
+        ORDER BY `item_sort` ASC, `create_time` ASC
+    </select>
+
+    <!-- 根据字典ID和父级ID查询字典项 -->
+    <select id="selectByDictIdAndParentId" resultMap="SysDictItemResultMap">
+        SELECT
+            `id`,
+            `dict_id`,
+            `item_code`,
+            `item_parent_id`,
+            `item_sort`,
+            `item_level_code`,
+            `item_level_label`,
+            `item_label`,
+            `item_value`,
+            `status`,
+            `remark`,
+            `admin_id`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_sys_dict_item_v3
+        WHERE `dict_id` = #{dictId}
+          AND `item_parent_id` = #{parentId}
+        ORDER BY `item_sort` ASC, `create_time` ASC
+    </select>
+
+    <select id="selectDictCodeAndNameById"
+            resultType="com.guhecloud.cube.base.iot.product.model.v3.util.DictCodeAndName">
+        SELECT
+            d.`item_code` AS `code`,
+            d.`item_label` AS `name`,
+            d.`item_level_label` AS levelName
+        FROM iot_sys_dict_item_v3 d
+        WHERE d.`id` = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="noTenantSelectDictCodeAndNameById"
+            resultType="com.guhecloud.cube.base.iot.product.model.v3.util.DictCodeAndName">
+        SELECT
+            d.`item_code` AS `code`,
+            d.`item_label` AS `name`,
+            d.`item_level_label` AS levelName
+        FROM iot_sys_dict_item_v3 d
+        WHERE d.`id` = #{id}
+        LIMIT 1
+    </select>
+
+    <select id="noTenantSelectById"
+            resultType="com.guhecloud.cube.base.iot.product.model.v3.model.SysDictItem">
+        SELECT
+            `id`,
+            `dict_id`,
+            `item_code`,
+            `item_parent_id`,
+            `item_sort`,
+            `item_level_code`,
+            `item_level_label`,
+            `item_label`,
+            `item_value`,
+            `status`,
+            `remark`,
+            `admin_id`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`,
+            `deleted`
+        FROM iot_sys_dict_item_v3
+        WHERE `id` = #{id}
+    </select>
+
+    <!-- 根据字典ID查询所有字典项(无租户) -->
+    <select id="noTenantSelectByDictId" resultMap="SysDictItemResultMap">
+        SELECT
+            `id`,
+            `dict_id`,
+            `item_code`,
+            `item_parent_id`,
+            `item_sort`,
+            `item_level_code`,
+            `item_level_label`,
+            `item_label`,
+            `item_value`,
+            `status`,
+            `remark`,
+            `admin_id`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_sys_dict_item_v3
+        WHERE `dict_id` = #{dictId}
+        ORDER BY `item_sort` ASC, `create_time` ASC
+    </select>
+
+    <!-- 根据字典ID和项编码查询字典项(无租户) -->
+    <select id="noTenantSelectByDictIdAndItemCode" resultMap="SysDictItemResultMap">
+        SELECT
+            `id`,
+            `dict_id`,
+            `item_code`,
+            `item_parent_id`,
+            `item_sort`,
+            `item_level_code`,
+            `item_level_label`,
+            `item_label`,
+            `item_value`,
+            `status`,
+            `remark`,
+            `admin_id`,
+            `tenant`,
+            `create_by`,
+            `create_time`,
+            `update_by`,
+            `update_time`
+        FROM iot_sys_dict_item_v3
+        WHERE `dict_id` = #{dictId}
+          AND `item_code` = #{itemCode}
+        LIMIT 1
+    </select>
+
+</mapper>

@@ -1,0 +1,66 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.guhecloud.cube.base.alarm.server.flow.infrastructure.repository.mapper.AlarmRecordHandlerUserMapper">
+
+    <insert id="insertOrUpdateBatch" databaseId="mysql">
+        insert into `alarm_record_handler_user` (`id`,`alarm_record_id`,`user_id`,`user_name`,`department_id`,`department_name`,
+        `tenant`,`deleted`,`create_by`,`creator_id`,`creator_type`,`create_time`,`update_by`,`updater_id`,`updater_type`,`update_time`)
+        values
+        <foreach collection="handlerUsers" item="item" separator=",">
+            (#{item.id},#{item.alarmRecordId},#{item.userId},#{item.userName},
+            #{item.departmentId},#{item.departmentName},#{item.tenant},0,
+            #{item.createBy},#{item.creatorId},#{item.creatorType},#{item.createTime},
+            #{item.updateBy},#{item.updaterId},#{item.updaterType},#{item.updateTime})
+        </foreach>
+        on duplicate key update
+        `update_time` = values(update_time),
+        `update_by` = values(update_by)
+    </insert>
+
+    <insert id="insertOrUpdateBatch" parameterType="list" databaseId="dm">
+        MERGE INTO alarm_record_handler_user t
+        USING (
+        <foreach collection="handlerUsers" item="item" separator="UNION ALL">
+            SELECT
+            #{item.id} AS id,
+            #{item.alarmRecordId} AS alarm_record_id,
+            #{item.userId} AS user_id,
+            #{item.userName} AS user_name,
+            #{item.departmentId} AS department_id,
+            #{item.departmentName}AS department_name,
+            #{item.tenant} AS tenant,
+            0 AS deleted,
+            #{item.createBy} AS create_by,
+            #{item.creatorId} AS creator_id,
+            #{item.creatorType} AS creator_type,
+            #{item.createTime} AS create_time,
+            #{item.updateBy} AS update_by,
+            #{item.updaterId} AS updater_id,
+            #{item.updaterType} AS updater_type,
+            #{item.updateTime} AS update_time
+            FROM dual
+        </foreach>
+        ) s
+        ON (
+        t.alarm_record_id = s.alarm_record_id
+        AND t.user_id = s.user_id
+        AND t.tenant = s.tenant
+        AND t.deleted = s.deleted
+        )
+        WHEN MATCHED THEN
+        UPDATE SET
+        t.update_time = s.update_time,
+        t.update_by = s.update_by
+        WHEN NOT MATCHED THEN
+        INSERT (
+        id, alarm_record_id, user_id, user_name,
+        department_id, department_name, tenant, deleted,
+        create_by, creator_id, creator_type, create_time,
+        update_by, updater_id, updater_type, update_time
+        ) VALUES (
+        s.id, s.alarm_record_id, s.user_id, s.user_name,
+        s.department_id, s.department_name, s.tenant, s.deleted,
+        s.create_by, s.creator_id, s.creator_type, s.create_time,
+        s.update_by, s.updater_id, s.updater_type, s.update_time
+        )
+    </insert>
+</mapper>

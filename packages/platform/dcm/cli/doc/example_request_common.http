@@ -1,0 +1,17 @@
+### 获取当前模块的静态DCM 规格(byYaml)
+GET http://{{baseurl}}/dcm/config?runtime=false
+Accept: application/yaml;charset=utf-8
+
+### 获取系统部分DCM 运行时配置。
+#GET http://{{baseurl}}/dcm/config?runtime=true&types=AppGroup,App,Product,Terminal,Card,Menu,ProdApp,TerminalApp
+GET http://{{baseurl}}/dcm/config?runtime=true&types=
+Accept: application/yaml;charset=utf-8
+
+### 获取租户部分DCM 运行时配置
+#41850024   数据初始化   #58197260 成农批
+GET http://{{baseurl}}/dcm/config?runtime=true&tenant=41850024&types=
+Accept: application/yaml;charset=utf-8
+
+### (场景: 模块内部初始化) 获取当前模块运行时配置和静态DCM规格间的差异
+GET http://{{baseurl}}/dcm/config/diff
+Accept: application/yaml;charset=utf-8

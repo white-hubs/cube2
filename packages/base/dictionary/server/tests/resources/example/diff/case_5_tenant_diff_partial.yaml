@@ -1,0 +1,63 @@
+- configType: DictEntry
+  version: 1.0
+  isSystem: False
+  tenants: ["1"]
+  kwargs:
+    isCascade: true
+    dictType: TypeA
+  vargs:
+     - key: "item3"
+       label: "new_item3_name"
+- configType: DictEntry
+  version: 1.0
+  isMandatory: True
+  isSystem: False
+  isRemoval: False
+  tenants:
+   - "1"
+  kwargs:
+   isCascade: true
+   dictType: TypeC
+  vargs:
+   - key: item1
+     label: item1
+- configType: DictEntry
+  version: 1.0
+  isMandatory: True
+  isSystem: False
+  tenants:
+   - "1"
+  kwargs:
+   isCascade: true
+   dictType: TypeA
+   parent: "item2"
+  vargs:
+   - key: item2
+     label: item2
+- configType: DictEntry
+  version: 1.0
+  isMandatory: True
+  isSystem: False
+  tenants:
+   - "1"
+  kwargs:
+   isCascade: true
+   dictType: TypeA
+   parent: "item1"
+  vargs:
+   - key: item1
+     label: new_item1_name
+- configType: DictEntry
+  version: 1.0
+  isMandatory: True
+  isSystem: False
+  isRemoval: True
+  tenants:
+   - "1"
+  kwargs:
+   isCascade: true
+   dictType: TypeA
+   parent: "item1"
+  vargs:
+   - key: item2
+     label: item2
